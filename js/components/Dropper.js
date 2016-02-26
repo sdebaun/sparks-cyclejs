@@ -21,13 +21,13 @@ const ReactDropper = ({dropped$}) =>
       </div>
   </Dropzone>
 
-export default (/*sources*/) => {
+export default (sources) => {
   const dropped$ = new BehaviorSubject(null)
 
   return {
     dropped$, // has to be attached on 'insert', breaks if changed to 'update'
     DOM: dropped$.map(
       droppedImage => reactComponent(ReactDropper, {dropped$}, 'insert')
-    )
+    ),
   }
 }
