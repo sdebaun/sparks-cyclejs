@@ -28,7 +28,8 @@ module.exports = {
   resolve: {
     alias: {
       drivers: srcPath + '/drivers',
-      components: srcPath + '/components'
+      components: srcPath + '/components',
+      helpers: srcPath + '/helpers'
     }
   },
   plugins: (ENV == 'production'

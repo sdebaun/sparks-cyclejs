@@ -1,4 +1,4 @@
-#Cycle.js starter template
+Sparks.Network / Cyclejs
 
 This is a simple starter template for [Cycle.js](http://cycle.js.org/) apps.
 
