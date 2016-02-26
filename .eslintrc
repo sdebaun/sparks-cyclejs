@@ -6,6 +6,7 @@
     "node": true
   },
   "rules": {
+    "quotes": [2, "single"],
     "no-class/no-class": 0
   }
 }
