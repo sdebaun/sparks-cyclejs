@@ -35,6 +35,7 @@
   "dependencies": {
     "@cycle/core": "^6.0.0",
     "@cycle/dom": "^8.0.0",
+    "cycle-snabbdom": "^1.1.1",
     "rx": "^4.0.7"
   }
 }
