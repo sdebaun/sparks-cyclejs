@@ -18,6 +18,6 @@ export default ({image$}) =>{
   return {
     cropped$,
     DOM: image$ // has to be attached on 'update', the default, breaks if 'insert'
-      .map( src=>reactComponent(ReactCropper, {src,onCrop:e=>cropped$.onNext(e),aspectRatio:1}) )
+      .map( src=>reactComponent(ReactCropper, {src,onCrop:e=>cropped$.onNext(e),aspectRatio:1},'update') )
   }
 }
