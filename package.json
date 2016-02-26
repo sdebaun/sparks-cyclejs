@@ -30,6 +30,9 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "css-loader": "^0.23.1",
+    "node-sass": "^3.4.2",
+    "postcss-loader": "^0.8.1",
+    "sass-loader": "^3.1.2",
     "style-loader": "^0.13.0",
     "webpack": "^1.12.9",
     "webpack-dev-server": "^1.14.0"
@@ -38,10 +41,12 @@
     "@cycle/core": "^6.0.0",
     "@cycle/dom": "^8.0.0",
     "cycle-snabbdom": "^1.1.1",
+    "normalize-css": "^2.3.1",
     "react": "^0.14.7",
     "react-cropper": "^0.6.0",
     "react-dom": "^0.14.7",
     "react-dropzone": "^3.3.2",
-    "rx": "^4.0.7"
+    "rx": "^4.0.7",
+    "snabbdom-material": "^0.4.4"
   }
 }

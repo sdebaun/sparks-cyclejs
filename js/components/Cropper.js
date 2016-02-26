@@ -6,11 +6,9 @@ import {reactComponent} from 'helpers'
 
 // stupid react component requires ref (and thus a class) to get dataurl from canvas
 class ReactCropper extends React.Component {
-  crop = ()=>this.props.onCrop(this.refs.cropper.getCroppedCanvas().toDataURL())
+  crop = ()=> this.props.onCrop(this.refs.cropper.getCroppedCanvas().toDataURL())
 
-  render() {
-    return <Cropper ref='cropper' {...{...this.props,crop:this.crop,autoCrop:true}}/>
-  }
+  render = ()=> <Cropper ref='cropper' {...{...this.props,crop:this.crop,autoCrop:true}}/>
 }
 
 export default ({image$}) =>{

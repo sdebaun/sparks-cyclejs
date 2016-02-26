@@ -22,7 +22,11 @@ module.exports = {
         test: /\.css$/,
         loader: 'style-loader!css-loader?sourceMap',
         include: __dirname
-      }
+      },
+      {
+        test: /\.scss/,
+        loader: 'style-loader!css-loader!postcss-loader!sass-loader?outputStyle=expanded'
+      },
     ]
   },
   resolve: {
