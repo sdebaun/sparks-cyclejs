@@ -1,5 +1,5 @@
 import {Observable} from 'rx';
-import {div, img} from '@cycle/dom';
+import {div, img} from 'cycle-snabbdom';
 import AdjectiveInput from './AdjectiveInput';
 import Sentence from './Sentence';
 
@@ -14,17 +14,7 @@ function App(sources) {
   const sentenceComponent = Sentence(sentenceSources);
   const sentenceVTree$ = sentenceComponent.DOM;
 
-  const vTree$ = Observable
-        .combineLatest(
-          adjectiveInputVTree$,
-          sentenceVTree$,
-          (inputVTree, sentenceVTree) =>
-            div({className: 'app'}, [
-              img({src: '/images/cyclejs_logo.svg', width: 200}),
-              sentenceVTree,
-              inputVTree
-            ])
-        );
+  const vTree$ = Observable.just( div('Foo') )
 
   const sinks = {
     DOM: vTree$
