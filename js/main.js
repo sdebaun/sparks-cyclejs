@@ -1,5 +1,8 @@
 import {run} from '@cycle/core'
 import {modules, makeDOMDriver} from 'cycle-snabbdom'
+import {makeRouterDriver} from 'cyclic-router'
+import {makeHistoryDriver, supportsHistory} from 'cyclic-history'
+import {createHistory, createHashHistory} from 'history'
 import App from './components/App'
 
 const {
@@ -10,6 +13,11 @@ const {
   HeroModule,
   EventsModule,
 } = modules
+
+const history = supportsHistory() ?
+  createHistory() : createHashHistory()
+
+const historyDriver = makeHistoryDriver(history)
 
 run(App, {
   DOM: makeDOMDriver('#root', {
@@ -22,4 +30,5 @@ run(App, {
       EventsModule,
     ],
   }),
+  router: makeRouterDriver(historyDriver),
 })
