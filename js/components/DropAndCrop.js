@@ -10,7 +10,7 @@ export default (sources) => {
   return {
     DOM: Observable.combineLatest(
       dropper.DOM, dropper.dropped$, cropper.DOM, cropper.cropped$
-    ).map(([dropperDOM, dropped, cropperDOM, cropped]) => // eslint-disable-line
+    ).map(([dropperDOM, dropped, cropperDOM, cropped]) =>
       div([
         dropped ? cropper : dropper,
         cropped && img({attrs: {src: cropped}}),
