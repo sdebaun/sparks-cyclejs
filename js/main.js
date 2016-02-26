@@ -1,6 +1,6 @@
 import {run} from '@cycle/core'
 import {modules, makeDOMDriver} from 'cycle-snabbdom'
-import App from './components/App'
+import App from './App'
 
 const { StyleModule, PropsModule, AttrsModule, ClassModule, HeroModule, EventsModule } = modules
 

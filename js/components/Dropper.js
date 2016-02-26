@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import Dropzone from 'react-dropzone'
 import {BehaviorSubject} from 'rx'
-import {reactComponent} from 'helpers'
+import {reactComponent} from 'helpers/dom'
 
 const ReactDropper = ({dropped$}) =>
   <Dropzone multiple={false} disableClick={false} onDrop={e=>dropped$.onNext(e[0].preview)} style={{}}>

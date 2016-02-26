@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import Cropper from 'react-cropper'
 import {BehaviorSubject} from 'rx'
-import {reactComponent} from 'helpers'
+import {reactComponent} from 'helpers/dom'
 
 // stupid react component requires ref (and thus a class) to get dataurl from canvas
 class ReactCropper extends React.Component {
