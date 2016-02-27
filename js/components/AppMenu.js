@@ -1,6 +1,6 @@
-import {BehaviorSubject} from 'rx';
+import { BehaviorSubject } from 'rx'
 import { Appbar, Menu } from 'snabbdom-material'
-import {div} from 'cycle-snabbdom';
+import { div } from 'cycle-snabbdom'
 import { icon } from 'helpers/dom'
 
 export default sources => {

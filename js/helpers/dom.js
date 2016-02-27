@@ -11,8 +11,10 @@ export const reactComponent = (Klass,attrs,hookName='update')=>
     hook: { [hookName]: ({elm})=> ReactDOM.render(<Klass {...attrs}/>,elm) }
   })
 
+// brevity etc
 export const icon = (name,color)=>Icon({name,style:{color:'#FFF'}})
 
+// app-wide material styles
 export const material = {
   primaryColor: '#666',
   primaryFontColor: 'rgba(255, 255, 255, 0.9)',
