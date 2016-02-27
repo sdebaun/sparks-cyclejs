@@ -1,5 +1,25 @@
-import {run} from '@cycle/core';
-import {makeDOMDriver} from '@cycle/dom';
-import App from './components/App';
+import {run} from '@cycle/core'
+import {modules, makeDOMDriver} from 'cycle-snabbdom'
+import App from './components/App'
 
-run(App, {DOM: makeDOMDriver('#root')});
+const {
+  StyleModule,
+  PropsModule,
+  AttrsModule,
+  ClassModule,
+  HeroModule,
+  EventsModule,
+} = modules
+
+run(App, {
+  DOM: makeDOMDriver('#root', {
+    modules: [
+      StyleModule,
+      PropsModule,
+      AttrsModule,
+      ClassModule,
+      HeroModule,
+      EventsModule,
+    ],
+  }),
+})

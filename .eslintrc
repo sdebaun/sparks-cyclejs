@@ -1,0 +1,13 @@
+{
+  "extends": "eslint-config-cycle",
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    "quotes": [2, "single"],
+    "no-class/no-class": 0,
+    "no-unused-vars": 0
+  }
+}
