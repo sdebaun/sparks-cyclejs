@@ -6,9 +6,9 @@ import HeaderLogo from './HeaderLogo'
 
 const renderHook = (appIcon, headerLogo) =>
   div('#hook', {}, [
-    div('.row', {}, [
+    div({style: {spaceBetween: 'flex-start'}}, [
       headerLogo,
-      div({float: 'right'},[appIcon]),
+      div({style: {float: 'right'}}, [appIcon]),
     ]),
     h1('.container', {}, 'Doing is living.'),
   ])
@@ -29,7 +29,7 @@ const renderBenefits = () =>
         ]),
         li('.sn-icon.first', {}, [
           b({}, 'Be recognized'),
-          'for your contributions with Karma, Accomplishments, an Triumphs.',
+          ' for your contributions with Karma, Accomplishments, and Triumphs.',
         ]),
       ]),
     ]),
@@ -41,33 +41,37 @@ const basicLink = (title, href = '') =>
 const renderFooter = () =>
   div('#footer', {static: true}, [
     div('.links.container', {}, [
-      div({}, [
-        h5({}, 'Contact'),
-        ul({}, [
-          li({}, [basicLink('Support')]),
-          li({}, [basicLink('Business')]),
-          li({}, [basicLink('Press')]),
-          li({}, [
-            basicLink('Info', 'mailto:info@sparks.network'),
+      div('.row.container', [
+        div({}, [
+          h5({}, 'Contact'),
+          ul({}, [
+            li({}, [basicLink('Support')]),
+            li({}, [basicLink('Business')]),
+            li({}, [basicLink('Press')]),
+            li({}, [
+              basicLink('Info', 'mailto:info@sparks.network'),
+            ]),
+          ]),
+        ]),
+        div({}, [
+          h5({}, 'About'),
+          ul({}, [
+            li({}, [basicLink('Mission')]),
+            li({}, [basicLink('Now Hiring')]),
+            li({}, [basicLink('Our Team')]),
+          ]),
+        ]),
+        div({}, [
+          h5({}, 'News'),
+          ul({}, [
+            li({}, [basicLink('Blog')]),
+            li({}, [basicLink('Facebook')]),
+            li({}, [basicLink('Twitter')]),
           ]),
         ]),
       ]),
-      div({}, [
-        h5({}, 'About'),
-        ul({}, [
-          li({}, [basicLink('Mission')]),
-          li({}, [basicLink('Now Hiring')]),
-          li({}, [basicLink('Our Team')]),
-        ]),
-      ]),
-      div({}, [
-        h5({}, 'News'),
-        ul({}, [
-          li({}, [basicLink('Blog')]),
-          li({}, [basicLink('Facebook')]),
-          li({}, [basicLink('Twitter')]),
-        ]),
-      ]),
+    ]),
+    div('.row', [
       div('.container', {
         hook: {
           insert({elm}) {

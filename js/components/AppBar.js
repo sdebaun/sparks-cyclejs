@@ -12,7 +12,9 @@ export default ({isMobile$, sidenavToggle$}) => {
     DOM: isMobile$.map(isMobile =>
       Appbar({fixed: true, material},[
         isMobile &&
-          Appbar.Button({onClick: () => sidenavToggle$.onNext(true)}, [icon('menu')]),
+          Appbar.Button({
+            onClick: () => sidenavToggle$.onNext(true),
+          }, [icon('menu')]),
         Appbar.Title({style: {float: 'left'}},'Title'),
         div({style: {float: 'right'}},[appMenu.DOM]),
       ]),
