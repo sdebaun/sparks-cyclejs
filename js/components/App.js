@@ -6,7 +6,7 @@ import Dash from 'components/Dash'
 // Route definitions at this level
 const routes = {
   '/': Landing,
-  '/dash': Dash
+  '/dash': Dash,
 }
 
 export default sources => {

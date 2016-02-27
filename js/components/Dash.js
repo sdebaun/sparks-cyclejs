@@ -1,37 +1,37 @@
-import { BehaviorSubject,Observable } from 'rx';
-import { div } from 'cycle-snabbdom';
+import {BehaviorSubject,Observable} from 'rx'
+import {div} from 'cycle-snabbdom'
 
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
 
-import { Sidenav, Col, Row } from 'snabbdom-material'
+import {Sidenav, Col, Row} from 'snabbdom-material'
 import Tabs from 'components/Tabs'
 import AppMenu from 'components/AppMenu'
 import AppBar from 'components/AppBar'
 
-import { icon } from 'helpers/dom'
+import {icon} from 'helpers/dom'
 
-const mobileLayout = ({bar,side,tabs,main,isOpen,onClose})=>
+const mobileLayout = ({bar,side,tabs,main,isOpen,onClose}) =>
   div([
     Sidenav({isOpen,onClose},side),
-    bar, tabs, main
+    bar, tabs, main,
   ])
 
-const desktopLayout = ({bar,side,tabs,main})=>
+const desktopLayout = ({bar,side,tabs,main}) =>
   div([
     bar,
     Row({},[
-      Col({attrs:{type:'xs-3'}},side),
-      Col({attrs:{type:'xs-9'}},[ tabs, main ])
-    ])
+      Col({attrs: {type: 'xs-3'}}, side),
+      Col({attrs: {type: 'xs-9'}}, [tabs, main]),
+    ]),
   ])
 
 const mainTabs =
   Tabs({},[
-    Tabs.Tab({id:'t1'},'t1'),
-    Tabs.Tab({id:'t2'},'t2'),
-    Tabs.Tab({id:'t3'},'t3'),
-    Tabs.Tab({id:'t4'},'t4'),
+    Tabs.Tab({id: 't1'},'t1'),
+    Tabs.Tab({id: 't2'},'t2'),
+    Tabs.Tab({id: 't3'},'t3'),
+    Tabs.Tab({id: 't4'},'t4'),
   ])
 
 export default ({isMobile$}) => {
@@ -39,19 +39,18 @@ export default ({isMobile$}) => {
 
   const appBar = AppBar({isMobile$,sidenavToggle$}) // will need to pass auth
 
-
   return {
     // DOM: isMobile$.map( isMobile => isMobile ? mobile().DOM : desktop().DOM )
     DOM: Observable.combineLatest(isMobile$,sidenavToggle$)
-      .map( ([isMobile,isOpen]) =>
+      .map(([isMobile,isOpen]) =>
         (isMobile ? mobileLayout : desktopLayout)({
           bar: appBar.DOM,
           side: [div('A Wild Sidenav')],
           tabs: mainTabs,
-          main: div("page content"),
-          onClose: ()=>sidenavToggle$.onNext(false),
-          isOpen
+          main: div('page content'),
+          onClose: () => sidenavToggle$.onNext(false),
+          isOpen,
         })
-      )
+      ),
   }
 }

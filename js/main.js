@@ -1,7 +1,7 @@
 import {run} from '@cycle/core'
-import { Observable } from 'rx'
+import {Observable} from 'rx'
 import {modules, makeDOMDriver} from 'cycle-snabbdom'
-import { events } from 'snabbdom-material'
+import {events} from 'snabbdom-material'
 import {makeRouterDriver} from 'cyclic-router'
 import {makeHistoryDriver, supportsHistory} from 'cyclic-history'
 import {createHistory, createHashHistory} from 'history'
@@ -21,11 +21,13 @@ const history = supportsHistory() ?
 
 const historyDriver = makeHistoryDriver(history)
 
-const screenInfo$ = 
-  Observable.create( obs=>events.responsive.addListener( screenInfo=>obs.onNext(screenInfo) ) )
+const screenInfo$ =
+  Observable.create(obs =>
+    events.responsive.addListener(screenInfo => obs.onNext(screenInfo))
+    )
 
 const isMobile$ = () => screenInfo$
-  .map( si=>si.size==1 )
+  .map(si => si.size === 1)
 
 run(App, {
   isMobile$,

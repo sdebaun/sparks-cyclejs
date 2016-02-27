@@ -8,7 +8,7 @@ const renderHook = (appIcon, headerLogo) =>
   div('#hook', {}, [
     div('.row', {}, [
       headerLogo,
-      div({float:'right'},[appIcon]),
+      div({float: 'right'},[appIcon]),
     ]),
     h1('.container', {}, 'Doing is living.'),
   ])

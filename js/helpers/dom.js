@@ -1,18 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {div} from 'cycle-snabbdom';
-import { Icon } from 'snabbdom-material'
+import {div} from 'cycle-snabbdom'
+import {Icon} from 'snabbdom-material'
 
 // helper function to attach react components to the snabbdom
-// some components need to be attached on 'update' hook, others on 'insert', not sure why
+// some need to be attached on 'update', others on 'insert', not sure why
 // see Dropper.js and Cropper.js
-export const reactComponent = (Klass,attrs,hookName='update')=>
+export const reactComponent = (Klass,attrs,hookName = 'update') =>
   div({
-    hook: { [hookName]: ({elm})=> ReactDOM.render(<Klass {...attrs}/>,elm) }
+    hook: {[hookName]: ({elm}) => ReactDOM.render(<Klass {...attrs}/>,elm)},
   })
 
 // brevity etc
-export const icon = (name,color)=>Icon({name,style:{color:'#FFF'}})
+export const icon = (name,color) => Icon({name,style: {color: '#FFF'}})
 
 // app-wide material styles
 export const material = {
@@ -33,21 +33,21 @@ export const material = {
     left: '-290px',
     transition: 'left .3s ease-out',
     delayed: {
-      left: '0'
+      left: '0',
     },
     remove: {
-      left: '-290px'
-    }
+      left: '-290px',
+    },
   },
 
   fadeInOut: {
     opacity: '0',
     transition: 'opacity .3s',
     delayed: {
-      opacity: '1'
+      opacity: '1',
     },
     remove: {
-      opacity: '0'
-    }
-  }
+      opacity: '0',
+    },
+  },
 }
