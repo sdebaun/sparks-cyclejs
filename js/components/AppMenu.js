@@ -15,8 +15,12 @@ export default sources => {
       div([
         Appbar.Button({onClick: e => toggle(isOpen)}, [icon('more_vert')]),
         Menu({isOpen, rightAlign: true, onClose: e => toggle(isOpen)},[
-          Item({onClick: e => toggle(isOpen),onClose: e => toggle(isOpen)},'thing1'),
-          Item({onClick: e => toggle(isOpen),onClose: e => toggle(isOpen)},'thing2'),
+          Item({
+            onClick: e => toggle(isOpen),onClose: e => toggle(isOpen),
+          },'thing1'),
+          Item({
+            onClick: e => toggle(isOpen),onClose: e => toggle(isOpen),
+          },'thing2'),
         ]),
       ])
     ),
