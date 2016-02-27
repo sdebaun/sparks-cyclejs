@@ -29,7 +29,7 @@ const renderBenefits = () =>
         ]),
         li('.sn-icon.first', {}, [
           b({}, 'Be recognized'),
-          'for your contributions with Karma, Accomplishments, an Triumphs.',
+          ' for your contributions with Karma, Accomplishments, and Triumphs.',
         ]),
       ]),
     ]),
