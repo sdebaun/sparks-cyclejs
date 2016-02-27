@@ -1,15 +1,15 @@
 import DropAndCrop from 'components/DropAndCrop'
 
 import Landing from 'components/Landing'
+import Dash from 'components/Dash'
 
 // Route definitions at this level
 const routes = {
   '/': Landing,
+  '/dash': Dash
 }
 
 export default sources => {
-  // const page$ = DropAndCrop(sources)
-
   // On route changes path$ and value$ are the path and values of
   // the matched route definition
   const {path$, value$} = sources.router.define(routes)

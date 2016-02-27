@@ -1,4 +1,4 @@
-html, body {
+/*html, body {
   height: 100%;
 }
 body {
@@ -32,7 +32,7 @@ body {
   font-size: 4em;
   color: white;
 }
-
+*/
 @import url("http://fonts.googleapis.com/css?family=Montserrat+Alternates");
 @import url("http://fonts.googleapis.com/css?family=Roboto");
 * {
