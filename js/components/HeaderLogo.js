@@ -3,5 +3,5 @@ import {div} from 'cycle-snabbdom'
 
 // TODO: implement
 export default (sources) => ({
-  DOM: Observable.just(div({})),
+  DOM: Observable.just(div({},'Header')),
 })

@@ -1,14 +1,14 @@
 import {Observable} from 'rx'
 import {div, h1, h2, h3, h4, h5, ul, li, a, b, br} from 'cycle-snabbdom'
 
-import AppIconMenu from './AppIconMenu'
+import AppMenu from './AppMenu'
 import HeaderLogo from './HeaderLogo'
 
 const renderHook = (appIcon, headerLogo) =>
   div('#hook', {}, [
     div('.row', {}, [
-      appIcon,
       headerLogo,
+      div({float: 'right'},[appIcon]),
     ]),
     h1('.container', {}, 'Doing is living.'),
   ])
@@ -79,12 +79,12 @@ const renderFooter = () =>
   ])
 
 export default (sources) => {
-  const appIconMenu = AppIconMenu(sources)
+  const appMenu = AppMenu(sources)
   const headerLogo = HeaderLogo(sources)
 
   const view =
     div('#landing', {}, [
-      renderHook(appIconMenu.DOM, headerLogo.DOM),
+      renderHook(appMenu.DOM, headerLogo.DOM),
       div('#promise', {static: true}, [
         h2('.container', {}, 'Get Involved Now!'),
       ]),
