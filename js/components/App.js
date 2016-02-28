@@ -29,5 +29,8 @@ export default sources => {
       ({queue$}) => typeof queue$ === `undefined` ?
         Observable.just(null) : queue$
     ),
+    router: page$.flatMapLatest(
+      ({route$}) => typeof route$ === `undefined` ? Observable.just() : route$
+    ),
   }
 }
