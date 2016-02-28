@@ -21,13 +21,19 @@ const history = supportsHistory() ?
 
 const historyDriver = makeHistoryDriver(history)
 
-const screenInfo$ =
-  Observable.create(obs =>
-    events.responsive.addListener(screenInfo => obs.onNext(screenInfo))
-    )
+const isMobile$ = () => {
+  let screenInfo$ =
+    Observable.create(obs => {
+      events.responsive.addListener(screenInfo => {
+        obs.onNext(screenInfo)
+      })
+    }).map(si => si.size <= 2).replay(null, 1)
 
-const isMobile$ = () => screenInfo$
-  .map(si => si.size === 1)
+  const disposable = screenInfo$.connect()
+
+  screenInfo$.dispose = () => disposable.dispose()
+  return screenInfo$
+}
 
 run(App, {
   isMobile$,
