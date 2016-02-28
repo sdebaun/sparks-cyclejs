@@ -10,6 +10,7 @@ export const LOGOUT = 'logout'
 const FirebaseStream = (ref,evtName) =>
   Observable.create(obs => ref.on(evtName, (snap) => obs.onNext(snap)))
     .map(snap => snap.val())
+    .replay(null,1)
 
 const ValueStream = ref => FirebaseStream(ref,'value')
 
