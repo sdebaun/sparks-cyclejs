@@ -57,7 +57,7 @@ export default ({isMobile$,router,...sources}) => {
       ),
     queue$: page$.flatMapLatest(
       ({queue$}) => typeof queue$ === `undefined` ?
-        Observable.just(null) : queue$.take(1)
+        Observable.just(null) : queue$
     ),
     route$,
   }
