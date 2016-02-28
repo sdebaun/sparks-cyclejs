@@ -21,8 +21,8 @@ const desktopLayout = ({bar,side,tabs,main}) =>
   div([
     bar,
     Row({},[
-      Col({attrs: {type: 'xs-3'}}, side),
-      Col({attrs: {type: 'xs-9'}}, [tabs, main]),
+      Col({type: 'xs-3'}, side),
+      Col({type: 'xs-9'}, [tabs, main]),
     ]),
   ])
 
