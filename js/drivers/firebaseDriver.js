@@ -72,7 +72,9 @@ export const makeFirebaseDriver = ref => {
 // sink: consumes objects that it pushes to the destination reference
 export const makeQueueDriver = (ref, src = 'responses', dest = 'tasks') =>
   $input => {
-    $input.subscribe(item => ref.child(dest).push(item))
+    $input
+      .doAction(x => console.log('queue input',x))
+      .subscribe(item => ref.child(dest).push(item))
     return key =>
       ChildAddedStream(ref.child(src).child(key))
         .doAction(snap => snap.ref().remove())

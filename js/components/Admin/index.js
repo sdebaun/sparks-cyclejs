@@ -36,9 +36,14 @@ export default ({isMobile$,router,...sources}) => {
 
   const page$ = path$.zip(value$,
     (path, value) => value({...sources, isMobile$, router: router.path(path)})
-  )
+  ).shareReplay(1)
 
   const appBar = AppBar({isMobile$,sidenavToggle$}) // will need to pass auth
+
+  page$.flatMapLatest(({queue$}) => queue$)
+  .subscribe(x => console.log('page$.queue$',x))
+
+  // page$.subscribe(({queue$}) => console.log('new page$',queue$))
 
   return {
     DOM: Observable.combineLatest(page$,isMobile$,sidenavToggle$)
@@ -52,5 +57,6 @@ export default ({isMobile$,router,...sources}) => {
           isOpen,
         })
       ),
+    queue$: page$.flatMapLatest(({queue$}) => queue$),
   }
 }

@@ -20,9 +20,14 @@ export default sources => {
   // router instance nested at the path matched
   const page$ = path$.zip(value$,
     (path, value) => value({...sources, router: sources.router.path(path)})
-  )
+  ).shareReplay(1)
+
+  page$.flatMapLatest(({queue$}) => queue$)
+  // page$
+  .subscribe(x => console.log(x))
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
+    queue$: page$.flatMapLatest(({queue$}) => queue$),
   }
 }
