@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 import {div, h1, h2, h3, h4, h5, ul, li, a, b, br} from 'cycle-snabbdom'
+import {Col, Row} from 'snabbdom-material'
 
 import AppMenu from './AppMenu'
 import HeaderLogo from './HeaderLogo'
@@ -41,8 +42,9 @@ const basicLink = (title, href = '') =>
 const renderFooter = () =>
   div('#footer', {static: true}, [
     div('.links.container', {}, [
-      div('.row.container', [
-        div({}, [
+      Row({style: {width: '100%'}},[
+      // div('.row.container', [
+        Col({type: 'xs-4'},[
           h5({}, 'Contact'),
           ul({}, [
             li({}, [basicLink('Support')]),
@@ -53,7 +55,7 @@ const renderFooter = () =>
             ]),
           ]),
         ]),
-        div({}, [
+        Col({type: 'xs-4'},[
           h5({}, 'About'),
           ul({}, [
             li({}, [basicLink('Mission')]),
@@ -61,7 +63,7 @@ const renderFooter = () =>
             li({}, [basicLink('Our Team')]),
           ]),
         ]),
-        div({}, [
+        Col({type: 'xs-4'},[
           h5({}, 'News'),
           ul({}, [
             li({}, [basicLink('Blog')]),
@@ -71,7 +73,7 @@ const renderFooter = () =>
         ]),
       ]),
     ]),
-    div('.row', [
+    Row({},[
       div('.container', {
         hook: {
           insert({elm}) {

@@ -35,6 +35,7 @@ body {
 */
 @import url("http://fonts.googleapis.com/css?family=Montserrat+Alternates");
 @import url("http://fonts.googleapis.com/css?family=Roboto");
+@import url("http://fonts.googleapis.com/css?family=Amatic+SC");
 * {
   font-family: 'Roboto';
 }
@@ -50,13 +51,15 @@ body {
   padding: 0em 1em;
   max-width: 1024px;
 }
-.row {
-  padding: 0.25em 0.5em;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
+/*.row {*/
+  /*padding: 0.25em 0.5em;*/
+  /*display: flex;*/
+  /*flex-direction: row;*/
+  /*justify-content: space-between;*/
+  /*width: 100%;*/
+  /*align-items: center;*/
+/*}*/
+
 #landing h1,
 #landing h2,
 #landing h1 span,
