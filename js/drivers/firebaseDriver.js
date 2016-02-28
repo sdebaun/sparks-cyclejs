@@ -1,78 +1,78 @@
-import { Observable } from 'rx'
+import {Observable} from 'rx'
 import Firebase from 'firebase'
-
-const FbStream = (ref,evtName)=>
-  Observable.create( obs=> ref.on( evtName, (snap)=>obs.onNext(snap) ) )
-
-const AddedStream = ref=>
-  FbStream(ref,'child_added').map( snap => acc => ({[snap.key()]:snap.val(), ...acc}) )
-
-const ChangedStream = ref=>
-  FbStream(ref,'child_changed').map( snap => acc => ({...acc, [snap.key()]:snap.val()}) )
-
-const RemovedStream = ref=>
-  FbStream(ref,'child_removed').map( snap => acc => ({...acc, [snap.key()]:null}) )
-
-const ValueStream = ref=>
-  FbStream(ref,'value').map( snap =>snap.val() )
-
-const CollectionStream = ref =>
-  Observable.merge( AddedStream(ref), ChangedStream(ref), RemovedStream(ref) )
-  .scan( ((acc,op)=>op(acc)), {} )
-  .map( acc=> Object.keys(acc).map( x=>({$key:x,...acc[x]}) ) )
-
-export const makeFirebaseDriver = fb => {
-
-  const subs = {}
-
-  const watch = (col,params)=>
-    subs[String(col+params)] || (subs[String(col+params)] = buildSub(col,params))
-
-  const buildSub = (col,params)=>
-    ((typeof params == 'object') ? CollectionStream : ValueStream)( buildFbRef(col,params) )
-    .shareReplay(1)
-
-  const buildFbRef = (col, params)=>
-    ((typeof params == 'object')) ? buildFbQuery(col,params) : fb.child(col).child(params)
-
-  const buildFbQuery = (col,{orderByChild})=>{
-    let ref=fb.child(col)
-    if (orderByChild) { ref = ref.orderByChild(orderByChild) }
-    return ref
-  }
-
-  return () => {
-    return ({watch})
-  }
-}
-
-export const makeQueueDriver = fb => {
-
-  const get = key => {
-    const ref = fb.child('out').child(key) 
-    return AddedStream(ref)
-      .doAction( snap => snap.ref().remove() )
-      .map( snap=>snap.val() )
-  }
-
-  return $input => {
-    $input.subscribe( item => fb.child('in').push(item) )
-    return { get }
-  }
-}
 
 export const POPUP = 'popup'
 export const REDIRECT = 'redirect'
 export const LOGOUT = 'logout'
 
-export const makeFirebaseAuthDriver = fb => {
+// streams used in drivers
 
-  const auth$ = Observable.create( obs=> fb.onAuth( response=>obs.onNext(response) ) )
+const FirebaseStream = (ref,evtName) =>
+  Observable.create(obs => ref.on(evtName, (snap) => obs.onNext(snap)))
+    .map(snap => snap.val())
+
+const ValueStream = ref => FirebaseStream(ref,'value')
+
+const ChildAddedStream = ref => FirebaseStream(ref,'child_added')
+
+// factory takes a FB reference, returns a driver
+// source: produces a stream of auth state updates from Firebase.onAuth
+// sink: consumes a stream of {type,provider} actions where
+//  type: POPUP, REDIRECT, or LOGOUT actions
+//  provider: optional 'google' or 'facebook' for some actions
+export const makeAuthDriver = ref => {
+  const auth$ = Observable.create(obs => ref.onAuth(auth => obs.onNext(auth)))
+
+  const actionMap = {
+    [POPUP]: 'authWithOAuthPopup',
+    [REDIRECT]: 'authWithOAuthRedirect',
+    [LOGOUT]: 'unauth',
+  }
 
   return input$ => {
-    input$.filter(({type})=>type==POPUP).subscribe( ({provider})=>{console.log('login'); fb.authWithOAuthPopup(provider)} )
-    input$.filter(({type})=>type==REDIRECT).subscribe( ({provider})=>fb.authWithOAuthRedirect(provider) )
-    input$.filter(({type})=>type==LOGOUT).subscribe( ()=>{console.log('logout'); fb.unauth()} )
+    input$.subscribe(({type,provider}) => ref[actionMap[type]](provider))
     return auth$
   }
 }
+
+// factory takes a FB reference, returns a driver
+// source: a function that takes ...args that resolve to a firebase path
+//  each object is used to build a fb query (eg orderByChild, equalTo, etc)
+//  anything else is treated as a FB key with a chained call to .child
+// sinks: none.  to write, see makeQueueDriver
+export const makeFirebaseDriver = ref => {
+  const cache = {}
+
+  // there are other chainable firebase query buiders, this is wot we need now
+  const query = (parentRef,{orderByChild,equalTo}) => {
+    let childRef = parentRef
+    if (orderByChild) { childRef = childRef.orderByChild(orderByChild) }
+    if (equalTo) { childRef = childRef.equalTo(equalTo) }
+    return childRef
+  }
+
+  // used to build fb ref, each value passed is either child or k:v query def
+  const chain = (a,v) => typeof v === 'object' && query(a,v) || a.child(v)
+
+  // building query from fb api is simply mapping the args to chained fn calls
+  const build = (args) => ValueStream(args.reduce(chain,ref)).shareReplay()
+
+  // SIDE EFFECT: build and add to cache if not in cache
+  const cacheOrBuild = (key,args) => cache[key] || (cache[key] = build(args))
+
+  return () =>
+    (...args) => cacheOrBuild(String(args),args)
+}
+
+// talks to FirebaseQueue on the backend
+// factory takes FB ref, plus path names for src and dest locs, returns driver
+// source: a function, called with key, returns stream of new items on that key
+// sink: consumes objects that it pushes to the destination reference
+export const makeQueueDriver = (ref, src = 'responses', dest = 'tasks') =>
+  $input => {
+    $input.subscribe(item => ref.child(dest).push(item))
+    return key =>
+      ChildAddedStream(ref.child(src).child(key))
+        .doAction(snap => snap.ref().remove())
+        .map(snap => snap.val())
+  }

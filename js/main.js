@@ -5,6 +5,12 @@ import {events} from 'snabbdom-material'
 import {makeRouterDriver} from 'cyclic-router'
 import {makeHistoryDriver, supportsHistory} from 'cyclic-history'
 import {createHistory, createHashHistory} from 'history'
+import Firebase from 'firebase'
+
+import {
+  makeAuthDriver, makeFirebaseDriver, makeQueueDriver,
+} from 'drivers/firebaseDriver'
+
 import App from './components/App'
 
 const {
@@ -22,12 +28,12 @@ const history = supportsHistory() ?
 const historyDriver = makeHistoryDriver(history)
 
 const screenInfo$ =
-  Observable.create(obs =>
-    events.responsive.addListener(screenInfo => obs.onNext(screenInfo))
-    )
+  Observable.create(obs => events.responsive.addListener(e => obs.onNext(e)))
 
 const isMobile$ = () => screenInfo$
   .map(si => si.size === 1)
+
+const fbRoot = new Firebase('http://sparks-development.firebaseio.com')
 
 run(App, {
   isMobile$,
@@ -42,4 +48,7 @@ run(App, {
     ],
   }),
   router: makeRouterDriver(historyDriver),
+  firebase: makeFirebaseDriver(fbRoot),
+  auth$: makeAuthDriver(fbRoot),
+  queue$: makeQueueDriver(fbRoot),
 })
