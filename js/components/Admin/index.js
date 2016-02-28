@@ -40,11 +40,6 @@ export default ({isMobile$,router,...sources}) => {
 
   const appBar = AppBar({isMobile$,sidenavToggle$}) // will need to pass auth
 
-  page$.flatMapLatest(({queue$}) => queue$)
-  .subscribe(x => console.log('page$.queue$',x))
-
-  // page$.subscribe(({queue$}) => console.log('new page$',queue$))
-
   return {
     DOM: Observable.combineLatest(page$,isMobile$,sidenavToggle$)
       .map(([page,isMobile,isOpen]) =>
@@ -57,6 +52,9 @@ export default ({isMobile$,router,...sources}) => {
           isOpen,
         })
       ),
-    queue$: page$.flatMapLatest(({queue$}) => queue$),
+    queue$: page$.flatMapLatest(
+      ({queue$}) => typeof queue$ === `undefined` ?
+        Observable.just(null) : queue$
+    ),
   }
 }

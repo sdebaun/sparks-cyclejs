@@ -1,4 +1,4 @@
-import {Subject} from 'rx'
+import {ReplaySubject} from 'rx'
 import ComingSoon from 'components/ComingSoon'
 import {div} from 'cycle-snabbdom'
 import {Form,Input,Button} from 'snabbdom-material'
@@ -8,13 +8,11 @@ const rows = obj =>
 
 export default sources => {
   const projects$ = sources.firebase('Projects')
-  const name$ = new Subject()
-  const submit$ = new Subject()
+  const name$ = new ReplaySubject(1)
+  const submit$ = new ReplaySubject(1)
   const newProject$ = submit$
     .combineLatest(name$)
     .map(([submit,name]) => ({name}))
-
-  newProject$.subscribe(x => console.log('newProject',x))
 
   return {
     DOM: projects$.map(projects =>
