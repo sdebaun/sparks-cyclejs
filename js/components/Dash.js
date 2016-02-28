@@ -39,7 +39,5 @@ export default ({isMobile$, router}) => {
           isOpen,
         })
       ),
-
-    route$: Observable.just('/dash'),
   }
 }
