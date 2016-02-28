@@ -11,20 +11,7 @@ import AppBar from 'components/AppBar'
 
 import {icon} from 'helpers/dom'
 
-const mobileLayout = ({bar,side,tabs,main,isOpen,onClose}) =>
-  div([
-    Sidenav({isOpen,onClose},side),
-    bar, tabs, main,
-  ])
-
-const desktopLayout = ({bar,side,tabs,main}) =>
-  div([
-    bar,
-    Row({},[
-      Col({type: 'xs-3'}, side),
-      Col({type: 'xs-9'}, [tabs, main]),
-    ]),
-  ])
+import {mobileLayout, desktopLayout} from 'helpers/layout'
 
 const mainTabs =
   Tabs({},[
