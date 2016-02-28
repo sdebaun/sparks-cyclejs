@@ -12,9 +12,9 @@ const Tabs = (props,children) =>
       .concat([div({class: {slide: true}},'')])
   )
 
-const Tab = ({id},children) => [
-  h('input',{attrs: {type: 'radio', name: 'tabs',id}}),
-  div({class: {'tab-label-content': true}},[
+const Tab = ({id, link},children) => [
+  h('input',{attrs: {type: 'radio', name: 'tabs', id}}),
+  div({class: {'tab-label-content': true}, attrs: {'data-link': link}},[
     h('label',{attrs: {for: id}, style: {
       color: material.primaryFontColor},
     },children),
