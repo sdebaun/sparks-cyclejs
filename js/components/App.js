@@ -2,11 +2,13 @@ import DropAndCrop from 'components/DropAndCrop'
 
 import Landing from 'components/Landing'
 import Dash from 'components/Dash'
+import Admin from 'components/Admin'
 
 // Route definitions at this level
 const routes = {
   '/': Landing,
   '/dash': Dash,
+  '/admin': Admin,
 }
 
 export default sources => {
