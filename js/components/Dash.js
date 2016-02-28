@@ -40,6 +40,6 @@ export default ({isMobile$, router}) => {
         })
       ),
 
-    route$: Observable.just('/'),
+    route$: Observable.just('/dash'),
   }
 }
