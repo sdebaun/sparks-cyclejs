@@ -22,8 +22,9 @@ export default sources => {
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
-    auth$: page$.flatMapLatest(
-      ({auth$}) => typeof auth$ === `undefined` ? Observable.never() : auth$
-    ),
+    auth$: page$.flatMapLatest(({auth$}) => auth$ || Observable.never()),
+    // auth$: page$.flatMapLatest(
+    //   ({auth$}) => typeof auth$ === `undefined` ? Observable.never() : auth$
+    // ),
   }
 }
