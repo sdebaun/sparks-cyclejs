@@ -32,8 +32,11 @@ export const makeAuthDriver = ref => {
   }
 
   return input$ => {
-    input$.subscribe(({type,provider}) => ref[actionMap[type]](provider))
-    return auth$
+    input$.subscribe(({type,provider}) => {
+      console.log('auth$ received',type,provider,actionMap[type])
+      ref[actionMap[type]](provider)
+    })
+    return auth$.shareReplay(1)
   }
 }
 

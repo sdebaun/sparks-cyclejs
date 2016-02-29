@@ -8,8 +8,8 @@ import {icon, material} from 'helpers/dom'
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
-export default ({isMobile$, sidenavToggle$}) => {
-  const appMenu = AppMenu() // will need to pass auth
+export default ({DOM, auth$, isMobile$, sidenavToggle$}) => {
+  const appMenu = AppMenu({DOM,auth$}) // will need to pass auth
 
   return {
     DOM: isMobile$.map(isMobile =>
@@ -22,5 +22,6 @@ export default ({isMobile$, sidenavToggle$}) => {
         div({style: {float: 'right'}},[appMenu.DOM]),
       ]),
     ),
+    auth$: appMenu.auth$,
   }
 }

@@ -21,10 +21,12 @@ const makeMainTabs = (createHref) =>
     Tabs.Tab({id: 't4'},'t4'),
   ])
 
-export default ({isMobile$, router}) => {
+export default sources => {
+  const {auth$, isMobile$, router} = sources
+
   const sidenavToggle$ = new BehaviorSubject(false)
 
-  const appBar = AppBar({isMobile$,sidenavToggle$}) // will need to pass auth
+  const appBar = AppBar({sidenavToggle$, ...sources}) // will need to pass auth
 
   return {
     // DOM: isMobile$.map( isMobile => isMobile ? mobile().DOM : desktop().DOM )
@@ -39,5 +41,7 @@ export default ({isMobile$, router}) => {
           isOpen,
         })
       ),
+    route$: auth$.filter(auth => !auth).map(() => '/'),
+    auth$: appBar.auth$,
   }
 }

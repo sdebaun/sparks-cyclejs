@@ -29,7 +29,9 @@ const routes = {
   '/profiles': Profiles,
 }
 
-export default ({isMobile$,router,...sources}) => {
+export default sources => {
+  const {isMobile$,router} = sources
+
   const tabClick$ = sources.DOM.select('.tab-label-content').events('click')
   const route$ = tabClick$.map(event => event.ownerTarget.dataset.link)
 
@@ -41,7 +43,7 @@ export default ({isMobile$,router,...sources}) => {
     (path, value) => value({...sources, isMobile$, router: router.path(path)})
   ).shareReplay(1)
 
-  const appBar = AppBar({isMobile$,sidenavToggle$}) // will need to pass auth
+  const appBar = AppBar({sidenavToggle$, ...sources}) // will need to pass auth
 
   return {
     DOM: Observable.combineLatest(page$,isMobile$,sidenavToggle$)

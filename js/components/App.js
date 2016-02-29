@@ -1,5 +1,4 @@
 import {Observable} from 'rx'
-import DropAndCrop from 'components/DropAndCrop'
 
 import Landing from 'components/Landing'
 import Dash from 'components/Dash'
@@ -25,12 +24,13 @@ export default sources => {
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
+    auth$: page$.flatMapLatest(({auth$}) => auth$ || Observable.never()),
     queue$: page$.flatMapLatest(
       ({queue$}) => typeof queue$ === `undefined` ?
         Observable.just(null) : queue$
     ),
     router: page$.flatMapLatest(
-      ({route$}) => typeof route$ === `undefined` ? Observable.just() : route$
+      ({route$}) => typeof route$ === `undefined` ? Observable.never() : route$
     ),
   }
 }
