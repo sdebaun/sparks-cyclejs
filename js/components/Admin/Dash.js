@@ -10,9 +10,9 @@ export default sources => {
   const projects$ = sources.firebase('Projects')
   const name$ = new ReplaySubject(1)
   const submit$ = new ReplaySubject(1)
-  const newProject$ = submit$
-    .combineLatest(name$)
-    .map(([submit,name]) => ({name}))
+  const newProject$ = submit$.withLatestFrom(name$,
+    (sumbit, name) => ({name})
+  )
 
   return {
     DOM: projects$.map(projects =>
