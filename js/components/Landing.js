@@ -106,5 +106,6 @@ export default (sources) => {
 
   return {
     DOM: Observable.just(view),
+    auth$: appMenu.auth$,
   }
 }

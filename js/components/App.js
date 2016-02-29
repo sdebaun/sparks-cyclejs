@@ -1,4 +1,4 @@
-import DropAndCrop from 'components/DropAndCrop'
+import {Observable} from 'rx'
 
 import Landing from 'components/Landing'
 import Dash from 'components/Dash'
@@ -22,5 +22,8 @@ export default sources => {
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
+    auth$: page$.flatMapLatest(
+      ({auth$}) => typeof auth$ === `undefined` ? Observable.never() : auth$
+    ),
   }
 }
