@@ -1,12 +1,15 @@
+import {Observable} from 'rx'
 import DropAndCrop from 'components/DropAndCrop'
 
 import Landing from 'components/Landing'
 import Dash from 'components/Dash'
+import Admin from 'components/Admin'
 
 // Route definitions at this level
 const routes = {
   '/': Landing,
   '/dash': Dash,
+  '/admin': Admin,
 }
 
 export default sources => {
@@ -18,9 +21,16 @@ export default sources => {
   // router instance nested at the path matched
   const page$ = path$.zip(value$,
     (path, value) => value({...sources, router: sources.router.path(path)})
-  )
+  ).shareReplay(1)
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
+    queue$: page$.flatMapLatest(
+      ({queue$}) => typeof queue$ === `undefined` ?
+        Observable.just(null) : queue$
+    ),
+    router: page$.flatMapLatest(
+      ({route$}) => typeof route$ === `undefined` ? Observable.just() : route$
+    ),
   }
 }
