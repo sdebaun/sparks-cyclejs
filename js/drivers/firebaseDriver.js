@@ -36,7 +36,7 @@ export const makeAuthDriver = ref => {
       console.log('auth$ received',type,provider,actionMap[type])
       ref[actionMap[type]](provider)
     })
-    return auth$.shareReplay()
+    return auth$.shareReplay(1)
   }
 }
 
