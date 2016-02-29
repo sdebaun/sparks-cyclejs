@@ -22,5 +22,6 @@ export default ({DOM, auth$, isMobile$, sidenavToggle$}) => {
         div({style: {float: 'right'}},[appMenu.DOM]),
       ]),
     ),
+    auth$: appMenu.auth$,
   }
 }

@@ -41,5 +41,7 @@ export default sources => {
           isOpen,
         })
       ),
+    route$: auth$.filter(auth => !auth).map(() => '/'),
+    auth$: appBar.auth$,
   }
 }
