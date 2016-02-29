@@ -2,11 +2,14 @@ import {BehaviorSubject, Observable} from 'rx'
 import {div} from 'cycle-snabbdom'
 
 import {Appbar} from 'snabbdom-material'
-import AppMenu from 'components/AppMenu'
+
 import {icon, material} from 'helpers/dom'
 
-export default ({isMobile$, sidenavToggle$}) => {
-  const appMenu = AppMenu() // will need to pass auth
+import AppMenu from 'components/AppMenu'
+import HeaderLogo from 'components/HeaderLogo'
+
+export default ({DOM, auth$, isMobile$, sidenavToggle$}) => {
+  const appMenu = AppMenu({DOM,auth$}) // will need to pass auth
 
   return {
     DOM: isMobile$.map(isMobile =>
@@ -15,7 +18,7 @@ export default ({isMobile$, sidenavToggle$}) => {
           Appbar.Button({
             onClick: () => sidenavToggle$.onNext(true),
           }, [icon('menu')]),
-        Appbar.Title({style: {float: 'left'}},'Title'),
+        Appbar.Title({style: {float: 'left'}},[HeaderLogo().DOM]),
         div({style: {float: 'right'}},[appMenu.DOM]),
       ]),
     ),

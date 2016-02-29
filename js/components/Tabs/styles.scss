@@ -2,7 +2,7 @@ $cyan: #00bcd4;
 $yellow: #ffeb3b;
 $grey: #9e9e9e;
 
-$num-of-tabs: 4;
+$num-of-tabs: 3;
 
 @mixin tabs {
   @for $i from 1 through $num-of-tabs {

@@ -10,7 +10,8 @@ export const LOGOUT = 'logout'
 const FirebaseStream = (ref,evtName) =>
   Observable.create(obs => ref.on(evtName, (snap) => obs.onNext(snap)))
     .map(snap => snap.val())
-    .replay(null,1)
+    .shareReplay(1)
+    // .replay(null,1)
 
 const ValueStream = ref => FirebaseStream(ref,'value')
 
@@ -74,7 +75,9 @@ export const makeFirebaseDriver = ref => {
 // sink: consumes objects that it pushes to the destination reference
 export const makeQueueDriver = (ref, src = 'responses', dest = 'tasks') =>
   $input => {
-    $input.subscribe(item => ref.child(dest).push(item))
+    $input
+      .doAction(x => console.log('queue input',x))
+      .subscribe(item => ref.child(dest).push(item))
     return key =>
       ChildAddedStream(ref.child(src).child(key))
         .doAction(snap => snap.ref().remove())

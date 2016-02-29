@@ -11,22 +11,9 @@ import AppBar from 'components/AppBar'
 
 import {icon} from 'helpers/dom'
 
-const mobileLayout = ({bar,side,tabs,main,isOpen,onClose}) =>
-  div([
-    Sidenav({isOpen,onClose},side),
-    bar, tabs, main,
-  ])
+import {mobileLayout, desktopLayout} from 'helpers/layout'
 
-const desktopLayout = ({bar,side,tabs,main}) =>
-  div([
-    bar,
-    Row({},[
-      Col({type: 'xs-3'}, side),
-      Col({type: 'xs-9'}, [tabs, main]),
-    ]),
-  ])
-
-const mainTabs =
+const makeMainTabs = (createHref) =>
   Tabs({},[
     Tabs.Tab({id: 't1'},'t1'),
     Tabs.Tab({id: 't2'},'t2'),
@@ -34,10 +21,12 @@ const mainTabs =
     Tabs.Tab({id: 't4'},'t4'),
   ])
 
-export default ({isMobile$}) => {
+export default sources => {
+  const {auth$, isMobile$, router} = sources
+
   const sidenavToggle$ = new BehaviorSubject(false)
 
-  const appBar = AppBar({isMobile$,sidenavToggle$}) // will need to pass auth
+  const appBar = AppBar({sidenavToggle$, ...sources}) // will need to pass auth
 
   return {
     // DOM: isMobile$.map( isMobile => isMobile ? mobile().DOM : desktop().DOM )
@@ -46,7 +35,7 @@ export default ({isMobile$}) => {
         (isMobile ? mobileLayout : desktopLayout)({
           bar: appBar.DOM,
           side: [div('A Wild Sidenav')],
-          tabs: mainTabs,
+          tabs: makeMainTabs(router.createHref),
           main: div('page content'),
           onClose: () => sidenavToggle$.onNext(false),
           isOpen,
