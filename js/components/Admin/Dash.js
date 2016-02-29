@@ -11,7 +11,12 @@ export default sources => {
   const name$ = new ReplaySubject(1)
   const submit$ = new ReplaySubject(1)
   const newProject$ = submit$.withLatestFrom(name$,
-    (sumbit, name) => ({name})
+    (sumbit, name) => ({ // yes timmy, this should happen somewhere else
+      domain: 'Projects',
+      action: 'create',
+      uid: '1234',
+      payload: {name},
+    })
   )
 
   return {

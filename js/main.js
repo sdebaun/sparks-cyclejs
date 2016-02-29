@@ -58,5 +58,5 @@ run(App, {
   router: makeRouterDriver(historyDriver),
   firebase: makeFirebaseDriver(fbRoot),
   auth$: makeAuthDriver(fbRoot),
-  queue$: makeQueueDriver(fbRoot),
+  queue$: makeQueueDriver(fbRoot.child('!queue')),
 })
