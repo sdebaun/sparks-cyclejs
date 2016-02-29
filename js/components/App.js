@@ -24,13 +24,13 @@ export default sources => {
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
-    // auth$: page$.flatMapLatest(({auth$}) => auth$ || Observable.never()),
+    auth$: page$.flatMapLatest(({auth$}) => auth$ || Observable.never()),
     queue$: page$.flatMapLatest(
       ({queue$}) => typeof queue$ === `undefined` ?
         Observable.just(null) : queue$
     ),
     router: page$.flatMapLatest(
-      ({route$}) => typeof route$ === `undefined` ? Observable.just() : route$
+      ({route$}) => typeof route$ === `undefined` ? Observable.never() : route$
     ),
   }
 }
