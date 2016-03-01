@@ -22,9 +22,8 @@ const makeMainTabs = (createHref) =>
 
 export default sources => {
   const {auth$, isMobile$, router} = sources
-
-  const maskClick$ = sources.DOM.select('.mask').events('click')
-  const closeSideNav$ = maskClick$.map(() => false)
+  const maskClick$ = sources.DOM.select('.close-sideNav').events('click')
+  const closeSideNav$ = maskClick$.map(false)
 
   const appBar = AppBar(sources) // will need to pass auth
 
@@ -38,7 +37,7 @@ export default sources => {
       .map(([isMobile,isOpen]) =>
         (isMobile ? mobileLayout : desktopLayout)({
           bar: appBar.DOM,
-          side: [div('A Wild Sidenav')],
+          side: div('A Wild Sidenav'),
           tabs: makeMainTabs(router.createHref),
           main: div('page content'),
           isOpen,
