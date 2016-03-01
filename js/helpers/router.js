@@ -9,7 +9,7 @@ function nestedComponent({path$, value$}, sources) {
 const mergeOrFlatMapLatest = (prop, ...sourceArray) =>
   Observable.merge(
     sourceArray.map(src => // array map not observable!
-      src.source ? // if it has .source, its observable
+      typeof src.subscribe === 'function' ?
         src.flatMapLatest(l => l[prop] || Observable.empty()) :
         // otherwise look for a prop
         src[prop] || Observable.empty()
