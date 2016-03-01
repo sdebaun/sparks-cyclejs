@@ -12,7 +12,7 @@ export const reactComponent = (Klass,attrs,hookName = 'update') =>
   })
 
 // brevity etc
-export const icon = (name,color) => Icon({name,style: {color: '#FFF'}})
+export const icon = (name, color = '#FFF') => Icon({name, style: {color}})
 
 // app-wide material styles
 export const material = {
