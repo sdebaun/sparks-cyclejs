@@ -1,42 +1,43 @@
-import {ReplaySubject} from 'rx'
+import {Observable} from 'rx'
 import ComingSoon from 'components/ComingSoon'
 import {div} from 'cycle-snabbdom'
 import {Form,Input,Button} from 'snabbdom-material'
 
+import ProjectForm from 'components/ProjectForm'
+
+// TODO: move to helpers/dom
 const rows = obj =>
   Object.keys(obj).map(k => ({$key: k, ...obj[k]}))
 
+const renderProjects = projects =>
+  rows(projects).map(({name}) => div({}, [name]))
+
+const DOMx = state$ =>
+  state$.map(({projects, formDOM}) =>
+    div({}, [
+      formDOM,
+      div({},renderProjects(projects)),
+    ])
+  )
+
 export default sources => {
   const projects$ = sources.firebase('Projects')
-  const name$ = new ReplaySubject(1)
-  const submit$ = new ReplaySubject(1)
-  const newProject$ = submit$.withLatestFrom(name$,
-    (sumbit, name) => ({ // yes timmy, this should happen somewhere else
-      domain: 'Projects',
-      action: 'create',
-      uid: '1234',
-      payload: {name},
-    })
+    .startWith([])
+
+  const projectForm = ProjectForm(sources)
+
+  const newProject$ = Observable.combineLatest(
+      sources.auth$, projectForm.project$,
+      (auth, project) => ({...project, uid: auth && auth.uid})
+    )
+
+  const state$ = Observable.combineLatest(
+    projects$, projectForm.DOM,
+    (projects, formDOM) => ({projects, formDOM})
   )
 
   return {
-    DOM: projects$.map(projects =>
-      div({},[
-        Form({onSubmit: e => submit$.onNext()},[
-          Input({
-            label: 'New Project Name',
-            onChange: e => name$.onNext(e.target.value),
-          }),
-          Button({onClick: e => submit$.onNext()},['Create']),
-        ]),
-        div({}, // this should be a list() helper?
-          rows(projects).map(project =>
-            // these should be components whose DOMs return listItem() helpers?
-            div({},project.name)
-          )
-        ),
-      ])
-    ),
+    DOM: DOMx(state$),
     queue$: newProject$,
   }
 }

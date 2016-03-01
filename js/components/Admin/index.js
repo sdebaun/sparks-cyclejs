@@ -1,14 +1,15 @@
-import {BehaviorSubject,Observable} from 'rx'
+import {Observable} from 'rx'
+import combineLatestObj from 'rx-combine-latest-obj'
+
 import {div} from 'cycle-snabbdom'
 
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
 
-import {Sidenav, Col, Row} from 'snabbdom-material'
-import Tabs from 'components/Tabs'
-import AppMenu from 'components/AppMenu'
 import AppBar from 'components/AppBar'
+import TabBar from 'components/TabBar'
 
+import {nestedComponent, mergeOrFlatMapLatest} from 'helpers/router'
 import {icon} from 'helpers/dom'
 import {mobileLayout, desktopLayout} from 'helpers/layout'
 
@@ -16,51 +17,110 @@ import Dash from './Dash.js'
 import Projects from './Projects.js'
 import Profiles from './Profiles.js'
 
-const makeMainTabs = (createHref) =>
-  Tabs({}, [
-    Tabs.Tab({id: '.', link: createHref('/')},'Dash'),
-    Tabs.Tab({id: './projects', link: createHref('/projects')},'Projects'),
-    Tabs.Tab({id: './profiles', link: createHref('/profiles')},'Profiles'),
-  ])
-
-const routes = {
+const _routes = {
   '/': Dash,
   '/projects': Projects,
   '/profiles': Profiles,
 }
 
+const _tabs = [
+  {path: '/', label: 'Dash'},
+  {path: '/projects', label: 'Projects'},
+  {path: '/profiles', label: 'Profiles'},
+]
+
+const NavContent = sources => ({
+  DOM: Observable.just(div({},'nav content')),
+})
+
+const DOMx = state$ =>
+  state$.map(({
+    pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen,
+  }) =>
+    (isMobile ? mobileLayout : desktopLayout)({
+      bar: appBarDOM,
+      tabs: tabBarDOM,
+      side: navContentDOM,
+      main: pageDOM,
+      sidenavOpen,
+    })
+  )
+
 export default sources => {
-  const {isMobile$,router} = sources
+  const appBar = AppBar(sources) // will need to pass auth
+  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
+  const navContent = NavContent(sources)
 
-  const tabClick$ = sources.DOM.select('.tab-label-content').events('click')
-  const route$ = tabClick$.map(event => event.ownerTarget.dataset.link)
+  const page$ = nestedComponent(sources.router.define(_routes),sources)
 
-  const sidenavToggle$ = new BehaviorSubject(false)
+  const children = [appBar,tabBar,navContent,page$]
 
-  const {path$, value$} = router.define(routes)
+  const maskClick$ = sources.DOM.select('.mask').events('click')
 
-  const page$ = path$.zip(value$,
-    (path, value) => value({...sources, isMobile$, router: router.path(path)})
-  ).shareReplay(1)
+  const sidenavOpen$ = appBar.navButton$.map(true)
+    .merge(maskClick$.map(false))
+    .startWith(false)
 
-  const appBar = AppBar({sidenavToggle$, ...sources}) // will need to pass auth
+  const state$ = combineLatestObj({
+    pageDOM$: page$.pluck('DOM'),
+    appBarDOM$: appBar.DOM,
+    tabBarDOM$: tabBar.DOM,
+    navContentDOM$: navContent.DOM,
+    isMobile$: sources.isMobile$,
+    sidenavOpen$,
+  })
 
   return {
-    DOM: Observable.combineLatest(page$,isMobile$,sidenavToggle$)
-      .map(([page,isMobile,isOpen]) =>
-        (isMobile ? mobileLayout : desktopLayout)({
-          bar: appBar.DOM,
-          side: [div('A Wild Sidenav')],
-          tabs: makeMainTabs(router.createHref),
-          main: page.DOM,
-          onClose: () => sidenavToggle$.onNext(false),
-          isOpen,
-        })
-      ),
-    queue$: page$.flatMapLatest(
-      ({queue$}) => typeof queue$ === `undefined` ?
-        Observable.just(null) : queue$
-    ),
-    route$,
+    DOM: DOMx(state$),
+    queue$: mergeOrFlatMapLatest('queue$',...children),
+    route$: mergeOrFlatMapLatest('route$',...children),
+    auth$: mergeOrFlatMapLatest('auth$',...children),
   }
 }
+
+// function intent(DOM) {
+//   const tabClick$ = DOM.select('.tab-label-content').events('click')
+//   const maskClick$ = DOM.select('.mask').events('click')
+//   return {
+//     tabClick$,
+//     maskClick$,
+//   }
+// }
+
+// function model(actions, sources, openSidNav$) {
+//   const route$ = actions.tabClick$
+//     .map(event => event.ownerTarget.dataset.link)
+//     .startWith(null)
+//     .distinctUntilChanged()
+
+//   const closeSideNav$ = actions.maskClick$
+//     .map(() => false).startWith(false)
+
+//   const isOpen$ = openSidNav$.merge(closeSideNav$)
+//     .startWith(false)
+
+//   return Observable.combineLatest(
+//     isOpen$, route$, sources.isMobile$,
+//     (isOpen, route, isMobile) => ({isOpen, route, isMobile})
+//   )
+// }
+
+// const makeMainTabs = (createHref) =>
+//   Tabs({}, [
+//     Tabs.Tab({id: '.', link: createHref('/')},'Dash'),
+//     Tabs.Tab({id: './projects', link: createHref('/projects')},'Projects'),
+//     Tabs.Tab({id: './profiles', link: createHref('/profiles')},'Profiles'),
+//   ])
+
+// function view({state$, main, bar, tabs}) {
+//   return state$.map(({isMobile, isOpen}) =>
+//     (isMobile ? mobileLayout : desktopLayout)({
+//       main, bar,
+//       tabs, isOpen,
+//       side: [div({}, ['A wild sidenav'])],
+//     })
+//   )
+// }
+
+// const filterNull = x => x !== null
+
