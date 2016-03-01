@@ -79,10 +79,6 @@ const NavContent = sources => ({
   DOM: Observable.just(div({},'nav content')),
 })
 
-const makeTabBar = tabs => sources => ({
-  DOM: Observable.just(div({},'tabs')),
-})
-
 const mergeOrFlatMapLatest = (prop, ...sourceArray) =>
   Observable.merge(
     sourceArray.map(src => // array map not observable!
@@ -106,9 +102,11 @@ const DOMx = state$ =>
     })
   )
 
+import TabBar from 'components/TabBar'
+
 export default sources => {
   const appBar = AppBar(sources) // will need to pass auth
-  const tabBar = makeTabBar(_tabs)(sources)
+  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
   const navContent = NavContent(sources)
 
   const page$ = nestedComponent(sources.router.define(_routes),sources)
