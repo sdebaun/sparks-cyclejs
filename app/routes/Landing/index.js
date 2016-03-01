@@ -5,6 +5,8 @@ import {Col, Row} from 'snabbdom-material'
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
+import './styles.scss'
+
 const renderHook = (appIcon, headerLogo) =>
   div('#hook', {}, [
     div({style: {spaceBetween: 'flex-start'}}, [
