@@ -15,13 +15,7 @@ const routes = {
 }
 
 export default sources => {
-  // On route changes path$ and value$ are the path and values of
-  // the matched route definition
-  const match = sources.router.define(routes)
-
-  // zip path and value together to call the matched component with a new
-  // router instance nested at the path matched
-  const page$ = nestedComponent(match, sources).shareReplay(1)
+  const page$ = nestedComponent(sources.router.define(routes), sources)
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
