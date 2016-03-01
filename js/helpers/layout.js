@@ -3,7 +3,7 @@ import {Sidenav, Col, Row} from 'snabbdom-material'
 
 export const mobileLayout = ({bar,side,tabs,main,isOpen,onClose}) =>
   div([
-    Sidenav({isOpen,onClose},side),
+    Sidenav({className: 'sideNav', isOpen, onClose},side),
     bar, tabs, main,
   ])
 
@@ -15,4 +15,3 @@ export const desktopLayout = ({bar,side,tabs,main}) =>
       Col({type: 'xs-9'}, [tabs, main]),
     ]),
   ])
-

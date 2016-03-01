@@ -9,12 +9,46 @@ import Tabs from 'components/Tabs'
 import AppMenu from 'components/AppMenu'
 import AppBar from 'components/AppBar'
 
+import {nestedComponent} from 'helpers/router'
 import {icon} from 'helpers/dom'
 import {mobileLayout, desktopLayout} from 'helpers/layout'
 
 import Dash from './Dash.js'
 import Projects from './Projects.js'
 import Profiles from './Profiles.js'
+
+function intent(DOM) {
+  const tabClick$ = DOM.select('.tab-label-content').events('click')
+  const maskClick$ = DOM.select('.mask').events('click')
+  return {
+    tabClick$,
+    maskClick$,
+  }
+}
+
+const routes = {
+  '/': Dash,
+  '/projects': Projects,
+  '/profiles': Profiles,
+}
+
+function model(actions, sources, openSidNav$) {
+  const route$ = actions.tabClick$
+    .map(event => event.ownerTarget.dataset.link)
+    .startWith(null)
+    .distinctUntilChanged()
+
+  const closeSideNav$ = actions.maskClick$
+    .map(() => false).startWith(false)
+
+  const isOpen$ = openSidNav$.merge(closeSideNav$)
+    .startWith(false)
+
+  return Observable.combineLatest(
+    isOpen$, route$, sources.isMobile$,
+    (isOpen, route, isMobile) => ({isOpen, route, isMobile})
+  )
+}
 
 const makeMainTabs = (createHref) =>
   Tabs({}, [
@@ -23,44 +57,45 @@ const makeMainTabs = (createHref) =>
     Tabs.Tab({id: './profiles', link: createHref('/profiles')},'Profiles'),
   ])
 
-const routes = {
-  '/': Dash,
-  '/projects': Projects,
-  '/profiles': Profiles,
+function view({state$, main, bar, tabs}) {
+  return state$.map(({isMobile, isOpen}) =>
+    (isMobile ? mobileLayout : desktopLayout)({
+      main, bar,
+      tabs, isOpen,
+      side: [div({}, ['A wild sidenav'])],
+    })
+  )
 }
 
+const filterNull = x => x !== null
+
 export default sources => {
-  const {isMobile$,router} = sources
+  const actions = intent(sources.DOM)
 
-  const tabClick$ = sources.DOM.select('.tab-label-content').events('click')
-  const route$ = tabClick$.map(event => event.ownerTarget.dataset.link)
+  const appBar = AppBar(sources) // will need to pass auth
 
-  const sidenavToggle$ = new BehaviorSubject(false)
+  const state$ = model(actions, sources, appBar.openSidNav$)
 
-  const {path$, value$} = router.define(routes)
+  const match = sources.router.define(routes)
+  const page$ = nestedComponent(match, sources)
 
-  const page$ = path$.zip(value$,
-    (path, value) => value({...sources, isMobile$, router: router.path(path)})
-  ).shareReplay(1)
+  const _queue$ = page$.flatMapLatest(
+    ({queue$}) => queue$ ? queue$ : Observable.empty()
+  ).filter(filterNull).distinctUntilChanged()
 
-  const appBar = AppBar({sidenavToggle$, ...sources}) // will need to pass auth
+  const route$ = state$.pluck('route')
+    .filter(filterNull).distinctUntilChanged()
+
+  const view$ = view({
+    state$,
+    main: page$.flatMapLatest(({DOM}) => DOM),
+    bar: appBar.DOM,
+    tabs: makeMainTabs(sources.router.createHref),
+  })
 
   return {
-    DOM: Observable.combineLatest(page$,isMobile$,sidenavToggle$)
-      .map(([page,isMobile,isOpen]) =>
-        (isMobile ? mobileLayout : desktopLayout)({
-          bar: appBar.DOM,
-          side: [div('A Wild Sidenav')],
-          tabs: makeMainTabs(router.createHref),
-          main: page.DOM,
-          onClose: () => sidenavToggle$.onNext(false),
-          isOpen,
-        })
-      ),
-    queue$: page$.flatMapLatest(
-      ({queue$}) => typeof queue$ === `undefined` ?
-        Observable.just(null) : queue$
-    ),
+    DOM: view$,
+    queue$: _queue$,
     route$,
   }
 }

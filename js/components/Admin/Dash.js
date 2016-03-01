@@ -24,6 +24,8 @@ function createProject([_, name]) {
 function model(actions, sources) {
   const name$ = actions.input$
     .map(evt => evt.target.value)
+    .merge(actions.click$.map(() => ''))
+    .startWith('')
 
   const project$ = sources.firebase('Projects')
     .startWith([])
@@ -34,8 +36,8 @@ function model(actions, sources) {
     .distinctUntilChanged()
 
   return Observable.combineLatest(
-    project$, newProject$,
-    (project, newProject) => ({project, newProject})
+    project$, newProject$, name$,
+    (projects, newProject, name) => ({projects, newProject, name})
   )
 }
 
@@ -46,18 +48,18 @@ const renderProjects = projects =>
   rows(projects).map(({name}) => div({}, [name]))
 
 const view = state$ =>
-  state$.pluck('project').distinctUntilChanged().map(
-    projects => div({}, [
-      Form({}, [
-        Input({
-          className: 'admin-input',
-          label: 'New Project Name',
-        }),
-        Button({className: 'admin-button'},['Create']),
-      ]),
-      div({}, renderProjects(projects)),
-    ])
-  )
+  state$.map(({projects, name}) => div({}, [
+    Form({}, [
+      Input({
+        className: 'admin-input',
+        label: 'New Project Name',
+        value: name,
+      }),
+      Button({className: 'admin-button'},['Create']),
+    ]),
+    div({}, renderProjects(projects)),
+  ])
+)
 
 export default sources => {
   const actions = intent(sources.DOM)

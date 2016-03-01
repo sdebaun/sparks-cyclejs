@@ -18,30 +18,32 @@ const makeMainTabs = (createHref) =>
     Tabs.Tab({id: 't1'},'t1'),
     Tabs.Tab({id: 't2'},'t2'),
     Tabs.Tab({id: 't3'},'t3'),
-    Tabs.Tab({id: 't4'},'t4'),
   ])
 
 export default sources => {
   const {auth$, isMobile$, router} = sources
 
-  const sidenavToggle$ = new BehaviorSubject(false)
+  const maskClick$ = sources.DOM.select('.mask').events('click')
+  const closeSideNav$ = maskClick$.map(() => false)
 
-  const appBar = AppBar({sidenavToggle$, ...sources}) // will need to pass auth
+  const appBar = AppBar(sources) // will need to pass auth
+
+  const isOpen$ = appBar.openSidNav$.merge(closeSideNav$)
+    .startWith(false)
 
   return {
     // DOM: isMobile$.map( isMobile => isMobile ? mobile().DOM : desktop().DOM )
-    DOM: Observable.combineLatest(isMobile$,sidenavToggle$)
+    DOM: Observable.combineLatest(isMobile$, isOpen$)
       .map(([isMobile,isOpen]) =>
         (isMobile ? mobileLayout : desktopLayout)({
           bar: appBar.DOM,
           side: [div('A Wild Sidenav')],
           tabs: makeMainTabs(router.createHref),
           main: div('page content'),
-          onClose: () => sidenavToggle$.onNext(false),
           isOpen,
         })
       ),
-    route$: auth$.filter(auth => !auth).map(() => '/'),
+    route$: auth$.filter(auth => !auth).map(() => '/').do(x => console.log(x)),
     auth$: appBar.auth$,
   }
 }
