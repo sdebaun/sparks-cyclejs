@@ -47,6 +47,7 @@
   "dependencies": {
     "@cycle/core": "^6.0.0",
     "@cycle/dom": "^8.0.0",
+    "@cycle/isolate": "^1.2.0",
     "cycle-snabbdom": "^1.1.1",
     "cyclic-history": "^0.1.0",
     "cyclic-router": "^0.3.0",
