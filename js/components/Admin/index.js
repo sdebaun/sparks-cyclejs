@@ -52,6 +52,7 @@ export default sources => {
   const page$ = nestedComponent(sources.router.define(_routes),sources)
 
   const maskClick$ = sources.DOM.select('.mask').events('click')
+
   const sidenavOpen$ = appBar.navButton$.map(true)
     .merge(maskClick$.map(false))
     .startWith(false)
@@ -67,6 +68,7 @@ export default sources => {
     DOM: DOMx(state$),
     queue$: mergeOrFlatMapLatest('queue$',appBar,tabBar,navContent,page$),
     route$: mergeOrFlatMapLatest('route$',appBar,tabBar,navContent,page$),
+    auth$: mergeOrFlatMapLatest('auth$',appBar,tabBar,navContent,page$),
   }
 }
 
