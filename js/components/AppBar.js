@@ -8,23 +8,29 @@ import {icon, material} from 'helpers/dom'
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
-export default ({DOM, auth$, isMobile$}) => {
-  const appMenu = AppMenu({DOM,auth$}) // will need to pass auth
+const DOMx = state$ =>
+  state$.map(({isMobile, appMenuDOM}) =>
+    Appbar({fixed: true, material},[
+      isMobile &&
+        Appbar.Button({className: 'nav-button'}, [icon('menu')]),
+      Appbar.Title({style: {float: 'left'}},[HeaderLogo().DOM]),
+      div({style: {float: 'right'}},[appMenuDOM]),
+    ]),
+  )
 
-  const buttonClick$ = DOM.select('.menu-button').events('click')
+export default sources => {
+  const appMenu = AppMenu(sources) // will need to pass auth
 
-  const openSidNav$ = buttonClick$.map(() => true)
+  const navButton$ = sources.DOM.select('.nav-button').events('click')
+
+  const state$ = Observable.combineLatest(
+    sources.isMobile$, appMenu.DOM,
+    (isMobile, appMenuDOM) => ({isMobile, appMenuDOM}),
+  )
 
   return {
-    DOM: isMobile$.map(isMobile =>
-      Appbar({fixed: true, material},[
-        isMobile &&
-          Appbar.Button({className: 'menu-button'}, [icon('menu')]),
-        Appbar.Title({style: {float: 'left'}},[HeaderLogo().DOM]),
-        div({style: {float: 'right'}},[appMenu.DOM]),
-      ]),
-    ),
+    DOM: DOMx(state$),
     auth$: appMenu.auth$,
-    openSidNav$,
+    navButton$,
   }
 }

@@ -1,9 +1,9 @@
 import {div} from 'cycle-snabbdom'
 import {Sidenav, Col, Row} from 'snabbdom-material'
 
-export const mobileLayout = ({bar,side,tabs,main,isOpen,onClose}) =>
+export const mobileLayout = ({bar,side,tabs,main,sidenavOpen,onClose}) =>
   div([
-    Sidenav({className: 'sideNav', isOpen, onClose},side),
+    Sidenav({className: 'sideNav', isOpen: sidenavOpen, onClose},[side]),
     bar, tabs, main,
   ])
 

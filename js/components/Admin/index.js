@@ -91,14 +91,14 @@ const mergeOrFlatMapLatest = (prop, ...sourceArray) =>
 
 const DOMx = state$ =>
   state$.map(({
-    pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, isOpen,
+    pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen,
   }) =>
     (isMobile ? mobileLayout : desktopLayout)({
       bar: appBarDOM,
       tabs: tabBarDOM,
       side: navContentDOM,
       main: pageDOM,
-      isOpen,
+      sidenavOpen,
     })
   )
 
@@ -111,10 +111,16 @@ export default sources => {
 
   const page$ = nestedComponent(sources.router.define(_routes),sources)
 
+  const maskClick$ = sources.DOM.select('.mask').events('click')
+  const sidenavOpen$ = appBar.navButton$.map(true)
+    .merge(maskClick$.map(false))
+    .startWith(false)
+
   const state$ = Observable.combineLatest(
-    page$.pluck('DOM'), appBar.DOM, tabBar.DOM, navContent.DOM, sources.isMobile$,
-    (pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile) =>
-      ({pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile}),
+    page$.pluck('DOM'), appBar.DOM, tabBar.DOM, navContent.DOM,
+    sources.isMobile$, sidenavOpen$,
+    (pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen) =>
+      ({pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen}),
   )
 
   return {
