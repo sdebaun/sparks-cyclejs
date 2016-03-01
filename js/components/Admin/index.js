@@ -53,6 +53,8 @@ export default sources => {
 
   const page$ = nestedComponent(sources.router.define(_routes),sources)
 
+  const children = [appBar,tabBar,navContent,page$]
+
   const maskClick$ = sources.DOM.select('.mask').events('click')
 
   const sidenavOpen$ = appBar.navButton$.map(true)
@@ -70,9 +72,9 @@ export default sources => {
 
   return {
     DOM: DOMx(state$),
-    queue$: mergeOrFlatMapLatest('queue$',appBar,tabBar,navContent,page$),
-    route$: mergeOrFlatMapLatest('route$',appBar,tabBar,navContent,page$),
-    auth$: mergeOrFlatMapLatest('auth$',appBar,tabBar,navContent,page$),
+    queue$: mergeOrFlatMapLatest('queue$',...children),
+    route$: mergeOrFlatMapLatest('route$',...children),
+    auth$: mergeOrFlatMapLatest('auth$',...children),
   }
 }
 
