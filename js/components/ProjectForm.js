@@ -13,20 +13,24 @@ function createProject(payload) {
 }
 
 const DOMx = state$ =>
-  state$.map(({projects, name}) =>
+  state$.map(({input}) =>
     Form({}, [
       Input({
         className: 'admin-input',
         label: 'New Project Name',
-        value: name,
+        value: input,
       }),
       Button({className: 'admin-button'},['Create']),
     ]),
   )
 
-const ProjectForm = sources => {
-  const input$ = sources.DOM.select('.admin-input').events('input')
+export default sources => {
   const click$ = sources.DOM.select('.admin-button').events('click')
+
+  const input$ = sources.DOM.select('.admin-input').events('input')
+    .map(e => e.target.value)
+    .merge(click$.map(() => ''))
+    .startWith('')
 
   const project$ = click$.withLatestFrom(input$) // join auth$ here for uid
     .map(([_,name]) => createProject({name}))
@@ -34,8 +38,8 @@ const ProjectForm = sources => {
     .distinctUntilChanged()
 
   const state$ = Observable.combineLatest(
-    input$, click$, project$,
-    (input, click, project) => ({input, click, project})
+    project$, input$,
+    (project, input) => ({project, input})
   )
 
   return {
