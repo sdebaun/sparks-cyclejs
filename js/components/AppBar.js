@@ -1,4 +1,6 @@
 import {BehaviorSubject, Observable} from 'rx'
+import combineLatestObj from 'rx-combine-latest-obj'
+
 import {div} from 'cycle-snabbdom'
 
 import {Appbar} from 'snabbdom-material'
@@ -23,10 +25,10 @@ export default sources => {
 
   const navButton$ = sources.DOM.select('.nav-button').events('click')
 
-  const state$ = Observable.combineLatest(
-    sources.isMobile$, appMenu.DOM,
-    (isMobile, appMenuDOM) => ({isMobile, appMenuDOM}),
-  )
+  const state$ = combineLatestObj({
+    isMobile$: sources.isMobile$,
+    appMenuDOM$: appMenu.DOM,
+  })
 
   return {
     DOM: DOMx(state$),

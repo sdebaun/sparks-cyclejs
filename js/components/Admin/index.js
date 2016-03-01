@@ -1,4 +1,6 @@
 import {Observable} from 'rx'
+import combineLatestObj from 'rx-combine-latest-obj'
+
 import {div} from 'cycle-snabbdom'
 
 import 'normalize-css'
@@ -57,12 +59,14 @@ export default sources => {
     .merge(maskClick$.map(false))
     .startWith(false)
 
-  const state$ = Observable.combineLatest(
-    page$.pluck('DOM'), appBar.DOM, tabBar.DOM, navContent.DOM,
-    sources.isMobile$, sidenavOpen$,
-    (pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen) =>
-      ({pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen}),
-  )
+  const state$ = combineLatestObj({
+    pageDOM$: page$.pluck('DOM'),
+    appBarDOM$: appBar.DOM,
+    tabBarDOM$: tabBar.DOM,
+    navContentDOM$: navContent.DOM,
+    isMobile$: sources.isMobile$,
+    sidenavOpen$,
+  })
 
   return {
     DOM: DOMx(state$),
