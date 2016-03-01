@@ -26,6 +26,11 @@ export default sources => {
 
   const projectForm = ProjectForm(sources)
 
+  const newProject$ = Observable.combineLatest(
+      sources.auth$, projectForm.project$,
+      (auth, project) => ({...project, uid: auth && auth.uid})
+    )
+
   const state$ = Observable.combineLatest(
     projects$, projectForm.DOM,
     (projects, formDOM) => ({projects, formDOM})
@@ -33,6 +38,6 @@ export default sources => {
 
   return {
     DOM: DOMx(state$),
-    queue$: projectForm.project$,
+    queue$: newProject$,
   }
 }
