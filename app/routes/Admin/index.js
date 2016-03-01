@@ -35,14 +35,14 @@ const NavContent = sources => ({
 
 const DOMx = state$ =>
   state$.map(({
-    pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen,
+    pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, isOpen,
   }) =>
     (isMobile ? mobileLayout : desktopLayout)({
       bar: appBarDOM,
       tabs: tabBarDOM,
       side: navContentDOM,
       main: pageDOM,
-      sidenavOpen,
+      isOpen,
     })
   )
 
@@ -55,10 +55,10 @@ export default sources => {
 
   const children = [appBar,tabBar,navContent,page$]
 
-  const maskClick$ = sources.DOM.select('.mask').events('click')
+  const closeSideNav$ = sources.DOM.select('.close-sideNav').events('click')
 
   const sidenavOpen$ = appBar.navButton$.map(true)
-    .merge(maskClick$.map(false))
+    .merge(closeSideNav$.map(false))
     .startWith(false)
 
   const state$ = combineLatestObj({
@@ -67,7 +67,7 @@ export default sources => {
     tabBarDOM$: tabBar.DOM,
     navContentDOM$: navContent.DOM,
     isMobile$: sources.isMobile$,
-    sidenavOpen$,
+    isOpen: sidenavOpen$,
   })
 
   return {
@@ -123,4 +123,3 @@ export default sources => {
 // }
 
 // const filterNull = x => x !== null
-
