@@ -1,5 +1,5 @@
-import Dropper from 'components/Dropper'
-import Cropper from 'components/Cropper'
+import Dropper from './Dropper'
+import Cropper from './Cropper'
 import {Observable} from 'rx'
 import {div, img} from 'cycle-snabbdom'
 

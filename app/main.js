@@ -12,16 +12,7 @@ import {
 
 import {isMobile$} from 'drivers/isMobile'
 
-import App from './components/App'
-
-const {
-  StyleModule,
-  PropsModule,
-  AttrsModule,
-  ClassModule,
-  HeroModule,
-  EventsModule,
-} = modules
+import App from './app'
 
 const history = supportsHistory() ?
   createHistory() : createHashHistory()
@@ -30,20 +21,20 @@ const historyDriver = makeHistoryDriver(history)
 
 const fbRoot = new Firebase('http://sparks-development.firebaseio.com')
 
-run(App, {
+const {sources, sinks} = run(App, {
   isMobile$,
-  DOM: makeDOMDriver('#root', {
-    modules: [
-      StyleModule,
-      PropsModule,
-      AttrsModule,
-      ClassModule,
-      HeroModule,
-      EventsModule,
-    ],
-  }),
+  DOM: makeDOMDriver('#root'),
   router: makeRouterDriver(historyDriver),
   firebase: makeFirebaseDriver(fbRoot),
   auth$: makeAuthDriver(fbRoot),
   queue$: makeQueueDriver(fbRoot.child('!queue')),
 })
+
+if (module.hot) {
+  module.hot.accept()
+
+  module.hot.dispose(() => {
+    sinks.dispose()
+    sources.dispose()
+  })
+}

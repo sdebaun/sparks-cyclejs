@@ -2,8 +2,10 @@ import {Observable} from 'rx'
 import {div, h1, h2, h3, h4, h5, ul, li, a, b, br} from 'cycle-snabbdom'
 import {Col, Row} from 'snabbdom-material'
 
-import AppMenu from './AppMenu'
-import HeaderLogo from './HeaderLogo'
+import AppMenu from 'components/AppMenu'
+import HeaderLogo from 'components/HeaderLogo'
+
+import './styles.scss'
 
 const renderHook = (appIcon, headerLogo) =>
   div('#hook', {}, [
@@ -41,9 +43,8 @@ const basicLink = (title, href = '') =>
 
 const renderFooter = () =>
   div('#footer', {static: true}, [
-    div('.links.container', {}, [
+    div('.links.container', {style: {textAlign: 'center'}}, [
       Row({style: {width: '100%'}},[
-      // div('.row.container', [
         Col({type: 'xs-4'},[
           h5({}, 'Contact'),
           ul({}, [

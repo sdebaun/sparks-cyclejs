@@ -1,0 +1,24 @@
+@import url("http://fonts.googleapis.com/css?family=Montserrat+Alternates");
+
+@import url("http://fonts.googleapis.com/css?family=Roboto");
+
+@import url("http://fonts.googleapis.com/css?family=Amatic+SC");
+
+* {
+  font-family: 'Roboto';
+}
+
+a {
+  color: #eb8c58;
+}
+
+body {
+  background-color: #fff;
+  overflow-x: hidden;
+}
+
+.container {
+  margin: 0 auto;
+  padding: 0em 1em;
+  max-width: 1024px;
+}

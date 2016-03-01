@@ -1,7 +1,6 @@
 import {Observable} from 'rx'
 import {a, img} from 'cycle-snabbdom'
 
-// TODO: implement
 export default (sources) => ({
   DOM: Observable.just(
     a({props: {href: '/'}}, [
