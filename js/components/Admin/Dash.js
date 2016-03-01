@@ -46,7 +46,7 @@ const renderProjects = projects =>
   rows(projects).map(({name}) => div({}, [name]))
 
 const view = state$ =>
-  state$.pluck('projects').distinctUntilChanged().map(
+  state$.pluck('project').distinctUntilChanged().map(
     projects => div({}, [
       Form({}, [
         Input({
