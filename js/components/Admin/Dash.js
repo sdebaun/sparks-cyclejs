@@ -1,42 +1,71 @@
-import {ReplaySubject} from 'rx'
+import {Observable} from 'rx'
 import ComingSoon from 'components/ComingSoon'
 import {div} from 'cycle-snabbdom'
 import {Form,Input,Button} from 'snabbdom-material'
 
+function intent(DOM) {
+  const input$ = DOM.select('.admin-input').events('input')
+  const click$ = DOM.select('.admin-button').events('click')
+  return {
+    input$,
+    click$,
+  }
+}
+
+function createProject([_, name]) {
+  return {
+    domain: 'Projects',
+    action: 'create',
+    uid: '1234',
+    payload: {name},
+  }
+}
+
+function model(actions, sources) {
+  const name$ = actions.input$
+    .map(evt => evt.target.value)
+
+  const project$ = sources.firebase('Projects')
+    .startWith([])
+
+  const newProject$ = actions.click$.withLatestFrom(name$)
+    .map(createProject)
+    .startWith(null)
+    .distinctUntilChanged()
+
+  return Observable.combineLatest(
+    project$, newProject$,
+    (project, newProject) => ({project, newProject})
+  )
+}
+
 const rows = obj =>
   Object.keys(obj).map(k => ({$key: k, ...obj[k]}))
 
-export default sources => {
-  const projects$ = sources.firebase('Projects')
-  const name$ = new ReplaySubject(1)
-  const submit$ = new ReplaySubject(1)
-  const newProject$ = submit$.withLatestFrom(name$,
-    (sumbit, name) => ({ // yes timmy, this should happen somewhere else
-      domain: 'Projects',
-      action: 'create',
-      uid: '1234',
-      payload: {name},
-    })
+const renderProjects = projects =>
+  rows(projects).map(({name}) => div({}, [name]))
+
+const view = state$ =>
+  state$.pluck('projects').distinctUntilChanged().map(
+    projects => div({}, [
+      Form({}, [
+        Input({
+          className: 'admin-input',
+          label: 'New Project Name',
+        }),
+        Button({className: 'admin-button'},['Create']),
+      ]),
+      div({}, renderProjects(projects)),
+    ])
   )
 
+export default sources => {
+  const actions = intent(sources.DOM)
+  const state$ = model(actions, sources)
+  const view$ = view(state$)
+
   return {
-    DOM: projects$.map(projects =>
-      div({},[
-        Form({onSubmit: e => submit$.onNext()},[
-          Input({
-            label: 'New Project Name',
-            onChange: e => name$.onNext(e.target.value),
-          }),
-          Button({onClick: e => submit$.onNext()},['Create']),
-        ]),
-        div({}, // this should be a list() helper?
-          rows(projects).map(project =>
-            // these should be components whose DOMs return listItem() helpers?
-            div({},project.name)
-          )
-        ),
-      ])
-    ),
-    queue$: newProject$,
+    DOM: view$,
+    queue$: state$.pluck('newProject').filter(x => x !== null),
   }
 }
