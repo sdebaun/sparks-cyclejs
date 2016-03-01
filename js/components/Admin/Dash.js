@@ -16,7 +16,7 @@ const DOMx = state$ =>
   state$.map(({projects, formDOM}) =>
     div({}, [
       formDOM,
-      renderProjects(projects),
+      div({},renderProjects(projects)),
     ])
   )
 
