@@ -1,14 +1,14 @@
-var path = require('path');
-var webpack = require('webpack');
+var path = require('path')
+var webpack = require('webpack')
 
-var ENV = process.env.NODE_ENV;
+var ENV = process.env.NODE_ENV
 
-var srcPath = path.join(__dirname, '/js');
+var srcPath = path.join(__dirname, '/app')
 
 module.exports = {
-  entry: ['./js/main'],
+  entry: ['./app/main'],
   output: {
-    filename: './dist/bundle.js'
+    filename: './dist/bundle.js',
   },
   module: {
     loaders: [
@@ -16,27 +16,32 @@ module.exports = {
         test: /\.js$/,
         loaders: ['babel', 'eslint'],
         include: __dirname,
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/,
         loader: 'style-loader!css-loader?sourceMap',
-        include: __dirname
+        include: __dirname,
       },
       {
         test: /\.scss/,
-        loader: 'style-loader!css-loader!postcss-loader!sass-loader?outputStyle=expanded'
+        loaders: [
+          'style-loader',
+          'css-loader',
+          'postcss-loader',
+          'sass-loader?outputStyle=expanded',
+        ],
       },
-    ]
+    ],
   },
   resolve: {
     alias: {
       drivers: srcPath + '/drivers',
       components: srcPath + '/components',
-      helpers: srcPath + '/helpers'
-    }
+      helpers: srcPath + '/helpers',
+      routes: srcPath + '/routes',
+    },
   },
-  plugins: (ENV == 'production'
-            ? [new webpack.optimize.UglifyJsPlugin({minimize: true})]
-            : [])
-};
+  plugins: ENV === 'production' ?
+    [new webpack.optimize.UglifyJsPlugin({minimize: true})] : [],
+}

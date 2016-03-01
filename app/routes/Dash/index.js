@@ -28,7 +28,8 @@ export default sources => {
 
   const appBar = AppBar(sources) // will need to pass auth
 
-  const isOpen$ = appBar.openSidNav$.merge(closeSideNav$)
+  const isOpen$ = appBar.navButton$.map(true)
+    .merge(closeSideNav$)
     .startWith(false)
 
   return {
