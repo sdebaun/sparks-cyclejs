@@ -1,21 +1,74 @@
-import {BehaviorSubject,Observable} from 'rx'
+import {Observable} from 'rx'
 import {div} from 'cycle-snabbdom'
 
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
 
-import {Sidenav, Col, Row} from 'snabbdom-material'
-import Tabs from 'components/Tabs'
-import AppMenu from 'components/AppMenu'
 import AppBar from 'components/AppBar'
+import TabBar from 'components/TabBar'
 
-import {nestedComponent} from 'helpers/router'
+import {nestedComponent, mergeOrFlatMapLatest} from 'helpers/router'
 import {icon} from 'helpers/dom'
 import {mobileLayout, desktopLayout} from 'helpers/layout'
 
 import Dash from './Dash.js'
 import Projects from './Projects.js'
 import Profiles from './Profiles.js'
+
+const _routes = {
+  '/': Dash,
+  '/projects': Projects,
+  '/profiles': Profiles,
+}
+
+const _tabs = [
+  {path: '/', label: 'Dash'},
+  {path: '/projects', label: 'Projects'},
+  {path: '/profiles', label: 'Profiles'},
+]
+
+const NavContent = sources => ({
+  DOM: Observable.just(div({},'nav content')),
+})
+
+const DOMx = state$ =>
+  state$.map(({
+    pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen,
+  }) =>
+    (isMobile ? mobileLayout : desktopLayout)({
+      bar: appBarDOM,
+      tabs: tabBarDOM,
+      side: navContentDOM,
+      main: pageDOM,
+      sidenavOpen,
+    })
+  )
+
+export default sources => {
+  const appBar = AppBar(sources) // will need to pass auth
+  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
+  const navContent = NavContent(sources)
+
+  const page$ = nestedComponent(sources.router.define(_routes),sources)
+
+  const maskClick$ = sources.DOM.select('.mask').events('click')
+  const sidenavOpen$ = appBar.navButton$.map(true)
+    .merge(maskClick$.map(false))
+    .startWith(false)
+
+  const state$ = Observable.combineLatest(
+    page$.pluck('DOM'), appBar.DOM, tabBar.DOM, navContent.DOM,
+    sources.isMobile$, sidenavOpen$,
+    (pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen) =>
+      ({pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen}),
+  )
+
+  return {
+    DOM: DOMx(state$),
+    queue$: mergeOrFlatMapLatest('queue$',appBar,tabBar,navContent,page$),
+    route$: mergeOrFlatMapLatest('route$',appBar,tabBar,navContent,page$),
+  }
+}
 
 // function intent(DOM) {
 //   const tabClick$ = DOM.select('.tab-label-content').events('click')
@@ -63,69 +116,3 @@ import Profiles from './Profiles.js'
 
 // const filterNull = x => x !== null
 
-const _routes = {
-  '/': Dash,
-  '/projects': Projects,
-  '/profiles': Profiles,
-}
-
-const _tabs = [
-  {path: '/', label: 'Dash'},
-  {path: '/projects', label: 'Projects'},
-  {path: '/profiles', label: 'Profiles'},
-]
-
-const NavContent = sources => ({
-  DOM: Observable.just(div({},'nav content')),
-})
-
-const mergeOrFlatMapLatest = (prop, ...sourceArray) =>
-  Observable.merge(
-    sourceArray.map(src => // array map not observable!
-      src.source ? // if it has .source, its observable
-        src.flatMapLatest(l => l[prop] || Observable.empty()) :
-        // otherwise look for a prop
-        src[prop] || Observable.empty()
-    )
-  )
-
-const DOMx = state$ =>
-  state$.map(({
-    pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen,
-  }) =>
-    (isMobile ? mobileLayout : desktopLayout)({
-      bar: appBarDOM,
-      tabs: tabBarDOM,
-      side: navContentDOM,
-      main: pageDOM,
-      sidenavOpen,
-    })
-  )
-
-import TabBar from 'components/TabBar'
-
-export default sources => {
-  const appBar = AppBar(sources) // will need to pass auth
-  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-  const navContent = NavContent(sources)
-
-  const page$ = nestedComponent(sources.router.define(_routes),sources)
-
-  const maskClick$ = sources.DOM.select('.mask').events('click')
-  const sidenavOpen$ = appBar.navButton$.map(true)
-    .merge(maskClick$.map(false))
-    .startWith(false)
-
-  const state$ = Observable.combineLatest(
-    page$.pluck('DOM'), appBar.DOM, tabBar.DOM, navContent.DOM,
-    sources.isMobile$, sidenavOpen$,
-    (pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen) =>
-      ({pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, sidenavOpen}),
-  )
-
-  return {
-    DOM: DOMx(state$),
-    queue$: mergeOrFlatMapLatest('queue$',appBar,tabBar,navContent,page$),
-    route$: mergeOrFlatMapLatest('route$',appBar,tabBar,navContent,page$),
-  }
-}
