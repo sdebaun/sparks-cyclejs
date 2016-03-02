@@ -7,7 +7,7 @@ import Admin from './Admin'
 
 import {nestedComponent} from 'helpers/router'
 
-import './site.scss'
+import './styles.scss'
 
 // Route definitions at this level
 const routes = {
