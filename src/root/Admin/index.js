@@ -33,8 +33,8 @@ const NavContent = sources => ({
   DOM: Observable.just(div({},'nav content')),
 })
 
-const DOMx = state$ =>
-  state$.map(({
+const DOM = props$ =>
+  props$.map(({
     pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, isOpen,
   }) =>
     (isMobile ? mobileLayout : desktopLayout)({
@@ -61,7 +61,7 @@ export default sources => {
     .merge(closeSideNav$.map(false))
     .startWith(false)
 
-  const state$ = combineLatestObj({
+  const viewProps$ = combineLatestObj({
     pageDOM$: page$.pluck('DOM'),
     appBarDOM$: appBar.DOM,
     tabBarDOM$: tabBar.DOM,
@@ -71,7 +71,7 @@ export default sources => {
   })
 
   return {
-    DOM: DOMx(state$),
+    DOM: DOM(viewProps$),
     queue$: mergeOrFlatMapLatest('queue$',...children),
     route$: mergeOrFlatMapLatest('route$',...children),
     auth$: mergeOrFlatMapLatest('auth$',...children),

@@ -8,8 +8,8 @@ import {menu} from 'helpers/layout/menu'
 
 const {Item} = Menu
 
-const DOMx = state$ =>
-  state$.map(({isOpen,auth}) => {
+const DOM = props$ =>
+  props$.map(({isOpen,auth}) => {
     const id = JSON.stringify(auth && auth.uid)
     return div({}, [
       Appbar.Button({className: 'app-menu-button'}, [
@@ -42,13 +42,13 @@ export default sources => {
     .merge(closeMenu$.map(false))
     .startWith(false)
 
-  const state$ = combineLatestObj({
+  const viewProps$ = combineLatestObj({
     auth$: sources.auth$,
     isOpen$,
   })
 
   return {
-    DOM: DOMx(state$),
+    DOM: DOM(viewProps$),
     auth$: authActions$,
   }
 }

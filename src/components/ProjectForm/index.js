@@ -12,8 +12,8 @@ function createProject(payload) {
   }
 }
 
-const DOMx = state$ =>
-  state$.map(({input}) =>
+const DOM = props$ =>
+  props$.map(({input}) =>
     Form({}, [
       Input({
         className: 'admin-input',
@@ -37,13 +37,13 @@ export default sources => {
     .startWith(null)
     .distinctUntilChanged()
 
-  const state$ = Observable.combineLatest(
+  const viewProps$ = Observable.combineLatest(
     project$, input$,
     (project, input) => ({project, input})
   )
 
   return {
-    DOM: DOMx(state$),
+    DOM: DOM(viewProps$),
     project$: project$.filter(x => x !== null),
   }
 }

@@ -12,8 +12,8 @@ const rows = obj =>
 const renderProjects = projects =>
   rows(projects).map(({name}) => div({}, [name]))
 
-const DOMx = state$ =>
-  state$.map(({projects, formDOM}) =>
+const DOM = props$ =>
+  props$.map(({projects, formDOM}) =>
     div({}, [
       formDOM,
       div({},renderProjects(projects)),
@@ -31,13 +31,13 @@ export default sources => {
       (auth, project) => ({...project, uid: auth && auth.uid})
     )
 
-  const state$ = Observable.combineLatest(
+  const viewProps$ = Observable.combineLatest(
     projects$, projectForm.DOM,
     (projects, formDOM) => ({projects, formDOM})
   )
 
   return {
-    DOM: DOMx(state$),
+    DOM: DOM(viewProps$),
     queue$: newProject$,
   }
 }

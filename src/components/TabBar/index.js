@@ -1,8 +1,8 @@
 import {Observable} from 'rx'
 import Tabs from 'components/Tabs'
 
-const DOMx = state$ =>
-  state$.map(({
+const DOM = props$ =>
+  props$.map(({
     createHref, tabs,
   }) =>
     Tabs({}, tabs.map(({path,label}) =>
@@ -15,13 +15,13 @@ export default sources => {
     .map(event => event.ownerTarget.dataset.link)
     .distinctUntilChanged()
 
-  const state$ = Observable.combineLatest(
+  const viewProps$ = Observable.combineLatest(
     sources.tabs,
     (tabs) => ({createHref: sources.router.createHref, tabs}),
   )
 
   return {
-    DOM: DOMx(state$),
+    DOM: DOM(viewProps$),
     route$: navigate$,
   }
 }

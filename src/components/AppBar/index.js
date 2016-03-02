@@ -10,8 +10,8 @@ import {icon, material} from 'helpers/dom'
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
-const DOMx = state$ =>
-  state$.map(({isMobile, appMenuDOM}) =>
+const DOM = props$ =>
+  props$.map(({isMobile, appMenuDOM}) =>
     Appbar({fixed: true, material},[
       isMobile &&
         Appbar.Button({className: 'nav-button'}, [icon('menu')]),
@@ -25,13 +25,13 @@ export default sources => {
 
   const navButton$ = sources.DOM.select('.nav-button').events('click')
 
-  const state$ = combineLatestObj({
+  const viewProps$ = combineLatestObj({
     isMobile$: sources.isMobile$,
     appMenuDOM$: appMenu.DOM,
   })
 
   return {
-    DOM: DOMx(state$),
+    DOM: DOM(viewProps$),
     auth$: appMenu.auth$,
     navButton$,
   }
