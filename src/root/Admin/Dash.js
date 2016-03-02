@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
-import ComingSoon from 'components/ComingSoon'
+import combineLatestObj from 'rx-combine-latest-obj'
+
 import {div} from 'cycle-snabbdom'
-import {Form,Input,Button} from 'snabbdom-material'
 
 import ProjectForm from 'components/ProjectForm'
 
@@ -12,20 +12,11 @@ const rows = obj =>
 const renderProjects = projects =>
   rows(projects).map(({name}) => div({}, [name]))
 
-const DOM = props$ =>
-  props$.map(({projects, formDOM}) =>
-    div({}, [
-      formDOM,
-      div({},renderProjects(projects)),
-    ])
-  )
-
-// alt:
-// const _render = ({projects, formDOM}) =>
-//   div({}, [
-//     formDOM,
-//     div({},renderProjects(projects)),
-//   ])
+const _DOM = ({projects, formDOM}) =>
+  div({}, [
+    formDOM,
+    div({},renderProjects(projects)),
+  ])
 
 export default sources => {
   const projects$ = sources.firebase('Projects')
@@ -38,15 +29,10 @@ export default sources => {
       (auth, project) => ({...project, uid: auth && auth.uid})
     )
 
-  // alt:
-  // const DOM = viewProps$.map(_render)
-  const viewProps$ = Observable.combineLatest(
-    projects$, projectForm.DOM,
-    (projects, formDOM) => ({projects, formDOM})
-  )
+  const DOM = combineLatestObj({projects$, formDOM$: projectForm.DOM}).map(_DOM)
 
   return {
-    DOM: DOM(viewProps$),
+    DOM,
     queue$: newProject$,
   }
 }
