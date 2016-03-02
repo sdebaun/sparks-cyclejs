@@ -20,6 +20,13 @@ const DOM = props$ =>
     ])
   )
 
+// alt:
+// const DOM = ({projects, formDOM}) =>
+//   div({}, [
+//     formDOM,
+//     div({},renderProjects(projects)),
+//   ])
+
 export default sources => {
   const projects$ = sources.firebase('Projects')
     .startWith([])
@@ -31,6 +38,8 @@ export default sources => {
       (auth, project) => ({...project, uid: auth && auth.uid})
     )
 
+  // alt:
+  // const DOM = viewProps$.map(_render)
   const viewProps$ = Observable.combineLatest(
     projects$, projectForm.DOM,
     (projects, formDOM) => ({projects, formDOM})
