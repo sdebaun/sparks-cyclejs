@@ -21,7 +21,7 @@ const DOM = props$ =>
   )
 
 // alt:
-// const DOM = ({projects, formDOM}) =>
+// const _render = ({projects, formDOM}) =>
 //   div({}, [
 //     formDOM,
 //     div({},renderProjects(projects)),
