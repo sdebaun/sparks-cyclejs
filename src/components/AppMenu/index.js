@@ -8,21 +8,20 @@ import {menu} from 'helpers/layout/menu'
 
 const {Item} = Menu
 
-const DOM = props$ =>
-  props$.map(({isOpen,auth}) => {
-    const id = JSON.stringify(auth && auth.uid)
-    return div({}, [
-      Appbar.Button({className: 'app-menu-button'}, [
-        icon('more_vert'),
-      ]),
-      menu({isOpen, rightAlign: true}, [
-        id === 'null' ? null : Item({}, [id]),
-        auth ? null : Item({className: 'login facebook'},'Facebook'),
-        auth ? null : Item({className: 'login google'},'Google'),
-        auth ? Item({className: 'logout'},'Logout') : null,
-      ]),
-    ])
-  })
+const _DOM = ({isOpen,auth}) => {
+  const id = JSON.stringify(auth && auth.uid)
+  return div({}, [
+    Appbar.Button({className: 'app-menu-button'}, [
+      icon('more_vert'),
+    ]),
+    menu({isOpen, rightAlign: true}, [
+      id === 'null' ? null : Item({}, [id]),
+      auth ? null : Item({className: 'login facebook'},'Facebook'),
+      auth ? null : Item({className: 'login google'},'Google'),
+      auth ? Item({className: 'logout'},'Logout') : null,
+    ]),
+  ])
+}
 
 export default sources => {
   const authActions$ = Observable.merge(
@@ -42,13 +41,13 @@ export default sources => {
     .merge(closeMenu$.map(false))
     .startWith(false)
 
-  const viewProps$ = combineLatestObj({
+  const DOM = combineLatestObj({
     auth$: sources.auth$,
     isOpen$,
-  })
+  }).map(_DOM)
 
   return {
-    DOM: DOM(viewProps$),
+    DOM,
     auth$: authActions$,
   }
 }

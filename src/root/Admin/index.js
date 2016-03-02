@@ -33,18 +33,16 @@ const NavContent = sources => ({
   DOM: Observable.just(div({},'nav content')),
 })
 
-const DOM = props$ =>
-  props$.map(({
-    pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, isOpen,
-  }) =>
-    (isMobile ? mobileLayout : desktopLayout)({
-      bar: appBarDOM,
-      tabs: tabBarDOM,
-      side: navContentDOM,
-      main: pageDOM,
-      isOpen,
-    })
-  )
+const _DOM = ({
+  pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, isOpen,
+}) =>
+  (isMobile ? mobileLayout : desktopLayout)({
+    bar: appBarDOM,
+    tabs: tabBarDOM,
+    side: navContentDOM,
+    main: pageDOM,
+    isOpen,
+  })
 
 export default sources => {
   const appBar = AppBar(sources) // will need to pass auth
@@ -61,17 +59,17 @@ export default sources => {
     .merge(closeSideNav$.map(false))
     .startWith(false)
 
-  const viewProps$ = combineLatestObj({
+  const DOM = combineLatestObj({
     pageDOM$: page$.pluck('DOM'),
     appBarDOM$: appBar.DOM,
     tabBarDOM$: tabBar.DOM,
     navContentDOM$: navContent.DOM,
     isMobile$: sources.isMobile$,
     isOpen: sidenavOpen$,
-  })
+  }).map(_DOM)
 
   return {
-    DOM: DOM(viewProps$),
+    DOM,
     queue$: mergeOrFlatMapLatest('queue$',...children),
     route$: mergeOrFlatMapLatest('route$',...children),
     auth$: mergeOrFlatMapLatest('auth$',...children),
