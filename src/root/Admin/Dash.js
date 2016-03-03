@@ -31,12 +31,13 @@ export default sources => {
 
   const redirectOnCreate$ = sources.responses$
     .filter(({domain,event}) => domain === 'Projects' && event === 'create')
-    .subscribe(x => console.log('redirect',x))
+    .map(response => '/project/' + response.payload)
 
   const DOM = combineLatestObj({projects$, formDOM$: projectForm.DOM}).map(_DOM)
 
   return {
     DOM,
     queue$: newProject$,
+    route$: redirectOnCreate$,
   }
 }

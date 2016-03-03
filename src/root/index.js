@@ -4,6 +4,7 @@ import isolate from '@cycle/isolate'
 import Landing from './Landing'
 import Dash from './Dash'
 import Admin from './Admin'
+import Project from './Project'
 
 import {nestedComponent} from 'helpers/router'
 
@@ -14,6 +15,17 @@ const routes = {
   '/': Landing,
   '/dash': isolate(Dash),
   '/admin': isolate(Admin),
+  '/project/:key': key => sources => Project({
+    project$: sources.firebase('Projects',key),
+    ...sources,
+  }),
+}
+
+const _routes = {
+  '/:projectKey': projectKey => sources => Dash({
+    project$: sources.firebase('Projects',projectKey),
+    ...sources,
+  }),
 }
 
 export default sources => {
