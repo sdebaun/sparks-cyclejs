@@ -31,6 +31,7 @@ export default sources => {
   return {
     DOM,
     auth$: appMenu.auth$,
+    route$: appMenu.route$,
     navButton$,
   }
 }

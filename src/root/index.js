@@ -34,8 +34,20 @@ export default sources => {
 
   responses$.subscribe(x => console.log('queue response:',x))
 
+  const userProfileKey$ = sources.auth$
+    .flatMapLatest(auth =>
+      auth ? sources.firebase('Users',auth.uid) : Observable.empty()
+    )
+
+  const userProfile$ = userProfileKey$
+    .flatMapLatest(key =>
+      key ? sources.firebase('Profiles',key) : Observable.empty()
+    )
+
   const page$ = nestedComponent(sources.router.define(routes),{
-    responses$, ...sources,
+    responses$,
+    userProfile$, userProfileKey$,
+    ...sources,
   })
 
   return {
