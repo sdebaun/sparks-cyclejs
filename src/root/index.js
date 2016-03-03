@@ -17,7 +17,14 @@ const routes = {
 }
 
 export default sources => {
-  const page$ = nestedComponent(sources.router.define(routes), sources)
+  const responses$ = sources.auth$
+    .flatMapLatest(auth => auth ? sources.queue$(auth.uid) : Observable.empty())
+
+  responses$.subscribe(x => console.log('queue response:',x))
+
+  const page$ = nestedComponent(sources.router.define(routes),{
+    responses$, ...sources,
+  })
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),

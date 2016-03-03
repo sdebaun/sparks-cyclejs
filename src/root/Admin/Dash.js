@@ -29,6 +29,10 @@ export default sources => {
       (auth, project) => ({...project, uid: auth && auth.uid})
     )
 
+  const redirectOnCreate$ = sources.responses$
+    .filter(({domain,event}) => domain === 'Projects' && event === 'create')
+    .subscribe(x => console.log('redirect',x))
+
   const DOM = combineLatestObj({projects$, formDOM$: projectForm.DOM}).map(_DOM)
 
   return {
