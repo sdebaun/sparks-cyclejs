@@ -88,20 +88,6 @@ const renderFooter = () =>
   ])
 
 export default (sources) => {
-  // const redirectLoggedIn$ = sources.userProfile$
-  //   .filter(profile => !!profile)
-  //   .map(profile => profile.isAdmin ? '/admin' : '/dash')
-
-  // redirectLoggedIn$.subscribe(log('redirectLoggedIn$'))
-
-  // redirectLoggedIn$.subscribe(log('redirect'))
-  // const rerouteToDash$ = userProfileKey$
-  //   .withLatestFrom(sources.auth$)
-  //   .filter(([profile,auth]) => !profile && !!auth)
-  //   .map(() => '/confirm')
-
-  // const {userProfile$} = sources
-
   const appMenu = AppMenu(sources)
   const headerLogo = HeaderLogo(sources)
 

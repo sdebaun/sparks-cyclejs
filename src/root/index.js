@@ -25,11 +25,8 @@ const routes = {
   }),
 }
 
-// const _isAuthWithoutProfile = ([auth, profileKey]) => auth && !profileKey
-
-// const _isAuthWithProfile = ([auth, profileKey]) => auth && !!profileKey
-
 export default sources => {
+  // get queue response stream based on auth'd uid
   const responses$ = sources.auth$
     .flatMapLatest(auth => auth ? sources.queue$(auth.uid) : Observable.empty())
 
@@ -46,62 +43,42 @@ export default sources => {
       key ? sources.firebase('Profiles',key) : Observable.just(null)
     )
 
-  sources.auth$.subscribe(log('auth$'))
-  userProfileKey$.subscribe(log('userProfileKey$'))
-  userProfile$.subscribe(log('userProfile$'))
+  // sources.auth$.subscribe(log('auth$'))
+  // userProfileKey$.subscribe(log('userProfileKey$'))
+  // userProfile$.subscribe(log('userProfile$'))
 
-  const isUnconfirmed$ = userProfileKey$
-    .withLatestFrom(sources.auth$)
-    .filter(([profile,auth]) => !profile && !!auth)
-
+  // these two redirects are passed on to child components
+  // who simply plug them into their route$ sink
+  // if they want this behavior
   const redirectLogin$ = userProfile$
     .filter(profile => !!profile)
     .map(profile => profile.isAdmin ? '/admin' : '/dash')
-    // .withLatestFrom(sources.auth$)
-    // .filter(([profile,auth]) => !profile && !!auth)
 
   const redirectLogout$ = sources.auth$
     .filter(profile => !profile)
     .map(() => '/')
 
-  const redirectUnconfirmed$ = isUnconfirmed$
-    // .withLatestFrom(sources.auth$)
-    // .filter(([profile,auth]) => !profile && !!auth)
+  const redirectUnconfirmed$ = userProfileKey$
+    .withLatestFrom(sources.auth$)
+    .filter(([profile,auth]) => !profile && !!auth)
     .map(() => '/confirm')
 
-  redirectUnconfirmed$.subscribe(log('redirectUnconfirmed$'))
+  // redirectUnconfirmed$.subscribe(log('redirectUnconfirmed$'))
 
   const page$ = nestedComponent(sources.router.define(routes),{
     responses$, userProfileKey$, userProfile$, redirectLogin$, redirectLogout$,
     ...sources,
   })
 
-  // dont do this yet
+  // inject authed uid into tasks on their way to sink
   // const authedRequests$ = page$
   //   .flatMapLatest(({queue$}) => queue$ || Observable.never())
   //   .withLatestFrom(sources.auth$)
 
-  // authedRequests$.subscribe(log('authedRequests$'))
-
-  // const isAuthenticated$ = sources.auth$
-  //   .map(auth => auth !== null)
-  //   .withLatestFrom(userProfileKey$.startWith(false))
-  //   .do(log('isAuthenticated$'))
-
-  // const rerouteToConfirm$ = isAuthenticated$
-  //   .filter(_isAuthWithoutProfile)
-  //   .map(([auth]) => `/confirm/${auth[auth.provider].id}`)
-  //   .do(log('rerouteToConfirm$'))
-
-  // const rerouteToDash$ = isAuthenticated$
-  //   .filter(_isAuthWithProfile)
-  //   .map(() => '/dash')
-  //   .do(log('rerouteToDash$'))
-
+  // the only global redirect that always gets hooked up is for unconfirmed
   const router = page$
     .flatMapLatest(({route$}) => route$ || Observable.never())
     .merge(redirectUnconfirmed$)
-    // .merge(rerouteToConfirm$, rerouteToDash$)
 
   router.subscribe(log('router'))
 

@@ -187,12 +187,15 @@ export default sources => {
   //   isOpen: sidenavOpen$,
   // }).map(layoutDOM)
 
+  const route$ = Observable.merge(
+    mergeOrFlatMapLatest('route$', ...children),
+    redirectOnLogout$,
+  )
+
   return {
     DOM: appFrame.DOM,
-    queue$: mergeOrFlatMapLatest('queue$', ...children),
-    route$: redirectOnLogout$.merge(
-      mergeOrFlatMapLatest('route$', ...children),
-    ),
     auth$: mergeOrFlatMapLatest('auth$', ...children),
+    queue$: mergeOrFlatMapLatest('queue$', ...children),
+    route$,
   }
 }
