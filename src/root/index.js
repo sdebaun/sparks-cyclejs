@@ -2,6 +2,7 @@ import {Observable} from 'rx'
 import isolate from '@cycle/isolate'
 
 import Landing from './Landing'
+import Confirm from './Confirm'
 import Dash from './Dash'
 import Admin from './Admin'
 import Project from './Project'
@@ -13,6 +14,7 @@ import './styles.scss'
 // Route definitions at this level
 const routes = {
   '/': Landing,
+  '/confirm/:id': id => sources => isolate(Confirm)(sources),
   '/dash': isolate(Dash),
   '/admin': isolate(Admin),
   '/project/:key': key => sources => Project({
@@ -27,6 +29,10 @@ const _routes = {
     ...sources,
   }),
 }
+
+const _isAuthWithoutProfile = ([auth, profileKey]) => auth && !profileKey
+
+const _isAuthWithProfile = ([auth, profileKey]) => auth && !!profileKey
 
 export default sources => {
   const responses$ = sources.auth$
@@ -50,10 +56,25 @@ export default sources => {
     ...sources,
   })
 
+  const isAuthenticated$ = sources.auth$
+    .map(auth => auth !== null)
+    .withLatestFrom(userProfileKey$.startWith(false))
+
+  const rerouteToConfirm$ = isAuthenticated$
+    .filter(_isAuthWithoutProfile)
+    .map(([auth]) => `/confirm/${auth[auth.provider].id}`)
+
+  const rerouteToDash$ = isAuthenticated$
+    .filter(_isAuthWithProfile)
+    .map(() => '/dash')
+
+  const router = page$.flatMapLatest(({route$}) => route$ || Observable.never())
+    .merge(rerouteToConfirm$, rerouteToDash$)
+
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
     auth$: page$.flatMapLatest(({auth$}) => auth$ || Observable.never()),
     queue$: page$.flatMapLatest(({queue$}) => queue$ || Observable.never()),
-    router: page$.flatMapLatest(({route$}) => route$ || Observable.never()),
+    router,
   }
 }

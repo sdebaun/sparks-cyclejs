@@ -110,6 +110,5 @@ export default (sources) => {
   return {
     DOM: Observable.just(view),
     auth$: appMenu.auth$,
-    route$: userProfile$.filter(profile => !!profile).map(() => '/dash'),
   }
 }

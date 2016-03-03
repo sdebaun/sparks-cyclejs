@@ -3,11 +3,11 @@ import ComingSoon from 'components/ComingSoon'
 import {div} from 'cycle-snabbdom'
 import {Form,Input,Button} from 'snabbdom-material'
 
-function createProject(payload) {
+function createProject(uid, payload) {
   return {
     domain: 'Projects',
     action: 'create',
-    uid: '1234',
+    uid,
     payload,
   }
 }
@@ -30,8 +30,8 @@ export default sources => {
     .merge(click$.map(() => ''))
     .startWith('')
 
-  const project$ = click$.withLatestFrom(input$) // join auth$ here for uid
-    .map(([_,name]) => createProject({name}))
+  const project$ = click$.withLatestFrom(input$, sources.auth$)
+    .map(([_,name, auth]) => createProject(auth.uid, {name}))
     .startWith(null)
     .distinctUntilChanged()
 
