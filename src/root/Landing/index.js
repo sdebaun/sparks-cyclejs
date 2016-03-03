@@ -86,7 +86,7 @@ const renderFooter = () =>
   ])
 
 export default (sources) => {
-  const {auth$} = sources
+  const {userProfile$} = sources
 
   const appMenu = AppMenu(sources)
   const headerLogo = HeaderLogo(sources)
@@ -110,6 +110,6 @@ export default (sources) => {
   return {
     DOM: Observable.just(view),
     auth$: appMenu.auth$,
-    route$: auth$.filter(auth => !!auth).map(() => '/dash'),
+    route$: userProfile$.filter(profile => !!profile).map(() => '/dash'),
   }
 }
