@@ -22,24 +22,13 @@ const _routes = {
 
 const _tabs = [
   {path: '/', label: 'Dash'},
-  {path: '/projects', label: 'Projects'},
-  {path: '/profiles', label: 'Profiles'},
+  {path: '/staff', label: 'Staff'},
+  {path: '/find', label: 'Find'},
 ]
 
 const NavContent = sources => ({
   DOM: Observable.just(div({},'nav content')),
 })
-
-// const _DOM = ({
-//   pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, isOpen,
-// }) =>
-//   (isMobile ? mobileLayout : desktopLayout)({
-//     bar: appBarDOM,
-//     tabs: tabBarDOM,
-//     side: navContentDOM,
-//     main: pageDOM,
-//     isOpen,
-//   })
 
 export default sources => {
   const appBar = AppBar(sources) // will need to pass auth
@@ -51,6 +40,8 @@ export default sources => {
   const children = [appBar,tabBar,navContent,page$]
 
   const closeSideNav$ = sources.DOM.select('.close-sideNav').events('click')
+
+  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
 
   const sidenavOpen$ = appBar.navButton$.map(true)
     .merge(closeSideNav$.map(false))
@@ -67,8 +58,10 @@ export default sources => {
 
   return {
     DOM,
-    queue$: mergeOrFlatMapLatest('queue$',...children),
-    route$: mergeOrFlatMapLatest('route$',...children),
-    auth$: mergeOrFlatMapLatest('auth$',...children),
+    queue$: mergeOrFlatMapLatest('queue$', ...children),
+    route$: redirectOnLogout$.merge(
+      mergeOrFlatMapLatest('route$', ...children),
+    ),
+    auth$: mergeOrFlatMapLatest('auth$', ...children),
   }
 }
