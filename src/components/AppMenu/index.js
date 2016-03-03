@@ -15,7 +15,9 @@ const _DOM = ({isOpen,auth,userProfile}) => {
     ]),
     menu({isOpen, rightAlign: true}, [
       userProfile ? Item({className: 'home'},userProfile.fullName) : null,
-      userProfile && userProfile.isAdmin ? Item({className: 'admin'},'Admin') : null,
+      userProfile && userProfile.isAdmin ?
+        Item({className: 'admin'},'Admin') :
+        null,
       auth ? null : Item({className: 'login facebook'},'Facebook'),
       auth ? null : Item({className: 'login google'},'Google'),
       auth ? Item({className: 'logout'},'Logout') : null,
