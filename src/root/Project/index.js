@@ -33,21 +33,30 @@ const Tabs = sources => ({
 const Title = sources => ({
   DOM: sources.isMobile$
     .map(isMobile =>
-      div({style: {border: '2px solid red'}},['Page Title', isMobile ? sources.tabsDOM : null])
+      div(
+        {style: {border: '2px solid red'}},
+        ['Page Title', isMobile ? sources.tabsDOM : null]
+      )
     ),
 })
 
 const Nav = sources => ({
   DOM: sources.isMobile$
     .map(isMobile =>
-      div({style: {border: '2px solid blue'}},[isMobile ? null : sources.titleDOM, 'Nav Items'])
+      div(
+        {style: {border: '2px solid blue'}},
+        [isMobile ? null : sources.titleDOM, 'Nav Items']
+      )
     ),
 })
 
 const Header = sources => ({
   DOM: sources.isMobile$
     .map(isMobile =>
-      div({style: {border: '2px solid yellow'}},[isMobile ? sources.titleDOM : sources.tabsDOM])
+      div(
+        {style: {border: '2px solid yellow'}},
+        [isMobile ? sources.titleDOM : sources.tabsDOM]
+      )
     ),
 })
 
