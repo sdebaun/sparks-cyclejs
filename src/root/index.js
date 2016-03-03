@@ -1,13 +1,13 @@
 import {Observable} from 'rx'
 import isolate from '@cycle/isolate'
 
-import Landing from 'routes/Landing'
-import Dash from 'routes/Dash'
-import Admin from 'routes/Admin'
+import Landing from './Landing'
+import Dash from './Dash'
+import Admin from './Admin'
 
 import {nestedComponent} from 'helpers/router'
 
-import './app.scss'
+import './styles.scss'
 
 // Route definitions at this level
 const routes = {

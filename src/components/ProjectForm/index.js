@@ -12,17 +12,15 @@ function createProject(payload) {
   }
 }
 
-const DOMx = state$ =>
-  state$.map(({input}) =>
-    Form({}, [
-      Input({
-        className: 'admin-input',
-        label: 'New Project Name',
-        value: input,
-      }),
-      Button({className: 'admin-button'},['Create']),
-    ]),
-  )
+const _DOM = ({input}) =>
+  Form({}, [
+    Input({
+      className: 'admin-input',
+      label: 'New Project Name',
+      value: input,
+    }),
+    Button({className: 'admin-button'},['Create']),
+  ])
 
 export default sources => {
   const click$ = sources.DOM.select('.admin-button').events('click')
@@ -37,13 +35,13 @@ export default sources => {
     .startWith(null)
     .distinctUntilChanged()
 
-  const state$ = Observable.combineLatest(
+  const DOM = Observable.combineLatest(
     project$, input$,
     (project, input) => ({project, input})
-  )
+  ).map(_DOM)
 
   return {
-    DOM: DOMx(state$),
+    DOM,
     project$: project$.filter(x => x !== null),
   }
 }

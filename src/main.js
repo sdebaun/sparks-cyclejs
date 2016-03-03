@@ -8,11 +8,11 @@ import Firebase from 'firebase'
 
 import {
   makeAuthDriver, makeFirebaseDriver, makeQueueDriver,
-} from 'drivers/firebaseDriver'
+} from 'cyclic-fire'
 
 import {isMobile$} from 'drivers/isMobile'
 
-import App from './app'
+import Root from './root'
 
 const history = supportsHistory() ?
   createHistory() : createHashHistory()
@@ -21,7 +21,7 @@ const historyDriver = makeHistoryDriver(history)
 
 const fbRoot = new Firebase('http://sparks-development.firebaseio.com')
 
-const {sources, sinks} = run(App, {
+const {sources, sinks} = run(Root, {
   isMobile$,
   DOM: makeDOMDriver('#root'),
   router: makeRouterDriver(historyDriver),

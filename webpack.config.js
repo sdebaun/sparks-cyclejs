@@ -3,10 +3,10 @@ var webpack = require('webpack')
 
 var ENV = process.env.NODE_ENV
 
-var srcPath = path.join(__dirname, '/app')
+var srcPath = path.join(__dirname, '/src')
 
 module.exports = {
-  entry: ['./app/main'],
+  entry: ['./src/main'],
   output: {
     filename: './dist/bundle.js',
   },
