@@ -14,7 +14,7 @@ const _DOM = ({isOpen,auth,userName,isAdmin}) => {
       icon('more_vert'),
     ]),
     menu({isOpen, rightAlign: true}, [
-      Item({className: 'home'},userName),
+      userName ? Item({className: 'home'},userName) : null,
       isAdmin ? Item({className: 'admin'},'Admin') : null,
       auth ? null : Item({className: 'login facebook'},'Facebook'),
       auth ? null : Item({className: 'login google'},'Google'),
@@ -50,8 +50,8 @@ export default sources => {
 
   const DOM = combineLatestObj({
     auth$: sources.auth$,
-    userName$: sources.userProfile$.pluck('fullName'),
-    isAdmin$: sources.userProfile$.pluck('isAdmin'),
+    userName$: sources.userProfile$.pluck('fullName').startWith(null),
+    isAdmin$: sources.userProfile$.pluck('isAdmin').startWith(false),
     isOpen$,
   }).map(_DOM)
 
