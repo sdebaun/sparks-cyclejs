@@ -8,7 +8,7 @@ import Firebase from 'firebase'
 
 import {
   makeAuthDriver, makeFirebaseDriver, makeQueueDriver,
-} from 'drivers/firebaseDriver'
+} from 'cyclic-fire'
 
 import {isMobile$} from 'drivers/isMobile'
 

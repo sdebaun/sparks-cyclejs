@@ -51,6 +51,7 @@
     "cycle-snabbdom": "^1.1.1",
     "cyclic-history": "^0.1.0",
     "cyclic-router": "^0.3.0",
+    "cyclic-fire": "^1.0.1",
     "firebase": "^2.4.1",
     "history": "^1.17.0",
     "normalize-css": "^2.3.1",
