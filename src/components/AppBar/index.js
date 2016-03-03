@@ -10,9 +10,9 @@ import {icon, material} from 'helpers/dom'
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
-const _DOM = ({isMobile, appMenuDOM}) =>
+const _DOM = ({isMobile, appMenuDOM, hideMenu}) =>
   Appbar({fixed: true, material},[
-    isMobile &&
+    hideMenu ? null : isMobile &&
       Appbar.Button({className: 'nav-button'}, [icon('menu')]),
     Appbar.Title({style: {float: 'left'}},[HeaderLogo().DOM]),
     div({style: {float: 'right'}},[appMenuDOM]),
@@ -26,6 +26,7 @@ export default sources => {
   const DOM = combineLatestObj({
     isMobile$: sources.isMobile$,
     appMenuDOM$: appMenu.DOM,
+    hideMenu: sources.hideMenu$ || Observable.just(false),
   }).map(_DOM)
 
   return {

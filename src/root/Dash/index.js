@@ -43,7 +43,7 @@ export default sources => {
 
   const closeSideNav$ = sources.DOM.select('.close-sideNav').events('click')
 
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
+  // const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
 
   const sidenavOpen$ = appBar.navButton$.map(true)
     .merge(closeSideNav$.map(false))
@@ -58,12 +58,15 @@ export default sources => {
     isOpen: sidenavOpen$,
   }).map(layoutDOM)
 
+  const route$ = Observable.merge(
+    mergeOrFlatMapLatest('route$', ...children),
+    sources.redirectLogout$,
+  )
+
   return {
     DOM,
-    queue$: mergeOrFlatMapLatest('queue$', ...children),
-    route$: redirectOnLogout$.merge(
-      mergeOrFlatMapLatest('route$', ...children),
-    ),
     auth$: mergeOrFlatMapLatest('auth$', ...children),
+    queue$: mergeOrFlatMapLatest('queue$', ...children),
+    route$,
   }
 }
