@@ -9,6 +9,8 @@ import Project from './Project'
 
 import {nestedComponent} from 'helpers/router'
 
+import {log} from 'helpers'
+
 import './styles.scss'
 
 // Route definitions at this level
@@ -23,53 +25,85 @@ const routes = {
   }),
 }
 
-const _routes = {
-  '/:projectKey': projectKey => sources => Dash({
-    project$: sources.firebase('Projects',projectKey),
-    ...sources,
-  }),
-}
+// const _isAuthWithoutProfile = ([auth, profileKey]) => auth && !profileKey
 
-const _isAuthWithoutProfile = ([auth, profileKey]) => auth && !profileKey
-
-const _isAuthWithProfile = ([auth, profileKey]) => auth && !!profileKey
+// const _isAuthWithProfile = ([auth, profileKey]) => auth && !!profileKey
 
 export default sources => {
   const responses$ = sources.auth$
     .flatMapLatest(auth => auth ? sources.queue$(auth.uid) : Observable.empty())
 
-  responses$.subscribe(x => console.log('queue response:',x))
+  responses$.subscribe(log('responses$'))
 
   const userProfileKey$ = sources.auth$
     .flatMapLatest(auth =>
-      auth ? sources.firebase('Users',auth.uid) : Observable.empty()
+      auth ? sources.firebase('Users',auth.uid) : Observable.just(null)
     )
 
   const userProfile$ = userProfileKey$
+    .distinctUntilChanged()
     .flatMapLatest(key =>
-      key ? sources.firebase('Profiles',key) : Observable.empty()
+      key ? sources.firebase('Profiles',key) : Observable.just(null)
     )
 
+  sources.auth$.subscribe(log('auth$'))
+  userProfileKey$.subscribe(log('userProfileKey$'))
+  userProfile$.subscribe(log('userProfile$'))
+
+  const isUnconfirmed$ = userProfileKey$
+    .withLatestFrom(sources.auth$)
+    .filter(([profile,auth]) => !profile && !!auth)
+
+  const redirectLogin$ = userProfile$
+    .filter(profile => !!profile)
+    .map(profile => profile.isAdmin ? '/admin' : '/dash')
+    // .withLatestFrom(sources.auth$)
+    // .filter(([profile,auth]) => !profile && !!auth)
+
+  const redirectLogout$ = sources.auth$
+    .filter(profile => !profile)
+    .map(() => '/')
+
+  const redirectUnconfirmed$ = isUnconfirmed$
+    // .withLatestFrom(sources.auth$)
+    // .filter(([profile,auth]) => !profile && !!auth)
+    .map(() => '/confirm')
+
+  redirectUnconfirmed$.subscribe(log('redirectUnconfirmed$'))
+
   const page$ = nestedComponent(sources.router.define(routes),{
-    responses$,
-    userProfile$, userProfileKey$,
+    responses$, userProfileKey$, userProfile$, redirectLogin$, redirectLogout$,
     ...sources,
   })
 
-  const isAuthenticated$ = sources.auth$
-    .map(auth => auth !== null)
-    .withLatestFrom(userProfileKey$.startWith(false))
+  // dont do this yet
+  // const authedRequests$ = page$
+  //   .flatMapLatest(({queue$}) => queue$ || Observable.never())
+  //   .withLatestFrom(sources.auth$)
 
-  const rerouteToConfirm$ = isAuthenticated$
-    .filter(_isAuthWithoutProfile)
-    .map(([auth]) => `/confirm/${auth[auth.provider].id}`)
+  // authedRequests$.subscribe(log('authedRequests$'))
 
-  const rerouteToDash$ = isAuthenticated$
-    .filter(_isAuthWithProfile)
-    .map(() => '/dash')
+  // const isAuthenticated$ = sources.auth$
+  //   .map(auth => auth !== null)
+  //   .withLatestFrom(userProfileKey$.startWith(false))
+  //   .do(log('isAuthenticated$'))
 
-  const router = page$.flatMapLatest(({route$}) => route$ || Observable.never())
-    .merge(rerouteToConfirm$, rerouteToDash$)
+  // const rerouteToConfirm$ = isAuthenticated$
+  //   .filter(_isAuthWithoutProfile)
+  //   .map(([auth]) => `/confirm/${auth[auth.provider].id}`)
+  //   .do(log('rerouteToConfirm$'))
+
+  // const rerouteToDash$ = isAuthenticated$
+  //   .filter(_isAuthWithProfile)
+  //   .map(() => '/dash')
+  //   .do(log('rerouteToDash$'))
+
+  const router = page$
+    .flatMapLatest(({route$}) => route$ || Observable.never())
+    .merge(redirectUnconfirmed$)
+    // .merge(rerouteToConfirm$, rerouteToDash$)
+
+  router.subscribe(log('router'))
 
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),

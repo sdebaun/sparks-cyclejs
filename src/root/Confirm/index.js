@@ -34,6 +34,7 @@ const imgStyle = {
 }
 
 const _renderForm = auth => {
+  if (!auth) { return div({},'') }
   const {provider} = auth
   const {email, displayName, profileImageURL} = auth[provider]
   return div({style: formStyle}, [
@@ -88,10 +89,14 @@ export default sources => {
       appBar: appBar.DOM,
     }).map(_DOM).startWith(Spinner({size: 100}))
 
-  const route$ =
-    sources.userProfile$.filter(profile => !profile).map('/dash')
-      .merge(appBar.route$)
-      .merge(sources.auth$.filter(auth => !auth).map('/'))
+  const route$ = Observable.merge(
+    appBar.route$, sources.redirectLogin$, sources.redirectLogout$
+  )
+  // const route$ = sources.userProfile$
+  //   .filter(profile => !!profile)
+  //   .map(profile => profile.isAdmin ? '/admin' : '/dash')
+  //   .merge(appBar.route$)
+  //   .merge(sources.auth$.filter(auth => !auth).map('/'))
 
   const queue$ = formData$.withLatestFrom(sources.auth$).flatMap(confimUser)
 

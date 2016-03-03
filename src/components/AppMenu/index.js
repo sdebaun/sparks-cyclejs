@@ -8,14 +8,14 @@ import {menu} from 'helpers/layout/menu'
 
 const {Item} = Menu
 
-const _DOM = ({isOpen,auth,userName,isAdmin}) => {
+const _DOM = ({isOpen,auth,userProfile}) => {
   return div({}, [
     Appbar.Button({className: 'app-menu-button'}, [
       icon('more_vert'),
     ]),
     menu({isOpen, rightAlign: true}, [
-      userName ? Item({className: 'home'},userName) : null,
-      isAdmin ? Item({className: 'admin'},'Admin') : null,
+      userProfile ? Item({className: 'home'},userProfile.fullName) : null,
+      userProfile && userProfile.isAdmin ? Item({className: 'admin'},'Admin') : null,
       auth ? null : Item({className: 'login facebook'},'Facebook'),
       auth ? null : Item({className: 'login google'},'Google'),
       auth ? Item({className: 'logout'},'Logout') : null,
@@ -50,8 +50,8 @@ export default sources => {
 
   const DOM = combineLatestObj({
     auth$: sources.auth$,
-    userName$: sources.userProfile$.pluck('fullName').startWith(null),
-    isAdmin$: sources.userProfile$.pluck('isAdmin').startWith(false),
+    userProfile$: sources.userProfile$, //.pluck('fullName').startWith(null),
+    // isAdmin$: sources.userProfile$.pluck('isAdmin').startWith(false),
     isOpen$,
   }).map(_DOM)
 

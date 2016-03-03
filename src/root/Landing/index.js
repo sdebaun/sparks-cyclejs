@@ -5,6 +5,8 @@ import {Col, Row} from 'snabbdom-material'
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
+import {log} from 'helpers'
+
 import './styles.scss'
 
 const renderHook = (appIcon, headerLogo) =>
@@ -86,7 +88,19 @@ const renderFooter = () =>
   ])
 
 export default (sources) => {
-  const {userProfile$} = sources
+  // const redirectLoggedIn$ = sources.userProfile$
+  //   .filter(profile => !!profile)
+  //   .map(profile => profile.isAdmin ? '/admin' : '/dash')
+
+  // redirectLoggedIn$.subscribe(log('redirectLoggedIn$'))
+
+  // redirectLoggedIn$.subscribe(log('redirect'))
+  // const rerouteToDash$ = userProfileKey$
+  //   .withLatestFrom(sources.auth$)
+  //   .filter(([profile,auth]) => !profile && !!auth)
+  //   .map(() => '/confirm')
+
+  // const {userProfile$} = sources
 
   const appMenu = AppMenu(sources)
   const headerLogo = HeaderLogo(sources)
@@ -110,5 +124,6 @@ export default (sources) => {
   return {
     DOM: Observable.just(view),
     auth$: appMenu.auth$,
+    route$: sources.redirectLogin$,
   }
 }
