@@ -32,6 +32,8 @@ export default sources => {
 
   responses$.subscribe(log('responses$'))
 
+  // lots of components like to know the user's profile key and profile info
+  // let us make it easy for them
   const userProfileKey$ = sources.auth$
     .flatMapLatest(auth =>
       auth ? sources.firebase('Users',auth.uid) : Observable.just(null)
@@ -58,6 +60,8 @@ export default sources => {
     .filter(profile => !profile)
     .map(() => '/')
 
+  // this is the only global redirect
+  // it always gets piped to the router
   const redirectUnconfirmed$ = userProfileKey$
     .withLatestFrom(sources.auth$)
     .filter(([profile,auth]) => !profile && !!auth)
@@ -71,11 +75,11 @@ export default sources => {
   })
 
   // inject authed uid into tasks on their way to sink
-  // const authedRequests$ = page$
+  // const authedTasks$ = page$
   //   .flatMapLatest(({queue$}) => queue$ || Observable.never())
   //   .withLatestFrom(sources.auth$)
 
-  // the only global redirect that always gets hooked up is for unconfirmed
+  // does the router/route$ thing bother anyone else
   const router = page$
     .flatMapLatest(({route$}) => route$ || Observable.never())
     .merge(redirectUnconfirmed$)
