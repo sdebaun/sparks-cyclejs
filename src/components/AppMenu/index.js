@@ -52,8 +52,7 @@ export default sources => {
 
   const DOM = combineLatestObj({
     auth$: sources.auth$,
-    userProfile$: sources.userProfile$, //.pluck('fullName').startWith(null),
-    // isAdmin$: sources.userProfile$.pluck('isAdmin').startWith(false),
+    userProfile$: sources.userProfile$,
     isOpen$,
   }).map(_DOM)
 
