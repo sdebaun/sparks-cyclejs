@@ -18,16 +18,16 @@ const _DOM = ({projects, formDOM}) =>
     div({},renderProjects(projects)),
   ])
 
+import actions from 'helpers/actions'
+
 export default sources => {
   const projects$ = sources.firebase('Projects')
     .startWith([])
 
   const projectForm = ProjectForm(sources)
 
-  const newProject$ = Observable.combineLatest(
-      sources.auth$, projectForm.project$,
-      (auth, project) => ({...project, uid: auth && auth.uid})
-    )
+  const newProject$ = projectForm.project$
+    .map(actions.Projects.create)
 
   const redirectOnCreate$ = sources.responses$
     .filter(({domain,event}) => domain === 'Projects' && event === 'create')

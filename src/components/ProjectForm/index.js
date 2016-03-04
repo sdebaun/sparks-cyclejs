@@ -1,23 +1,17 @@
 import {Observable} from 'rx'
+import combineLatestObj from 'rx-combine-latest-obj'
 import ComingSoon from 'components/ComingSoon'
 import {div} from 'cycle-snabbdom'
 import {Form,Input,Button} from 'snabbdom-material'
 
-function createProject(uid, payload) {
-  return {
-    domain: 'Projects',
-    action: 'create',
-    uid,
-    payload,
-  }
-}
+import {log} from 'helpers'
 
-const _DOM = ({input}) =>
+const _DOM = ({name}) =>
   Form({}, [
     Input({
-      className: 'admin-input',
+      className: 'admin-name',
       label: 'New Project Name',
-      value: input,
+      value: name,
     }),
     Button({className: 'admin-button'},['Create']),
   ])
@@ -25,23 +19,27 @@ const _DOM = ({input}) =>
 export default sources => {
   const click$ = sources.DOM.select('.admin-button').events('click')
 
-  const input$ = sources.DOM.select('.admin-input').events('input')
-    .map(e => e.target.value)
-    .merge(click$.map(() => ''))
+  const name$ = sources.DOM.select('.admin-name').events('input')
+    .pluck('target', 'value')
     .startWith('')
 
-  const project$ = click$.withLatestFrom(input$, sources.auth$)
-    .map(([_,name, auth]) => createProject(auth.uid, {name}))
-    .startWith(null)
+  const formData$ = combineLatestObj({name$})
+    .sample(click$)
+
+  const project$ = (sources.project$ || Observable.just({}))
+    .merge(formData$)
     .distinctUntilChanged()
+    .filter(project => !!project)
+
+  project$.subscribe(log('project$'))
 
   const DOM = Observable.combineLatest(
-    project$, input$,
-    (project, input) => ({project, input})
+    project$, name$,
+    (project, name) => ({project, name})
   ).map(_DOM)
 
   return {
     DOM,
-    project$: project$.filter(x => x !== null),
+    project$,
   }
 }
