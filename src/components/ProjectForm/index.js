@@ -33,10 +33,12 @@ export default sources => {
 
   project$.subscribe(log('project$'))
 
-  const DOM = Observable.combineLatest(
-    project$, name$,
-    (project, name) => ({project, name})
-  ).map(_DOM)
+  const DOM = project$.map(_DOM)
+
+  // const DOM = project$.mapObservable.combineLatest(
+  //   project$, name$,
+  //   (project, name) => ({project, name})
+  // ).map(_DOM)
 
   return {
     DOM,

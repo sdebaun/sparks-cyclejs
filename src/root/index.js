@@ -75,9 +75,11 @@ export default sources => {
   })
 
   // inject authed uid into tasks on their way to sink
-  // const authedTasks$ = page$
-  //   .flatMapLatest(({queue$}) => queue$ || Observable.never())
-  //   .withLatestFrom(sources.auth$)
+  const authedActions$ = page$
+    .flatMapLatest(({queue$}) => queue$ || Observable.never())
+    .withLatestFrom(sources.auth$)
+    // .do(log('authedAction$'))
+    .map(([action,auth]) => ({uid: auth && auth.uid, ...action}))
 
   // does the router/route$ thing bother anyone else
   const router = page$
@@ -89,7 +91,7 @@ export default sources => {
   return {
     DOM: page$.flatMapLatest(({DOM}) => DOM),
     auth$: page$.flatMapLatest(({auth$}) => auth$ || Observable.never()),
-    queue$: page$.flatMapLatest(({queue$}) => queue$ || Observable.never()),
+    queue$: authedActions$,
     router,
   }
 }
