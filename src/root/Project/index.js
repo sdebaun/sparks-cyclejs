@@ -123,6 +123,8 @@ const AppFrame = sources => {
 
   const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
 
+  const route$ = mergeOrFlatMapLatest('route$', appBar, sideNav)
+
   return {
     DOM: sources.isMobile$
       .map(isMobile =>
@@ -141,6 +143,7 @@ const AppFrame = sources => {
             ]),
           ])
       ),
+    route$,
   }
 }
 
