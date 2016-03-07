@@ -6,7 +6,7 @@ import {Col, Row} from 'snabbdom-material'
 import {mergeOrFlatMapLatest} from 'helpers/router'
 
 export default sources => {
-  const appBar = AppBar(sources) // will need to pass auth
+  const appBar = AppBar(sources)
 
   const sideNav = SideNav({
     contentDOM: sources.navDOM,
@@ -28,9 +28,12 @@ export default sources => {
           ]) :
           div({},[
             appBar.DOM,
-            Row({},[
-              Col({type: 'xs-3'}, [sideNav.DOM]),
-              Col({type: 'xs-9'}, [sources.headerDOM, sources.pageDOM]),
+            div({style: {display: 'flex'}},[
+              div({style: {width: '300px'}}, [sideNav.DOM]),
+              div({style: {flex: 1}}, [
+                sources.headerDOM,
+                div({style: {padding: '0em 1em'}}, [sources.pageDOM]),
+              ]),
             ]),
           ])
       ),

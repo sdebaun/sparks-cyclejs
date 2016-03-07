@@ -12,8 +12,6 @@ import HeaderLogo from 'components/HeaderLogo'
 
 const _DOM = ({isMobile, appMenuDOM, hideMenu}) =>
   Appbar({fixed: true, material},[
-    hideMenu ? null : isMobile &&
-      Appbar.Button({className: 'nav-button'}, [icon('menu')]),
     Appbar.Title({style: {float: 'left'}},[HeaderLogo().DOM]),
     div({style: {float: 'right'}},[appMenuDOM]),
   ])
