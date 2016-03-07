@@ -7,6 +7,9 @@ import Dash from './Dash'
 import Admin from './Admin'
 import Project from './Project'
 
+import 'normalize-css'
+import '!style!css!snabbdom-material/lib/index.css'
+
 import {nestedComponent} from 'helpers/router'
 
 import {log} from 'helpers'

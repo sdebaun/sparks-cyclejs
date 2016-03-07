@@ -3,11 +3,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div, span} from 'cycle-snabbdom'
 
-// why arent these in root/index??
-import 'normalize-css'
-import '!style!css!snabbdom-material/lib/index.css'
-
-import AppBar from 'components/AppBar'
+import AppFrame from 'components/AppFrame'
 import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
 
@@ -58,93 +54,6 @@ const Header = sources => ({
       )
     ),
 })
-
-// import {sideNav} from 'helpers/layout/sideNav'
-import {Col, Row} from 'snabbdom-material'
-
-const defaultStyles = {
-  zIndex: '1001',
-  position: 'fixed',
-  top: '0',
-  bottom: '0',
-  overflow: 'auto',
-}
-
-import {material} from 'helpers/dom'
-import {Mask} from 'snabbdom-material'
-
-    // Mask({isOpen, material, className: 'close-sideNav'}),
-
-function renderSideNav(config, children) {
-  const {className = '', style: userStyle = {}} = config
-  const classes = ['sidenav', 'paper2', className].filter(Boolean)
-  const style = Object.assign(defaultStyles, userStyle, material.sidenav)
-  return div({},[
-    Mask({isOpen: true, material, className: 'close-sideNav'}),
-    div(`.${classes.join('.')}`, {style}, [
-      span({}, children),
-    ]),
-  ])
-}
-
-const SideNav = sources => {
-  const close$ = sources.DOM.select('.close-sideNav').events('click')
-    .map(false)
-
-  const _DOM = ({isMobile,isOpen,contentDOM}) =>
-    isMobile && isOpen && renderSideNav({}, [contentDOM]) ||
-      (!isMobile && div({},[contentDOM]) || span(''))
-      // isOpen ? div({},[
-      //   Mask({isOpen: true, material, className: 'close-sideNav'}),
-      //   renderSideNav({}, [contentDOM]),
-      // ]) : null
-      // ) || div({},[contentDOM])
-
-  const DOM = combineLatestObj({
-    isMobile$: sources.isMobile$,
-    isOpen$: sources.isOpen$.merge(close$),
-    contentDOM$: sources.contentDOM,
-  }).map(_DOM)
-
-  return {
-    DOM,
-  }
-}
-
-const AppFrame = sources => {
-  const appBar = AppBar(sources) // will need to pass auth
-
-  const sideNav = SideNav({
-    contentDOM: sources.navDOM,
-    isOpen$: appBar.navButton$.map(true).startWith(false),
-    ...sources,
-  })
-
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
-
-  const route$ = mergeOrFlatMapLatest('route$', appBar, sideNav)
-
-  return {
-    DOM: sources.isMobile$
-      .map(isMobile =>
-        isMobile ?
-          div({},[
-            sideNav.DOM,
-            appBar.DOM,
-            sources.headerDOM,
-            sources.pageDOM,
-          ]) :
-          div({},[
-            appBar.DOM,
-            Row({},[
-              Col({type: 'xs-3'}, [sideNav.DOM]),
-              Col({type: 'xs-9'}, [sources.headerDOM, sources.pageDOM]),
-            ]),
-          ])
-      ),
-    route$,
-  }
-}
 
 export default sources => {
   const page$ = nestedComponent(sources.router.define(_routes),sources)
