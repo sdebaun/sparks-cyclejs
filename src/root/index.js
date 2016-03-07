@@ -16,10 +16,10 @@ import './styles.scss'
 // Route definitions at this level
 const routes = {
   '/': Landing,
-  '/confirm/:id': id => sources => isolate(Confirm)(sources),
+  '/confirm/': isolate(Confirm),
   '/dash': isolate(Dash),
   '/admin': isolate(Admin),
-  '/project/:key': key => sources => Project({
+  '/project/:key': key => sources => isolate(Project)({
     project$: sources.firebase('Projects',key),
     ...sources,
   }),

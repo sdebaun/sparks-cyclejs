@@ -9,6 +9,7 @@ import '!style!css!snabbdom-material/lib/index.css'
 
 import AppBar from 'components/AppBar'
 import TabBar from 'components/TabBar'
+import ComingSoon from 'components/ComingSoon'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'helpers/router'
 import {icon} from 'helpers/dom'
@@ -18,6 +19,8 @@ import Dash from './Dash'
 
 const _routes = {
   '/': Dash,
+  '/staff': ComingSoon('Staff'),
+  '/find': ComingSoon('Find'),
 }
 
 const _tabs = [
@@ -25,10 +28,6 @@ const _tabs = [
   {path: '/staff', label: 'Staff'},
   {path: '/find', label: 'Find'},
 ]
-
-const Tabs = sources => ({
-  DOM: Observable.just(div({style: {border: '2px solid green'}},'tabs')),
-})
 
 const Title = sources => ({
   DOM: sources.isMobile$
@@ -149,11 +148,11 @@ const AppFrame = sources => {
 
 export default sources => {
   const page$ = nestedComponent(sources.router.define(_routes),sources)
-  const tabs = TabBar({...sources, tabs: Observable.just(_tabs)})
+  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
   // const tabs = Tabs(sources)
-  const title = Title({tabsDOM: tabs.DOM, ...sources})
+  const title = Title({tabsDOM: tabBar.DOM, ...sources})
   const nav = Nav({titleDOM: title.DOM, ...sources})
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabs.DOM, ...sources})
+  const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
@@ -162,33 +161,9 @@ export default sources => {
     ...sources,
   })
 
-// --
-
-  // const appBar = AppBar(sources) // will need to pass auth
-  // const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-  // const navContent = NavContent(sources)
-
-  // const page$ = nestedComponent(sources.router.define(_routes),sources)
-
-  // const children = [appBar,tabBar,navContent,page$]
-  const children = [appFrame, page$]
-
-  // const closeSideNav$ = sources.DOM.select('.close-sideNav').events('click')
+  const children = [appFrame, page$, tabBar, title, nav, header]
 
   const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
-
-  // const sidenavOpen$ = appBar.navButton$.map(true)
-    // .merge(closeSideNav$.map(false))
-    // .startWith(false)
-
-  // const DOM = combineLatestObj({
-  //   pageDOM$: page$.pluck('DOM'),
-  //   appBarDOM$: appBar.DOM,
-  //   tabBarDOM$: tabBar.DOM,
-  //   navContentDOM$: navContent.DOM,
-  //   isMobile$: sources.isMobile$,
-  //   isOpen: sidenavOpen$,
-  // }).map(layoutDOM)
 
   const route$ = Observable.merge(
     mergeOrFlatMapLatest('route$', ...children),

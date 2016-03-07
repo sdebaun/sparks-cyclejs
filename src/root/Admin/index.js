@@ -13,20 +13,20 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'helpers/router'
 import {icon} from 'helpers/dom'
 import {mobileLayout, desktopLayout} from 'helpers/layout'
 
-import Dash from './Dash.js'
+import ComingSoon from 'components/ComingSoon'
+
 import Projects from './Projects.js'
-import Profiles from './Profiles.js'
 
 const _routes = {
-  '/': Dash,
-  '/projects': Projects,
-  '/profiles': Profiles,
+  '/': Projects,
+  '/profiles': ComingSoon('Admin/Dash'),
+  '/previously': ComingSoon('Admin/Previously'),
 }
 
 const _tabs = [
-  {path: '/', label: 'Dash'},
-  {path: '/projects', label: 'Projects'},
+  {path: '/', label: 'Projects'},
   {path: '/profiles', label: 'Profiles'},
+  {path: '/previously', label: 'Previously'},
 ]
 
 const NavContent = sources => ({
@@ -80,49 +80,3 @@ export default sources => {
     route$,
   }
 }
-
-// function intent(DOM) {
-//   const tabClick$ = DOM.select('.tab-label-content').events('click')
-//   const maskClick$ = DOM.select('.mask').events('click')
-//   return {
-//     tabClick$,
-//     maskClick$,
-//   }
-// }
-
-// function model(actions, sources, openSidNav$) {
-//   const route$ = actions.tabClick$
-//     .map(event => event.ownerTarget.dataset.link)
-//     .startWith(null)
-//     .distinctUntilChanged()
-
-//   const closeSideNav$ = actions.maskClick$
-//     .map(() => false).startWith(false)
-
-//   const isOpen$ = openSidNav$.merge(closeSideNav$)
-//     .startWith(false)
-
-//   return Observable.combineLatest(
-//     isOpen$, route$, sources.isMobile$,
-//     (isOpen, route, isMobile) => ({isOpen, route, isMobile})
-//   )
-// }
-
-// const makeMainTabs = (createHref) =>
-//   Tabs({}, [
-//     Tabs.Tab({id: '.', link: createHref('/')},'Dash'),
-//     Tabs.Tab({id: './projects', link: createHref('/projects')},'Projects'),
-//     Tabs.Tab({id: './profiles', link: createHref('/profiles')},'Profiles'),
-//   ])
-
-// function view({state$, main, bar, tabs}) {
-//   return state$.map(({isMobile, isOpen}) =>
-//     (isMobile ? mobileLayout : desktopLayout)({
-//       main, bar,
-//       tabs, isOpen,
-//       side: [div({}, ['A wild sidenav'])],
-//     })
-//   )
-// }
-
-// const filterNull = x => x !== null
