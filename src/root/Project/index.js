@@ -11,6 +11,8 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'helpers/router'
 import {icon} from 'helpers/dom'
 import {layoutDOM} from 'helpers/layout'
 
+import {log} from 'helpers'
+
 import Dash from './Dash'
 
 const _routes = {
@@ -25,15 +27,24 @@ const _tabs = [
   {path: '/find', label: 'Find'},
 ]
 
-const Title = sources => ({
-  DOM: sources.isMobile$
-    .map(isMobile =>
-      div(
-        {style: {border: '2px solid red'}},
-        ['Page Title', isMobile ? sources.tabsDOM : null]
-      )
-    ),
-})
+const _TitleDOM = ({isMobile,labelText,subLabelText,tabsDOM}) =>
+  div(
+    {style: {height: '80px', backgroundColor: '#666', color: '#FFF', padding: '0.5em'}},
+    [
+      div({style: {fontSize: '18px', fontWeight: 'bold'}},[labelText || 'No Label']),
+      div({style: {fontSize: '14px'}},[subLabelText || 'No Sublabel']),
+      isMobile ? tabsDOM : null,
+    ]
+  )
+
+// const Title = sources => ({
+const Title = ({isMobile$, labelText$, subLabelText$, tabsDOM$}) => {
+  const DOM = combineLatestObj({
+    isMobile$, labelText$, subLabelText$, tabsDOM$,
+  }).map(_TitleDOM)
+
+  return {DOM}
+}
 
 const Nav = sources => ({
   DOM: sources.isMobile$
@@ -58,10 +69,16 @@ const Header = sources => ({
 export default sources => {
   const page$ = nestedComponent(sources.router.define(_routes),sources)
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-  // const tabs = Tabs(sources)
-  const title = Title({tabsDOM: tabBar.DOM, ...sources})
+  const title = Title({
+    tabsDOM$: tabBar.DOM,
+    labelText$: sources.project$.pluck('name'),
+    subLabelText$: Observable.just('At a Glance'),
+    ...sources,
+  })
   const nav = Nav({titleDOM: title.DOM, ...sources})
   const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
+
+  sources.project$.subscribe(log('project$'))
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
