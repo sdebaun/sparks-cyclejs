@@ -29,6 +29,8 @@ export default sources => {
   // get queue response stream based on auth'd uid
   const responses$ = sources.auth$
     .flatMapLatest(auth => auth ? sources.queue$(auth.uid) : Observable.empty())
+    .pluck('val')
+    .share()
 
   responses$.subscribe(log('responses$'))
 
@@ -74,12 +76,20 @@ export default sources => {
     ...sources,
   })
 
-  // inject authed uid into tasks on their way to sink
   const authedActions$ = page$
     .flatMapLatest(({queue$}) => queue$ || Observable.never())
     .withLatestFrom(sources.auth$)
     // .do(log('authedAction$'))
     .map(([action,auth]) => ({uid: auth && auth.uid, ...action}))
+
+  authedActions$.subscribe(log('authedActions$'))
+
+  // inject authed uid into tasks on their way to sink
+  // const authedActions$ = page$
+  //   .flatMapLatest(({queue$}) => queue$ || Observable.never())
+  //   .withLatestFrom(sources.auth$)
+  //   // .do(log('authedAction$'))
+  //   .map(([action,auth]) => ({uid: auth && auth.uid, ...action}))
 
   // does the router/route$ thing bother anyone else
   const router = page$

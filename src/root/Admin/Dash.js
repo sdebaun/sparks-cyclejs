@@ -5,6 +5,8 @@ import {div} from 'cycle-snabbdom'
 
 import ProjectForm from 'components/ProjectForm'
 
+import {log} from 'helpers'
+
 // TODO: move to helpers/dom
 const rows = obj =>
   Object.keys(obj).map(k => ({$key: k, ...obj[k]}))
@@ -22,12 +24,17 @@ import actions from 'helpers/actions'
 
 export default sources => {
   const projects$ = sources.firebase('Projects')
-    .startWith([])
+    .map(p => p || {})
+
+  projects$.subscribe(log('projects$'))
 
   const projectForm = ProjectForm(sources)
 
   const newProject$ = projectForm.project$
+    .filter(p => p !== {})
     .map(actions.Projects.create)
+
+  newProject$.subscribe(log('newProject$'))
 
   const redirectOnCreate$ = sources.responses$
     .filter(({domain,event}) => domain === 'Projects' && event === 'create')

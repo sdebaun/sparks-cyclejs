@@ -5,6 +5,36 @@ import {Spinner, Input, Col, Row, Button} from 'snabbdom-material'
 
 import AppBar from 'components/AppBar'
 
+/*
+thoughts on connecting forms to actions
+we want to be able to easily write domain-specific form components
+e.g. ProjectForm, ProfileForm
+
+we want our form components to be as agnostic as possible about
+how their output is used by the rest of the application
+eg consume a sources.project$ or sources.profile$
+so that they can be used for editing or creating
+and then should simply pass the changed domain object as a sink
+and let the parent do what they need to do with it
+
+const AdminDashPage = sources =>{
+  // initialize the form with a blank object or whatever
+  const newProjectForm = ProjectForm({project$:Observable.just({}),...sources})
+  return {
+    // any changes come down the pipe and get transformed by the action creator
+    queue$: newProjectForm.project$.map(actions.Projects.create)
+  }
+}
+
+const ProjectEditPage = sources =>{
+  // sources already contains project$ from routing
+  const editProjectForm = ProjectForm(sources)
+  return {
+    // any changes transformed by update action creator
+    queue$: editProjectForm.project$.map(actions.Projects.update)
+  }
+}
+*/
 function confimUser([formData, auth]) {
   const {provider, uid} = auth
   const {profileImageURL, fullName: fallBack} = auth[provider]
@@ -92,11 +122,6 @@ export default sources => {
   const route$ = Observable.merge(
     appBar.route$, sources.redirectLogin$, sources.redirectLogout$
   )
-  // const route$ = sources.userProfile$
-  //   .filter(profile => !!profile)
-  //   .map(profile => profile.isAdmin ? '/admin' : '/dash')
-  //   .merge(appBar.route$)
-  //   .merge(sources.auth$.filter(auth => !auth).map('/'))
 
   const queue$ = formData$.withLatestFrom(sources.auth$).flatMap(confimUser)
 

@@ -26,14 +26,13 @@ export default sources => {
   const formData$ = combineLatestObj({name$})
     .sample(click$)
 
-  const project$ = (sources.project$ || Observable.just({}))
+  const project$ = (sources.project$ || Observable.empty())
     .merge(formData$)
     .distinctUntilChanged()
-    .filter(project => !!project)
 
   project$.subscribe(log('project$'))
 
-  const DOM = project$.map(_DOM)
+  const DOM = project$.startWith({}).map(_DOM)
 
   // const DOM = project$.mapObservable.combineLatest(
   //   project$, name$,
