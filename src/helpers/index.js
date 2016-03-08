@@ -13,5 +13,6 @@ export const reactComponent = (Klass,attrs,hookName = 'update') =>
     hook: {[hookName]: ({elm}) => ReactDOM.render(<Klass {...attrs}/>,elm)},
   })
 
-// brevity etc
 export const icon = (name, color = '#FFF') => Icon({name, style: {color}})
+
+// export const appBar = ({})
