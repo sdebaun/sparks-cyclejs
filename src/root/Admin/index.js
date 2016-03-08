@@ -10,7 +10,6 @@ import TabBar from 'components/TabBar'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 import {icon} from 'helpers'
-// import {mobileLayout, desktopLayout} from 'helpers/layout'
 
 import ComingSoon from 'components/ComingSoon'
 
