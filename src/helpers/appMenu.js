@@ -5,7 +5,6 @@ import {icon} from './index'
 import {menu} from './menu'
 
 function appMenu({isOpen, auth, userProfile}) {
-  console.log(userProfile)
   return div({}, [
     Appbar.Button({className: 'app-menu-button'}, [
       icon('more_vert'),
