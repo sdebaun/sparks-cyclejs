@@ -1,47 +1,65 @@
 import {Observable} from 'rx'
+import combineLatestObj from 'rx-combine-latest-obj'
 import ComingSoon from 'components/ComingSoon'
 import {div} from 'cycle-snabbdom'
 import {Form,Input,Button} from 'snabbdom-material'
 
-function createProject(payload) {
-  return {
-    domain: 'Projects',
-    action: 'create',
-    uid: '1234',
-    payload,
-  }
-}
+import {log} from 'helpers'
 
-const _DOM = ({input}) =>
-  Form({}, [
+const _DOM = ({name}) =>
+  Form({className: 'project'}, [
     Input({
-      className: 'admin-input',
+      className: 'name',
       label: 'New Project Name',
-      value: input,
+      value: name,
     }),
-    Button({className: 'admin-button'},['Create']),
+    // need onClick: true or snabbdom-material renders as disabled :/
+    name ? div({},[
+      Button({className: 'submit', onClick: true, primary: true},['Create']),
+      Button(
+        {className: 'cancel', onClick: true, secondary: true, flat: true},
+        ['Cancel']
+      ),
+    ]) : null,
   ])
 
 export default sources => {
-  const click$ = sources.DOM.select('.admin-button').events('click')
+  const submitClick$ = sources.DOM.select('.submit').events('click')
 
-  const input$ = sources.DOM.select('.admin-input').events('input')
-    .map(e => e.target.value)
-    .merge(click$.map(() => ''))
+  const submitForm$ = sources.DOM.select('.project').events('submit')
+    .doAction(ev => ev.preventDefault())
+
+  const cancelClick$ = sources.DOM.select('.cancel').events('click')
+
+  const submit$ = Observable.merge(submitClick$, submitForm$)
+
+  const name$ = sources.DOM.select('.name').events('input')
+    .pluck('target', 'value')
     .startWith('')
 
-  const project$ = click$.withLatestFrom(input$) // join auth$ here for uid
-    .map(([_,name]) => createProject({name}))
-    .startWith(null)
+  const clearFormData$ = cancelClick$
+    .map(() => ({}))
+
+  const formData$ = combineLatestObj({name$})
+
+  const editProject$ = (sources.project$ || Observable.empty())
+    .merge(formData$)
+    .merge(clearFormData$)
     .distinctUntilChanged()
 
-  const DOM = Observable.combineLatest(
-    project$, input$,
-    (project, input) => ({project, input})
-  ).map(_DOM)
+  const project$ = editProject$
+    .sample(submit$)
+
+  // const project$ = (sources.project$ || Observable.empty())
+  //   .merge(formData$)
+  //   .distinctUntilChanged()
+
+  editProject$.subscribe(log('project$'))
+
+  const DOM = editProject$.startWith({}).map(_DOM)
 
   return {
     DOM,
-    project$: project$.filter(x => x !== null),
+    project$,
   }
 }

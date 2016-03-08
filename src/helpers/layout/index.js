@@ -16,3 +16,14 @@ export const desktopLayout = ({bar,side,tabs,main}) =>
       Col({type: 'xs-9'}, [tabs, main]),
     ]),
   ])
+
+export const layoutDOM = ({
+  pageDOM, appBarDOM, tabBarDOM, navContentDOM, isMobile, isOpen,
+}) =>
+  (isMobile ? mobileLayout : desktopLayout)({
+    bar: appBarDOM,
+    tabs: tabBarDOM,
+    side: navContentDOM,
+    main: pageDOM,
+    isOpen,
+  })

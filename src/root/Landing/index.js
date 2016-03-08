@@ -5,6 +5,8 @@ import {Col, Row} from 'snabbdom-material'
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
+import {log} from 'helpers'
+
 import './styles.scss'
 
 const renderHook = (appIcon, headerLogo) =>
@@ -86,8 +88,6 @@ const renderFooter = () =>
   ])
 
 export default (sources) => {
-  const {auth$} = sources
-
   const appMenu = AppMenu(sources)
   const headerLogo = HeaderLogo(sources)
 
@@ -110,6 +110,6 @@ export default (sources) => {
   return {
     DOM: Observable.just(view),
     auth$: appMenu.auth$,
-    route$: auth$.filter(auth => !!auth).map(() => '/dash'),
+    route$: sources.redirectLogin$,
   }
 }
