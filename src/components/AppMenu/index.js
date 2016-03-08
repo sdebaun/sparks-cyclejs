@@ -3,8 +3,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {Appbar, Menu} from 'snabbdom-material'
 import {div, a} from 'cycle-snabbdom'
-import {icon} from 'helpers'
-import {menu} from 'helpers'
+import {icon, menu} from 'helpers'
 
 const {Item} = Menu
 
