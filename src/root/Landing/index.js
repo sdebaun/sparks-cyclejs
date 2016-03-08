@@ -7,7 +7,7 @@ import {landing} from 'helpers'
 import './styles.scss'
 
 export default (sources) => {
-  const {DOM, auth$} = AppMenu(sources)
+  const appMenu = AppMenu(sources)
 
   const facebook$ = sources.DOM.select('.signup .facebook').events('click')
     .map(() => PROVIDERS.facebook)
@@ -15,10 +15,10 @@ export default (sources) => {
   const google$ = sources.DOM.select('.signup .google').events('click')
     .map(() => PROVIDERS.google)
 
-  const authActions$ = Observable.merge(auth$, facebook$, google$)
+  const authActions$ = Observable.merge(appMenu.auth$, facebook$, google$)
 
   return {
-    DOM: DOM.map(landing),
+    DOM: appMenu.DOM.map(landing),
     auth$: authActions$,
     route$: sources.redirectLogin$,
   }

@@ -8,6 +8,7 @@ import 'images/sn-logo-32.png'
 
 export {menu} from './menu'
 export {landing} from './landing'
+export {mobileFrame, desktopFrame} from './frame'
 
 // helper function to attach react components to the snabbdom
 // some need to be attached on 'update', others on 'insert', not sure why
