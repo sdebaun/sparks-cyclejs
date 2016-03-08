@@ -3,7 +3,7 @@ import {div, h1, h2, h3, h4, h5, ul, li, a, b, br} from 'cycle-snabbdom'
 import {Col, Row} from 'snabbdom-material'
 
 import AppMenu from 'components/AppMenu'
-import HeaderLogo from 'components/HeaderLogo'
+import {headerLogo} from 'helpers'
 
 import {log} from 'util'
 
@@ -14,7 +14,7 @@ import 'images/pitch/icon-first.svg'
 import 'images/pitch/icon-flag.svg'
 import 'images/pitch/icon-mountains.svg'
 
-const renderHook = (appIcon, headerLogo) =>
+const renderHook = (appIcon) =>
   div('#hook', {}, [
     div({style: {spaceBetween: 'flex-start'}}, [
       headerLogo,
@@ -94,7 +94,6 @@ const renderFooter = () =>
 
 export default (sources) => {
   const appMenu = AppMenu(sources)
-  const headerLogo = HeaderLogo(sources)
 
   const view =
     div('#landing', {}, [
