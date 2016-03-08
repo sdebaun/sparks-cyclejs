@@ -4,16 +4,16 @@ const {Item} = Menu
 import {icon} from './index'
 import {menu} from './menu'
 
-function appMenu({isOpen,auth,userProfile}) {
+function appMenu({isOpen, auth, userProfile}) {
+  console.log(userProfile)
   return div({}, [
     Appbar.Button({className: 'app-menu-button'}, [
       icon('more_vert'),
     ]),
     menu({isOpen, rightAlign: true}, [
-      userProfile ? Item({className: 'home'}, userProfile.fullName) : null,
+      userProfile ? Item({className: 'home'} , [userProfile.fullName]) : null,
       userProfile && userProfile.isAdmin ?
-        Item({className: 'admin'},'Admin') :
-        null,
+        Item({className: 'admin'}, ['Admin']) : null,
       auth ? null : Item({className: 'login facebook'},'Facebook'),
       auth ? null : Item({className: 'login google'},'Google'),
       auth ? Item({className: 'logout'},'Logout') : null,

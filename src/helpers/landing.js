@@ -39,10 +39,14 @@ const onClick = () => {}
 const signUp =
   Row({style: {width: '100%', textAlign: 'center'}, className: 'signup'}, [
     Col({type: 'xs-6'}, [
-      Button({onClick, className: 'facebook'}, ['Sign Up using Facebook']),
+      Button({onClick, primary: true, className: 'facebook'}, [
+        'Sign Up using Facebook',
+      ]),
     ]),
     Col({type: 'xs-6'}, [
-      Button({onClick, className: 'google'}, ['Sign Up using Google']),
+      Button({onClick, primary: true, className: 'google'}, [
+        'Sign Up using Google',
+      ]),
     ]),
   ])
 

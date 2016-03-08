@@ -10,6 +10,7 @@ export {menu} from './menu'
 export {landing} from './landing'
 export {appMenu} from './appMenu'
 export {mobileFrame, desktopFrame} from './frame'
+export {projectForm} from './projectForm'
 
 // helper function to attach react components to the snabbdom
 // some need to be attached on 'update', others on 'insert', not sure why
