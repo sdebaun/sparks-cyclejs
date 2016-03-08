@@ -1,6 +1,7 @@
 import {div, span} from 'cycle-snabbdom'
 import {Mask} from 'snabbdom-material'
-import {material} from 'helpers/dom'
+import {icon} from 'helpers'
+import {material} from 'util'
 import combineLatestObj from 'rx-combine-latest-obj'
 
 const defaultStyles = {

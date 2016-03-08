@@ -5,7 +5,8 @@ import {div} from 'cycle-snabbdom'
 
 import {Appbar} from 'snabbdom-material'
 
-import {icon, material} from 'helpers/dom'
+import {icon} from 'helpers'
+import {material} from 'util'
 
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'

@@ -10,8 +10,7 @@ import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-import {icon} from 'helpers/dom'
-import {layoutDOM} from 'helpers/layout'
+import {icon} from 'helpers'
 
 import {log} from 'util'
 

@@ -7,7 +7,7 @@ import ProjectForm from 'components/ProjectForm'
 
 import {log} from 'util'
 
-// TODO: move to helpers/dom
+// TODO: move to helpers
 const rows = obj =>
   Object.keys(obj).map(k => ({$key: k, ...obj[k]}))
 
