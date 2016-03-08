@@ -7,37 +7,56 @@ import {Form,Input,Button} from 'snabbdom-material'
 import {log} from 'helpers'
 
 const _DOM = ({name}) =>
-  Form({}, [
+  Form({className: 'project'}, [
     Input({
-      className: 'admin-name',
+      className: 'name',
       label: 'New Project Name',
       value: name,
     }),
-    Button({className: 'admin-button'},['Create']),
+    // need onClick: true or snabbdom-material renders as disabled :/
+    name ? div({},[
+      Button({className: 'submit', onClick: true, primary: true},['Create']),
+      Button(
+        {className: 'cancel', onClick: true, secondary: true, flat: true},
+        ['Cancel']
+      ),
+    ]) : null,
   ])
 
 export default sources => {
-  const click$ = sources.DOM.select('.admin-button').events('click')
+  const submitClick$ = sources.DOM.select('.submit').events('click')
 
-  const name$ = sources.DOM.select('.admin-name').events('input')
+  const submitForm$ = sources.DOM.select('.project').events('submit')
+    .doAction(ev => ev.preventDefault())
+
+  const cancelClick$ = sources.DOM.select('.cancel').events('click')
+
+  const submit$ = Observable.merge(submitClick$, submitForm$)
+
+  const name$ = sources.DOM.select('.name').events('input')
     .pluck('target', 'value')
     .startWith('')
 
-  const formData$ = combineLatestObj({name$})
-    .sample(click$)
+  const clearFormData$ = cancelClick$
+    .map(() => ({}))
 
-  const project$ = (sources.project$ || Observable.empty())
+  const formData$ = combineLatestObj({name$})
+
+  const editProject$ = (sources.project$ || Observable.empty())
     .merge(formData$)
+    .merge(clearFormData$)
     .distinctUntilChanged()
 
-  project$.subscribe(log('project$'))
+  const project$ = editProject$
+    .sample(submit$)
 
-  const DOM = project$.startWith({}).map(_DOM)
+  // const project$ = (sources.project$ || Observable.empty())
+  //   .merge(formData$)
+  //   .distinctUntilChanged()
 
-  // const DOM = project$.mapObservable.combineLatest(
-  //   project$, name$,
-  //   (project, name) => ({project, name})
-  // ).map(_DOM)
+  editProject$.subscribe(log('project$'))
+
+  const DOM = editProject$.startWith({}).map(_DOM)
 
   return {
     DOM,
