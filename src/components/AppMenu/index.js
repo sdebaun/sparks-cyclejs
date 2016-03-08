@@ -4,6 +4,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import {Appbar, Menu} from 'snabbdom-material'
 import {div, a} from 'cycle-snabbdom'
 import {icon, menu} from 'helpers'
+import {PROVIDERS} from 'util'
 
 const {Item} = Menu
 
@@ -27,11 +28,11 @@ const _DOM = ({isOpen,auth,userProfile}) => {
 export default sources => {
   const authActions$ = Observable.merge(
     sources.DOM.select('.app-menu .login.facebook').events('click')
-      .map(e => ({type: 'popup',provider: 'facebook'})),
+      .map(() => PROVIDERS.facebook),
     sources.DOM.select('.app-menu .login.google').events('click')
-      .map(e => ({type: 'popup',provider: 'google'})),
+      .map(() => PROVIDERS.google),
     sources.DOM.select('.app-menu .logout').events('click')
-      .map(e => ({type: 'logout'})),
+      .map(() => PROVIDERS.logout),
   )
 
   const nav$ = Observable.merge(
