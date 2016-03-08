@@ -1,7 +1,7 @@
 import AppBar from 'components/AppBar'
 import SideNav from 'components/SideNav'
 
-import {mobileLayout, desktopLayout} from 'helpers'
+import {mobileFrame, desktopFrame} from 'helpers'
 import {mergeOrFlatMapLatest} from 'util'
 
 export default sources => {
@@ -28,7 +28,7 @@ export default sources => {
   }
 
   const DOM = sources.isMobile$.map(isMobile =>
-    isMobile ? mobileLayout(layoutParams) : desktopLayout(layoutParams)
+    isMobile ? mobileFrame(layoutParams) : desktopFrame(layoutParams)
   )
 
   return {
