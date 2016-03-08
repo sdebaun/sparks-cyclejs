@@ -3,10 +3,6 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
 
-// why arent these in root/index??
-import 'normalize-css'
-import '!style!css!snabbdom-material/lib/index.css'
-
 import AppBar from 'components/AppBar'
 import TabBar from 'components/TabBar'
 
@@ -15,17 +11,18 @@ import {icon} from 'helpers/dom'
 import {layoutDOM} from 'helpers/layout'
 
 import Doing from './Doing'
+import ComingSoon from 'components/ComingSoon'
 
 const _routes = {
   '/': Doing,
-  // '/finding': Finding,
-  // '/being': Being,
+  '/finding': ComingSoon('Dash/Finding'),
+  '/being': ComingSoon('Dash/Being'),
 }
 
 const _tabs = [
   {path: '/', label: 'Doing'},
-  // {path: '/finding', label: 'Finding'},
-  // {path: '/being', label: 'Being'},
+  {path: '/finding', label: 'Finding'},
+  {path: '/being', label: 'Being'},
 ]
 
 const NavContent = sources => ({
