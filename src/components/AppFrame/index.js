@@ -14,7 +14,10 @@ export default sources => {
     ...sources,
   })
 
-  const route$ = mergeOrFlatMapLatest('route$', appBar, sideNav)
+  const children = [appBar, sideNav]
+
+  const auth$ = mergeOrFlatMapLatest('auth$', ...children)
+  const route$ = mergeOrFlatMapLatest('route$', ...children)
 
   return {
     DOM: sources.isMobile$
@@ -37,6 +40,7 @@ export default sources => {
             ]),
           ])
       ),
+    auth$,
     route$,
   }
 }
