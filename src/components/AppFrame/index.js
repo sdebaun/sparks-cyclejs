@@ -3,18 +3,23 @@ import SideNav from 'components/SideNav'
 
 import {div} from 'cycle-snabbdom'
 import {Col, Row} from 'snabbdom-material'
-import {mergeOrFlatMapLatest} from 'helpers/router'
+import {mergeOrFlatMapLatest} from 'util'
 
 export default sources => {
   const appBar = AppBar(sources)
 
+  const navButton$ = sources.DOM.select('.nav-button').events('click')
+
   const sideNav = SideNav({
     contentDOM: sources.navDOM,
-    isOpen$: appBar.navButton$.map(true).startWith(false),
+    isOpen$: navButton$.map(true).startWith(false),
     ...sources,
   })
 
-  const route$ = mergeOrFlatMapLatest('route$', appBar, sideNav)
+  const children = [appBar, sideNav]
+
+  const auth$ = mergeOrFlatMapLatest('auth$', ...children)
+  const route$ = mergeOrFlatMapLatest('route$', ...children)
 
   return {
     DOM: sources.isMobile$
@@ -37,6 +42,7 @@ export default sources => {
             ]),
           ])
       ),
+    auth$,
     route$,
   }
 }

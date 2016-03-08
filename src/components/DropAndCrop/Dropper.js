@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import Dropzone from 'react-dropzone'
 import {BehaviorSubject} from 'rx'
-import {reactComponent} from 'helpers/dom'
+import {reactComponent} from 'helpers'
 
 const divStyle = {
   padding: '1em',

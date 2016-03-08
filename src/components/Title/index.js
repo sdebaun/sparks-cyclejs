@@ -3,7 +3,8 @@ import {div} from 'cycle-snabbdom'
 
 import AppMenu from 'components/AppMenu'
 import {Appbar} from 'snabbdom-material'
-import {icon, material} from 'helpers/dom'
+import {icon} from 'helpers'
+import {material} from 'util'
 
 const _DOM = ({
   isMobile,

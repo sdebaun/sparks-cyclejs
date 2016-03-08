@@ -49,6 +49,8 @@ module.exports = {
       helpers: srcPath + '/helpers',
       root: srcPath + '/root',
       images: imagePath,
+      util: srcPath + '/util',
+      remote: srcPath + '/remote',
     },
   },
   plugins: ENV === 'production' ?

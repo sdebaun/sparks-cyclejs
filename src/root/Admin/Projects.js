@@ -5,9 +5,9 @@ import {div,a} from 'cycle-snabbdom'
 
 import ProjectForm from 'components/ProjectForm'
 
-import {log} from 'helpers'
+import {log} from 'util'
 
-// TODO: move to helpers/dom
+// TODO: move to helpers
 const rows = obj =>
   Object.keys(obj).map(k => ({$key: k, ...obj[k]}))
 
@@ -21,7 +21,7 @@ const _DOM = ({projects, formDOM}) =>
     div({attrs: {class: 'projects'}},renderProjects(projects)),
   ])
 
-import actions from 'helpers/actions'
+import {Projects} from 'remote'
 
 export default sources => {
   const projects$ = sources.firebase('Projects')
@@ -31,7 +31,7 @@ export default sources => {
 
   const newProject$ = projectForm.project$
     .filter(p => p !== {})
-    .map(actions.Projects.create)
+    .map(Projects.create)
 
   const nav$ = sources.DOM.select('.projects .project').events('click')
     .map(e => e.ownerTarget.dataset.link)

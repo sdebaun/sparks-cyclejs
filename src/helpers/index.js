@@ -1,3 +1,18 @@
-export const log = label => emitted => console.log(label,':',emitted)
+import React from 'react'
+import ReactDOM from 'react-dom'
+import {div} from 'cycle-snabbdom'
+import {Icon} from 'snabbdom-material'
 
-export const isObservable = obs => typeof obs.subscribe === 'function'
+export {menu} from './menu'
+
+// helper function to attach react components to the snabbdom
+// some need to be attached on 'update', others on 'insert', not sure why
+// see Dropper.js and Cropper.js
+export const reactComponent = (Klass,attrs,hookName = 'update') =>
+  div({
+    hook: {[hookName]: ({elm}) => ReactDOM.render(<Klass {...attrs}/>,elm)},
+  })
+
+export const icon = (name, color = '#FFF') => Icon({name, style: {color}})
+
+// export const appBar = ({})

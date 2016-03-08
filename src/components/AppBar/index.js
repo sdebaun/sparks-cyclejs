@@ -1,16 +1,22 @@
-import {BehaviorSubject, Observable} from 'rx'
+import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
+// goal: get explicit snabbdom refs out of routes & components
 import {div} from 'cycle-snabbdom'
-
 import {Appbar} from 'snabbdom-material'
-
-import {icon, material} from 'helpers/dom'
+import {material} from 'util'
 
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
-const _DOM = ({isMobile, appMenuDOM, hideMenu}) =>
+// not sure...
+// const _DOM = ({appMenuDOM}) =>
+//   appBar({
+//     appMenu: appMenuDOM,
+//     // background: or however we implement no bg color
+//   })
+
+const _DOM = ({appMenuDOM}) =>
   Appbar({fixed: true, material},[
     Appbar.Title({style: {float: 'left'}},[HeaderLogo().DOM]),
     div({style: {float: 'right'}},[appMenuDOM]),
@@ -19,18 +25,13 @@ const _DOM = ({isMobile, appMenuDOM, hideMenu}) =>
 export default sources => {
   const appMenu = AppMenu(sources) // will need to pass auth
 
-  const navButton$ = sources.DOM.select('.nav-button').events('click')
-
   const DOM = combineLatestObj({
-    isMobile$: sources.isMobile$,
     appMenuDOM$: appMenu.DOM,
-    hideMenu: sources.hideMenu$ || Observable.just(false),
   }).map(_DOM)
 
   return {
     DOM,
     auth$: appMenu.auth$,
     route$: appMenu.route$,
-    navButton$,
   }
 }

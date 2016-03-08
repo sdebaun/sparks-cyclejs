@@ -1,18 +1,24 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import {div} from 'cycle-snabbdom'
-import {Icon} from 'snabbdom-material'
+import {Observable} from 'rx'
 
-// helper function to attach react components to the snabbdom
-// some need to be attached on 'update', others on 'insert', not sure why
-// see Dropper.js and Cropper.js
-export const reactComponent = (Klass,attrs,hookName = 'update') =>
-  div({
-    hook: {[hookName]: ({elm}) => ReactDOM.render(<Klass {...attrs}/>,elm)},
-  })
+export const log = label => emitted => console.log(label,':',emitted)
 
-// brevity etc
-export const icon = (name, color = '#FFF') => Icon({name, style: {color}})
+export const isObservable = obs => typeof obs.subscribe === 'function'
+
+export function nestedComponent({path$, value$}, sources) {
+  return path$.zip(value$,
+    (path, value) => value({...sources, router: sources.router.path(path)})
+  ).shareReplay(1)
+}
+
+export const mergeOrFlatMapLatest = (prop, ...sourceArray) =>
+  Observable.merge(
+    sourceArray.map(src => // array.map!
+      isObservable(src) ? // flatmap if observable
+        src.flatMapLatest(l => l[prop] || Observable.empty()) :
+        // otherwise look for a prop
+        src[prop] || Observable.empty()
+    )
+  )
 
 // app-wide material styles
 export const material = {
