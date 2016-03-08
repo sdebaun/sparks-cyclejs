@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom'
 import {div} from 'cycle-snabbdom'
 import {Icon} from 'snabbdom-material'
 
+export {menu} from './menu'
+
 // helper function to attach react components to the snabbdom
 // some need to be attached on 'update', others on 'insert', not sure why
 // see Dropper.js and Cropper.js
