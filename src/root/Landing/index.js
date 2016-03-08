@@ -5,7 +5,7 @@ import {Col, Row} from 'snabbdom-material'
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
 
-import {log} from 'helpers'
+import {log} from 'util'
 
 import './styles.scss'
 

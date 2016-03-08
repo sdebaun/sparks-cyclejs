@@ -1,6 +1,7 @@
 import {div,h} from 'cycle-snabbdom'
 
-import {material} from 'helpers/dom'
+import {icon} from 'helpers'
+import {material} from 'util'
 
 import './styles.scss'
 

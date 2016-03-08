@@ -10,16 +10,16 @@ import Project from './Project'
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
 
-import {nestedComponent} from 'helpers/router'
+import {nestedComponent} from 'util'
 
-import {log} from 'helpers'
+import {log} from 'util'
 
 import './styles.scss'
 
 // Route definitions at this level
 const routes = {
   '/': Landing,
-  '/confirm/': isolate(Confirm),
+  '/confirm': isolate(Confirm),
   '/dash': isolate(Dash),
   '/admin': isolate(Admin),
   '/project/:key': key => sources => isolate(Project)({
