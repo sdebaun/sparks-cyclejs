@@ -38,108 +38,112 @@ label, p, a, h1, div {
   position: relative;
   display: flex;
   /*top: -106px;*/
-}
 
-input[type="radio"][name="tabs"] {
-  position: absolute;
-  z-index: -1;
-  &:checked {
-    + .tab-label-content {
-      label {
-        color: white;
-      }
-      .tab-content {
-        display: block;
-      }
-    }
-  }
-  @include tabs;
-  &:first-of-type {
-    &:checked {
-      ~ .slide {
-        left: 0;
-      }
-    }
-  }
-}
 
-label {
-  cursor: pointer;
-  /*color: rgba(255,255,255,0.8);*/
-  /*background-color: $cyan;*/
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  height: 56px;
-  transition: color 0.2s ease;
-  width: 100%;
-}
-
-.slide {
-  background: $yellow;
-  width: calc(100% / #{$num-of-tabs});
-  height: 4px;
-  position: absolute;
-  left: 0;
-  top: calc(100% - 4px);
-  transition: left 0.3s ease-out;
-}
-
-.tab-label-content {
-  width: 100%;
-  .tab-content {
+  input[type="radio"][name="tabs"] {
     position: absolute;
-    top: 100px;
-    left: 16px;
-    line-height: 130%;
-    display: none;
-  }
-}
-
-@media screen and (max-width: 800px) {
-  h1 {
-    padding: 40px 0 90px 10%;
-  }
-  .tab-wrap {
-    /*width: 80%;*/
-    /*margin-left: 10%;*/
-    /*top: -106px;*/
-  }
-}
-
-//---------------------------------------------
-
-.follow {
-  width: 42px;
-  height: 42px;
-  border-radius: 50px;
-  background: #03A9F4;
-  display: block;
-  margin: 300px auto 0;
-  white-space: nowrap;
-  padding: 13px;
-  box-sizing: border-box;
-  color: white;
-  transition: all 0.2s ease;
-  font-family: Roboto, sans-serif;
-  text-decoration: none;
-  box-shadow: 0 5px 6px 0 rgba(0,0,0,0.2);
-  i {
-    margin-right: 20px;
-    transition: margin-right 0.2s ease;
-  }
-  &:hover {
-    width: 134px;
-    i {
-      margin-right: 10px;
+    z-index: -1;
+    &:checked {
+      + .tab-label-content {
+        label {
+          color: white;
+        }
+        .tab-content {
+          display: block;
+        }
+      }
+    }
+    @include tabs;
+    &:first-of-type {
+      &:checked {
+        ~ .slide {
+          left: 0;
+        }
+      }
     }
   }
+
+  label {
+    cursor: pointer;
+    /*color: rgba(255,255,255,0.8);*/
+    /*background-color: $cyan;*/
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 56px;
+    transition: color 0.2s ease;
+    width: 100%;
+  }
+
+  .slide {
+    background: $yellow;
+    width: calc(100% / #{$num-of-tabs});
+    height: 4px;
+    position: absolute;
+    left: 0;
+    top: calc(100% - 4px);
+    transition: left 0.3s ease-out;
+  }
+
+  .tab-label-content {
+    width: 100%;
+    .tab-content {
+      position: absolute;
+      top: 100px;
+      left: 16px;
+      line-height: 130%;
+      display: none;
+    }
+  }
+
+  @media screen and (max-width: 800px) {
+    h1 {
+      padding: 40px 0 90px 10%;
+    }
+    .tab-wrap {
+      /*width: 80%;*/
+      /*margin-left: 10%;*/
+      /*top: -106px;*/
+    }
+  }
+
+  //---------------------------------------------
+
+  .follow {
+    width: 42px;
+    height: 42px;
+    border-radius: 50px;
+    background: #03A9F4;
+    display: block;
+    margin: 300px auto 0;
+    white-space: nowrap;
+    padding: 13px;
+    box-sizing: border-box;
+    color: white;
+    transition: all 0.2s ease;
+    font-family: Roboto, sans-serif;
+    text-decoration: none;
+    box-shadow: 0 5px 6px 0 rgba(0,0,0,0.2);
+    i {
+      margin-right: 20px;
+      transition: margin-right 0.2s ease;
+    }
+    &:hover {
+      width: 134px;
+      i {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  @media screen and (max-width: 800px) {
+    .follow {
+      margin: 400px auto 0;
+    }
+  }
+
 }
 
-@media screen and (max-width: 800px) {
-  .follow {
-    margin: 400px auto 0;
-  }
-}
+  
