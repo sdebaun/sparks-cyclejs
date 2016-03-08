@@ -10,7 +10,7 @@ import '!style!css!snabbdom-material/lib/index.css'
 import AppBar from 'components/AppBar'
 import TabBar from 'components/TabBar'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'helpers/router'
+import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 import {icon} from 'helpers/dom'
 import {layoutDOM} from 'helpers/layout'
 

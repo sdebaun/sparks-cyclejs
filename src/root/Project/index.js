@@ -9,11 +9,11 @@ import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'helpers/router'
+import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 import {icon} from 'helpers/dom'
 import {layoutDOM} from 'helpers/layout'
 
-import {log} from 'helpers'
+import {log} from 'util'
 
 import Dash from './Dash'
 

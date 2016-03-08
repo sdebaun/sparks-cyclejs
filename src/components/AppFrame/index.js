@@ -3,7 +3,7 @@ import SideNav from 'components/SideNav'
 
 import {div} from 'cycle-snabbdom'
 import {Col, Row} from 'snabbdom-material'
-import {mergeOrFlatMapLatest} from 'helpers/router'
+import {mergeOrFlatMapLatest} from 'util'
 
 export default sources => {
   const appBar = AppBar(sources)

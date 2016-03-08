@@ -8,7 +8,7 @@ import Title from 'components/Title'
 import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'helpers/router'
+import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 import {icon} from 'helpers/dom'
 import {mobileLayout, desktopLayout} from 'helpers/layout'
 

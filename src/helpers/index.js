@@ -1,3 +1,5 @@
-export const log = label => emitted => console.log(label,':',emitted)
+// now in 'util'
 
-export const isObservable = obs => typeof obs.subscribe === 'function'
+// export const log = label => emitted => console.log(label,':',emitted)
+
+// export const isObservable = obs => typeof obs.subscribe === 'function'

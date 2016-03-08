@@ -5,7 +5,7 @@ import {div,a} from 'cycle-snabbdom'
 
 import ProjectForm from 'components/ProjectForm'
 
-import {log} from 'helpers'
+import {log} from 'util'
 
 // TODO: move to helpers/dom
 const rows = obj =>

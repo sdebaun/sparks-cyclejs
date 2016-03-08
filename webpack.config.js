@@ -40,6 +40,8 @@ module.exports = {
       components: srcPath + '/components',
       helpers: srcPath + '/helpers',
       routes: srcPath + '/routes',
+      util: srcPath + '/util',
+      remote: srcPath + '/remote',
     },
   },
   plugins: ENV === 'production' ?

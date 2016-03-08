@@ -4,7 +4,7 @@ import ComingSoon from 'components/ComingSoon'
 import {div} from 'cycle-snabbdom'
 import {Form,Input,Button} from 'snabbdom-material'
 
-import {log} from 'helpers'
+import {log} from 'util'
 
 const _DOM = ({name}) =>
   Form({className: 'project'}, [

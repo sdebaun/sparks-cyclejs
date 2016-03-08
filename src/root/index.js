@@ -10,9 +10,9 @@ import Project from './Project'
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
 
-import {nestedComponent} from 'helpers/router'
+import {nestedComponent} from 'util'
 
-import {log} from 'helpers'
+import {log} from 'util'
 
 import './styles.scss'
 
