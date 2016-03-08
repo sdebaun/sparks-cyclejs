@@ -1,6 +1,8 @@
 import {Observable} from 'rx'
 import {a, img} from 'cycle-snabbdom'
 
+import 'images/sn-logo-32.png'
+
 export default (sources) => ({
   DOM: Observable.just(
     a({props: {href: '/'}}, [

@@ -8,6 +8,11 @@ import HeaderLogo from 'components/HeaderLogo'
 import {log} from 'helpers'
 
 import './styles.scss'
+import 'images/pitch/sparklerHeader-2048.jpg'
+import 'images/pitch/heartIcon.svg'
+import 'images/pitch/icon-first.svg'
+import 'images/pitch/icon-flag.svg'
+import 'images/pitch/icon-mountains.svg'
 
 const renderHook = (appIcon, headerLogo) =>
   div('#hook', {}, [
