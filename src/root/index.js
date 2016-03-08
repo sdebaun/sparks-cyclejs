@@ -19,7 +19,7 @@ import './styles.scss'
 // Route definitions at this level
 const routes = {
   '/': Landing,
-  '/confirm/': isolate(Confirm),
+  '/confirm': isolate(Confirm),
   '/dash': isolate(Dash),
   '/admin': isolate(Admin),
   '/project/:key': key => sources => isolate(Project)({
