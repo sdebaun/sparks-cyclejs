@@ -71,7 +71,7 @@ gulp.task('deploy', ['build'], cb => {
   const domain = args.domain
   const project = path.DEST
   
-  log('Starting surge deployment of', project, ' to ', domain, '...')
+  log('Starting surge deployment of ' + project + ' to ' + domain + ' ...')
   surge({project, domain})
   log('...surge complete!')
 })
