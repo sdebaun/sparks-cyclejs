@@ -1,7 +1,11 @@
+machine:
+  node:
+    version: 4.2.2
+
 notify:
   webhooks:
     - url: https://hooks.slack.com/services/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
-    
+
 deployment:
   production:
     branch: master
