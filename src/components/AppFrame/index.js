@@ -1,8 +1,7 @@
 import AppBar from 'components/AppBar'
 import SideNav from 'components/SideNav'
 
-import {div} from 'cycle-snabbdom'
-import {Col, Row} from 'snabbdom-material'
+import {mobileFrame, desktopFrame} from 'helpers'
 import {mergeOrFlatMapLatest} from 'util'
 
 export default sources => {
@@ -21,29 +20,20 @@ export default sources => {
   const auth$ = mergeOrFlatMapLatest('auth$', ...children)
   const route$ = mergeOrFlatMapLatest('route$', ...children)
 
+  const layoutParams = {
+    sideNav: sideNav.DOM,
+    appBar: appBar.DOM,
+    header: sources.headerDOM,
+    page: sources.pageDOM,
+  }
+
+  const DOM = sources.isMobile$.map(isMobile =>
+    isMobile ? mobileFrame(layoutParams) : desktopFrame(layoutParams)
+  )
+
   return {
-    DOM: sources.isMobile$
-      .map(isMobile =>
-        isMobile ?
-          div({},[
-            sideNav.DOM,
-            appBar.DOM,
-            sources.headerDOM,
-            sources.pageDOM,
-          ]) :
-          div({},[
-            appBar.DOM,
-            div({style: {display: 'flex'}},[
-              div({style: {width: '300px'}}, [sideNav.DOM]),
-              div({style: {flex: 1}}, [
-                sources.headerDOM,
-                div({style: {padding: '0em 1em'}}, [sources.pageDOM]),
-              ]),
-            ]),
-          ])
-      ),
+    DOM,
     auth$,
     route$,
   }
 }
-

@@ -1,5 +1,11 @@
 import {Observable} from 'rx'
 
+export const PROVIDERS = {
+  google: {type: 'popup', provider: 'google'},
+  facebook: {type: 'popup', provider: 'facebook'},
+  logout: {type: 'logout'},
+}
+
 export const log = label => emitted => console.log(label,':',emitted)
 
 export const isObservable = obs => typeof obs.subscribe === 'function'
