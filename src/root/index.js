@@ -35,20 +35,18 @@ export default sources => {
     .pluck('val')
     .share()
 
-  responses$.subscribe(log('responses$'))
-
   // lots of components like to know the user's profile key and profile info
   // let us make it easy for them
   const userProfileKey$ = sources.auth$
     .flatMapLatest(auth =>
-      auth ? sources.firebase('Users',auth.uid) : Observable.just(null)
+      auth ? sources.firebase('Users', auth.uid) : Observable.just(null)
     )
 
   const userProfile$ = userProfileKey$
     .distinctUntilChanged()
-    .flatMapLatest(key =>
-      key ? sources.firebase('Profiles',key) : Observable.just(null)
-    )
+    .flatMapLatest(key => {
+      return key ? sources.firebase('Profiles', key) : Observable.just(null)
+    })
 
   // sources.auth$.subscribe(log('auth$'))
   // userProfileKey$.subscribe(log('userProfileKey$'))
@@ -72,8 +70,6 @@ export default sources => {
     .filter(([profile,auth]) => !profile && !!auth)
     .map(() => '/confirm')
 
-  // redirectUnconfirmed$.subscribe(log('redirectUnconfirmed$'))
-
   const page$ = nestedComponent(sources.router.define(routes),{
     responses$, userProfileKey$, userProfile$, redirectLogin$, redirectLogout$,
     ...sources,
@@ -87,14 +83,6 @@ export default sources => {
 
   authedActions$.subscribe(log('authedActions$'))
 
-  // inject authed uid into tasks on their way to sink
-  // const authedActions$ = page$
-  //   .flatMapLatest(({queue$}) => queue$ || Observable.never())
-  //   .withLatestFrom(sources.auth$)
-  //   // .do(log('authedAction$'))
-  //   .map(([action,auth]) => ({uid: auth && auth.uid, ...action}))
-
-  // does the router/route$ thing bother anyone else
   const router = page$
     .flatMapLatest(({route$}) => route$ || Observable.never())
     .merge(redirectUnconfirmed$)
