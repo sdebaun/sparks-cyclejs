@@ -37,7 +37,6 @@
 }
 
 #hook {
-  background-image: url("/images/pitch/sparklerHeader-2048.jpg");
   background-repeat: no-repeat;
   background-position: center top;
   background-size: cover;
@@ -53,7 +52,7 @@
 }
 
 #more-heart {
-  background: url("/images/pitch/heartIcon.svg");
+  xbackground: url("/images/pitch/heartIcon.svg");
   background-position: center top;
   background-repeat: no-repeat;
   background-size: 6em 6em;
@@ -88,15 +87,6 @@
         }
         &.direct {
           background-image: url("/images/pitch/icon-direct.svg");
-        }
-        &.first {
-          background-image: url("/images/pitch/icon-first.svg");
-        }
-        &.flag {
-          background-image: url("/images/pitch/icon-flag.svg");
-        }
-        &.mountains {
-          background-image: url("/images/pitch/icon-mountains.svg");
         }
         &.piggy {
           background-image: url("/images/pitch/icon-piggy.svg");

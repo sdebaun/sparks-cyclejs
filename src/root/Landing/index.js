@@ -8,14 +8,20 @@ import HeaderLogo from 'components/HeaderLogo'
 import {log} from 'util'
 
 import './styles.scss'
-import 'images/pitch/sparklerHeader-2048.jpg'
-import 'images/pitch/heartIcon.svg'
-import 'images/pitch/icon-first.svg'
-import 'images/pitch/icon-flag.svg'
-import 'images/pitch/icon-mountains.svg'
+
+const headerSrc = require('images/pitch/sparklerHeader-2048.jpg')
+
+const iconSrcs = {
+  heart: require('images/pitch/heartIcon.svg'),
+  first: require('images/pitch/icon-first.svg'),
+  flag: require('images/pitch/icon-flag.svg'),
+  mountains: require('images/pitch/icon-mountains.svg'),
+}
 
 const renderHook = (appIcon, headerLogo) =>
-  div('#hook', {}, [
+  div('#hook', {
+    style: {backgroundImage: 'url("' + headerSrc + '")'},
+  }, [
     div({style: {spaceBetween: 'flex-start'}}, [
       headerLogo,
       div({style: {float: 'right'}}, [appIcon]),
@@ -29,15 +35,21 @@ const renderBenefits = () =>
       h3({}, ['Get invited to volunteer opportunities from all ' +
         'over the world by joining the ', b('sparks.network')]),
       ul({}, [
-        li('.sn-icon.flag', {}, [
+        li('.sn-icon.flag', {
+          style: {backgroundImage: 'url("' + iconSrcs.flag + '")'},
+        }, [
           b({}, 'Have new experiences'),
           ' by participating in lots of different events.',
         ]),
-        li('.sn-icon.mountains', {}, [
+        li('.sn-icon.mountains', {
+          style: {backgroundImage: 'url("' + iconSrcs.mountains + '")'},
+        }, [
           b({}, 'Get rewarded'),
-          ' by the people you help with cool gifts and perks.',
+          ' for the help that you give with perks and access to new opportunities.',
         ]),
-        li('.sn-icon.first', {}, [
+        li('.sn-icon.first', {
+          style: {backgroundImage: 'url("' + iconSrcs.first + '")'},
+        }, [
           b({}, 'Be recognized'),
           ' for your contributions with Karma, Accomplishments, and Triumphs.',
         ]),
@@ -102,7 +114,10 @@ export default (sources) => {
       div('#promise', {static: true}, [
         h2('.container', {}, 'Get Involved Now!'),
       ]),
-      div('#more-heart', {static: true}),
+      div('#more-heart', {
+        static: true,
+        style: {backgroundImage: 'url("' + iconSrcs.heart + '")'},
+      }),
       renderBenefits(),
       div('#cta', {static: true}, [
         div('.container', {}, [
