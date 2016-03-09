@@ -5,6 +5,7 @@ import copy from 'gulp-copy'
 import del from 'del'
 import sequence from 'run-sequence'
 import gutil from 'gulp-util'
+import surge from 'surge'
 
 import WebpackDevServer from 'webpack-dev-server'
 
