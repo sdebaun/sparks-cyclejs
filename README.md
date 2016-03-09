@@ -80,13 +80,15 @@ Most everything is handled by `gulp` tasks.  Two npm scripts of note:
 
 ### Gulp Commands
 
+Commands are in `gulpfile.babel.js`.  This changes infrequently.  Run `npm build:gulp` when it does.  And update this README.
+
 * `gulp`: run a local webpack development server at `http://localhost:8080`.  Also `gulp serve`, if you're not into that whole brevity thing.
+
+* `gulp test`: runs `tape` with `faucet` for pretty output.
 
 * `gulp build`: use webpack to compile into `dist/`
 
 * `gulp deploy --domain <domain>`: use [surge.sh](http://surge.sh) to deploy to the specified host.
-
-* `gulp test`: runs `tape` with `faucet` for pretty output.
 
 * `gulp test:xunit [--out <path>]`: runs `tape` and puts xml output into `<path>/results.xml`.  Used by CircleCI.
 
