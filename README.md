@@ -76,7 +76,7 @@ Most everything is handled by `gulp` tasks.  Two npm scripts of note:
 
 * `npm build:gulp`: compiles `gulpfile.babel.js` into `gulpfile.js`.
 
-* `npm test:ci`: for CI auto-detection, it runs `gulp test:xunit`.
+* `npm test`: for CI auto-detection, it runs `gulp test:xunit`.
 
 ### Gulp Commands
 

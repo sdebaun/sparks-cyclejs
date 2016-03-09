@@ -19,7 +19,7 @@
     "serve": "gulp",
     "build": "gulp build",
     "build:gulp": "babel ./gulpfile.babel.js -o ./gulpfile.js",
-    "test:ci": "gulp test:xunit --out $CIRCLE_TEST_REPORTS",
+    "test": "gulp test:xunit --out $CIRCLE_TEST_REPORTS",
     "eslint": "eslint js/"
   },
   "author": "Sparks.Network",
