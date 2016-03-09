@@ -9,7 +9,8 @@ var imagePath = path.join(__dirname, '/images')
 module.exports = {
   entry: ['./src/main'],
   output: {
-    filename: './dist/bundle.js',
+    path: path.join(__dirname, 'dist'),
+    filename: 'bundle.js',
   },
   module: {
     loaders: [
