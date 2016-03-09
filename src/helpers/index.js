@@ -23,11 +23,13 @@ export const reactComponent = (Klass,attrs,hookName = 'update') =>
 
 export const icon = (name, color = '#FFF') => Icon({name, style: {color}})
 
+const src = require('images/sn-logo-32.png')
+
 export const headerLogo =
   a({props: {href: '/'}}, [
     img({
       style: {height: '24px', float: 'left'},
-      attrs: {src: '/images/sn-logo-32.png'},
+      attrs: {src},
     }),
   ])
 
