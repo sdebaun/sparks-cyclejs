@@ -1,0 +1,13 @@
+deployment:
+  production:
+    branch: master
+    commands:
+      - gulp deploy sparks-production.surge.sh
+  staging:
+    branch: release
+    commands:
+      - gulp deploy sparks-staging.surge.sh
+  staging-test:
+    branch: deployment-changes
+    commands:
+      - gulp deploy sparks-staging.surge.sh

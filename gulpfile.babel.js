@@ -10,6 +10,10 @@ import WebpackDevServer from 'webpack-dev-server'
 
 import WEBPACK_CONFIG from './webpack.config'
 
+import minimist from 'minimist'
+
+const args = minimist(process.argv.slice(2))
+
 const path = {
   ENTRY: './src/main.js',
   DEST: 'dist/',
@@ -60,3 +64,10 @@ gulp.task('serve', cb => {
     log(`http://${dev.HOST}:${dev.PORT}/webpack-dev-server/index.html`)
   })
 })
+
+gulp.task('deploy', ['build'], cb => 
+  surge({
+    project: path.DEST,
+    domain: args._[0]
+  })
+)
