@@ -54,11 +54,11 @@ We're using several services to manage deployment:
 
 * `github` obviously.
 
-* [CircleCI](https://circleci.com) is configured to test all commits to all branches in the repository.  It also has two automagic deployments:
+* [CircleCI](https://circleci.com) is configured to test all commits to all branches in the repository.  [See circle.yml] for details.  It also has two automagic deployments:
 
-** `release` branch is deployed to `staging` server
+    * `release` branch is deployed to `staging` server
 
-** `master` branch is deployed to `production` server
+    * `master` branch is deployed to `production` server
 
 * [surge.sh](http://surge.sh) is serving up both of those servers.
 
@@ -68,13 +68,27 @@ We're using several services to manage deployment:
 
 All credentials are stored in the services that use them.  Currently that consists of SURGE_NAME and SURGE_TOKEN, stored in CircleCI; they let the `gulp deploy` task do its magic.
 
+### NPM Scripts
+
+Most everything is handled by `gulp` tasks.  Two npm scripts of note:
+
+* `npm start`: installs and serves
+
+* `npm build:gulp`: compiles `gulpfile.babel.js` into `gulpfile.js`.
+
+* `npm test:ci`: for CI auto-detection, it runs `gulp test:xunit`.
+
 ### Gulp Commands
 
-`gulp serve`: run a local webpack development server at `http://localhost:8080`
+* `gulp`: run a local webpack development server at `http://localhost:8080`.  Also `gulp serve`, if you're not into that whole brevity thing.
 
-`gulp build`: use webpack to compile into dist/
+* `gulp build`: use webpack to compile into `dist/`
 
-`gulp deploy --domain <domain>`: use [surge.sh](http://surge.sh) to deploy to the specified host.
+* `gulp deploy --domain <domain>`: use [surge.sh](http://surge.sh) to deploy to the specified host.
+
+* `gulp test`: runs `tape` with `faucet` for pretty output.
+
+* `gulp test:xunit [--out <path>]`: runs `tape` and puts xml output into `<path>/results.xml`.  Used by CircleCI.
 
 ## Internals
 

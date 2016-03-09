@@ -6,6 +6,10 @@ import del from 'del'
 import sequence from 'run-sequence'
 import gutil from 'gulp-util'
 import surge from 'gulp-surge'
+import tape from 'gulp-tape'
+import faucet from 'faucet'
+import xunit from 'tap-xunit'
+import source from 'vinyl-source-stream'
 
 import WebpackDevServer from 'webpack-dev-server'
 
@@ -16,6 +20,8 @@ import minimist from 'minimist'
 const args = minimist(process.argv.slice(2))
 
 const path = {
+  TEST_SRC: './src/**/*.test.js',
+  TEST_RESULT: './',
   ENTRY: './src/main.js',
   DEST: 'dist/',
   INDEX: './index.html',
@@ -56,7 +62,7 @@ gulp.task('serve', cb => {
     publicPath: '/',
     inline: true,
     historyApiFallback: true,
-    stats: {colors: true}
+    stats: {colors: true},
   })
 
   log('...starting to listen...')
@@ -66,11 +72,30 @@ gulp.task('serve', cb => {
   })
 })
 
-gulp.task('deploy', ['build'], cb => {
+gulp.task('deploy', ['build'], cb => { // --domain some.host.name
   const log = msg => gutil.log('[surge]', msg)
   const domain = args.domain
   const project = path.DEST
-  
+
   log('Starting surge deployment of ' + project + ' to ' + domain + ' ...')
   return surge({project, domain})
+})
+
+gulp.task('test', () =>
+  gulp.src(path.TEST_SRC)
+  .pipe(tape({reporter: faucet()}))
+)
+
+gulp.task('test:xunit', () => { // --out $CIRCLE_TEST_REPORTS
+  const destPath = args.out || './'
+
+  const outputStream = xunit()
+  const vinylOutput = outputStream
+    .pipe(source('results.xml'))
+
+  gulp.src(path.TEST_SRC)
+    .pipe(tape({outputStream}))
+
+  return vinylOutput
+    .pipe(gulp.dest(destPath))
 })
