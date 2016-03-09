@@ -5,7 +5,7 @@ import copy from 'gulp-copy'
 import del from 'del'
 import sequence from 'run-sequence'
 import gutil from 'gulp-util'
-import surge from 'surge'
+import surge from 'gulp-surge'
 
 import WebpackDevServer from 'webpack-dev-server'
 
@@ -72,6 +72,5 @@ gulp.task('deploy', ['build'], cb => {
   const project = path.DEST
   
   log('Starting surge deployment of ' + project + ' to ' + domain + ' ...')
-  surge({project, domain})
-  log('...surge complete!')
+  return surge({project, domain})
 })
