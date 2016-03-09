@@ -1,5 +1,7 @@
 'use strict';
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _gulp = require('gulp');
 
 var _gulp2 = _interopRequireDefault(_gulp);
@@ -48,6 +50,10 @@ var _vinylSourceStream = require('vinyl-source-stream');
 
 var _vinylSourceStream2 = _interopRequireDefault(_vinylSourceStream);
 
+var _gulpBabel = require('gulp-babel');
+
+var _gulpBabel2 = _interopRequireDefault(_gulpBabel);
+
 var _webpackDevServer = require('webpack-dev-server');
 
 var _webpackDevServer2 = _interopRequireDefault(_webpackDevServer);
@@ -67,6 +73,7 @@ var args = (0, _minimist2.default)(process.argv.slice(2));
 var path = {
   TEST_SRC: './src/**/*.test.js',
   TEST_RESULT: './',
+  TEST_ENTRY: './src/main.test.js',
   ENTRY: './src/main.js',
   DEST: 'dist/',
   INDEX: './index.html'
@@ -95,18 +102,44 @@ _gulp2.default.task('build:webpack', function () {
   return _gulp2.default.src(path.ENTRY).pipe((0, _webpackStream2.default)(_webpack4.default)).pipe(_gulp2.default.dest(path.DEST));
 });
 
+_gulp2.default.task('tdd', function () {
+  (0, _runSequence2.default)('test:webpack');
+  _gulp2.default.watch(['./src/**/*.test.js'], ['test:webpack']);
+});
+
+_gulp2.default.task('test:webpack', function () {
+  var log = function log(msg) {
+    return _gulpUtil2.default.log('[webpack(tests)]', msg);
+  };
+
+  var _ref = _webpack4.default.length ? _webpack4.default : [_webpack4.default];
+
+  var _ref2 = _slicedToArray(_ref, 2);
+
+  var app = _ref2[0];
+  var tests = _ref2[1];
+
+
+  return _gulp2.default.src(path.TEST_ENTRY).pipe((0, _webpackStream2.default)(tests));
+});
+
 _gulp2.default.task('serve', function (cb) {
   var log = function log(msg) {
     return _gulpUtil2.default.log('[webpack-dev-server]', msg);
   };
 
-  var config = Object.create(_webpack4.default);
-  // config.devtool = 'cheap-module-eval-source-map'
-  config.devtool = 'eval';
-  config.debug = true;
+  var _ref3 = _webpack4.default.length ? _webpack4.default : [_webpack4.default];
+
+  var _ref4 = _slicedToArray(_ref3, 2);
+
+  var app = _ref4[0];
+  var tests = _ref4[1];
+
+  app.devtool = 'eval';
+  app.debug = true;
 
   log('Creating dev server...');
-  var server = new _webpackDevServer2.default((0, _webpack2.default)(config), {
+  var server = new _webpackDevServer2.default((0, _webpack2.default)(app), {
     publicPath: '/',
     inline: true,
     historyApiFallback: true,
@@ -135,7 +168,7 @@ _gulp2.default.task('deploy', ['build'], function (cb) {
 });
 
 _gulp2.default.task('test', function () {
-  return _gulp2.default.src(path.TEST_SRC).pipe((0, _gulpTape2.default)({ reporter: (0, _faucet2.default)() }));
+  return _gulp2.default.src(path.TEST_SRC).pipe((0, _gulpBabel2.default)()).pipe((0, _gulpTape2.default)({ reporter: (0, _faucet2.default)() }));
 });
 
 _gulp2.default.task('test:xunit', function () {
@@ -145,7 +178,7 @@ _gulp2.default.task('test:xunit', function () {
   var outputStream = (0, _tapXunit2.default)();
   var vinylOutput = outputStream.pipe((0, _vinylSourceStream2.default)('results.xml'));
 
-  _gulp2.default.src(path.TEST_SRC).pipe((0, _gulpTape2.default)({ outputStream: outputStream }));
+  _gulp2.default.src(path.TEST_SRC).pipe((0, _gulpBabel2.default)()).pipe((0, _gulpTape2.default)({ outputStream: outputStream }));
 
   return vinylOutput.pipe(_gulp2.default.dest(destPath));
 });

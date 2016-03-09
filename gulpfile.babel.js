@@ -10,6 +10,7 @@ import tape from 'gulp-tape'
 import faucet from 'faucet'
 import xunit from 'tap-xunit'
 import source from 'vinyl-source-stream'
+import babel from 'gulp-babel'
 
 import WebpackDevServer from 'webpack-dev-server'
 
@@ -22,6 +23,7 @@ const args = minimist(process.argv.slice(2))
 const path = {
   TEST_SRC: './src/**/*.test.js',
   TEST_RESULT: './',
+  TEST_ENTRY: './src/main.test.js',
   ENTRY: './src/main.js',
   DEST: 'dist/',
   INDEX: './index.html',
@@ -49,16 +51,28 @@ gulp.task('build:webpack', () =>
   .pipe(gulp.dest(path.DEST))
 )
 
+gulp.task('tdd', () => {
+  sequence('test:webpack')
+  gulp.watch(['./src/**/*.test.js'],['test:webpack'])
+})
+
+gulp.task('test:webpack', () => {
+  const log = msg => gutil.log('[webpack(tests)]', msg)
+  const [app,tests] = WEBPACK_CONFIG.length ? WEBPACK_CONFIG : [WEBPACK_CONFIG]
+
+  return gulp.src(path.TEST_ENTRY)
+  .pipe(webpackStream(tests))
+})
+
 gulp.task('serve', cb => {
   const log = msg => gutil.log('[webpack-dev-server]', msg)
 
-  const config = Object.create(WEBPACK_CONFIG)
-  // config.devtool = 'cheap-module-eval-source-map'
-  config.devtool = 'eval'
-  config.debug = true
+  const [app,tests] = WEBPACK_CONFIG.length ? WEBPACK_CONFIG : [WEBPACK_CONFIG]
+  app.devtool = 'eval'
+  app.debug = true
 
   log('Creating dev server...')
-  const server = new WebpackDevServer(webpack(config), {
+  const server = new WebpackDevServer(webpack(app), {
     publicPath: '/',
     inline: true,
     historyApiFallback: true,
@@ -83,7 +97,8 @@ gulp.task('deploy', ['build'], cb => { // --domain some.host.name
 
 gulp.task('test', () =>
   gulp.src(path.TEST_SRC)
-  .pipe(tape({reporter: faucet()}))
+    .pipe(babel())
+    .pipe(tape({reporter: faucet()}))
 )
 
 gulp.task('test:xunit', () => { // --out $CIRCLE_TEST_REPORTS
@@ -94,6 +109,7 @@ gulp.task('test:xunit', () => { // --out $CIRCLE_TEST_REPORTS
     .pipe(source('results.xml'))
 
   gulp.src(path.TEST_SRC)
+    .pipe(babel())
     .pipe(tape({outputStream}))
 
   return vinylOutput
