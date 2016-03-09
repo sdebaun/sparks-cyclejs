@@ -28,7 +28,7 @@ const dev = {
 
 gulp.task('default', ['build'])
 
-gulp.task('build', () => sequence('clean', 'build:webpack', 'build:dist'))
+gulp.task('build', cb => sequence('clean', 'build:webpack', 'build:dist', cb))
 
 gulp.task('clean', () => del([path.DEST]))
 
