@@ -65,9 +65,12 @@ gulp.task('serve', cb => {
   })
 })
 
-gulp.task('deploy', ['build'], cb => 
-  surge({
-    project: path.DEST,
-    domain: args._[0]
-  })
-)
+gulp.task('deploy', ['build'], cb => {
+  const log = msg => gutil.log('[surge]', msg)
+  const domain = args.domain
+  const project = path.DEST
+  
+  log('Starting surge deployment of', project, ' to ', domain, '...')
+  surge({project, domain})
+  log('...surge complete!')
+})
