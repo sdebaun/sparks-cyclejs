@@ -49,7 +49,7 @@ export default sources => {
 
   const queue$ = organizerInviteForm.organizer$
     .sample(submit$)
-    .map(Organizers.invite)
+    .map(Organizers.create)
 
   const isOpen$ = _openActions$(sources)
     .merge(submit$.map(false))

@@ -12,9 +12,9 @@ export const Projects = {
 }
 
 export const Organizers = {
-  invite: (payload) => ({
+  create: (payload) => ({
     domain: 'Organizers',
-    action: 'invite',
+    action: 'create',
     payload,
   }),
 }
