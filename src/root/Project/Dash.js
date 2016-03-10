@@ -30,6 +30,8 @@ const _render = ({project, createOrganizerInviteDOM}) =>
 export default sources => {
   const createOrganizerInvite = isolate(CreateOrganizerInvite)(sources)
 
+  const queue$ = createOrganizerInvite.queue$
+
   const viewState = {
     project$: sources.project$,
     createOrganizerInviteDOM$: createOrganizerInvite.DOM,
@@ -37,5 +39,5 @@ export default sources => {
 
   const DOM = combineLatestObj(viewState).map(_render)
 
-  return {DOM}
+  return {DOM, queue$}
 }

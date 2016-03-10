@@ -34,21 +34,26 @@ const _render = ({project, isOpen, organizerInviteFormDOM}) =>
       isOpen,
       title: 'Invite Organizer',
       iconName: 'person_add',
-      submitLabel: 'Hell Yeah',
-      closeLabel: 'No Way',
+      submitLabel: 'Bring Em On',
+      closeLabel: 'Not Yet',
       content: organizerInviteFormDOM,
     })
   )
 
+import {Organizers} from 'remote'
+
 export default sources => {
   const organizerInviteForm = OrganizerInviteForm(sources)
 
+  const submit$ = _submitAction$(sources)
+
+  const queue$ = organizerInviteForm.organizer$
+    .sample(submit$)
+    .map(Organizers.invite)
+
   const isOpen$ = _openActions$(sources)
+    .merge(submit$.map(false))
     .startWith(false)
-
-  const organizer$ = organizerInviteForm.organizer$
-
-  organizer$.subscribe(log('organizer$'))
 
   const viewState = {
     isOpen$,
@@ -58,5 +63,5 @@ export default sources => {
 
   const DOM = combineLatestObj(viewState).map(_render)
 
-  return {DOM, organizer$}
+  return {DOM, queue$}
 }
