@@ -9,6 +9,8 @@ import listItem from 'helpers/listItem'
 
 import {col, icon} from 'helpers'
 
+import {log} from 'util'
+
 const _render = ({project, createOrganizerInviteDOM}) =>
   col(
     listItem({
@@ -27,10 +29,23 @@ const _render = ({project, createOrganizerInviteDOM}) =>
     createOrganizerInviteDOM,
   )
 
+const byMatch = (matchDomain,matchEvent) =>
+  ({domain,event}) => domain === matchDomain && event === matchEvent
+
+const _responseRedirects$ = ({responses$}) => Observable.merge(
+  responses$.filter(byMatch('Organizers','create')).map(response => './staff'),
+  // responses$.filter(byMatch('Team','create')).map(response => '/staff'),
+  // responses$.filter(byMatch('Opportunity','create')).map(response => '/staff'),
+)
+
 export default sources => {
   const createOrganizerInvite = isolate(CreateOrganizerInvite)(sources)
 
   const queue$ = createOrganizerInvite.queue$
+
+  const route$ = _responseRedirects$(sources)
+
+  route$.subscribe(log('route$'))
 
   const viewState = {
     project$: sources.project$,
@@ -39,5 +54,5 @@ export default sources => {
 
   const DOM = combineLatestObj(viewState).map(_render)
 
-  return {DOM, queue$}
+  return {DOM, queue$, route$}
 }
