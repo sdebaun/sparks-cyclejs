@@ -45,9 +45,10 @@ const _openActions$ = ({DOM}) => Observable.merge(
 // this is used by _render below
 // dom sink feeding is often most complex part of a component
 // dont be afraid to break it down like this
+// golf this if you can!!!
 const _menuItems = (auth, fullName, isAdmin) => [
   fullName && {className: 'home', label: fullName},
-  {divider: true},
+  fullName && {divider: true},
   isAdmin && {className: 'admin', label: 'Admin'},
   auth && {className: 'logout', label: 'Logout'},
   !auth && {label: 'Login with...'},
