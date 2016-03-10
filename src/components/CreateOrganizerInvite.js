@@ -23,28 +23,20 @@ const _render = ({project, isOpen}) =>
     }),
     modal({
       isOpen,
-      title: 'A Dialog Yo',
+      title: 'Invite Organizer',
       iconName: 'person_add',
       submitLabel: 'Hell Yeah',
       closeLabel: 'No Way',
-      content: 'This is my content',
+      content: 'Invite another organizer to help you with ' + project.name + '.',
     })
   )
 
 // main function for the component
 // should only be a few lines, describing transformations
 export default sources => {
-  // everything past this only relates to the dom sink
-
-  // complex behavior in streams for private view state
-  // if it takes more than a line or two to express
-  // extract it into another _function$({thing$, ...sources})
   const isOpen$ = _openActions$(sources)
     .startWith(false)
 
-  // the dom is just a slightly more complicated transformation
-  // but much of it is repeatable; through combineLatestObj hackery
-  // snapshots of the state streams are mapped to _render
   const viewState = {
     isOpen$,
     project$: sources.project$,
