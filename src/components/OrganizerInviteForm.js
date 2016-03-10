@@ -2,23 +2,29 @@ import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {Input,Select} from 'snabbdom-material'
 import {col} from 'helpers'
-import makeSelectControl from 'components/SelectControlFactory'
 import isolate from '@cycle/isolate'
+
+import makeSelectControl from 'components/SelectControlFactory'
+import makeInputControl from 'components/InputControlFactory'
 
 const authorityOptions = [
   {value: 'manager', label: 'Manager'},
   {value: 'owner', label: 'Owner'},
 ]
 
-const _render = ({organizer: {inviteEmail, projectKey}, authoritySelectDOM}) =>
+const _render = ({
+  organizer: {inviteEmail, projectKey},
+  authoritySelectDOM, inviteEmailInputDOM,
+}) =>
   col(
-    Input({
-      className: 'inviteEmail',
-      label: 'Send Invite to Email',
-      value: inviteEmail,
-    }),
+    inviteEmailInputDOM,
     authoritySelectDOM,
   )
+
+const InviteEmailInput = makeInputControl({
+  label: 'Send Invite to Email',
+  className: 'inviteEmail',
+})
 
 const AuthoritySelect = makeSelectControl({
   label: 'What kind of Organizer?',
@@ -28,17 +34,19 @@ const AuthoritySelect = makeSelectControl({
 
 export default sources => {
   const authoritySelect = isolate(AuthoritySelect)(sources)
+  // why does isolate break this???
+  // const inviteEmailInput = isolate(InviteEmailInput)(sources)
+  const inviteEmailInput = InviteEmailInput(sources)
 
-  const submitted$ = combineLatestObj({
+  const organizer$ = combineLatestObj({
     authority$: authoritySelect.value$,
+    inviteEmail$: inviteEmailInput.value$,
   })
-
-  const organizer$ = Observable.just({})
-    .merge(submitted$)
 
   const viewState = {
     organizer$,
     authoritySelectDOM$: authoritySelect.DOM,
+    inviteEmailInputDOM$: inviteEmailInput.DOM,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
