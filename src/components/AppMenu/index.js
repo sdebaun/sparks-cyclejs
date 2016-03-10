@@ -4,10 +4,8 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import {appMenu} from 'helpers'
 import {PROVIDERS} from 'util'
 
-export default sources => {
-  const {DOM, auth$, userProfile$} = sources
-
-  const authActions$ = Observable.merge(
+const _authActions$ = ({DOM}) =>
+  Observable.merge(
     DOM.select('.app-menu .login.facebook').events('click')
       .map(() => PROVIDERS.facebook),
     DOM.select('.app-menu .login.google').events('click')
@@ -16,24 +14,40 @@ export default sources => {
       .map(() => PROVIDERS.logout),
   )
 
-  const nav$ = Observable.merge(
+const _navActions$ = ({DOM}) =>
+  Observable.merge(
     DOM.select('.app-menu .home').events('click')
       .map(e => '/dash'),
     DOM.select('.app-menu .admin').events('click')
       .map(e => '/admin')
   )
 
-  const closeMenu$ = DOM.select('.close-menu').events('click')
+const _stateActions$ = ({DOM}) => ({
+  open$: DOM.select('.app-menu-button').events('click'),
+  close$: DOM.select('.close-menu').events('click'),
+})
 
-  const isOpen$ = DOM.select('.app-menu-button').events('click')
-    .map(true)
-    .merge(authActions$.map(false))
-    .merge(closeMenu$.map(false))
-    .startWith(false)
+const _state$ = ({auth$, userProfile$, isOpen$}) =>
+  combineLatestObj({auth$, userProfile$, isOpen$})
 
-  return {
-    DOM: combineLatestObj({auth$, userProfile$, isOpen$}).map(appMenu),
-    auth$: authActions$,
-    route$: nav$,
-  }
+const _render = ({auth, userProfile, isOpen}) =>
+  appMenu({auth, userProfile, isOpen})
+
+export default sources => {
+  const auth$ = _authActions$(sources)
+
+  const route$ = _navActions$(sources)
+
+  const {open$, close$} = _stateActions$(sources)
+
+  const isOpen$ = Observable.merge(
+      open$.map(true),
+      close$.map(false),
+      auth$.map(false),
+    ).startWith(false)
+
+  const DOM = _state$({isOpen$, ...sources})
+    .map(_render)
+
+  return {DOM, auth$, route$}
 }
