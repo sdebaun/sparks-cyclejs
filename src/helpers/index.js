@@ -29,7 +29,7 @@ export const headerLogo =
   a({props: {href: '/'}}, [
     img({
       style: {height: '24px', float: 'left'},
-      attrs: {src},
+      attrs: {src: '/' + src},
     }),
   ])
 
