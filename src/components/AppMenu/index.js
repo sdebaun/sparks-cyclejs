@@ -1,7 +1,6 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import {appMenu} from 'helpers'
 import fabMenu from 'helpers/fabMenu'
 
 import {PROVIDERS} from 'util'
@@ -39,19 +38,12 @@ const _openActions$ = ({DOM}) => Observable.merge(
 
 // the following functions all deal with the stream to the DOM sink
 
-// all this does is extract streams from {internal$, ...sources}
-// and put them together in a snapshot for the render function
-const _state$ = ({auth$, userProfile$, isOpen$}) =>
-  combineLatestObj({auth$, userProfile$, isOpen$})
-
-const _render = ({auth, userProfile, isOpen}) =>
-  appMenu({auth, userProfile, isOpen})
-
 // this is used by _render below
 // dom sink feeding is often most complex part of a component
 // dont be afraid to break it down like this
 const _menuItems = (auth, fullName, isAdmin) => [
   fullName && {className: 'home', label: fullName},
+  {divider: true},
   isAdmin && {className: 'admin', label: 'Admin'},
   auth && {className: 'logout', label: 'Logout'},
   !auth && {label: 'Login with...'},
@@ -62,7 +54,7 @@ const _menuItems = (auth, fullName, isAdmin) => [
 // the render function takes a snapshot of state
 // and composes UI helpers to present something
 // break it down into smaller bits if needed
-const _render2 = ({auth, userProfile, isOpen}) =>
+const _render = ({auth, userProfile, isOpen}) =>
   fabMenu({
     isOpen,
     className: 'app-menu-button', // necessary with isolate?
@@ -74,6 +66,11 @@ const _render2 = ({auth, userProfile, isOpen}) =>
       userProfile && userProfile.isAdmin
     ),
   })
+
+// all this does is extract streams from {internal$, ...sources}
+// and put them together in a snapshot for the render function
+const _state$ = ({auth$, userProfile$, isOpen$}) =>
+  combineLatestObj({auth$, userProfile$, isOpen$})
 
 // main function for the component
 // should only be a few lines, describing transformations
