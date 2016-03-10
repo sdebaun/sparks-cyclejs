@@ -8,6 +8,8 @@ import {PROVIDERS} from 'util'
 // transformation functions extract certain sources
 // and return a stream of something.
 // name them after the intent being expressed
+// if we were clever and standardized .login etc classnames
+// this could be a generic action transformer, reused in lots of places
 const _authActions$ = ({DOM}) =>
   Observable.merge(
     DOM.select('.app-menu .login.facebook').events('click')
@@ -31,6 +33,8 @@ const _navActions$ = ({DOM}) =>
 
 // again managing a conceptual grouping of clickstreams
 // for a specific purpose, in this case an internal state
+// and again if we were clever and standardized .open and .close classnames
+// this could be a generic action transformer, reused in lots of places
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.app-menu-button').events('click').map(true),
   DOM.select('.close-menu').events('click').map(false),
