@@ -3,17 +3,22 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import fabMenu from 'helpers/fabMenu'
 
+// these are action creators specific to cyclic-fire and should live there
 import {PROVIDERS} from 'util'
+
+// Bunch Of Sources and Sinks (BOSS) approach to components
+// or Bunch of Stinkin' Streams if you prefer
+// discuss here: https://github.com/sdebaun/sparks-cyclejs/issues/38
 
 // transformation functions extract certain sources
 // and return a stream of something.
 // name them after the intent being expressed
 // if we were clever and standardized .login etc classnames
-// this could be a generic action transformer, reused in lots of places
+// this could be a generic stream constructor, reused in lots of places
 const _authActions$ = ({DOM}) =>
   Observable.merge(
     DOM.select('.app-menu .login.facebook').events('click')
-      .map(() => PROVIDERS.facebook), // cyclic-fire/Auth.facebook
+      .map(() => PROVIDERS.facebook),
     DOM.select('.app-menu .login.google').events('click')
       .map(() => PROVIDERS.google),
     DOM.select('.app-menu .logout').events('click')
@@ -34,7 +39,7 @@ const _navActions$ = ({DOM}) =>
 // again managing a conceptual grouping of clickstreams
 // for a specific purpose, in this case an internal state
 // and again if we were clever and standardized .open and .close classnames
-// this could be a generic action transformer, reused in lots of places
+// this could be a generic stream creator, reused in lots of places
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.app-menu-button').events('click').map(true),
   DOM.select('.close-menu').events('click').map(false),
@@ -72,11 +77,6 @@ const _render = ({auth, userProfile, isOpen}) =>
     ),
   })
 
-// all this does is extract streams from {internal$, ...sources}
-// and put them together in a snapshot for the render function
-const _state$ = ({auth$, userProfile$, isOpen$}) =>
-  combineLatestObj({auth$, userProfile$, isOpen$})
-
 // main function for the component
 // should only be a few lines, describing transformations
 export default sources => {
@@ -85,7 +85,9 @@ export default sources => {
   const auth$ = _authActions$(sources)
   const route$ = _navActions$(sources)
 
-  // sometimes also need to create streams for internal state
+  // everything past this only relates to the dom sink
+
+  // complex behavior in streams for private view state
   // if it takes more than a line or two to express
   // extract it into another _function$({thing$, ...sources})
   const isOpen$ = _openActions$(sources)
@@ -93,10 +95,15 @@ export default sources => {
     .startWith(false)
 
   // the dom is just a slightly more complicated transformation
-  // _state$ is just taking a 'snapshot' of various streams
-  // and mapping them to _render
-  const DOM = _state$({isOpen$, ...sources})
-    .map(_render)
+  // but much of it is repeatable; through combineLatestObj hackery
+  // snapshots of the state streams are mapped to _render
+  const viewState = {
+    isOpen$,
+    auth$: sources.auth$,
+    userProfile$: sources.userProfile$,
+  }
+
+  const DOM = combineLatestObj(viewState).map(_render)
 
   return {DOM, auth$, route$}
 }
