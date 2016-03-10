@@ -34,6 +34,8 @@ const dev = {
   HOST: 'localhost',
 }
 
+// https://github.com/zoubin/es6-pkg
+
 gulp.task('default', ['build'])
 
 gulp.task('build', cb => sequence('clean', 'build:webpack', 'build:dist', cb))
