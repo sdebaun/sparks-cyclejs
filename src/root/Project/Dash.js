@@ -5,8 +5,6 @@ import isolate from '@cycle/isolate'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
 
-// import {div,h} from 'cycle-snabbdom'
-// import {Col, Row} from 'snabbdom-material'
 import listItem from 'helpers/listItem'
 
 import {col, icon} from 'helpers'
@@ -27,10 +25,6 @@ const _render = ({project, createOrganizerInviteDOM}) =>
       title: 'Create a Volunteer Opportunity',
     }),
     createOrganizerInviteDOM,
-    // ListItem(
-    //   {attrs: {'data-link': '/project/' + project.$key + '/staff'}},
-    //   [icon('person_add','black'),'Invite More Admins to Help']
-    // ),
   )
 
 export default sources => {

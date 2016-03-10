@@ -31,8 +31,6 @@ const _render = ({project, isOpen}) =>
     })
   )
 
-// main function for the component
-// should only be a few lines, describing transformations
 export default sources => {
   const isOpen$ = _openActions$(sources)
     .startWith(false)
