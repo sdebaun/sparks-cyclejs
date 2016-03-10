@@ -40,3 +40,6 @@ export const appBar = ({appMenu}) =>
   ])
 
 // export const appBar = ({})
+
+export const col = (...children) =>
+  div({},children)
