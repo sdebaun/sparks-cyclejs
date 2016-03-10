@@ -1,6 +1,7 @@
 import {div, span} from 'cycle-snabbdom'
 import {Mask} from 'snabbdom-material'
-import {material} from 'helpers/dom'
+import {icon} from 'helpers'
+import {material} from 'util'
 
 const defaultStyles = {
   zIndex: '1001',
@@ -14,17 +15,17 @@ function renderSideNav(config, children) {
   const {className = '', style: userStyle = {}} = config
   const classes = ['sidenav', 'paper2', className].filter(Boolean)
   const style = Object.assign(defaultStyles, userStyle, material.sidenav)
-  return div(`.${classes.join('.')}`, {style}, [
-    span({}, children),
+  return div({},[
+    Mask({isOpen: true, material, className: 'close-sideNav'}),
+    div(`.${classes.join('.')}`, {style}, [
+      span({}, children),
+    ]),
   ])
 }
 
-function sideNav(config, children) {
-  const {isOpen} = config
-  return div({style: {zIndex: '1000'}}, [
-    Mask({isOpen, material, className: 'close-sideNav'}),
-    isOpen ? renderSideNav(config, children) : span({}, []),
-  ])
+export function sideNav({isMobile, isOpen, content}) {
+  if (isMobile && isOpen) {
+    return renderSideNav({}, [content])
+  }
+  return isMobile ? span({}, []) : div({}, [content])
 }
-
-export {sideNav}

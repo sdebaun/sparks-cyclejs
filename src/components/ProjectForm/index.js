@@ -1,27 +1,7 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
-import ComingSoon from 'components/ComingSoon'
-import {div} from 'cycle-snabbdom'
-import {Form,Input,Button} from 'snabbdom-material'
 
-import {log} from 'helpers'
-
-const _DOM = ({name}) =>
-  Form({className: 'project'}, [
-    Input({
-      className: 'name',
-      label: 'New Project Name',
-      value: name,
-    }),
-    // need onClick: true or snabbdom-material renders as disabled :/
-    name ? div({},[
-      Button({className: 'submit', onClick: true, primary: true},['Create']),
-      Button(
-        {className: 'cancel', onClick: true, secondary: true, flat: true},
-        ['Cancel']
-      ),
-    ]) : null,
-  ])
+import {projectForm} from 'helpers'
 
 export default sources => {
   const submitClick$ = sources.DOM.select('.submit').events('click')
@@ -50,13 +30,7 @@ export default sources => {
   const project$ = editProject$
     .sample(submit$)
 
-  // const project$ = (sources.project$ || Observable.empty())
-  //   .merge(formData$)
-  //   .distinctUntilChanged()
-
-  editProject$.subscribe(log('project$'))
-
-  const DOM = editProject$.startWith({}).map(_DOM)
+  const DOM = editProject$.startWith({}).map(projectForm)
 
   return {
     DOM,

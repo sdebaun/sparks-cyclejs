@@ -1,63 +1,38 @@
-import {BehaviorSubject, Subject, Observable} from 'rx'
+import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import {Appbar, Menu} from 'snabbdom-material'
-import {div, a} from 'cycle-snabbdom'
-import {icon} from 'helpers/dom'
-import {menu} from 'helpers/layout/menu'
-
-const {Item} = Menu
-
-const _DOM = ({isOpen,auth,userProfile}) => {
-  return div({}, [
-    Appbar.Button({className: 'app-menu-button'}, [
-      icon('more_vert'),
-    ]),
-    menu({isOpen, rightAlign: true}, [
-      userProfile ? Item({className: 'home'},userProfile.fullName) : null,
-      userProfile && userProfile.isAdmin ?
-        Item({className: 'admin'},'Admin') :
-        null,
-      auth ? null : Item({className: 'login facebook'},'Facebook'),
-      auth ? null : Item({className: 'login google'},'Google'),
-      auth ? Item({className: 'logout'},'Logout') : null,
-    ]),
-  ])
-}
+import {appMenu} from 'helpers'
+import {PROVIDERS} from 'util'
 
 export default sources => {
+  const {DOM, auth$, userProfile$} = sources
+
   const authActions$ = Observable.merge(
-    sources.DOM.select('.app-menu .login.facebook').events('click')
-      .map(e => ({type: 'popup',provider: 'facebook'})),
-    sources.DOM.select('.app-menu .login.google').events('click')
-      .map(e => ({type: 'popup',provider: 'google'})),
-    sources.DOM.select('.app-menu .logout').events('click')
-      .map(e => ({type: 'logout'})),
+    DOM.select('.app-menu .login.facebook').events('click')
+      .map(() => PROVIDERS.facebook),
+    DOM.select('.app-menu .login.google').events('click')
+      .map(() => PROVIDERS.google),
+    DOM.select('.app-menu .logout').events('click')
+      .map(() => PROVIDERS.logout),
   )
 
   const nav$ = Observable.merge(
-    sources.DOM.select('.app-menu .home').events('click')
+    DOM.select('.app-menu .home').events('click')
       .map(e => '/dash'),
-    sources.DOM.select('.app-menu .admin').events('click')
+    DOM.select('.app-menu .admin').events('click')
       .map(e => '/admin')
   )
 
-  const closeMenu$ = sources.DOM.select('.close-menu').events('click')
+  const closeMenu$ = DOM.select('.close-menu').events('click')
 
-  const isOpen$ = sources.DOM.select('.app-menu-button').events('click')
+  const isOpen$ = DOM.select('.app-menu-button').events('click')
     .map(true)
     .merge(authActions$.map(false))
     .merge(closeMenu$.map(false))
     .startWith(false)
 
-  const DOM = combineLatestObj({
-    auth$: sources.auth$,
-    userProfile$: sources.userProfile$,
-    isOpen$,
-  }).map(_DOM)
-
   return {
-    DOM,
+    DOM: combineLatestObj({auth$, userProfile$, isOpen$}).map(appMenu),
     auth$: authActions$,
     route$: nav$,
   }

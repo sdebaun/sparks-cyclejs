@@ -38,6 +38,8 @@ We are currently using:
 
 * [Webpack](https://github.com/webpack/webpack) and several glorious loaders to handle packaging the application
 
+* [Gulp](https://github.com/gulpjs/gulp) for development, build, and deployment automation.
+
 * This project was started with the [cyclejs-starter](https://github.com/andreloureiro/cyclejs-starter) boilerplate.
 
 ## Installing
@@ -46,15 +48,37 @@ From the command line:
 
 `git clone https://github.com/sdebaun/sparks-cyclejs && cd sparks-cyclejs && npm run start`
 
+## Services
+
+We're using several services to manage deployment:
+
+* `github` obviously.
+
+* [CircleCI](https://circleci.com) is configured to test all commits to all branches in the repository.  It also has two automagic deployments:
+
+** `release` branch is deployed to `staging` server
+
+** `master` branch is deployed to `production` server
+
+* [surge.sh](http://surge.sh) is serving up both of those servers.
+
 ## Usage
 
-### Development
+### Credentials
 
-You can start a local server at `http://localhost:8080` for your application with `npm run serve`. It uses [Webpack](https://webpack.github.io/) and provides live reloading (not hot reload) out of the box.
+All credentials are stored in the services that use them.  Currently that consists of SURGE_NAME and SURGE_TOKEN, stored in CircleCI; they let the `gulp deploy` task do its magic.
 
-### Production
+### Gulp Commands
 
-Build a production ready version of your app into `dist/bundle.js` using `npm run build`.
+`gulp serve`: run a local webpack development server at `http://localhost:8080`
+
+`gulp build`: use webpack to compile into dist/
+
+`gulp deploy --domain <domain>`: use [surge.sh](http://surge.sh) to deploy to the specified host.
+
+## Internals
+
+TODO: Describe use of firebase, auth$, queue$, router, DOM drivers
 
 ## License
 

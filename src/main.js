@@ -1,17 +1,17 @@
 import {run} from '@cycle/core'
-import {Observable} from 'rx'
-import {modules, makeDOMDriver} from 'cycle-snabbdom'
+
+// drivers
+import {makeDOMDriver} from 'cycle-snabbdom'
 import {makeRouterDriver} from 'cyclic-router'
 import {makeHistoryDriver, supportsHistory} from 'cyclic-history'
 import {createHistory, createHashHistory} from 'history'
 import Firebase from 'firebase'
-
 import {
   makeAuthDriver, makeFirebaseDriver, makeQueueDriver,
 } from 'cyclic-fire'
-
 import {isMobile$} from 'drivers/isMobile'
 
+// app root function
 import Root from './root'
 
 const history = supportsHistory() ?

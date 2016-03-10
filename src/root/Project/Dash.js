@@ -4,7 +4,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import {div,h} from 'cycle-snabbdom'
 import {Col, Row} from 'snabbdom-material'
 
-import {icon} from 'helpers/dom'
+import {icon} from 'helpers'
 
 const ListItem = (props,children) =>
   h('div.row', {style: {'line-height': '48px'}, ...props},[
