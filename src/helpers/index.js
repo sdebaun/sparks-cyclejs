@@ -53,8 +53,8 @@ export const importantTip = message =>
   div({
     style: {
       textAlign: 'center',
-      margin: '0 1em',
-      fontSize: '1.2em',
+      margin: '0.5em 1em',
+      fontSize: '1.3em',
       color: 'red',
       fontWeight: 'bold',
     },
