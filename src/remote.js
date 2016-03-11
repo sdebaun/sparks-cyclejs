@@ -10,3 +10,11 @@ export const Projects = {
     payload,
   }),
 }
+
+export const Organizers = {
+  create: (payload) => ({
+    domain: 'Organizers',
+    action: 'create',
+    payload,
+  }),
+}

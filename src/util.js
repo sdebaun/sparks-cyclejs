@@ -6,13 +6,19 @@ export const PROVIDERS = {
   logout: {type: 'logout'},
 }
 
+export const rows = obj =>
+  obj ? Object.keys(obj).map(k => ({$key: k, ...obj[k]})) : []
+
 export const log = label => emitted => console.log(label,':',emitted)
 
 export const isObservable = obs => typeof obs.subscribe === 'function'
 
 export function nestedComponent({path$, value$}, sources) {
   return path$.zip(value$,
-    (path, value) => value({...sources, router: sources.router.path(path)})
+    (path, value) => {
+      console.log('nestedComponent path$',path)
+      return value({...sources, router: sources.router.path(path)})
+    }
   ).shareReplay(1)
 }
 

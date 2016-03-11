@@ -28,7 +28,7 @@ export const headerLogo =
   a({props: {href: '/'}}, [
     img({
       style: {height: '24px', float: 'left'},
-      attrs: {src},
+      attrs: {src: '/' + src},
     }),
   ])
 
@@ -39,3 +39,6 @@ export const appBar = ({appMenu}) =>
   ])
 
 // export const appBar = ({})
+
+export const col = (...children) =>
+  div({},children)
