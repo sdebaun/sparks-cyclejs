@@ -49,6 +49,9 @@ export default sources => {
 
   const queue$ = organizerInviteForm.organizer$
     .sample(submit$)
+    .zip(sources.projectKey$,
+      (organizer,projectKey) => ({projectKey, ...organizer})
+    )
     .map(Organizers.create)
 
   const isOpen$ = _openActions$(sources)

@@ -16,7 +16,7 @@ const _render = ({project, createOrganizerInviteDOM}) =>
     listItem({
       iconName: 'playlist_add',
       title: 'What\'s your project all about?',
-      link: '/project/' + project.$key + '/manage',
+      link: '/project/' + '/manage',
     }),
     listItem({
       iconName: 'group_add',
@@ -32,11 +32,11 @@ const _render = ({project, createOrganizerInviteDOM}) =>
 const byMatch = (matchDomain,matchEvent) =>
   ({domain,event}) => domain === matchDomain && event === matchEvent
 
-const _responseRedirects$ = ({responses$, router: {createHref}}) => Observable.merge(
-  responses$.filter(byMatch('Organizers','create')).map(response => createHref('/staff')),
-  // responses$.filter(byMatch('Team','create')).map(response => '/staff'),
-  // responses$.filter(byMatch('Opportunity','create')).map(response => '/staff'),
-)
+const _responseRedirects$ = ({responses$, router: {createHref}}) =>
+  Observable.merge(
+    responses$.filter(byMatch('Organizers','create'))
+      .map(response => createHref('/staff')),
+  )
 
 export default sources => {
   const createOrganizerInvite = isolate(CreateOrganizerInvite)(sources)

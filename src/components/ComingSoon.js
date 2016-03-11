@@ -1,6 +1,6 @@
 import {Observable} from 'rx'
-import {div} from 'cycle-snabbdom'
+import {h} from 'cycle-snabbdom'
 
 export default name => sources => ({
-  DOM: Observable.just(div({},'Coming Soon: ' + name)),
+  DOM: Observable.just(h('h4', {},'Coming Soon: ' + name)),
 })

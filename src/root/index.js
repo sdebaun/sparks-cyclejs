@@ -16,6 +16,8 @@ import {log} from 'util'
 
 import './styles.scss'
 
+const just = Observable.just
+
 // Route definitions at this level
 const routes = {
   '/': Landing,
@@ -28,10 +30,12 @@ const routes = {
   // '/project': sources => isolate(Project)({
   //   project$: Observable.just({}), ...sources,
   // }),
-  '/project/:key': key => sources => isolate(Project)({
-    project$: sources.firebase('Projects',key),
-    ...sources,
-  }),
+  // '/project/:key': key => sources => isolate(Project)({
+  //   project$: sources.firebase('Projects',key),
+  //   ...sources,
+  // }),
+  '/project/:key': key => sources =>
+    isolate(Project)({projectKey$: just(key), ...sources}),
 }
 
 export default sources => {

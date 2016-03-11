@@ -15,10 +15,11 @@ import {icon} from 'helpers'
 import {log} from 'util'
 
 import Dash from './Dash'
+import Staff from './Staff'
 
 const _routes = {
   '/': Dash,
-  '/staff': ComingSoon('Staff'),
+  '/staff': Staff,
   '/find': ComingSoon('Find'),
 }
 
@@ -39,13 +40,19 @@ const Nav = sources => ({
 })
 
 export default sources => {
-  const page$ = nestedComponent(sources.router.define(_routes),sources)
+  const project$ = sources.projectKey$
+    .flatMapLatest(key => sources.firebase('Projects',key))
+
+  const page$ = nestedComponent(
+    sources.router.define(_routes),
+    {project$, ...sources}
+  )
 
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
 
   const title = Title({
     tabsDOM$: tabBar.DOM,
-    labelText$: sources.project$.pluck('name'),
+    labelText$: project$.pluck('name'),
     subLabelText$: Observable.just('At a Glance'), // eventually page$.something
     ...sources,
   })

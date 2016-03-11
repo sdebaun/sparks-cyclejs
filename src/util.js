@@ -6,6 +6,9 @@ export const PROVIDERS = {
   logout: {type: 'logout'},
 }
 
+export const rows = obj =>
+  obj ? Object.keys(obj).map(k => ({$key: k, ...obj[k]})) : []
+
 export const log = label => emitted => console.log(label,':',emitted)
 
 export const isObservable = obs => typeof obs.subscribe === 'function'
