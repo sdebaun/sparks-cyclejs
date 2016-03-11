@@ -8,7 +8,6 @@ import 'images/sn-logo-32.png'
 
 export {menu} from './menu'
 export {landing} from './landing'
-export {appMenu} from './appMenu'
 export {mobileFrame, desktopFrame} from './frame'
 export {projectForm} from './projectForm'
 export {sideNav} from './sideNav'
