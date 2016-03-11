@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
+import isolate from '@cycle/isolate'
 
 import ProjectForm from 'components/ProjectForm'
 
@@ -41,7 +42,7 @@ export default sources => {
       orderByChild: 'ownerProfileKey', equalTo: profileKey,
     }))
 
-  const projectForm = ProjectForm({project$, ...sources})
+  const projectForm = isolate(ProjectForm)({project$, ...sources})
 
   const newProject$ = projectForm.project$
     .filter(p => p !== {})
