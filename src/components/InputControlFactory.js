@@ -12,8 +12,8 @@ export default ({label, className, defaultValue}) => sources => {
 
   const input$ = sources.DOM.select('.' + className).events('input')
 
-  const value$ = input$
-    .pluck('target','value')
+  const value$ = (sources.value$ || Observable.empty())
+    .merge(input$.pluck('target','value'))
     .startWith(null)
 
   const DOM = combineLatestObj({value$}).map(_render)

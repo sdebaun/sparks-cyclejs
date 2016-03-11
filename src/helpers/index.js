@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {div, a, img} from 'cycle-snabbdom'
+import {div, a, img, h} from 'cycle-snabbdom'
 import {Icon, Appbar} from 'snabbdom-material'
 import {material} from 'util'
 
@@ -41,4 +41,21 @@ export const appBar = ({appMenu}) =>
 // export const appBar = ({})
 
 export const col = (...children) =>
-  div({},children)
+  div({}, children)
+
+export const narrowCol = (...children) =>
+  div({style: {maxWidth: '600px', margin: 'auto'}}, children)
+
+export const pageTitle = (...children) =>
+  h('h3', children)
+
+export const importantTip = message =>
+  div({
+    style: {
+      textAlign: 'center',
+      margin: '0 1em',
+      fontSize: '1.2em',
+      color: 'red',
+      fontWeight: 'bold',
+    },
+  },[message])
