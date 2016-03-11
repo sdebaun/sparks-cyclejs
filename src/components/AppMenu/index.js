@@ -57,7 +57,7 @@ const _menuItems = (auth, fullName, isAdmin) => [
   isAdmin && {className: 'admin', label: 'Admin'},
   auth && {className: 'logout', label: 'Logout'},
   !auth && {label: 'Login with...'},
-  !auth && {className: 'login facebook', label: 'Facebook'},
+  // !auth && {className: 'login facebook', label: 'Facebook'},
   !auth && {className: 'login google', label: 'Google'},
 ].filter(r => !!r)
 

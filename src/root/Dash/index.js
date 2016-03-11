@@ -44,7 +44,7 @@ const Nav = sources => ({
     .map(isMobile =>
       div(
         {},
-        [isMobile ? null : sources.titleDOM, 'Nav Items']
+        [isMobile ? null : sources.titleDOM, '']
       )
     ),
 })
@@ -56,8 +56,8 @@ export default sources => {
 
   const title = Title({
     tabsDOM$: tabBar.DOM,
-    labelText$: Observable.just('Your Name'),
-    subLabelText$: Observable.just('At a Glance'), // eventually page$.something
+    labelText$: sources.userProfile$.map(up => up && up.fullName || 'None'),
+    subLabelText$: Observable.just(''),
     ...sources,
   })
 
@@ -74,11 +74,9 @@ export default sources => {
 
   const children = [appFrame, page$, tabBar, title, nav, header]
 
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
-
   const route$ = Observable.merge(
     mergeOrFlatMapLatest('route$', ...children),
-    redirectOnLogout$,
+    sources.redirectLogout$,
   )
 
   return {

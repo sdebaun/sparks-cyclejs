@@ -3,6 +3,8 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import isolate from '@cycle/isolate'
 
+import {Organizers} from 'remote'
+
 import OrganizerInviteForm from 'components/OrganizerInviteForm'
 
 import {col} from 'helpers'
@@ -39,8 +41,6 @@ const _render = ({project, isOpen, organizerInviteFormDOM}) =>
       content: organizerInviteFormDOM,
     })
   )
-
-import {Organizers} from 'remote'
 
 export default sources => {
   const organizerInviteForm = OrganizerInviteForm(sources)

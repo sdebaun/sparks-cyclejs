@@ -3,6 +3,14 @@
 // perhaps also orm-ish wrappers for dumb json objects?
 // extend cyclic-fire?
 
+export const Profiles = {
+  create: (payload) => ({
+    domain: 'Profiles',
+    action: 'create',
+    payload,
+  }),
+}
+
 export const Projects = {
   create: (payload) => ({
     domain: 'Projects',
