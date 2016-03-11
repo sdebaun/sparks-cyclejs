@@ -13,19 +13,19 @@ import {log} from 'util'
 
 const _render = ({project, createOrganizerInviteDOM}) =>
   col(
-    listItem({
-      iconName: 'playlist_add',
-      title: 'What\'s your project all about?',
-      link: '/project/' + '/manage',
-    }),
-    listItem({
-      iconName: 'group_add',
-      title: 'Build Your First Team',
-    }),
-    listItem({
-      iconName: 'power',
-      title: 'Create a Volunteer Opportunity',
-    }),
+    // listItem({
+    //   iconName: 'playlist_add',
+    //   title: 'What\'s your project all about?',
+    //   link: '/project/' + '/manage',
+    // }),
+    // listItem({
+    //   iconName: 'group_add',
+    //   title: 'Build Your First Team',
+    // }),
+    // listItem({
+    //   iconName: 'power',
+    //   title: 'Create a Volunteer Opportunity',
+    // }),
     createOrganizerInviteDOM,
   )
 

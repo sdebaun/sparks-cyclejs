@@ -56,9 +56,8 @@ export default sources => {
 
   const title = Title({
     tabsDOM$: tabBar.DOM,
-    labelText$: sources.userProfile$.pluck('fullName'),
+    labelText$: sources.userProfile$.map(up => up && up.fullName || 'None'),
     subLabelText$: Observable.just(''),
-    // subLabelText$: Observable.just('At a Glance'), // eventually page$.something
     ...sources,
   })
 
