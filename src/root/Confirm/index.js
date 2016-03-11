@@ -45,6 +45,28 @@ import submitAndCancel from 'helpers/submitAndCancel'
 
 import {log} from 'util'
 
+const _fromGoogleData =
+  ({uid, google: {displayName, email, profileImageURL}}) => ({
+    uid,
+    fullName: displayName,
+    email,
+    portraitUrl: profileImageURL,
+  })
+
+const _fromFacebookData =
+  ({uid, facebook: {displayName, email, profileImageURL}}) => ({
+    uid,
+    fullName: displayName,
+    email,
+    portraitUrl: profileImageURL,
+  })
+
+const _fromAuthData$ = sources =>
+  sources.auth$.filter(a => !!a).map(({provider, ...auth}) =>
+    provider === 'google' && _fromGoogleData(auth) ||
+    provider === 'facebook' && _fromFacebookData(auth)
+  )
+
 const _submitAction$ = ({DOM}) =>
   DOM.select('.submit').events('click').map(true)
 
@@ -56,9 +78,9 @@ const _render = ({valid, profileFormDOM}) =>
   )
 
 export default sources => {
-  const profile$ = Observable.just({
-    fullName: 'Bob Dobbs',
-  })
+  sources.auth$.subscribe(log('auth$'))
+
+  const profile$ = _fromAuthData$(sources)
 
   const profileForm = ProfileForm({profile$, ...sources})
 
