@@ -4,10 +4,20 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import ProjectForm from 'components/ProjectForm'
 
 import {col, importantTip, pageTitle} from 'helpers'
+import listHeader from 'helpers/listHeader'
+import listItem from 'helpers/listItem'
 
 import {Projects} from 'remote'
 
-const _render = ({userProfile, projectFormDOM}) =>
+import {rows} from 'util'
+
+const _renderProjects = projects =>
+  rows(projects).map(({name,$key}) =>
+    // div({attrs: {class: 'project', 'data-link': '/project/' + $key}}, [name]))
+    listItem({title: name, subtitle: 'project', link: '/project/' + $key, className: 'project'})
+  )
+
+const _render = ({projects, projectFormDOM}) =>
   col(
     importantTip('The Sparks.Network is not open to the public right now.'),
     `
@@ -17,6 +27,7 @@ const _render = ({userProfile, projectFormDOM}) =>
     If you'd like to be part of our Early Access Program, contact us below!
     `,
     projectFormDOM,
+    ..._renderProjects(projects),
   )
 
 const _redirectResponses = ({responses$}) => responses$
@@ -25,6 +36,10 @@ const _redirectResponses = ({responses$}) => responses$
 
 export default sources => {
   const project$ = Observable.just({})
+  const projects$ = sources.userProfileKey$
+    .flatMapLatest(profileKey => sources.firebase('Projects',{
+      orderByChild: 'ownerProfileKey', equalTo: profileKey,
+    }))
 
   const projectForm = ProjectForm({project$, ...sources})
 
@@ -33,14 +48,15 @@ export default sources => {
 
   const queue$ = newProject$.map(Projects.create)
 
-  const route$ = _redirectResponses(sources)
+  const nav$ = sources.DOM.select('.project').events('click')
+    .map(e => e.ownerTarget.dataset.link)
 
-  // const redirectOnCreate$ = sources.responses$
-  //   .filter(({domain,event}) => domain === 'Projects' && event === 'create')
-  //   .map(response => '/project/' + response.payload)
+  const redirect$ = _redirectResponses(sources)
+
+  const route$ = Observable.merge(nav$, redirect$)
 
   const DOM = combineLatestObj({
-    thing$: Observable.just(null),
+    projects$,
     projectFormDOM$: projectForm.DOM,
   }).map(_render)
 
