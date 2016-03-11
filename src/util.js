@@ -12,7 +12,10 @@ export const isObservable = obs => typeof obs.subscribe === 'function'
 
 export function nestedComponent({path$, value$}, sources) {
   return path$.zip(value$,
-    (path, value) => value({...sources, router: sources.router.path(path)})
+    (path, value) => {
+      console.log('nestedComponent path$',path)
+      return value({...sources, router: sources.router.path(path)})
+    }
   ).shareReplay(1)
 }
 

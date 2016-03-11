@@ -20,7 +20,6 @@ const _routes = {
   '/': Dash,
   '/staff': ComingSoon('Staff'),
   '/find': ComingSoon('Find'),
-  '*': ComingSoon('NoFind'),
 }
 
 const _tabs = [

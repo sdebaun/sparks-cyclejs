@@ -32,8 +32,8 @@ const _render = ({project, createOrganizerInviteDOM}) =>
 const byMatch = (matchDomain,matchEvent) =>
   ({domain,event}) => domain === matchDomain && event === matchEvent
 
-const _responseRedirects$ = ({responses$}) => Observable.merge(
-  responses$.filter(byMatch('Organizers','create')).map(response => './staff'),
+const _responseRedirects$ = ({responses$, router: {createHref}}) => Observable.merge(
+  responses$.filter(byMatch('Organizers','create')).map(response => createHref('/staff')),
   // responses$.filter(byMatch('Team','create')).map(response => '/staff'),
   // responses$.filter(byMatch('Opportunity','create')).map(response => '/staff'),
 )
