@@ -18,7 +18,7 @@ const args = minimist(process.argv.slice(2))
 const path = {
   ENTRY: './src/main.js',
   DEST: 'dist/',
-  INDEX: './index.html',
+  INDEX: './200.html',
 }
 
 const dev = {
