@@ -11,7 +11,9 @@ import {PROVIDERS} from 'util'
 const _navActions$ = ({DOM, projectKey$}) =>
   Observable.merge(
     projectKey$.sample(DOM.select('.project').events('click'))
-      .map(projectKey => '/project/' + projectKey)
+      .map(projectKey => '/project/' + projectKey),
+    DOM.select('.team').events('click')
+      .map(e => '/team/' + e.ownerTarget.dataset.key)
   )
 
 const _openActions$ = ({DOM}) => Observable.merge(
@@ -21,7 +23,10 @@ const _openActions$ = ({DOM}) => Observable.merge(
 
 const _menuItems = (project, teams) => [
   {className: 'project', label: project.name},
-  ...rows(teams).map(team => ({classame: 'team', label: team.name})),
+  {divider: true},
+  ...rows(teams).map(({name,$key}) => (
+    {className: 'team', label: name, key: $key})
+  ),
 ].filter(r => !!r)
 
 const _render = ({auth, userProfile, isOpen, project, teams}) =>

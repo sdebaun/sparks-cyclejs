@@ -4,6 +4,8 @@ const {Item, Separator} = Menu
 import {icon} from './index'
 import {menu} from './menu'
 
+import menuItem from 'helpers/menuItem'
+
 // the goal of these kinds of functions
 // is to abstract away the details of dom-specific representation
 // and express that as reusable interface metaphors
@@ -22,9 +24,12 @@ const svgDropDownIcon =
   ])
 
 const _menuItems = items =>
-  items.map(({className, label, divider}) =>
-    divider ? Separator({}) : Item({className}, label)
+  items.map(({className, label, key, link, divider}) =>
+    divider ? Separator({}) : menuItem({className, title: label, key, link})
   )
+  // items.map(({className, label, divider}) =>
+  //   divider ? Separator({}) : Item({className}, label)
+  // )
 
 export default ({isOpen, className, label, menu: {rightAlign}, items}) =>
   div({},[
