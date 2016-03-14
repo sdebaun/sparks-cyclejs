@@ -15,11 +15,11 @@ import {icon} from 'helpers'
 
 import {log} from 'util'
 
-// import Dash from './Dash'
+import Dash from './Dash'
 // import Staff from './Staff'
 
 const _routes = {
-  '/': isolate(ComingSoon('Dash')),
+  '/': isolate(Dash),
   '/leads': isolate(ComingSoon('Leads')),
   '/find': isolate(ComingSoon('Find')),
 }
@@ -59,7 +59,7 @@ export default sources => {
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
-    {team$, ...sources}
+    {team$, project$, projectKey$, ...sources}
   )
 
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
