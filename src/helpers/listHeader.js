@@ -9,6 +9,7 @@ const style = {
   textTransform: 'uppercase',
   fontSize: '1.4em',
   fontWeight: 'bold',
+  display: 'block',
 }
 
 export default ({title, className, iconName}) =>
@@ -20,3 +21,19 @@ export default ({title, className, iconName}) =>
         [icon(iconName, 'white')]
       ) : null,
   ])
+  // h('div.row', {}, [h('div.row.' + className, {style}, [
+  //   Col({type: 'xs-10'},[title]),
+  //   iconName ?
+  //     Col(
+  //       {type: 'xs-1', style: {width: '48px', 'font-size': '32px'}},
+  //       [icon(iconName, 'white')]
+  //     ) : null,
+  // ])])
+  // h('div.row.' + className, {style}, [
+  //   Col({type: 'xs-10'},[title]),
+  //   iconName ?
+  //     Col(
+  //       {type: 'xs-1', style: {width: '48px', 'font-size': '32px'}},
+  //       [icon(iconName, 'white')]
+  //     ) : null,
+  // ])

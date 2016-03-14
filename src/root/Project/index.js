@@ -9,11 +9,12 @@ import Title from 'components/Title'
 import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
+import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 import {icon} from 'helpers'
 
-import {log} from 'util'
+import {rows, log} from 'util'
 
 import Dash from './Dash'
 import Staff from './Staff'
@@ -30,19 +31,15 @@ const _tabs = [
   {path: '/find', label: 'Find'},
 ]
 
-const Nav = sources => ({
-  DOM: sources.isMobile$
-    .map(isMobile =>
-      div(
-        {},
-        [isMobile ? null : sources.titleDOM, 'Nav Items']
-      )
-    ),
-})
-
 export default sources => {
   const project$ = sources.projectKey$
     .flatMapLatest(key => sources.firebase('Projects',key))
+
+  const teams$ = sources.projectKey$
+    .flatMapLatest(key => sources.firebase('Teams',{
+      orderByChild: 'projectKey',
+      equalTo: key,
+    }))
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
@@ -58,7 +55,7 @@ export default sources => {
     ...sources,
   })
 
-  const nav = Nav({titleDOM: title.DOM, ...sources})
+  const nav = ProjectNav({titleDOM: title.DOM, teams$, ...sources})
 
   const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
 
