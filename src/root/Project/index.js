@@ -32,13 +32,21 @@ const _tabs = [
 ]
 
 export default sources => {
-  const project$ = sources.projectKey$
+  const projectKey$ = sources.projectKey$
+
+  const project$ = projectKey$
     .flatMapLatest(key => sources.firebase('Projects',key))
 
-  const teams$ = sources.projectKey$
+  const teams$ = projectKey$
     .flatMapLatest(key => sources.firebase('Teams',{
       orderByChild: 'projectKey',
       equalTo: key,
+    }))
+
+  const opps$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('Opps', {
+      orderByChild: 'projectKey',
+      equalTo: projectKey,
     }))
 
   const organizers$ = sources.projectKey$
@@ -61,7 +69,7 @@ export default sources => {
     ...sources,
   })
 
-  const nav = ProjectNav({titleDOM: title.DOM, project$, teams$, ...sources})
+  const nav = ProjectNav({titleDOM: title.DOM, project$, teams$, opps$, ...sources})
 
   const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
 
