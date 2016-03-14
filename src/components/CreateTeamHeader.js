@@ -1,3 +1,5 @@
+// literally one line differene wit CreateTeam
+
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
@@ -26,13 +28,14 @@ const _render = ({project, isOpen, teamFormDOM}) =>
     listItem({
       iconName: 'group_add',
       iconBackgroundColor: 'yellow',
-      title: 'Build your first Team',
+      title: 'Teams',
       className: 'open',
       clickable: true,
+      header: true, // this is the line
     }),
     modal({
       isOpen,
-      title: 'Build your first Team',
+      title: 'Add a Team',
       iconName: 'group_add',
       submitLabel: 'Make It So',
       closeLabel: 'Hang On',
