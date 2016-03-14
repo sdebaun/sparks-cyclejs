@@ -4,6 +4,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
+import CreateTeam from 'components/CreateTeam'
 
 import listItem from 'helpers/listItem'
 
@@ -11,7 +12,7 @@ import {col, icon} from 'helpers'
 
 import {log} from 'util'
 
-const _render = ({project, createOrganizerInviteDOM}) =>
+const _render = ({project, createOrganizerInviteDOM, createTeamDOM}) =>
   col(
     // listItem({
     //   iconName: 'playlist_add',
@@ -26,6 +27,7 @@ const _render = ({project, createOrganizerInviteDOM}) =>
     //   iconName: 'power',
     //   title: 'Create a Volunteer Opportunity',
     // }),
+    createTeamDOM,
     createOrganizerInviteDOM,
   )
 
@@ -36,12 +38,18 @@ const _responseRedirects$ = ({responses$, router: {createHref}}) =>
   Observable.merge(
     responses$.filter(byMatch('Organizers','create'))
       .map(response => createHref('/staff')),
+    responses$.filter(byMatch('Teams','create'))
+      .map(response => createHref('/team/' + response.payload)),
   )
 
 export default sources => {
   const createOrganizerInvite = isolate(CreateOrganizerInvite)(sources)
+  const createTeam = isolate(CreateTeam)(sources)
 
-  const queue$ = createOrganizerInvite.queue$
+  const queue$ = Observable.merge(
+    createOrganizerInvite.queue$,
+    createTeam.queue$,
+  )
 
   const route$ = _responseRedirects$(sources)
 
@@ -50,6 +58,7 @@ export default sources => {
   const viewState = {
     project$: sources.project$,
     createOrganizerInviteDOM$: createOrganizerInvite.DOM,
+    createTeamDOM$: createTeam.DOM,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)

@@ -5,7 +5,7 @@ import isolate from '@cycle/isolate'
 
 import {Teams} from 'remote'
 
-import TeamForm from 'components/OrganizerInviteForm'
+import TeamForm from 'components/TeamForm'
 
 import {col} from 'helpers'
 import modal from 'helpers/modal'
@@ -58,7 +58,7 @@ export default sources => {
   const viewState = {
     isOpen$,
     project$: sources.project$,
-    organizerInviteFormDOM$: teamForm.DOM,
+    teamFormDOM$: teamForm.DOM,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
