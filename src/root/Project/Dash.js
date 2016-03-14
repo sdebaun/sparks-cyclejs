@@ -39,7 +39,8 @@ const _responseRedirects$ = ({responses$, router: {createHref}}) =>
     responses$.filter(byMatch('Organizers','create'))
       .map(response => createHref('/staff')),
     responses$.filter(byMatch('Teams','create'))
-      .map(response => createHref('/team/' + response.payload)),
+      // not createHref - /team is off root of site
+      .map(response => '/team/' + response.payload),
   )
 
 export default sources => {
@@ -52,8 +53,6 @@ export default sources => {
   )
 
   const route$ = _responseRedirects$(sources)
-
-  route$.subscribe(log('route$'))
 
   const viewState = {
     project$: sources.project$,
