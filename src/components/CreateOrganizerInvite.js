@@ -29,6 +29,7 @@ const _render = ({project, isOpen, organizerInviteFormDOM}) =>
   col(
     listItem({
       iconName: 'person_add',
+      iconBackgroundColor: 'yellow',
       title: 'Invite Organizer',
       className: 'open',
     }),

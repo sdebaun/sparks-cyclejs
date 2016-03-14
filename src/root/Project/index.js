@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
+import isolate from '@cycle/isolate'
 
 import {div, span} from 'cycle-snabbdom'
 
@@ -18,8 +19,8 @@ import Dash from './Dash'
 import Staff from './Staff'
 
 const _routes = {
-  '/': Dash,
-  '/staff': Staff,
+  '/': isolate(Dash),
+  '/staff': isolate(Staff),
   '/find': ComingSoon('Find'),
 }
 

@@ -20,7 +20,16 @@ export const reactComponent = (Klass,attrs,hookName = 'update') =>
     hook: {[hookName]: ({elm}) => ReactDOM.render(<Klass {...attrs}/>,elm)},
   })
 
-export const icon = (name, color = '#FFF') => Icon({name, style: {color}})
+export const icon = (name, color = '#FFF', backgroundColor) =>
+  Icon({name, style: {
+    color, backgroundColor,
+    borderRadius: '20px',
+    margin: '-4px',
+    padding: '4px',
+  }})
+
+export const fabIcon = name =>
+  Icon({name, style: {backgroundColor: 'yellow', borderRadius: '16px'}})
 
 const src = require('images/sn-logo-32.png')
 
