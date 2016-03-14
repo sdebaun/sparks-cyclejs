@@ -35,12 +35,12 @@ export default sources => {
   const projectKey$ = sources.projectKey$
 
   const project$ = projectKey$
-    .flatMapLatest(key => sources.firebase('Projects',key))
+    .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
 
   const teams$ = projectKey$
-    .flatMapLatest(key => sources.firebase('Teams',{
+    .flatMapLatest(projectKey => sources.firebase('Teams',{
       orderByChild: 'projectKey',
-      equalTo: key,
+      equalTo: projectKey,
     }))
 
   const opps$ = projectKey$

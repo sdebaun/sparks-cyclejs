@@ -9,20 +9,21 @@ import Title from 'components/Title'
 import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
+import OppNav from 'components/OppNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 import {icon} from 'helpers'
 
 import {log} from 'util'
 
-// import Dash from './Dash'
+import Dash from './Dash'
 // import Staff from './Staff'
 
 const _routes = {
-  '/': isolate(ComingSoon('Dash')),
-  // '/': isolate(Dash),
+  '/': isolate(Dash),
   '/leads': isolate(ComingSoon('Leads')),
   '/find': isolate(ComingSoon('Find')),
+  '/manage': isolate(ComingSoon('Manage')),
 }
 
 const _tabs = [
@@ -49,8 +50,11 @@ export default sources => {
 
   const projectKey$ = opp$.pluck('projectKey')
 
+  const project$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
+
   const teams$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Teams', {
+    .flatMapLatest(projectKey => sources.firebase('Teams',{
       orderByChild: 'projectKey',
       equalTo: projectKey,
     }))
@@ -60,9 +64,6 @@ export default sources => {
       orderByChild: 'projectKey',
       equalTo: projectKey,
     }))
-
-  const project$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
@@ -80,7 +81,14 @@ export default sources => {
     ...sources,
   })
 
-  const nav = Nav({titleDOM: title.DOM, ...sources})
+  const nav = OppNav({
+    titleDOM: title.DOM,
+    project$,
+    teams$,
+    opps$,
+    projectKey$,
+    ...sources,
+  })
 
   const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
 
