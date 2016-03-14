@@ -8,6 +8,8 @@ import {h, div, span} from 'cycle-snabbdom'
 
 import {rows, log} from 'util'
 
+import CreateTeamHeader from 'components/CreateTeamHeader'
+
 const _navActions = sources => Observable.merge(
   sources.DOM.select('.project.glance').events('click')
     .map(e => '/team/' + e.ownerTarget.dataset.key),
@@ -25,7 +27,7 @@ const _teamHeader = () =>
     iconName: 'plus', iconBackgroundColor: 'yellow',
   })
 
-const _render = ({isMobile, teams, titleDOM}) => {
+const _render = ({isMobile, teams, titleDOM, teamListHeaderDOM}) => {
   const teamRows = rows(teams)
   return div(
     {},
@@ -34,7 +36,7 @@ const _render = ({isMobile, teams, titleDOM}) => {
       h('div.rowwrap', {style: {padding: '0px 15px'}}, [
         listItem({title: 'At a Glance', subtitle: 'Coming Soon!', iconName: 'home', disabled: true}),
         listItem({title: 'Manage', subtitle: 'Coming Soon!', iconName: 'settings', disabled: true}),
-        teamRows.length > 0 ? _teamHeader() : null,
+        teamRows.length > 0 ? teamListHeaderDOM : null,
         ..._teamItems(teamRows),
       ]),
     ]
@@ -44,13 +46,18 @@ const _render = ({isMobile, teams, titleDOM}) => {
 export default sources => {
   const route$ = _navActions(sources)
 
+  const teamListHeader = CreateTeamHeader(sources)
+
+  const queue$ = teamListHeader.queue$
+
   const viewState$ = {
     isMobile$: sources.isMobile$,
+    teamListHeaderDOM$: teamListHeader.DOM,
     teams$: sources.teams$,
     titleDOM$: sources.titleDOM,
   }
 
   const DOM = combineLatestObj(viewState$).map(_render)
 
-  return {DOM, route$}
+  return {DOM, route$, queue$}
 }

@@ -7,28 +7,18 @@ import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
 import CreateTeam from 'components/CreateTeam'
 
 import listItem from 'helpers/listItem'
+import listItemDisabled from 'helpers/listItemDisabled'
 
 import {col, icon} from 'helpers'
 
-import {log} from 'util'
+import {log, rows} from 'util'
 
-const _render = ({project, createOrganizerInviteDOM, createTeamDOM}) =>
+const _render = ({project, teams, organizers, createOrganizerInviteDOM, createTeamDOM}) =>
   col(
-    // listItem({
-    //   iconName: 'playlist_add',
-    //   title: 'What\'s your project all about?',
-    //   link: '/project/' + '/manage',
-    // }),
-    // listItem({
-    //   iconName: 'group_add',
-    //   title: 'Build Your First Team',
-    // }),
-    // listItem({
-    //   iconName: 'power',
-    //   title: 'Create a Volunteer Opportunity',
-    // }),
-    createTeamDOM,
-    createOrganizerInviteDOM,
+    listItemDisabled({iconName: 'playlist_add', title: 'What\'s your project all about?'}),
+    rows(teams).length === 0 ? createTeamDOM : null,
+    rows(organizers).length === 0 ? createOrganizerInviteDOM : null,
+    listItemDisabled({iconName: 'power', title: 'Create a volunteer Opportunity.'}),
   )
 
 const byMatch = (matchDomain,matchEvent) =>
@@ -56,6 +46,8 @@ export default sources => {
 
   const viewState = {
     project$: sources.project$,
+    teams$: sources.teams$,
+    organizers$: sources.organizers$,
     createOrganizerInviteDOM$: createOrganizerInvite.DOM,
     createTeamDOM$: createTeam.DOM,
   }

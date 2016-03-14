@@ -41,9 +41,15 @@ export default sources => {
       equalTo: key,
     }))
 
+  const organizers$ = sources.projectKey$
+    .flatMapLatest(key => sources.firebase('Organizers',{
+      orderByChild: 'projectKey',
+      equalTo: key,
+    }))
+
   const page$ = nestedComponent(
     sources.router.define(_routes),
-    {project$, ...sources}
+    {project$, teams$, organizers$, ...sources}
   )
 
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
@@ -55,7 +61,7 @@ export default sources => {
     ...sources,
   })
 
-  const nav = ProjectNav({titleDOM: title.DOM, teams$, ...sources})
+  const nav = ProjectNav({titleDOM: title.DOM, project$, teams$, ...sources})
 
   const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
 
