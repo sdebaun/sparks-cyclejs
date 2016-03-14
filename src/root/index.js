@@ -6,6 +6,7 @@ import Confirm from './Confirm'
 import Dash from './Dash'
 import Admin from './Admin'
 import Project from './Project'
+import Team from './Team'
 
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
@@ -36,6 +37,8 @@ const routes = {
   // }),
   '/project/:key': key => sources =>
     isolate(Project)({projectKey$: just(key), ...sources}),
+  '/team/:key': key => sources =>
+    isolate(Team)({teamKey$: just(key), ...sources}),
 }
 
 export default sources => {

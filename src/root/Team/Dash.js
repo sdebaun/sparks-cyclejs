@@ -6,7 +6,7 @@ import isolate from '@cycle/isolate'
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
 import CreateTeam from 'components/CreateTeam'
 
-import listItem from 'helpers/listItem'
+import listItemDisabled from 'helpers/listItemDisabled'
 
 import {col, icon} from 'helpers'
 
@@ -14,21 +14,11 @@ import {log} from 'util'
 
 const _render = ({project, createOrganizerInviteDOM, createTeamDOM}) =>
   col(
-    // listItem({
-    //   iconName: 'playlist_add',
-    //   title: 'What\'s your project all about?',
-    //   link: '/project/' + '/manage',
-    // }),
-    // listItem({
-    //   iconName: 'group_add',
-    //   title: 'Build Your First Team',
-    // }),
-    // listItem({
-    //   iconName: 'power',
-    //   title: 'Create a Volunteer Opportunity',
-    // }),
-    createTeamDOM,
-    createOrganizerInviteDOM,
+    listItemDisabled({iconName: 'playlist_add', title: 'What\'s this team all about?'}),
+    listItemDisabled({iconName: 'person_add', title: 'Invite some people to help Lead this team.'}),
+    listItemDisabled({iconName: 'bullhorn', title: 'How are you recruiting volunteers?'}),
+    // createTeamDOM,
+    // createOrganizerInviteDOM,
   )
 
 const byMatch = (matchDomain,matchEvent) =>

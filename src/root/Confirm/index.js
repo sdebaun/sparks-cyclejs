@@ -78,13 +78,9 @@ const _render = ({valid, profileFormDOM}) =>
   )
 
 export default sources => {
-  sources.auth$.subscribe(log('auth$'))
-
   const profile$ = _fromAuthData$(sources)
 
   const profileForm = ProfileForm({profile$, ...sources})
-
-  profileForm.valid$.subscribe(log('valid$'))
 
   const submit$ = _submitAction$(sources)
 
