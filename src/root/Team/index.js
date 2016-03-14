@@ -54,6 +54,12 @@ export default sources => {
       equalTo: projectKey,
     }))
 
+  const opps$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('Opps', {
+      orderByChild: 'projectKey',
+      equalTo: projectKey,
+    }))
+
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
 
@@ -63,7 +69,7 @@ export default sources => {
   )
 
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-  const quickNav = ProjectQuickNavMenu({...sources, project$, projectKey$, team$, teams$})
+  const quickNav = ProjectQuickNavMenu({...sources, project$, projectKey$, team$, teams$, opps$})
 
   const title = Title({
     quickNavDOM$: quickNav.DOM,
