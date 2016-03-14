@@ -32,6 +32,7 @@ const _render = ({project, isOpen, organizerInviteFormDOM}) =>
       iconBackgroundColor: 'yellow',
       title: 'Invite Organizer',
       className: 'open',
+      clickable: true,
     }),
     modal({
       isOpen,

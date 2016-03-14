@@ -2,31 +2,11 @@ import {h,div,br,span} from 'cycle-snabbdom'
 import {Col} from 'snabbdom-material'
 import {icon} from 'helpers'
 
-import {Menu} from 'snabbdom-material'
-const Item = Menu.Item
+import './styles.scss'
 
-require('./style.scss')
-
-const fadeInOut = {
-  opacity: 0,
-  transition: 'opacity 100',
-  delayed: {
-    opacity: 1,
-  },
-  remove: {
-    opacity: 0,
-  },
-}
-
-const style = {
-  lineHeight: '64px',
-  cursor: 'pointer',
-  ...fadeInOut,
-}
-
-const contentStyle = (lines,hasIcon) => {
+const contentStyle = (lines,padLeft) => {
   return {
-    padding: '16px ' + (hasIcon ? '0px' : '16px'),
+    padding: '16px ' + (padLeft ? '0px' : '16px'),
     lineHeight: lines > 1 ? '16px' : '32px',
   }
 }
@@ -44,15 +24,34 @@ const subtitleStyle = {
   color: '#666',
 }
 
-export default ({iconName, title, subtitle, className, link, key, iconBackgroundColor}) =>
-  h('div.row.list-item.' + className, {style, attrs: {'data-link': link, 'data-key': key}}, [
-    iconName ?
-      Col(
-        {type: 'xs-1', style: iconCellStyle},
-        [icon(iconName, 'black', iconBackgroundColor)]
-      ) : null,
-    Col({type: 'xs-8', style: contentStyle(subtitle ? 2 : 1, !!iconName)},[
-      div({style: titleStyle},[title]),
-      div({style: subtitleStyle},[subtitle]),
-    ]),
+const classNames = (className, clickable, disabled, header) =>
+  ['row', 'list-item', className,
+    clickable && 'clickable',
+    disabled && 'disabled',
+    header && 'header',
+  ].filter(x => !!x)
+
+const iconCell = (iconName, iconBackgroundColor) =>
+  Col(
+    {type: 'xs-1', style: iconCellStyle},
+    [icon(iconName, 'black', iconBackgroundColor)]
+  )
+
+const contentCell = (title, subtitle, padLeft) =>
+  Col({type: 'xs-9', style: contentStyle(subtitle ? 2 : 1, padLeft)},[
+    div({style: titleStyle},[title]),
+    div({style: subtitleStyle},[subtitle]),
   ])
+
+const iconFirst = (ic,cc) => [ic,cc]
+const iconLast = (ic,cc) => [cc,ic]
+
+export default ({iconName, header, clickable, disabled, title, subtitle, className, link, key, iconBackgroundColor}) =>
+  h('div.' + classNames(className, clickable || link || key, disabled, header).join('.'), {
+    attrs: {'data-link': link, 'data-key': key},
+  }, (header ? iconLast : iconFirst)(
+      !!iconName && iconCell(iconName,iconBackgroundColor),
+      contentCell(title, subtitle, !!iconName && !header)
+    )
+  )
+

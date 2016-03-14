@@ -28,6 +28,7 @@ const _render = ({project, isOpen, teamFormDOM}) =>
       iconBackgroundColor: 'yellow',
       title: 'Build your first Team',
       className: 'open',
+      clickable: true,
     }),
     modal({
       isOpen,

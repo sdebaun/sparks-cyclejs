@@ -2,7 +2,7 @@ import {h} from 'cycle-snabbdom'
 import {Col} from 'snabbdom-material'
 import {icon} from 'helpers'
 
-const style = {
+const style = clickable => ({
   'line-height': '64px',
   backgroundColor: '#666',
   color: '#FFF',
@@ -10,10 +10,11 @@ const style = {
   fontSize: '1.4em',
   fontWeight: 'bold',
   display: 'block',
-}
+  cursor: clickable ? 'pointer' : '',
+})
 
-export default ({title, className, iconName}) =>
-  h('div.row.' + className, {style}, [
+export default ({title, className, iconName, clickable}) =>
+  h('div.row.' + className, {style: style(clickable)}, [
     Col({type: 'xs-10'},[title]),
     iconName ?
       Col(

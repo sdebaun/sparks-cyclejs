@@ -18,6 +18,13 @@ const _navActions = sources => Observable.merge(
 const _teamItems = teamRows =>
   teamRows.map(({name, $key}) => listItem({title: name, className: 'team', key: $key}))
 
+const _teamHeader = () =>
+  listItem({
+    header: true,
+    title: 'Teams', clickable: true, className: 'teams-list',
+    iconName: 'plus', iconBackgroundColor: 'yellow',
+  })
+
 const _render = ({isMobile, teams, titleDOM}) => {
   const teamRows = rows(teams)
   return div(
@@ -25,9 +32,9 @@ const _render = ({isMobile, teams, titleDOM}) => {
     [
       isMobile ? null : titleDOM,
       h('div.rowwrap', {style: {padding: '0px 15px'}}, [
-        listItem({title: 'At a Glance', iconName: 'home'}),
-        listItem({title: 'Manage', iconName: 'settings'}),
-        teamRows.length > 0 ? listHeader({title: 'Teams'}) : null,
+        listItem({title: 'At a Glance', subtitle: 'Coming Soon!', iconName: 'home', disabled: true}),
+        listItem({title: 'Manage', subtitle: 'Coming Soon!', iconName: 'settings', disabled: true}),
+        teamRows.length > 0 ? _teamHeader() : null,
         ..._teamItems(teamRows),
       ]),
     ]
