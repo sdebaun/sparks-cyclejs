@@ -10,12 +10,12 @@ import CreateOpp from 'components/CreateOpp'
 import listItem from 'helpers/listItem'
 import listItemDisabled from 'helpers/listItemDisabled'
 
-import {col, icon} from 'helpers'
+import {col} from 'helpers'
 
-import {log, rows, byMatch} from 'util'
+// import {log} from 'util'
+import {rows, byMatch} from 'util'
 
 const _render = (createHref) => ({
-  project,
   projectImage,
   teams,
   organizers,
@@ -31,18 +31,18 @@ const _render = (createHref) => ({
       rows(teams).length === 0 ? createTeamDOM : null,
       rows(organizers).length === 0 ? createOrganizerInviteDOM : null,
       createOppDOM,
-      listItem({
-        iconName: projectImage ? null : 'add_a_photo',
-        iconSrc: projectImage ? projectImage.dataUrl : null,
+      !projectImage && listItem({
+        iconName: 'add_a_photo',
+        iconBackgroundColor: 'yellow',
         title: 'Choose a photo for your project',
-        link: createHref('/photo'),
+        link: createHref('/manage/describe'),
       }),
     )
 
 const _responseRedirects$ = ({responses$, router: {createHref}}) =>
   Observable.merge(
     responses$.filter(byMatch('Organizers','create'))
-      .map(response => createHref('/staff')),
+      .map(() => createHref('/staff')),
     responses$.filter(byMatch('Teams','create'))
       // not createHref - /team is off root of site
       .map(response => '/team/' + response.payload),

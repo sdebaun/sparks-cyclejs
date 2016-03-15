@@ -1,24 +1,30 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import {div,a} from 'cycle-snabbdom'
+import {div} from 'cycle-snabbdom'
 
 import ProjectForm from 'components/ProjectForm'
 
-import {log} from 'util'
+import listItem from 'helpers/listItem'
+
+// import {log} from 'util'
 
 // TODO: move to helpers
 const rows = obj =>
   Object.keys(obj).map(k => ({$key: k, ...obj[k]}))
 
-const renderProjects = projects =>
+const _renderProjects = projects =>
   rows(projects).map(({name,$key}) =>
-    div({attrs: {class: 'project', 'data-link': '/project/' + $key}}, [name]))
+    listItem(
+      {title: name, subtitle: 'project',
+      link: '/project/' + $key, className: 'project'}
+    )
+  )
 
 const _DOM = ({projects, formDOM}) =>
   div({}, [
     formDOM,
-    div({attrs: {class: 'projects'}},renderProjects(projects)),
+    div({attrs: {class: 'projects'}}, _renderProjects(projects)),
   ])
 
 import {Projects} from 'remote'

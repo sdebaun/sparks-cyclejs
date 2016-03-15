@@ -1,51 +1,52 @@
-import {Observable} from 'rx'
+// import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
-import DropAndCrop from 'components/DropAndCrop'
 import {col} from 'helpers'
-import {ProjectImages} from 'remote'
-import {button, h4} from 'cycle-snabbdom'
+// import {button, h4} from 'cycle-snabbdom'
+// import {byMatch} from 'util'
 
-import {byMatch} from 'util'
+import SetImage from 'components/SetImage'
 
-const _responseRedirects$ = ({
-  responses$,
-  projectKey$,
-  router: {createHref},
-}) => {
-  const newImageResponse$ =
-    responses$.filter(byMatch('ProjectImages','set'))
+// const _responseRedirects$ = ({
+//   responses$,
+//   projectKey$,
+// }) => {
+//   const newImageResponse$ =
+//     responses$.filter(byMatch('ProjectImages','set'))
 
-  const newImageRedirect$ = projectKey$
-    .sample(newImageResponse$)
-    .map(projectKey => '/project/' + projectKey)
+//   const newImageRedirect$ = projectKey$
+//     .sample(newImageResponse$)
+//     .map(projectKey => '/project/' + projectKey)
 
-  return newImageRedirect$
-}
+//   return newImageRedirect$
+// }
 
-const _render = ({dropAndCrop, cropped}) =>
+const _render = ({setImageDOM}) =>
   col(
-    h4({style: {marginTop: '0.25em'}}, cropped ?
-      'Please crop your project image as you would prefer' : ''),
-    dropAndCrop
+    setImageDOM,
+    // h4({style: {marginTop: '0.25em'}}, cropped ?
+    //   'Please crop your project image as you would prefer' : ''),
+    // dropAndCrop
   )
 
 function Photo(sources) {
-  const dropAndCrop = DropAndCrop(sources)
-  const queue$ = dropAndCrop.dataUrl$
-    .map(dataUrl => ({dataUrl}))
-    .withLatestFrom(sources.projectKey$, (values,key) =>
-      ProjectImages.set(key,values)
-    )
+  const setImage = SetImage({image$: sources.projectImage$, ...sources})
 
-  const route$ = _responseRedirects$(sources)
+  const queue$ = setImage.queue$
+
+  // const route$ = _responseRedirects$(sources)
 
   const viewState = {
-    dropAndCrop: dropAndCrop.DOM,
-    cropped$: dropAndCrop.cropped$,
+    setImageDOM: setImage.DOM,
+    // dropAndCrop: dropAndCrop.DOM,
+    // cropped$: dropAndCrop.cropped$,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
-  return {DOM, queue$, route$}
+  return {
+    DOM,
+    queue$,
+    // route$,
+  }
 }
 
 export default Photo

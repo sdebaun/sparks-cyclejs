@@ -1,18 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Cropper from 'react-cropper'
+import ReactCropper from 'react-cropper'
 import {BehaviorSubject} from 'rx'
 import {reactComponent} from 'helpers'
 
 // stupid react component requires ref (and thus a class)
 // to get dataurl from canvas
-class ReactCropper extends React.Component {
+class Cropper extends React.Component {
   crop = () => this.props.onCrop(
     this.refs.cropper.getCroppedCanvas().toDataURL()
   )
 
   render() {
-    return <Cropper ref='cropper' {
+    return <ReactCropper ref='cropper' {
       ...{...this.props, crop: this.crop, autoCrop: true}
     }/>
   }
@@ -25,7 +25,7 @@ export default ({image$}) => {
     cropped$,
     // has to be attached on 'update', the default, breaks if 'insert'
     DOM: image$
-      .map(src => reactComponent(ReactCropper, {
+      .map(src => reactComponent(Cropper, {
         src,
         onCrop: e => cropped$.onNext(e),
         aspectRatio: 1,
