@@ -8,16 +8,19 @@ import makeTextareaListItem from 'components/TextareaListItemFactory'
 
 import {Opps} from 'remote'
 
-const _render = ({textareaQuestionDOM}) =>
+import {rows} from 'util'
+import {log} from 'util'
+
+const _renderTeams = teamRows =>
+  teamRows.length === 0 ? ['Add a team'] : [
+    listItem({title: 'allowed teams', header: true}),
+    ...teamRows.map(t => listItem({title: t.name})),
+  ]
+
+const _render = ({teams, textareaQuestionDOM}) =>
   col(
-    // togglePublicDOM,
     textareaQuestionDOM,
-    listItem({
-      iconName: 'playlist_add',
-      title: 'Apply to Teams.',
-      subtitle: 'Coming Soon!',
-      disabled: true,
-    }),
+    ..._renderTeams(rows(teams))
   )
 
 const TextareaQuestion = makeTextareaListItem({
@@ -42,7 +45,10 @@ export default sources => {
 
   const viewState = {
     textareaQuestionDOM: textareaQuestion.DOM,
+    teams$: sources.teams$,
   }
+
+  sources.teams$.subscribe(log('teams$'))
 
   const DOM = combineLatestObj(viewState).map(_render)
   return {
