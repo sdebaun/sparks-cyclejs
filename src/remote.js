@@ -51,4 +51,9 @@ export const Opps = {
     action: 'create',
     payload,
   }),
+  update: (key, values) => ({
+    domain: 'Opps',
+    action: 'set',
+    payload: {key, values},
+  }),
 }

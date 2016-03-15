@@ -16,9 +16,9 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 // import {rows, log} from 'util'
 
-// import Priority from './Priority'
+import Describe from './Describe'
 
-const Describe = ComingSoon('Opp/Glance/Describe')
+// const Describe = ComingSoon('Opp/Glance/Describe')
 const Exchange = ComingSoon('Opp/Glance/Exchange')
 const Applying = ComingSoon('Opp/Glance/Applying')
 

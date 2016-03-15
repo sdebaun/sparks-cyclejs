@@ -6,7 +6,7 @@ import './styles.scss'
 
 const contentStyle = (lines,padLeft) => {
   return {
-    padding: '16px ' + (padLeft ? '0px' : '16px'),
+    padding: '16px ' + (padLeft ? '8px' : '16px'),
     lineHeight: lines > 1 ? '16px' : '32px',
   }
 }
@@ -17,7 +17,7 @@ const iconCellStyle = {
 }
 
 const titleStyle = {
-  fontSize: '1.2em',
+  fontSize: '18px',
 }
 
 const subtitleStyle = {
@@ -32,14 +32,15 @@ const iconImageStyle = {
   borderRadius: '20px',
 }
 
-const iconCell = (iconName, iconSrc, iconBackgroundColor) =>
-  Col(
-    {type: 'xs-1', style: iconCellStyle}, [
-      iconSrc ?
-        img({style: iconImageStyle, attrs: {src: iconSrc}}, []) :
-        icon(iconName, 'black', iconBackgroundColor),
-    ]
+const iconCell = (iconDOM) =>
+  iconDOM && Col(
+    {type: 'xs-1', style: iconCellStyle}, [iconDOM]
   )
+  //     iconSrc ?
+  //       img({style: iconImageStyle, attrs: {src: iconSrc}}, []) :
+  //       icon(iconName, 'black', iconBackgroundColor),
+  //   ]
+  // )
 
 const contentCell = (title, subtitle, padLeft) =>
   Col({type: 'xs-9', style: contentStyle(subtitle ? 2 : 1, padLeft)},[
@@ -53,6 +54,14 @@ const iconLast = (ic,cc) => [cc,ic]
 const isClickable = ({clickable, link, key, disabled}) =>
   (clickable || link || key) && !disabled
 
+const _iconDOM = (iconName, iconSrc, iconDOM, iconBackgroundColor) => {
+  if (iconName) { return icon(iconName, 'black', iconBackgroundColor) }
+  if (iconSrc) {
+    return img({style: iconImageStyle, attrs: {src: iconSrc}}, [])
+  }
+  return iconDOM
+}
+
 const _classNames = props =>
   ['row', 'list-item', props.className,
     isClickable(props) && 'clickable',
@@ -61,16 +70,18 @@ const _classNames = props =>
   ].filter(x => !!x)
 
 const _render = ({
-  iconName, iconSrc, iconBackgroundColor,
-  header, clickable, disabled,
-  title, subtitle,
+  iconName, iconSrc, iconBackgroundColor, iconDOM,
+  header, title, subtitle,
   classNames, link, key,
 }) =>
   h('div.' + classNames.join('.'), {
     attrs: {'data-link': link, 'data-key': key},
   }, (header ? iconLast : iconFirst)(
-      (iconName || iconSrc) && iconCell(iconName, iconSrc, iconBackgroundColor),
-      contentCell(title, subtitle, (!!iconName || !!iconSrc) && !header)
+      iconCell(_iconDOM(iconName, iconSrc, iconDOM, iconBackgroundColor)),
+      // (iconName || iconSrc) && iconCell(iconName, iconSrc, iconBackgroundColor),
+      contentCell(
+        title, subtitle, (!!iconName || !!iconSrc || !!iconDOM) && !header
+      )
     )
   )
 
