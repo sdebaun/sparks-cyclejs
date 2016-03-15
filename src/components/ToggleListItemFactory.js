@@ -10,12 +10,12 @@ import {icon} from 'helpers'
 
 import {log} from 'util'
 
-export default ({label}) => sources => {
+export default ({labelTrue, labelFalse}) => sources => {
   // render is nested so it can use factory args
   const _render = ({value}) =>
     listItem({
       iconDOM: value ? icon('toggle-on','green') : icon('toggle-off','#333'),
-      title: label,
+      title: value ? labelTrue : labelFalse,
       clickable: true,
     })
 

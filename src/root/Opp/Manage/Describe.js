@@ -4,24 +4,30 @@ import {col} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import makeToggleListItem from 'components/ToggleListItemFactory'
+import makeTextareaListItem from 'components/TextareaListItemFactory'
 
 import {Opps} from 'remote'
 
-// import SetImage from 'components/SetImage'
-
-const _render = ({togglePublicDOM}) =>
+const _render = ({togglePublicDOM, textareaDescriptionDOM}) =>
   col(
     togglePublicDOM,
-    listItem({
-      iconName: 'playlist_add',
-      title: 'Write a short tweet-length description.',
-      subtitle: 'Coming Soon!',
-      disabled: true,
-    }),
+    textareaDescriptionDOM,
+    // listItem({
+    //   iconName: 'playlist_add',
+    //   title: 'Write a short tweet-length description.',
+    //   subtitle: 'Coming Soon!',
+    //   disabled: true,
+    // }),
   )
 
 const TogglePublic = makeToggleListItem({
-  label: 'This is a toggle',
+  labelTrue: 'This is a Public Opportunity, and anyone can apply.',
+  labelFalse: 'This is Private, and is only seen by people you invite.',
+})
+
+const TextareaDescription = makeTextareaListItem({
+  iconName: 'playlist_add',
+  title: 'Write a short tweet-length description.',
 })
 
 export default sources => {
@@ -29,22 +35,33 @@ export default sources => {
     value$: sources.opp$.pluck('isPublic'),
     ...sources,
   })
-  // const setImage = SetImage({image$: sources.projectImage$, ...sources})
 
-  // const queue$ = setImage.queue$
+  const textareaDescription = TextareaDescription({
+    value$: sources.opp$.pluck('description'),
+    ...sources,
+  })
 
-  const queue$ = togglePublic.value$
+  const updateIsPublic$ = togglePublic.value$
     .withLatestFrom(sources.oppKey$, (isPublic,key) =>
       Opps.update(key,{isPublic})
     )
 
+  const updateDescription$ = textareaDescription.value$
+    .withLatestFrom(sources.oppKey$, (description,key) =>
+      Opps.update(key,{description})
+    )
+
+  const queue$ = Observable.merge(
+    updateIsPublic$,
+    updateDescription$,
+  )
+
   const viewState = {
     togglePublicDOM: togglePublic.DOM,
+    textareaDescriptionDOM: textareaDescription.DOM,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
-  // const DOM = Observable.just(['page'])
-  // const DOM = Observable.just(_render())
   return {
     DOM,
     queue$,
