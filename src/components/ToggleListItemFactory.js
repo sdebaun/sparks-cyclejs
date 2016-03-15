@@ -27,7 +27,7 @@ export default ({label}) => sources => {
 
   const value$ = sourceValue$
     .sample(toggleClick$)
-    .scan(a => !a, false)
+    .map(value => !value)
 
   value$.subscribe(log('value$'))
 
