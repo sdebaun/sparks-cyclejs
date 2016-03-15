@@ -34,7 +34,9 @@ const _menuItems = items =>
 export default ({isOpen, className, label, menu: {rightAlign}, items}) =>
   div({},[
     Button(
-      {className, flat: true, onClick: true, style: {color: 'white', margin: 0, paddingLeft: '0.5em'}},
+      {className, flat: true, onClick: true,
+        style: {color: 'white', margin: 0, paddingLeft: '0.5em'},
+      },
       [label, svgDropDownIcon]
     ),
     menu({isOpen, rightAlign}, _menuItems(items)),

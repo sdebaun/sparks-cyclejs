@@ -1,50 +1,31 @@
 import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
-import isolate from '@cycle/isolate'
-
-import {div, span} from 'cycle-snabbdom'
+// import combineLatestObj from 'rx-combine-latest-obj'
+// import isolate from '@cycle/isolate'
 
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
-import TabBar from 'components/TabBar'
-import ComingSoon from 'components/ComingSoon'
 import ProjectNav from 'components/ProjectNav'
+// import ComingSoon from 'components/ComingSoon'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-import {icon} from 'helpers'
 
-import {rows, log} from 'util'
-
-import Dash from './Dash'
-import Staff from './Staff'
-import Photo from './Photo'
+import Glance from './Glance'
+import Manage from './Manage'
 
 const _routes = {
-  '/': isolate(Dash),
-  '/staff': isolate(Staff),
-  '/photo': isolate(Photo),
-  '/find': ComingSoon('Find'),
+  // isolating breaks child tab navigation?
+  // '/': isolate(Glance),
+  // '/manage': isolate(Manage),
+  '/': Glance,
+  '/manage': Manage,
 }
-
-const _tabs = [
-  {path: '/', label: 'Dash'},
-  {path: '/staff', label: 'Staff'},
-  {path: '/find', label: 'Find'},
-]
 
 export default sources => {
   const projectKey$ = sources.projectKey$
 
   const projectImage$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('ProjectImages', {
-      orderByChild: 'projectKey',
-      equalTo: projectKey,
-    }))
-    .map((images) => {
-      const keys = Object.keys(images)
-      return images[keys[0]]
-    })
+    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
 
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
@@ -72,18 +53,27 @@ export default sources => {
     {project$, projectImage$, teams$, organizers$, ...sources}
   )
 
-  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
+  const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
+
+  const labelText$ = project$.pluck('name')
+  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
 
   const title = Title({
-    tabsDOM$: tabBar.DOM,
-    labelText$: project$.pluck('name'),
-    subLabelText$: Observable.just('At a Glance'), // eventually page$.something
+    tabsDOM$: tabsDOM,
+    labelText$,
+    subLabelText$,
     ...sources,
   })
 
-  const nav = ProjectNav({titleDOM: title.DOM, project$, teams$, opps$, ...sources})
+  const nav = ProjectNav({
+    titleDOM: title.DOM,
+    project$,
+    teams$,
+    opps$,
+    ...sources,
+  })
 
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
+  const header = Header({titleDOM: title.DOM, tabsDOM, ...sources})
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
@@ -92,7 +82,7 @@ export default sources => {
     ...sources,
   })
 
-  const children = [appFrame, page$, tabBar, title, nav, header]
+  const children = [appFrame, page$, title, nav, header]
 
   const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
 

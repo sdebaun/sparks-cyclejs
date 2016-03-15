@@ -28,7 +28,8 @@ const benefits =
           style: {backgroundImage: 'url("' + iconSrcs.mountains + '")'},
         }, [
           b({}, 'Get rewarded'),
-          ' for the help that you give with perks and access to new opportunities.',
+          ' for the help that you give' +
+          'with perks and access to new opportunities.',
         ]),
         li('.sn-icon.first', {
           style: {backgroundImage: 'url("' + iconSrcs.first + '")'},

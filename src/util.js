@@ -6,6 +6,9 @@ export const PROVIDERS = {
   logout: {type: 'logout'},
 }
 
+export const byMatch = (matchDomain,matchEvent) =>
+  ({domain,event}) => domain === matchDomain && event === matchEvent
+
 export const rows = obj =>
   obj ? Object.keys(obj).map(k => ({$key: k, ...obj[k]})) : []
 

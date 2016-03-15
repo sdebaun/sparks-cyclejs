@@ -26,16 +26,6 @@ const routes = {
   '/confirm': isolate(Confirm),
   '/dash': isolate(Dash),
   '/admin': isolate(Admin),
-  // '/project/:key/foo': key => sources => isolate(Project)({
-  //   project$: Observable.just({}), ...sources,
-  // }),
-  // '/project': sources => isolate(Project)({
-  //   project$: Observable.just({}), ...sources,
-  // }),
-  // '/project/:key': key => sources => isolate(Project)({
-  //   project$: sources.firebase('Projects',key),
-  //   ...sources,
-  // }),
   '/project/:key': key => sources =>
     isolate(Project)({projectKey$: just(key), ...sources}),
   '/team/:key': key => sources =>

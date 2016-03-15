@@ -1,9 +1,9 @@
 import Dropper from './Dropper'
 import Cropper from './Cropper'
-import {Observable} from 'rx'
+// import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {col} from 'helpers'
-import {div, img, h5} from 'cycle-snabbdom'
+import {img, h5} from 'cycle-snabbdom'
 import {Row, Button} from 'snabbdom-material'
 
 const imageStyle = {

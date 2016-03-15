@@ -24,17 +24,21 @@ const subtitleStyle = {
   color: '#666',
 }
 
-const classNames = (className, clickable, disabled, header) =>
-  ['row', 'list-item', className,
-    clickable && 'clickable',
-    disabled && 'disabled',
-    header && 'header',
-  ].filter(x => !!x)
+const iconImageStyle = {
+  width: '40px',
+  height: '40px',
+  marginTop: '12px',
+  marginLeft: '-4px', // such hax
+  borderRadius: '20px',
+}
 
-const iconCell = (iconName, iconBackgroundColor) =>
+const iconCell = (iconName, iconSrc, iconBackgroundColor) =>
   Col(
-    {type: 'xs-1', style: iconCellStyle},
-    [icon(iconName, 'black', iconBackgroundColor)]
+    {type: 'xs-1', style: iconCellStyle}, [
+      iconSrc ?
+        img({style: iconImageStyle, attrs: {src: iconSrc}}, []) :
+        icon(iconName, 'black', iconBackgroundColor),
+    ]
   )
 
 const contentCell = (title, subtitle, padLeft) =>
@@ -46,14 +50,29 @@ const contentCell = (title, subtitle, padLeft) =>
 const iconFirst = (ic,cc) => [ic,cc]
 const iconLast = (ic,cc) => [cc,ic]
 
-export default ({iconName, iconSrc, header, clickable, disabled, title, subtitle, className, link, key, iconBackgroundColor}) =>
-  h('div.' + classNames(className, clickable || link || key, disabled, header).join('.'), {
+const isClickable = ({clickable, link, key, disabled}) =>
+  (clickable || link || key) && !disabled
+
+const _classNames = props =>
+  ['row', 'list-item', props.className,
+    isClickable(props) && 'clickable',
+    props.disabled && 'disabled',
+    props.header && 'header',
+  ].filter(x => !!x)
+
+const _render = ({
+  iconName, iconSrc, iconBackgroundColor,
+  header, clickable, disabled,
+  title, subtitle,
+  classNames, link, key,
+}) =>
+  h('div.' + classNames.join('.'), {
     attrs: {'data-link': link, 'data-key': key},
   }, (header ? iconLast : iconFirst)(
-      !!iconName && iconCell(iconName,iconBackgroundColor) ||
-        !!icon && Col({type: 'xs-1', style: iconCellStyle}, [
-          img({style: iconCellStyle, attrs: {src: iconSrc}}, []),
-        ]),
-      contentCell(title, subtitle, !!iconName && !header)
+      (iconName || iconSrc) && iconCell(iconName, iconSrc, iconBackgroundColor),
+      contentCell(title, subtitle, (!!iconName || !!iconSrc) && !header)
     )
   )
+
+export default props =>
+  _render({classNames: _classNames(props), ...props})
