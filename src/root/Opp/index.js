@@ -9,6 +9,7 @@ import Title from 'components/Title'
 import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
+import OppNav from 'components/OppNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 import {icon} from 'helpers'
@@ -22,6 +23,7 @@ const _routes = {
   '/': isolate(Dash),
   '/leads': isolate(ComingSoon('Leads')),
   '/find': isolate(ComingSoon('Find')),
+  '/manage': isolate(ComingSoon('Manage')),
 }
 
 const _tabs = [
@@ -43,13 +45,16 @@ const Nav = sources => ({
 import ProjectQuickNavMenu from 'components/ProjectQuickNavMenu'
 
 export default sources => {
-  const team$ = sources.teamKey$
-    .flatMapLatest(key => sources.firebase('Teams',key))
+  const opp$ = sources.oppKey$
+    .flatMapLatest(key => sources.firebase('Opps',key))
 
-  const projectKey$ = team$.pluck('projectKey')
+  const projectKey$ = opp$.pluck('projectKey')
+
+  const project$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
 
   const teams$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Teams', {
+    .flatMapLatest(projectKey => sources.firebase('Teams',{
       orderByChild: 'projectKey',
       equalTo: projectKey,
     }))
@@ -60,26 +65,30 @@ export default sources => {
       equalTo: projectKey,
     }))
 
-  const project$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
-
   const page$ = nestedComponent(
     sources.router.define(_routes),
-    {team$, project$, projectKey$, ...sources}
+    {opp$, project$, projectKey$, ...sources}
   )
 
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-  const quickNav = ProjectQuickNavMenu({...sources, project$, projectKey$, team$, teams$, opps$})
+  const quickNav = ProjectQuickNavMenu({...sources, project$, projectKey$, opp$, teams$, opps$})
 
   const title = Title({
     quickNavDOM$: quickNav.DOM,
     tabsDOM$: tabBar.DOM,
-    labelText$: team$.pluck('name'),
+    labelText$: opp$.pluck('name'),
     subLabelText$: Observable.just('At a Glance'), // eventually page$.something
     ...sources,
   })
 
-  const nav = Nav({titleDOM: title.DOM, ...sources})
+  const nav = OppNav({
+    titleDOM: title.DOM,
+    project$,
+    teams$,
+    opps$,
+    projectKey$,
+    ...sources,
+  })
 
   const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
 

@@ -13,7 +13,9 @@ const _navActions$ = ({DOM, projectKey$}) =>
     projectKey$.sample(DOM.select('.project').events('click'))
       .map(projectKey => '/project/' + projectKey),
     DOM.select('.team').events('click')
-      .map(e => '/team/' + e.ownerTarget.dataset.key)
+      .map(e => '/team/' + e.ownerTarget.dataset.key),
+    DOM.select('.opp').events('click')
+      .map(e => '/opp/' + e.ownerTarget.dataset.key)
   )
 
 const _openActions$ = ({DOM}) => Observable.merge(
@@ -21,21 +23,33 @@ const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.close-menu').events('click').map(false),
 )
 
-const _menuItems = (project, teams) => [
+const _teamItems = teamRows => [
+  teamRows.length && {divider: true},
+  ...teamRows.map(({name,$key}) => (
+    {className: 'team', label: name, key: $key}
+  )),
+]
+
+const _oppItems = oppRows => [
+  oppRows.length && {divider: true},
+  ...oppRows.map(({name,$key}) => (
+    {className: 'opp', label: name, key: $key}
+  )),
+]
+
+const _menuItems = (project, teams, opps) => [
   {className: 'project', label: project.name},
-  {divider: true},
-  ...rows(teams).map(({name,$key}) => (
-    {className: 'team', label: name, key: $key})
-  ),
+  ..._teamItems(rows(teams)),
+  ..._oppItems(rows(opps)),
 ].filter(r => !!r)
 
-const _render = ({auth, userProfile, isOpen, project, teams}) =>
+const _render = ({auth, userProfile, isOpen, project, teams, opps}) =>
   quickNavMenu({
     isOpen,
     className: 'project-menu-button', // necessary with isolate?
     label: project.name,
     menu: {rightAlign: true},
-    items: _menuItems(project,teams),
+    items: _menuItems(project,teams,opps),
   })
 
 export default sources => {
@@ -49,6 +63,7 @@ export default sources => {
     isOpen$,
     project$: sources.project$,
     teams$: sources.teams$,
+    opps$: sources.opps$,
     auth$: sources.auth$,
     userProfile$: sources.userProfile$,
   }
