@@ -12,12 +12,8 @@ import CreateTeamHeader from 'components/CreateTeamHeader'
 import CreateOppHeader from 'components/CreateOppHeader'
 
 const _navActions = sources => Observable.merge(
-  sources.DOM.select('.project.glance').events('click')
-    .map(e => '/team/' + e.ownerTarget.dataset.key),
-  sources.DOM.select('.team').events('click')
-    .map(e => '/team/' + e.ownerTarget.dataset.key),
-  sources.DOM.select('.opp').events('click')
-    .map(e => '/opp/' + e.ownerTarget.dataset.key),
+  sources.DOM.select('.nav').events('click')
+    .map(e => sources.router.createHref(e.ownerTarget.dataset.link)),
 )
 
 const _teamItems = _rows =>
@@ -34,20 +30,28 @@ const _oppItems = _rows =>
 //     iconName: 'plus', iconBackgroundColor: 'yellow',
 //   })
 
-const _render = ({isMobile, teams, opps, titleDOM, teamListHeaderDOM, oppListHeaderDOM}) => {
-  const teamRows = rows(teams)
-  const oppRows = rows(opps)
+// const _render = ({isMobile, teams, opps, titleDOM, teamListHeaderDOM, oppListHeaderDOM}) => {
+const _render = ({
+  isMobile,
+  // teams,
+  // opps,
+  titleDOM,
+  // teamListHeaderDOM,
+  // oppListHeaderDOM,
+}) => {
+  // const teamRows = rows(teams)
+  // const oppRows = rows(opps)
   return div(
     {},
     [
       isMobile ? null : titleDOM,
       h('div.rowwrap', {style: {padding: '0px 15px'}}, [
-        listItem({title: 'At a Glance', subtitle: 'Coming Soon!', iconName: 'home', disabled: true}),
-        listItem({title: 'Manage', subtitle: 'Coming Soon!', iconName: 'settings', disabled: true}),
-        teamRows.length > 0 ? teamListHeaderDOM : null,
-        ..._teamItems(teamRows),
-        oppRows.length > 0 ? oppListHeaderDOM : null,
-        ..._oppItems(oppRows),
+        listItem({title: 'At a Glance', iconName: 'home', className: 'nav', link: '/'}),
+        listItem({title: 'Manage', iconName: 'settings', className: 'nav', link: '/manage'}),
+        // teamRows.length > 0 ? teamListHeaderDOM : null,
+        // ..._teamItems(teamRows),
+        // oppRows.length > 0 ? oppListHeaderDOM : null,
+        // ..._oppItems(oppRows),
       ]),
     ]
   )
@@ -66,10 +70,10 @@ export default sources => {
 
   const viewState$ = {
     isMobile$: sources.isMobile$,
-    teamListHeaderDOM$: teamListHeader.DOM,
-    oppListHeaderDOM$: oppListHeader.DOM,
-    teams$: sources.teams$,
-    opps$: sources.opps$,
+    // teamListHeaderDOM$: teamListHeader.DOM,
+    // oppListHeaderDOM$: oppListHeader.DOM,
+    // teams$: sources.teams$,
+    // opps$: sources.opps$,
     titleDOM$: sources.titleDOM,
   }
 
