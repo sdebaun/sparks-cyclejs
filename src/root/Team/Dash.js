@@ -8,11 +8,12 @@ import CreateTeam from 'components/CreateTeam'
 
 import listItemDisabled from 'helpers/listItemDisabled'
 
-import {col, icon} from 'helpers'
+import {col} from 'helpers'
 
-import {log} from 'util'
+// import {log} from 'util'
 
-const _render = ({project, createOrganizerInviteDOM, createTeamDOM}) =>
+// const _render = ({project, createOrganizerInviteDOM, createTeamDOM}) =>
+const _render = () =>
   col(
     listItemDisabled(
       {iconName: 'playlist_add', title: 'What\'s this team all about?'}
@@ -24,8 +25,6 @@ const _render = ({project, createOrganizerInviteDOM, createTeamDOM}) =>
     listItemDisabled(
       {iconName: 'bullhorn', title: 'How are you recruiting volunteers?'}
     ),
-    // createTeamDOM,
-    // createOrganizerInviteDOM,
   )
 
 const byMatch = (matchDomain,matchEvent) =>
@@ -34,7 +33,7 @@ const byMatch = (matchDomain,matchEvent) =>
 const _responseRedirects$ = ({responses$, router: {createHref}}) =>
   Observable.merge(
     responses$.filter(byMatch('Organizers','create'))
-      .map(response => createHref('/staff')),
+      .map(() => createHref('/staff')),
     responses$.filter(byMatch('Teams','create'))
       // not createHref - /team is off root of site
       .map(response => '/team/' + response.payload),

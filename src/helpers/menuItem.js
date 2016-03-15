@@ -1,9 +1,9 @@
-import {h,div,br,span} from 'cycle-snabbdom'
+import {h,div} from 'cycle-snabbdom'
 import {Col} from 'snabbdom-material'
 import {icon} from 'helpers'
 
-import {Menu} from 'snabbdom-material'
-const Item = Menu.Item
+// import {Menu} from 'snabbdom-material'
+// const Item = Menu.Item
 
 import 'helpers/listItem/styles.scss'
 
@@ -24,13 +24,6 @@ const style = {
   cursor: 'pointer',
   margin: '0',
   ...fadeInOut,
-}
-
-const contentStyle = (lines,hasIcon) => {
-  return {
-    // padding: '16px ' + (hasIcon ? '0px' : '16px'),
-    // lineHeight: '48px',
-  }
 }
 
 const iconCellStyle = {
@@ -57,7 +50,7 @@ export default ({
         {type: 'xs-1', style: iconCellStyle},
         [icon(iconName, 'black', iconBackgroundColor)]
       ) : null,
-    Col({type: 'xs-8', style: contentStyle(subtitle ? 2 : 1, !!iconName)},[
+    Col({type: 'xs-8'},[
       div({style: titleStyle},[title]),
       div({style: subtitleStyle},[subtitle]),
     ]),

@@ -1,6 +1,5 @@
 import {div, span} from 'cycle-snabbdom'
-import {Col, Mask} from 'snabbdom-material'
-import {material} from 'util'
+import {Col} from 'snabbdom-material'
 import {icon} from 'helpers'
 
 import {Dialog} from 'snabbdom-material'

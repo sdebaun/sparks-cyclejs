@@ -37,10 +37,8 @@ export default ({title, className, iconName}) => sources => {
 
   const input$ = sources.DOM.select('.input').events('input')
   input$.subscribe(log('input$'))
-  // input$.pluck('target','value').subscribe(x => console.log(x.length))
 
   const isOpen$ = _openActions$(sources)
-    // .merge(submit$.map(false))
     .startWith(false)
 
   const submit$ = _submitAction$(sources)

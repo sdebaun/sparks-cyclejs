@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {col} from 'helpers'
-import listItem from 'helpers/listItem'
+// import listItem from 'helpers/listItem'
 
 import makeToggleListItem from 'components/ToggleListItemFactory'
 import makeTextareaListItem from 'components/TextareaListItemFactory'

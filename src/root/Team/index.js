@@ -1,8 +1,8 @@
 import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
+// import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
-import {div, span} from 'cycle-snabbdom'
+import {div} from 'cycle-snabbdom'
 
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
@@ -11,9 +11,9 @@ import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-import {icon} from 'helpers'
+// import {icon} from 'helpers'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 import Dash from './Dash'
 // import Staff from './Staff'

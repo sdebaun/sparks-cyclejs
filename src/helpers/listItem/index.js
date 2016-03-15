@@ -1,4 +1,4 @@
-import {h,div,br,span,img} from 'cycle-snabbdom'
+import {h,div,img} from 'cycle-snabbdom'
 import {Col} from 'snabbdom-material'
 import {icon} from 'helpers'
 
@@ -54,7 +54,7 @@ const iconLast = (ic,cc) => [cc,ic]
 const isClickable = ({clickable, link, key, disabled}) =>
   (clickable || link || key) && !disabled
 
-const _iconDOM = (iconName, iconSrc, iconDOM, iconBackgroundColor) => {
+const _iconDOM = ({iconName, iconSrc, iconDOM, iconBackgroundColor}) => {
   if (iconName) { return icon(iconName, 'black', iconBackgroundColor) }
   if (iconSrc) {
     return img({style: iconImageStyle, attrs: {src: iconSrc}}, [])
@@ -69,18 +69,21 @@ const _classNames = props =>
     props.header && 'header',
   ].filter(x => !!x)
 
+const _hasIcon = ({iconName, iconSrc, iconDOM}) =>
+  !!iconName || !!iconSrc || !!iconDOM
+
 const _render = ({
-  iconName, iconSrc, iconBackgroundColor, iconDOM,
+  // iconName, iconSrc, iconBackgroundColor, iconDOM,
   header, title, subtitle,
   classNames, link, key,
+  ...iconProps,
 }) =>
   h('div.' + classNames.join('.'), {
     attrs: {'data-link': link, 'data-key': key},
   }, (header ? iconLast : iconFirst)(
-      iconCell(_iconDOM(iconName, iconSrc, iconDOM, iconBackgroundColor)),
-      // (iconName || iconSrc) && iconCell(iconName, iconSrc, iconBackgroundColor),
+      iconCell(_iconDOM(iconProps)),
       contentCell(
-        title, subtitle, (!!iconName || !!iconSrc || !!iconDOM) && !header
+        title, subtitle, _hasIcon(iconProps) && !header
       )
     )
   )

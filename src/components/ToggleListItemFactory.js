@@ -1,8 +1,6 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import {Checkbox} from 'snabbdom-material'
-
 import listItem from 'helpers/listItem'
 import {icon} from 'helpers'
 
