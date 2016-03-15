@@ -14,15 +14,18 @@ import {rows} from 'util'
 
 const _renderProjects = projects =>
   rows(projects).map(({name,$key}) =>
-    // div({attrs: {class: 'project', 'data-link': '/project/' + $key}}, [name]))
-    listItem({title: name, subtitle: 'project', link: '/project/' + $key, className: 'project'})
+    listItem(
+      {title: name, subtitle: 'project',
+      link: '/project/' + $key, className: 'project'}
+    )
   )
 
 const _render = ({projects, projectFormDOM}) =>
   col(
     importantTip('The Sparks.Network is not open to the public right now.'),
     `
-    We are currently working with our Early Access Partners before our public launch.
+    We are currently working with our Early Access Partners
+    before our public launch.
     Go ahead and create a project if you'd like to explore,
     but you won't be able to start recruiting unless you're part of our EAP.
     If you'd like to be part of our Early Access Program, contact us below!

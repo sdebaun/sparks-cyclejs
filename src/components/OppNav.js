@@ -17,11 +17,12 @@ const _navActions = sources => Observable.merge(
 )
 
 const _teamItems = _rows =>
-  _rows.map(({name, $key}) => listItem({title: name, className: 'team', key: $key}))
+  _rows.map(({name, $key}) =>
+    listItem({title: name, className: 'team', key: $key}))
 
 const _oppItems = _rows =>
-  _rows.map(({name, $key}) => listItem({title: name, className: 'opp', key: $key}))
-
+  _rows.map(({name, $key}) =>
+    listItem({title: name, className: 'opp', key: $key}))
 
 // const _teamHeader = () =>
 //   listItem({
@@ -30,7 +31,6 @@ const _oppItems = _rows =>
 //     iconName: 'plus', iconBackgroundColor: 'yellow',
 //   })
 
-// const _render = ({isMobile, teams, opps, titleDOM, teamListHeaderDOM, oppListHeaderDOM}) => {
 const _render = ({
   isMobile,
   // teams,
@@ -46,8 +46,13 @@ const _render = ({
     [
       isMobile ? null : titleDOM,
       h('div.rowwrap', {style: {padding: '0px 15px'}}, [
-        listItem({title: 'At a Glance', iconName: 'home', className: 'nav', link: '/'}),
-        listItem({title: 'Manage', iconName: 'settings', className: 'nav', link: '/manage'}),
+        listItem(
+          {title: 'At a Glance', iconName: 'home', className: 'nav', link: '/'}
+        ),
+        listItem(
+          {title: 'Manage', iconName: 'settings',
+          className: 'nav', link: '/manage'}
+        ),
         // teamRows.length > 0 ? teamListHeaderDOM : null,
         // ..._teamItems(teamRows),
         // oppRows.length > 0 ? oppListHeaderDOM : null,

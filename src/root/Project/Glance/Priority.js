@@ -14,8 +14,15 @@ import {col, icon} from 'helpers'
 
 import {log, rows, byMatch} from 'util'
 
-const _render = (createHref) =>
-  ({project, projectImage, teams, organizers, createOrganizerInviteDOM, createTeamDOM, createOppDOM}) =>
+const _render = (createHref) => ({
+  project,
+  projectImage,
+  teams,
+  organizers,
+  createOrganizerInviteDOM,
+  createTeamDOM,
+  createOppDOM,
+}) =>
     col(
       listItemDisabled({
         iconName: 'playlist_add',
@@ -26,7 +33,7 @@ const _render = (createHref) =>
       createOppDOM,
       listItem({
         iconName: projectImage ? null : 'add_a_photo',
-        iconSrc: projectImage ? projectImage.dataUrl : 'add_a_photo',
+        iconSrc: projectImage ? projectImage.dataUrl : null,
         title: 'Choose a photo for your project',
         link: createHref('/photo'),
       }),

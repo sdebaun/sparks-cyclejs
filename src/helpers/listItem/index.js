@@ -32,13 +32,6 @@ const iconImageStyle = {
   borderRadius: '20px',
 }
 
-const classNames = (className, clickable, disabled, header) =>
-  ['row', 'list-item', className,
-    clickable && 'clickable',
-    disabled && 'disabled',
-    header && 'header',
-  ].filter(x => !!x)
-
 const iconCell = (iconName, iconSrc, iconBackgroundColor) =>
   Col(
     {type: 'xs-1', style: iconCellStyle}, [
@@ -47,7 +40,6 @@ const iconCell = (iconName, iconSrc, iconBackgroundColor) =>
         icon(iconName, 'black', iconBackgroundColor),
     ]
   )
-
 
 const contentCell = (title, subtitle, padLeft) =>
   Col({type: 'xs-9', style: contentStyle(subtitle ? 2 : 1, padLeft)},[
@@ -58,15 +50,29 @@ const contentCell = (title, subtitle, padLeft) =>
 const iconFirst = (ic,cc) => [ic,cc]
 const iconLast = (ic,cc) => [cc,ic]
 
-export default ({iconName, iconSrc, header, clickable, disabled, title, subtitle, className, link, key, iconBackgroundColor}) =>
-  h('div.' + classNames(className, clickable || link || key, disabled, header).join('.'), {
+const isClickable = ({clickable, link, key, disabled}) =>
+  (clickable || link || key) && !disabled
+
+const _classNames = props =>
+  ['row', 'list-item', props.className,
+    isClickable(props) && 'clickable',
+    props.disabled && 'disabled',
+    props.header && 'header',
+  ].filter(x => !!x)
+
+const _render = ({
+  iconName, iconSrc, iconBackgroundColor,
+  header, clickable, disabled,
+  title, subtitle,
+  classNames, link, key,
+}) =>
+  h('div.' + classNames.join('.'), {
     attrs: {'data-link': link, 'data-key': key},
   }, (header ? iconLast : iconFirst)(
       (iconName || iconSrc) && iconCell(iconName, iconSrc, iconBackgroundColor),
-      // !!iconName && iconCell(iconName,iconBackgroundColor) ||
-      //   !!iconSrc && Col({type: 'xs-1', style: iconCellStyle}, [ // not icon
-      //     img({style: iconCellStyle, attrs: {src: iconSrc}}, []),
-      //   ]),
       contentCell(title, subtitle, (!!iconName || !!iconSrc) && !header)
     )
   )
+
+export default props =>
+  _render({classNames: _classNames(props), ...props})

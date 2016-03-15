@@ -14,9 +14,16 @@ import {log} from 'util'
 
 const _render = ({project, createOrganizerInviteDOM, createTeamDOM}) =>
   col(
-    listItemDisabled({iconName: 'playlist_add', title: 'What\'s this team all about?'}),
-    listItemDisabled({iconName: 'person_add', title: 'Invite some people to help Lead this team.'}),
-    listItemDisabled({iconName: 'bullhorn', title: 'How are you recruiting volunteers?'}),
+    listItemDisabled(
+      {iconName: 'playlist_add', title: 'What\'s this team all about?'}
+    ),
+    listItemDisabled(
+      {iconName: 'person_add',
+      title: 'Invite some people to help Lead this team.'}
+    ),
+    listItemDisabled(
+      {iconName: 'bullhorn', title: 'How are you recruiting volunteers?'}
+    ),
     // createTeamDOM,
     // createOrganizerInviteDOM,
   )
