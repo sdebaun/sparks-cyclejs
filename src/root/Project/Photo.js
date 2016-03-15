@@ -13,7 +13,7 @@ const _responseRedirects$ = ({
   router: {createHref},
 }) => {
   const newImageResponse$ =
-    responses$.filter(byMatch('ProjectImages','create'))
+    responses$.filter(byMatch('ProjectImages','set'))
 
   const newImageRedirect$ = projectKey$
     .sample(newImageResponse$)
@@ -32,7 +32,10 @@ const _render = ({dropAndCrop, cropped}) =>
 function Photo(sources) {
   const dropAndCrop = DropAndCrop(sources)
   const queue$ = dropAndCrop.dataUrl$
-    .withLatestFrom(sources.projectKey$, ProjectImages.create)
+    .map(dataUrl => ({dataUrl}))
+    .withLatestFrom(sources.projectKey$, (values,key) =>
+      ProjectImages.set(key,values)
+    )
 
   const route$ = _responseRedirects$(sources)
 
