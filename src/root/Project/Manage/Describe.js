@@ -1,10 +1,17 @@
 import combineLatestObj from 'rx-combine-latest-obj'
 import {col} from 'helpers'
+import listItem from 'helpers/listItem'
 
 import SetImage from 'components/SetImage'
 
 const _render = ({setImageDOM}) =>
   col(
+    listItem({
+      iconName: 'playlist_add',
+      title: 'Write a short tweet-length description.',
+      subtitle: 'Coming Soon!',
+      disabled: true,
+    }),
     setImageDOM,
   )
 
