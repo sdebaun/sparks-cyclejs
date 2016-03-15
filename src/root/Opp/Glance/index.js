@@ -16,22 +16,22 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 // import {rows, log} from 'util'
 
-import Describe from './Describe'
+// import Priority from './Priority'
 
-// const Describe = ComingSoon('Opp/Glance/Describe')
-const Exchange = ComingSoon('Opp/Glance/Exchange')
-const Applying = ComingSoon('Opp/Glance/Applying')
+const Priority = ComingSoon('Opp/Glance/Priority')
+const Find = ComingSoon('Opp/Glance/Find')
+const Recently = ComingSoon('Opp/Glance/Recently')
 
 const _routes = {
-  '/': Describe,
-  '/exchange': Exchange,
-  '/applying': Applying,
+  '/': Priority,
+  '/find': Find,
+  '/recently': Recently,
 }
 
 const _tabs = [
-  {path: '/', label: 'Describe'},
-  {path: '/exchange', label: 'Exchange'},
-  {path: '/applying', label: 'Applying'},
+  {path: '/', label: 'Priority'},
+  {path: '/find', label: 'Find'},
+  {path: '/recently', label: 'Recently'},
 ]
 
 export default sources => {
@@ -47,7 +47,7 @@ export default sources => {
 
   const tabBarDOM = tabBar.DOM
 
-  const pageTitle = Observable.just('Manage')
+  const pageTitle = Observable.just('At a Glance')
 
   const auth$ = mergeOrFlatMapLatest('auth$', ...children)
 

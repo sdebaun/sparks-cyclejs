@@ -1,7 +1,6 @@
-import {h, div, span} from 'cycle-snabbdom'
-import {Appbar, Menu, Button} from 'snabbdom-material'
-const {Item, Separator} = Menu
-import {icon} from './index'
+import {h, div} from 'cycle-snabbdom'
+import {Menu, Button} from 'snabbdom-material'
+const {Separator} = Menu
 import {menu} from './menu'
 
 import menuItem from 'helpers/menuItem'

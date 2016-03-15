@@ -1,4 +1,4 @@
-import {Observable} from 'rx'
+// import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import isolate from '@cycle/isolate'
@@ -8,9 +8,9 @@ import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
 import listItem from 'helpers/listItem'
 import listHeader from 'helpers/listHeader'
 
-import {col, icon} from 'helpers'
+import {col} from 'helpers'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const _renderOrganizerInvite = ({inviteEmail, authority}) =>
   listItem({
@@ -19,7 +19,7 @@ const _renderOrganizerInvite = ({inviteEmail, authority}) =>
     subtitle: authority,
   })
 
-const _render = ({project, organizers, createOrganizerInviteDOM}) =>
+const _render = ({organizers, createOrganizerInviteDOM}) =>
   col(
     createOrganizerInviteDOM,
     listHeader({title: 'Open Invites'}),

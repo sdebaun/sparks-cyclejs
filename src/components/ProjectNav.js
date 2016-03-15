@@ -2,11 +2,12 @@ import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import listItem from 'helpers/listItem'
-import listHeader from 'helpers/listHeader'
+// import listHeader from 'helpers/listHeader'
 
-import {h, div, span} from 'cycle-snabbdom'
+import {h, div} from 'cycle-snabbdom'
 
-import {rows, log} from 'util'
+import {rows} from 'util'
+// import {log} from 'util'
 
 import CreateTeamHeader from 'components/CreateTeamHeader'
 import CreateOppHeader from 'components/CreateOppHeader'

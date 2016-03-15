@@ -4,8 +4,8 @@ import isolate from '@cycle/isolate'
 
 import ProjectForm from 'components/ProjectForm'
 
-import {col, importantTip, pageTitle} from 'helpers'
-import listHeader from 'helpers/listHeader'
+import {col, importantTip} from 'helpers'
+// import listHeader from 'helpers/listHeader'
 import listItem from 'helpers/listItem'
 
 import {Projects} from 'remote'

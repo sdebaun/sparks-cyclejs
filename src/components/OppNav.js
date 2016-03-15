@@ -2,11 +2,11 @@ import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import listItem from 'helpers/listItem'
-import listHeader from 'helpers/listHeader'
+// import listHeader from 'helpers/listHeader'
 
-import {h, div, span} from 'cycle-snabbdom'
+import {h, div} from 'cycle-snabbdom'
 
-import {rows, log} from 'util'
+// import {log} from 'util'
 
 import CreateTeamHeader from 'components/CreateTeamHeader'
 import CreateOppHeader from 'components/CreateOppHeader'
@@ -16,13 +16,13 @@ const _navActions = sources => Observable.merge(
     .map(e => sources.router.createHref(e.ownerTarget.dataset.link)),
 )
 
-const _teamItems = _rows =>
-  _rows.map(({name, $key}) =>
-    listItem({title: name, className: 'team', key: $key}))
+// const _teamItems = _rows =>
+//   _rows.map(({name, $key}) =>
+//     listItem({title: name, className: 'team', key: $key}))
 
-const _oppItems = _rows =>
-  _rows.map(({name, $key}) =>
-    listItem({title: name, className: 'opp', key: $key}))
+// const _oppItems = _rows =>
+//   _rows.map(({name, $key}) =>
+//     listItem({title: name, className: 'opp', key: $key}))
 
 // const _teamHeader = () =>
 //   listItem({
