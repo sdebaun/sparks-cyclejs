@@ -51,7 +51,7 @@ export default ({iconName, iconSrc, header, clickable, disabled, title, subtitle
     attrs: {'data-link': link, 'data-key': key},
   }, (header ? iconLast : iconFirst)(
       !!iconName && iconCell(iconName,iconBackgroundColor) ||
-        !!icon && Col({type: 'xs-1', style: iconCellStyle}, [
+        !!iconSrc && Col({type: 'xs-1', style: iconCellStyle}, [ // not icon
           img({style: iconCellStyle, attrs: {src: iconSrc}}, []),
         ]),
       contentCell(title, subtitle, !!iconName && !header)

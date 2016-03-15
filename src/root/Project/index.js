@@ -42,7 +42,8 @@ export default sources => {
       equalTo: projectKey,
     }))
     .map((images) => {
-      const keys = Object.keys(images)
+      if (!images) { return null }
+      const keys = Object.keys(images) // null asplodes
       return images[keys[0]]
     })
 
