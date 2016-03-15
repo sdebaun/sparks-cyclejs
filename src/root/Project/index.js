@@ -10,6 +10,7 @@ import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
+import Exchange from './Exchange'
 import Glance from './Glance'
 import Manage from './Manage'
 
@@ -19,6 +20,7 @@ const _routes = {
   // '/manage': isolate(Manage),
   '/': Glance,
   '/manage': Manage,
+  '/exchange': Exchange,
 }
 
 export default sources => {

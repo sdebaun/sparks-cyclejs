@@ -8,11 +8,9 @@ import CreateTeam from 'components/CreateTeam'
 
 import listItemDisabled from 'helpers/listItemDisabled'
 
-import {col, icon} from 'helpers'
+import {col} from 'helpers'
 
-import {log} from 'util'
-
-const _render = ({project, createOrganizerInviteDOM, createTeamDOM}) =>
+const _render = ({project, reateOrganizerInviteDOM, createTeamDOM}) =>
   col(
     listItemDisabled(
       {iconName: 'playlist_add', title: 'What\'s this opportunity all about?'}
