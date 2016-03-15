@@ -12,7 +12,7 @@ import listItemDisabled from 'helpers/listItemDisabled'
 
 import {col, icon} from 'helpers'
 
-import {log, rows} from 'util'
+import {log, rows, byMatch} from 'util'
 
 const _render = (createHref) =>
   ({project, projectImage, teams, organizers, createOrganizerInviteDOM, createTeamDOM, createOppDOM}) =>
@@ -31,9 +31,6 @@ const _render = (createHref) =>
         link: createHref('/photo'),
       }),
     )
-
-const byMatch = (matchDomain,matchEvent) =>
-  ({domain,event}) => domain === matchDomain && event === matchEvent
 
 const _responseRedirects$ = ({responses$, router: {createHref}}) =>
   Observable.merge(

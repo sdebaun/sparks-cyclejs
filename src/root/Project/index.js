@@ -37,14 +37,7 @@ export default sources => {
   const projectKey$ = sources.projectKey$
 
   const projectImage$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('ProjectImages', {
-      orderByChild: 'projectKey',
-      equalTo: projectKey,
-    }))
-    .map((images) => {
-      const keys = Object.keys(images)
-      return images[keys[0]]
-    })
+    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
 
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
