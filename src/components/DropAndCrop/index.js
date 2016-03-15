@@ -8,6 +8,8 @@ import {Row, Button} from 'snabbdom-material'
 
 const imageStyle = {
   border: 'solid 2px black',
+  height: '128px',
+  width: '128px',
 }
 
 const _render = ({dropper, dropped, cropper, cropped}) =>

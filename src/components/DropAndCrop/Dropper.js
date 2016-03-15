@@ -15,7 +15,8 @@ const divStyle = {
 
 const Dropper = ({dropped$}) =>
   <ReactDropzone multiple={false} disableClick={false}
-    onDrop={e => dropped$.onNext(e[0].preview)} style={{}}>
+    onDrop={e => dropped$.onNext(e[0].preview)}
+    style={{maxWidth: 800, margin: '0 auto'}}>
       <div style={divStyle}>
         <span>Drop an Image or click to upload</span>
       </div>
