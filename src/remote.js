@@ -11,6 +11,23 @@ export const Profiles = {
   }),
 }
 
+export const ProjectImages = {
+  create: (payload, projectKey) => {
+    return {
+      domain: 'ProjectImages',
+      action: 'create',
+      payload: {projectKey, dataUrl: payload},
+    }
+  },
+  update: (payload, projectKey) => {
+    return {
+      domain: 'ProjectImages',
+      action: 'update',
+      payload: {projectKey, dataUrl: payload},
+    }
+  },
+}
+
 export const Projects = {
   create: (payload) => ({
     domain: 'Projects',

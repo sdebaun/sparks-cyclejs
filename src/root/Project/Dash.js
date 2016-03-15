@@ -14,14 +14,23 @@ import {col, icon} from 'helpers'
 
 import {log, rows} from 'util'
 
-const _render = ({project, teams, organizers, createOrganizerInviteDOM, createTeamDOM, createOppDOM}) =>
-  col(
-    listItemDisabled({iconName: 'playlist_add', title: 'What\'s your project all about?'}),
-    rows(teams).length === 0 ? createTeamDOM : null,
-    rows(organizers).length === 0 ? createOrganizerInviteDOM : null,
-    createOppDOM,
-    // listItemDisabled({iconName: 'power', title: 'Create a volunteer Opportunity.'}),
-  )
+const _render = (createHref) =>
+  ({project, projectImage, teams, organizers, createOrganizerInviteDOM, createTeamDOM, createOppDOM}) =>
+    col(
+      listItemDisabled({
+        iconName: 'playlist_add',
+        title: 'What\'s your project all about?',
+      }),
+      rows(teams).length === 0 ? createTeamDOM : null,
+      rows(organizers).length === 0 ? createOrganizerInviteDOM : null,
+      createOppDOM,
+      listItem({
+        iconName: projectImage ? null : 'add_a_photo',
+        iconSrc: projectImage ? projectImage.dataUrl : 'add_a_photo',
+        title: 'Choose a photo for your project',
+        link: createHref('/photo'),
+      }),
+    )
 
 const byMatch = (matchDomain,matchEvent) =>
   ({domain,event}) => domain === matchDomain && event === matchEvent
@@ -50,9 +59,15 @@ export default sources => {
   )
 
   const route$ = _responseRedirects$(sources)
+    .merge(
+      sources.DOM.select('.clickable').events('click')
+        .filter(e => !!e.ownerTarget.dataset.link)
+        .map(e => e.ownerTarget.dataset.link)
+    )
 
   const viewState = {
     project$: sources.project$,
+    projectImage$: sources.projectImage$.startWith(null),
     teams$: sources.teams$,
     organizers$: sources.organizers$,
     createOrganizerInviteDOM$: createOrganizerInvite.DOM,
@@ -60,7 +75,8 @@ export default sources => {
     createOppDOM$: createOpp.DOM,
   }
 
-  const DOM = combineLatestObj(viewState).map(_render)
+  const DOM = combineLatestObj(viewState)
+    .map(_render(sources.router.createHref))
 
   return {DOM, queue$, route$}
 }

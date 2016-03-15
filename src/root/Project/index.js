@@ -18,10 +18,12 @@ import {rows, log} from 'util'
 
 import Dash from './Dash'
 import Staff from './Staff'
+import Photo from './Photo'
 
 const _routes = {
   '/': isolate(Dash),
   '/staff': isolate(Staff),
+  '/photo': isolate(Photo),
   '/find': ComingSoon('Find'),
 }
 
@@ -33,6 +35,16 @@ const _tabs = [
 
 export default sources => {
   const projectKey$ = sources.projectKey$
+
+  const projectImage$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('ProjectImages', {
+      orderByChild: 'projectKey',
+      equalTo: projectKey,
+    }))
+    .map((images) => {
+      const keys = Object.keys(images)
+      return images[keys[0]]
+    })
 
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
@@ -57,7 +69,7 @@ export default sources => {
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
-    {project$, teams$, organizers$, ...sources}
+    {project$, projectImage$, teams$, organizers$, ...sources}
   )
 
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})

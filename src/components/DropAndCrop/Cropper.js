@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import Cropper from 'react-cropper'
 import {BehaviorSubject} from 'rx'
 import {reactComponent} from 'helpers'
 
@@ -19,6 +20,7 @@ class ReactCropper extends React.Component {
 
 export default ({image$}) => {
   const cropped$ = new BehaviorSubject(null)
+
   return {
     cropped$,
     // has to be attached on 'update', the default, breaks if 'insert'
