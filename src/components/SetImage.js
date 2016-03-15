@@ -28,7 +28,7 @@ const _render = ({dataUrl, isOpen, dropAndCrop}) =>
     listItem({
       iconName: dataUrl ? null : 'add_a_photo',
       iconSrc: dataUrl,
-      title: 'Set the picture for your project.',
+      title: dataUrl ? 'Change your picture.' : 'Choose a picture to use.',
       clickable: true,
     }),
     isOpen && div({},[dropAndCrop])
