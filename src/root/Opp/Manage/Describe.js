@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {col} from 'helpers'
 // import listItem from 'helpers/listItem'
@@ -31,12 +32,13 @@ const TextareaDescription = makeTextareaListItem({
 })
 
 export default sources => {
+  // isolate breaks this!??! @tylors
   const togglePublic = TogglePublic({
     value$: sources.opp$.pluck('isPublic'),
     ...sources,
   })
 
-  const textareaDescription = TextareaDescription({
+  const textareaDescription = isolate(TextareaDescription)({
     value$: sources.opp$.pluck('description'),
     ...sources,
   })
