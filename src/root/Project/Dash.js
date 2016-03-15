@@ -57,7 +57,7 @@ export default sources => {
 
   const route$ = _responseRedirects$(sources)
     .merge(
-      sources.DOM.select('.clickable').events('click')
+      sources.DOM.select('.clickable').events('click') // omg brilliant +1
         .filter(e => !!e.ownerTarget.dataset.link)
         .map(e => e.ownerTarget.dataset.link)
     )
