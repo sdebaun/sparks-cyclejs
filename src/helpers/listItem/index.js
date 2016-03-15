@@ -24,6 +24,14 @@ const subtitleStyle = {
   color: '#666',
 }
 
+const iconImageStyle = {
+  width: '40px',
+  height: '40px',
+  marginTop: '12px',
+  marginLeft: '-4px', // such hax
+  borderRadius: '20px',
+}
+
 const classNames = (className, clickable, disabled, header) =>
   ['row', 'list-item', className,
     clickable && 'clickable',
@@ -31,11 +39,15 @@ const classNames = (className, clickable, disabled, header) =>
     header && 'header',
   ].filter(x => !!x)
 
-const iconCell = (iconName, iconBackgroundColor) =>
+const iconCell = (iconName, iconSrc, iconBackgroundColor) =>
   Col(
-    {type: 'xs-1', style: iconCellStyle},
-    [icon(iconName, 'black', iconBackgroundColor)]
+    {type: 'xs-1', style: iconCellStyle}, [
+      iconSrc ?
+        img({style: iconImageStyle, attrs: {src: iconSrc}}, []) :
+        icon(iconName, 'black', iconBackgroundColor),
+    ]
   )
+
 
 const contentCell = (title, subtitle, padLeft) =>
   Col({type: 'xs-9', style: contentStyle(subtitle ? 2 : 1, padLeft)},[
@@ -50,10 +62,11 @@ export default ({iconName, iconSrc, header, clickable, disabled, title, subtitle
   h('div.' + classNames(className, clickable || link || key, disabled, header).join('.'), {
     attrs: {'data-link': link, 'data-key': key},
   }, (header ? iconLast : iconFirst)(
-      !!iconName && iconCell(iconName,iconBackgroundColor) ||
-        !!iconSrc && Col({type: 'xs-1', style: iconCellStyle}, [ // not icon
-          img({style: iconCellStyle, attrs: {src: iconSrc}}, []),
-        ]),
-      contentCell(title, subtitle, !!iconName && !header)
+      (iconName || iconSrc) && iconCell(iconName, iconSrc, iconBackgroundColor),
+      // !!iconName && iconCell(iconName,iconBackgroundColor) ||
+      //   !!iconSrc && Col({type: 'xs-1', style: iconCellStyle}, [ // not icon
+      //     img({style: iconCellStyle, attrs: {src: iconSrc}}, []),
+      //   ]),
+      contentCell(title, subtitle, (!!iconName || !!iconSrc) && !header)
     )
   )
