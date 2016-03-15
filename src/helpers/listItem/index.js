@@ -1,4 +1,4 @@
-import {h,div,br,span} from 'cycle-snabbdom'
+import {h,div,br,span,img} from 'cycle-snabbdom'
 import {Col} from 'snabbdom-material'
 import {icon} from 'helpers'
 
@@ -46,12 +46,14 @@ const contentCell = (title, subtitle, padLeft) =>
 const iconFirst = (ic,cc) => [ic,cc]
 const iconLast = (ic,cc) => [cc,ic]
 
-export default ({iconName, header, clickable, disabled, title, subtitle, className, link, key, iconBackgroundColor}) =>
+export default ({iconName, iconSrc, header, clickable, disabled, title, subtitle, className, link, key, iconBackgroundColor}) =>
   h('div.' + classNames(className, clickable || link || key, disabled, header).join('.'), {
     attrs: {'data-link': link, 'data-key': key},
   }, (header ? iconLast : iconFirst)(
-      !!iconName && iconCell(iconName,iconBackgroundColor),
+      !!iconName && iconCell(iconName,iconBackgroundColor) ||
+        !!icon && Col({type: 'xs-1', style: iconCellStyle}, [
+          img({style: iconCellStyle, attrs: {src: iconSrc}}, []),
+        ]),
       contentCell(title, subtitle, !!iconName && !header)
     )
   )
-

@@ -1,20 +1,44 @@
 import Dropper from './Dropper'
 import Cropper from './Cropper'
 import {Observable} from 'rx'
-import {div, img} from 'cycle-snabbdom'
+import combineLatestObj from 'rx-combine-latest-obj'
+import {col} from 'helpers'
+import {div, img, h5} from 'cycle-snabbdom'
+import {Row, Button} from 'snabbdom-material'
+
+const imageStyle = {
+  border: 'solid 2px black',
+}
+
+const _render = ({dropper, dropped, cropper, cropped}) =>
+  col(
+    dropped ? cropper : dropper,
+    Row({style: {textAlign: 'center'}}, [
+      col(
+        h5({style: {marginTop: '0.5em', textAlign: 'center'}}, [
+          cropped ? 'Image Preview' : null,
+        ]),
+        cropped && img({attrs: {src: cropped}, style: imageStyle}),
+      ),
+      cropped && Button({className: 'submit', onClick: true}, [
+        'Click me when finished!',
+      ]),
+    ])
+  )
 
 export default (sources) => {
-  const dropper = Dropper()
-  const cropper = Cropper({image$: dropper.dropped$})
+  const click$ = sources.DOM.select('.submit').events('click')
+  const {DOM: dropper, dropped$} = Dropper()
+  const {DOM: cropper, cropped$} = Cropper({image$: dropped$})
 
-  return {
-    DOM: Observable.combineLatest(
-      dropper.DOM, dropper.dropped$, cropper.DOM, cropper.cropped$
-    ).map(([dropperDOM, dropped, cropperDOM, cropped]) =>
-      div([
-        dropped ? cropper : dropper,
-        cropped && img({attrs: {src: cropped}}),
-      ])
-    ),
+  const dataUrl$ = cropped$.sample(click$)
+
+  const viewState = {
+    dropper, dropped$,
+    cropper, cropped$,
   }
+
+  const DOM = combineLatestObj(viewState).map(_render)
+
+  return {DOM, dataUrl$, cropped$}
 }
