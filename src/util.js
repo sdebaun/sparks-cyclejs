@@ -13,13 +13,11 @@ export const log = label => emitted => console.log(label,':',emitted)
 
 export const isObservable = obs => typeof obs.subscribe === 'function'
 
-export function nestedComponent({path$, value$}, sources) {
-  return path$.zip(value$,
-    (path, value) => {
-      console.log('nestedComponent path$',path)
-      return value({...sources, router: sources.router.path(path)})
-    }
-  ).shareReplay(1)
+export function nestedComponent(match$, sources) {
+  return match$.map(({path, value}) => {
+    console.log('nestedComponent path$',path)
+    return value({...sources, router: sources.router.path(path)})
+  }).shareReplay(1)
 }
 
 export const mergeOrFlatMapLatest = (prop, ...sourceArray) =>
