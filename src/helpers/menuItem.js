@@ -46,8 +46,12 @@ const subtitleStyle = {
   color: '#666',
 }
 
-export default ({iconName, title, subtitle, className, link, key, iconBackgroundColor}) =>
-  h('div.row.list-item.' + className, {style, attrs: {'data-link': link, 'data-key': key}}, [
+export default ({
+  iconName, title, subtitle, className, link, key, iconBackgroundColor,
+}) =>
+  h('div.row.list-item.' + className, {
+    style, attrs: {'data-link': link, 'data-key': key},
+  }, [
     iconName ?
       Col(
         {type: 'xs-1', style: iconCellStyle},

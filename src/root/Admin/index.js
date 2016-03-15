@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
+// import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
 
@@ -9,7 +9,7 @@ import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-import {icon} from 'helpers'
+// import {icon} from 'helpers'
 
 import ComingSoon from 'components/ComingSoon'
 

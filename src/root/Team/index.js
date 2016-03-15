@@ -69,7 +69,9 @@ export default sources => {
   )
 
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-  const quickNav = ProjectQuickNavMenu({...sources, project$, projectKey$, team$, teams$, opps$})
+  const quickNav = ProjectQuickNavMenu(
+    {...sources, project$, projectKey$, team$, teams$, opps$}
+  )
 
   const title = Title({
     quickNavDOM$: quickNav.DOM,
