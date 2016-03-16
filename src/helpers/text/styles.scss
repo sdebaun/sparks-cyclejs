@@ -1,0 +1,17 @@
+.text {
+  padding: 18px;
+  margin: 0px 0px;
+
+  &.tweetSized {
+    font-size: 20px;
+    line-height: 36px;
+  }
+  &.quote {
+    font-size: 18px;
+    margin: 18px 0px;
+    color: #333;
+    border-radius: 16px;
+    border: 1px solid #AAA;
+  }
+}
+

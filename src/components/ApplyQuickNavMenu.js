@@ -21,14 +21,13 @@ const _openActions$ = ({DOM}) => Observable.merge(
 )
 
 const _oppItems = (oppRows, createHref) => [
-  oppRows.length && {divider: true},
+  // oppRows.length && {divider: true},
   ...oppRows.map(({name,$key}) => (
     {className: 'opp.navLink', label: name, link: createHref('/opp/' + $key)},
   )),
 ]
 
 const _menuItems = (project, opps, createHref) => [
-  {className: 'project', label: project.name},
   ..._oppItems(rows(opps), createHref),
 ].filter(r => !!r)
 
@@ -36,7 +35,7 @@ const _render = ({isOpen, project, opps, createHref}) =>
   quickNavMenu({
     isOpen,
     className: 'apply-menu-button', // necessary with isolate?
-    label: project.name,
+    label: 'Check out one of these ways you can get involved...',
     menu: {rightAlign: false},
     items: _menuItems(project,opps,createHref),
     color: '#000',

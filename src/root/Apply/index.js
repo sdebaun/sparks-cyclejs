@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import ComingSoon from 'components/ComingSoon'
@@ -10,19 +11,30 @@ import ApplyQuickNavMenu from 'components/ApplyQuickNavMenu'
 import {rows, nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import {col} from 'helpers'
+import {textTweetSized} from 'helpers/text'
 
 const Glance = ComingSoon('Apply/Glance')
 import Opp from './Opp'
-// const Opp = ComingSoon('Apply/Opp/#')
 
 const _routes = {
   // isolating breaks child tab navigation?
-  // '/': isolate(Glance),
-  // '/manage': isolate(Manage),
   '/': Glance,
   '/opp/:key': key => sources =>
     isolate(Opp)({oppKey$: Observable.just(key), ...sources}),
 }
+
+const _render = ({
+  titleDOM,
+  applyQuickNavMenuDOM,
+  pageDOM,
+  projectDescription,
+}) =>
+  col(
+    titleDOM,
+    textTweetSized(projectDescription),
+    applyQuickNavMenuDOM,
+    pageDOM,
+  )
 
 export default sources => {
   const projectKey$ = sources.projectKey$
@@ -59,15 +71,21 @@ export default sources => {
   })
 
   const applyQuickNavMenu = ApplyQuickNavMenu({opps$, project$, ...sources})
-  // const applyQuickNavMenu = Observable.just({DOM: ['foo']})
 
-  const page$ = nestedComponent(sources.router.define(_routes),sources)
+  const page$ = nestedComponent(sources.router.define(_routes), {
+    project$,
+    ...sources,
+  })
 
-  const pageDOM = col(
-    title.DOM,
-    applyQuickNavMenu.DOM,
-    page$.flatMapLatest(({DOM}) => DOM)
-  )
+  const viewState = {
+    titleDOM$: title.DOM,
+    applyQuickNavMenuDOM$: applyQuickNavMenu.DOM,
+    pageDOM$: page$.flatMapLatest(({DOM}) => DOM),
+    projectDescription: project$.pluck('description'),
+  }
+
+  const pageDOM = combineLatestObj(viewState)
+    .map(_render)
 
   const frame = SoloFrame({pageDOM, ...sources})
 
