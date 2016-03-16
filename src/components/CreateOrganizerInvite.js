@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import {Organizers} from 'remote'
 
@@ -11,7 +11,7 @@ import {col} from 'helpers'
 import modal from 'helpers/modal'
 import listItem from 'helpers/listItem'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 // Bunch Of Sources and Sinks (BOSS) approach to components
 // or Bunch of Stinkin' Streams if you prefer
@@ -25,7 +25,7 @@ const _openActions$ = ({DOM}) => Observable.merge(
 const _submitAction$ = ({DOM}) =>
   DOM.select('.submit').events('click').map(true)
 
-const _render = ({project, isOpen, organizerInviteFormDOM}) =>
+const _render = ({isOpen, organizerInviteFormDOM}) =>
   col(
     listItem({
       iconName: 'person_add',

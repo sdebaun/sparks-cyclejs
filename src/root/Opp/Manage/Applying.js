@@ -11,10 +11,26 @@ import {Opps} from 'remote'
 import {rows} from 'util'
 import {log} from 'util'
 
+const _toggleActions = sources => Observable.merge(
+  sources.DOM.select('.fulfiller').events('click')
+    .map(e => e.ownerTarget.dataset.key),
+)
+
 const _renderTeams = teamRows =>
   teamRows.length === 0 ? ['Add a team'] : [
     listItem({title: 'allowed teams', header: true}),
-    ...teamRows.map(t => listItem({title: t.name})),
+    listItem({
+      title: 'What teams can applicants pick from?',
+      subtitle:
+        `Volunteers can fulfill their commitments
+        with shifts from the teams you select.`,
+    }),
+    ...teamRows.map(t => listItem({
+      title: t.name,
+      className: 'fulfiller',
+      key: t.$key,
+      iconName: 'check_box_outline_blank',
+    })),
   ]
 
 const _render = ({teams, textareaQuestionDOM}) =>
@@ -38,6 +54,10 @@ export default sources => {
     .withLatestFrom(sources.oppKey$, (question,key) =>
       Opps.update(key,{question})
     )
+
+  const clickedTeamKeys$ = _toggleActions(sources)
+
+  clickedTeamKeys$.subscribe(log('teamKey$'))
 
   const queue$ = Observable.merge(
     updateQuestion$,

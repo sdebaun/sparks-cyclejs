@@ -1,4 +1,4 @@
-import {Observable} from 'rx'
+// import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import AppMenu from 'components/AppMenu'

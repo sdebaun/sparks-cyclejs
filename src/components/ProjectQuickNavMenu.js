@@ -3,10 +3,8 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import quickNavMenu from 'helpers/quickNavMenu'
 
-import {rows, log} from 'util'
-
-// these are action creators specific to cyclic-fire and should live there
-import {PROVIDERS} from 'util'
+import {rows} from 'util'
+// import {log} from 'util'
 
 const _navActions$ = ({DOM, projectKey$}) =>
   Observable.merge(
@@ -43,7 +41,7 @@ const _menuItems = (project, teams, opps) => [
   ..._oppItems(rows(opps)),
 ].filter(r => !!r)
 
-const _render = ({auth, userProfile, isOpen, project, teams, opps}) =>
+const _render = ({isOpen, project, teams, opps}) =>
   quickNavMenu({
     isOpen,
     className: 'project-menu-button', // necessary with isolate?

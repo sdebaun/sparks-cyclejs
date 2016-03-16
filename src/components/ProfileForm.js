@@ -1,10 +1,9 @@
-import {Observable} from 'rx'
+// import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
-import {Input,Select} from 'snabbdom-material'
 import {col, importantTip} from 'helpers'
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 import makeInputControl from 'components/InputControlFactory'
 
@@ -34,12 +33,12 @@ const PhoneInput = makeInputControl({
   label: 'Your Phone Number',
   className: 'phone',
 })
-const ZipInput = makeInputControl({
-  label: 'Your ZIP or Postal Code',
-  className: 'zip',
-})
+// const ZipInput = makeInputControl({
+//   label: 'Your ZIP or Postal Code',
+//   className: 'zip',
+// })
 
-const isEmail = cand => true
+const isEmail = () => true
 
 export default sources => {
   const fullNameInput =
@@ -51,8 +50,8 @@ export default sources => {
   const phoneInput =
     PhoneInput({...sources, value$: sources.profile$.pluck('phone')})
 
-  const zipInput =
-    ZipInput({...sources, value$: sources.profile$.pluck('zip')})
+  // const zipInput =
+  //   ZipInput({...sources, value$: sources.profile$.pluck('zip')})
 
   const profile$ = combineLatestObj({
     fullName$: fullNameInput.value$,

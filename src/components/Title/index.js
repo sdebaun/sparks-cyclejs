@@ -2,10 +2,8 @@ import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {div} from 'cycle-snabbdom'
 
-import AppMenu from 'components/AppMenu'
 import {Appbar} from 'snabbdom-material'
 import {icon} from 'helpers'
-import {material} from 'util'
 
 const _DOM = ({
   isMobile,
