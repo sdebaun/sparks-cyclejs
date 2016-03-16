@@ -41,7 +41,7 @@ const _render = (createHref) => ({
         iconName: 'balance-scale',
         iconBackgroundColor: 'yellow',
         title: 'What\'s the Enery Exchange you\'re offering your volunteers?',
-        link: createHref('/exchange/'),
+        link: createHref('/manage/exchange'),
       })
     )
 

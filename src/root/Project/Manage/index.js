@@ -18,6 +18,7 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import Describe from './Describe'
 import Staff from './Staff'
+import Exchange from './Exchange'
 
 // const Describe = ComingSoon('Manage/Details')
 // const Staff = ComingSoon('Manage/Details')
@@ -26,13 +27,15 @@ const Connect = ComingSoon('Manage/Connect')
 const _routes = {
   '/': isolate(Describe),
   '/staff': isolate(Staff),
-  '/connect': isolate(Connect),
+  //'/connect': isolate(Connect),
+  '/exchange': isolate(Exchange),
 }
 
 const _tabs = [
   {path: '/', label: 'Describe'},
   {path: '/staff', label: 'Staff'},
-  {path: '/connect', label: 'Connect'},
+  //{path: '/connect', label: 'Connect'},
+  {path: '/exchange', label: 'Exchange'},
 ]
 
 export default sources => {
