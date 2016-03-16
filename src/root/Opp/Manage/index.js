@@ -17,10 +17,11 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 // import {rows, log} from 'util'
 
 import Describe from './Describe'
+import Applying from './Applying'
 
 // const Describe = ComingSoon('Opp/Glance/Describe')
 const Exchange = ComingSoon('Opp/Glance/Exchange')
-const Applying = ComingSoon('Opp/Glance/Applying')
+// const Applying = ComingSoon('Opp/Glance/Applying')
 
 const _routes = {
   '/': Describe,

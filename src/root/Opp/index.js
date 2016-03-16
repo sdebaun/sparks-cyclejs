@@ -51,7 +51,7 @@ export default sources => {
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
-    {opp$, project$, projectKey$, ...sources}
+    {opp$, projectKey$, project$, teams$, opps$, ...sources}
   )
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
