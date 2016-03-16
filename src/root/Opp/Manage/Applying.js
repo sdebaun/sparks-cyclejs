@@ -16,7 +16,15 @@ const _toggleActions = sources => Observable.merge(
     .map(e => e.ownerTarget.dataset.key),
 )
 
-const _renderTeams = teamRows =>
+const _teamsFulfilled = fulfillers => {
+  const lookup = {}
+  Object.keys(fulfillers).map(key => {
+    lookup[fulfillers[key].teamKey] = key
+  })
+  return lookup
+}
+
+const _renderTeams = (teamRows, teamsFulfilled) =>
   teamRows.length === 0 ? ['Add a team'] : [
     listItem({title: 'allowed teams', header: true}),
     listItem({
@@ -29,14 +37,14 @@ const _renderTeams = teamRows =>
       title: t.name,
       className: 'fulfiller',
       key: t.$key,
-      iconName: 'check_box_outline_blank',
+      iconName: teamsFulfilled[t.$key] ? 'check_box_outline_blank' : 'check_box',
     })),
   ]
 
-const _render = ({teams, textareaQuestionDOM}) =>
+const _render = ({teams, fulfillers, textareaQuestionDOM}) =>
   col(
     textareaQuestionDOM,
-    ..._renderTeams(rows(teams))
+    ..._renderTeams(rows(teams), rows(fulfillers))
   )
 
 const TextareaQuestion = makeTextareaListItem({
@@ -45,6 +53,14 @@ const TextareaQuestion = makeTextareaListItem({
 })
 
 export default sources => {
+  const fulfillers$ = sources.projectKey$
+    .flatMapLatest(projectKey =>
+      sources.firebase('Fulfillers', {
+        orderByChild: 'projectKey',
+        equalTo: projectKey,
+      })
+    )
+
   const textareaQuestion = isolate(TextareaQuestion)({
     value$: sources.opp$.pluck('question'),
     ...sources,
@@ -68,11 +84,13 @@ export default sources => {
 
   const queue$ = Observable.merge(
     updateQuestion$,
+    addFulfiller$,
   )
 
   const viewState = {
     textareaQuestionDOM: textareaQuestion.DOM,
     teams$: sources.teams$,
+    fulfillers$,
   }
 
   sources.teams$.subscribe(log('teams$'))

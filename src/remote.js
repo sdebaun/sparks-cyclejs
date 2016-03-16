@@ -63,17 +63,17 @@ export const Opps = {
 // indicates that opp provisos fulfilled by shifts on team
 export const Fulfillers = {
   create: (values) => ({
-    domain: 'Opps',
+    domain: 'Fulfillers',
     action: 'create',
     payload: values,
   }),
   update: (key, values) => ({
-    domain: 'Opps',
+    domain: 'Fulfillers',
     action: 'update',
     payload: {key, values},
   }),
   delete: (key) => ({
-    domain: 'Opps',
+    domain: 'Fulfillers',
     action: 'delete',
     payload: key,
   }),
