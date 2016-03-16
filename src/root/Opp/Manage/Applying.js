@@ -6,7 +6,7 @@ import listItem from 'helpers/listItem'
 
 import makeTextareaListItem from 'components/TextareaListItemFactory'
 
-import {Opps} from 'remote'
+import {Opps, Fulfillers} from 'remote'
 
 import {rows} from 'util'
 import {log} from 'util'
@@ -58,6 +58,13 @@ export default sources => {
   const clickedTeamKeys$ = _toggleActions(sources)
 
   clickedTeamKeys$.subscribe(log('teamKey$'))
+
+  const addFulfiller$ = clickedTeamKeys$
+    .withLatestFrom(sources.oppKey$, (teamKey,oppKey) =>
+      Fulfillers.create({teamKey, oppKey})
+    )
+
+  addFulfiller$.subscribe(log('addFulfiller$'))
 
   const queue$ = Observable.merge(
     updateQuestion$,
