@@ -16,18 +16,18 @@ const _toggleActions = sources => Observable.merge(
     .map(e => e.ownerTarget.dataset.key),
 )
 
-const _teamsFulfilled = fulfillers => {
-  const lookup = {}
-  if (fulfillers) {
-    Object.keys(fulfillers).map(key => {
-      lookup[fulfillers[key].teamKey] = key
-    })
-  }
-  console.log('fulfilled', lookup)
-  return lookup
-}
+// const _teamsFulfilled = fulfillers => {
+//   const lookup = {}
+//   if (fulfillers) {
+//     Object.keys(fulfillers).map(key => {
+//       lookup[fulfillers[key].teamKey] = key
+//     })
+//   }
+//   console.log('fulfilled', lookup)
+//   return lookup
+// }
 
-const _renderTeams = (teamRows, teamsFulfilled) =>
+const _renderTeams = (teamRows, fulfilledLookup) =>
   teamRows.length === 0 ? ['Add a team'] : [
     listItem({title: 'allowed teams', header: true}),
     listItem({
@@ -40,14 +40,15 @@ const _renderTeams = (teamRows, teamsFulfilled) =>
       title: t.name,
       className: 'fulfiller',
       key: t.$key,
-      iconName: teamsFulfilled[t.$key] ? 'check_box' : 'check_box_outline_blank',
+      iconName:
+        fulfilledLookup[t.$key] ? 'check_box' : 'check_box_outline_blank',
     })),
   ]
 
-const _render = ({teams, fulfillers, textareaQuestionDOM}) =>
+const _render = ({teams, fulfilledLookup, textareaQuestionDOM}) =>
   col(
     textareaQuestionDOM,
-    ..._renderTeams(rows(teams), _teamsFulfilled(fulfillers))
+    ..._renderTeams(rows(teams), fulfilledLookup)
   )
 
 const TextareaQuestion = makeTextareaListItem({
@@ -64,6 +65,17 @@ export default sources => {
       })
     )
 
+  const fulfilledLookup$ = fulfillers$.map(fulfillers => {
+    const lookup = {}
+    if (fulfillers) {
+      Object.keys(fulfillers).map(key => {
+        lookup[fulfillers[key].teamKey] = key
+      })
+    }
+    console.log('fulfilled', lookup)
+    return lookup
+  })
+
   const textareaQuestion = isolate(TextareaQuestion)({
     value$: sources.opp$.pluck('question'),
     ...sources,
@@ -79,8 +91,13 @@ export default sources => {
   clickedTeamKeys$.subscribe(log('teamKey$'))
 
   const addFulfiller$ = clickedTeamKeys$
-    .withLatestFrom(sources.oppKey$, (teamKey,oppKey) =>
-      Fulfillers.create({teamKey, oppKey})
+    .withLatestFrom(
+      sources.oppKey$,
+      fulfilledLookup$,
+      (teamKey,oppKey,fulfilledLookup) =>
+        fulfilledLookup[teamKey] &&
+          Fulfillers.delete(fulfilledLookup[teamKey]) ||
+          Fulfillers.create({teamKey, oppKey})
     )
 
   addFulfiller$.subscribe(log('addFulfiller$'))
@@ -94,6 +111,7 @@ export default sources => {
     textareaQuestionDOM: textareaQuestion.DOM,
     teams$: sources.teams$,
     fulfillers$,
+    fulfilledLookup$,
   }
 
   sources.teams$.subscribe(log('teams$'))
