@@ -31,9 +31,9 @@ const _authActions$ = ({DOM}) =>
 const _navActions$ = ({DOM}) =>
   Observable.merge(
     DOM.select('.app-menu .home').events('click')
-      .map(e => '/dash'),
+      .map(() => '/dash'),
     DOM.select('.app-menu .admin').events('click')
-      .map(e => '/admin')
+      .map(() => '/admin')
   )
 
 // again managing a conceptual grouping of clickstreams

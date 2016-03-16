@@ -1,17 +1,4 @@
-// import {Observable} from 'rx'
-// import combineLatestObj from 'rx-combine-latest-obj'
-
-// import {div} from 'cycle-snabbdom'
-
-// import AppBar from 'components/AppBar'
-// import TabBar from 'components/TabBar'
-
-// import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-// import {icon} from 'helpers'
-// import {layoutDOM} from 'helpers/layout'
-
 import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
 
@@ -21,7 +8,6 @@ import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-import {icon} from 'helpers'
 
 import ComingSoon from 'components/ComingSoon'
 

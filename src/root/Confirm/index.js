@@ -1,9 +1,9 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import AppBar from 'components/AppBar'
+// import AppBar from 'components/AppBar'
 
-import {div} from 'cycle-snabbdom'
+// import {div} from 'cycle-snabbdom'
 
 /*
 thoughts on connecting forms to actions
@@ -43,7 +43,7 @@ import ProfileForm from 'components/ProfileForm'
 import {narrowCol, pageTitle} from 'helpers'
 import submitAndCancel from 'helpers/submitAndCancel'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const _fromGoogleData =
   ({uid, google: {displayName, email, profileImageURL}}) => ({

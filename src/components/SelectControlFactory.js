@@ -1,11 +1,9 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import {Input,Select} from 'snabbdom-material'
+import {Select} from 'snabbdom-material'
 
-import {col} from 'helpers'
-
-import {log} from 'util'
+// import {log} from 'util'
 
 const optionIndex = e => // because children is not a real js array
   [...e.target.parentNode.children].indexOf(e.target)

@@ -3,7 +3,7 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import {Teams} from 'remote'
 
@@ -13,7 +13,7 @@ import {col} from 'helpers'
 import modal from 'helpers/modal'
 import listItem from 'helpers/listItem'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.open').events('click').map(true),
@@ -23,7 +23,7 @@ const _openActions$ = ({DOM}) => Observable.merge(
 const _submitAction$ = ({DOM}) =>
   DOM.select('.submit').events('click').map(true)
 
-const _render = ({project, isOpen, teamFormDOM}) =>
+const _render = ({isOpen, teamFormDOM}) =>
   col(
     listItem({
       iconName: 'group_add',
