@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
+import isolate from '@cycle/isolate'
 
 import listItem from 'helpers/listItem'
 // import listHeader from 'helpers/listHeader'
@@ -73,8 +74,8 @@ const _render = ({
 export default sources => {
   const route$ = _navActions(sources)
 
-  const teamListHeader = CreateTeamHeader(sources)
-  const oppListHeader = CreateOppHeader(sources)
+  const teamListHeader = isolate(CreateTeamHeader)(sources)
+  const oppListHeader = isolate(CreateOppHeader)(sources)
 
   const queue$ = Observable.merge(
     teamListHeader.queue$,

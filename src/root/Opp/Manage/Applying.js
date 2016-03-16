@@ -18,9 +18,12 @@ const _toggleActions = sources => Observable.merge(
 
 const _teamsFulfilled = fulfillers => {
   const lookup = {}
-  Object.keys(fulfillers).map(key => {
-    lookup[fulfillers[key].teamKey] = key
-  })
+  if (fulfillers) {
+    Object.keys(fulfillers).map(key => {
+      lookup[fulfillers[key].teamKey] = key
+    })
+  }
+  console.log('fulfilled', lookup)
   return lookup
 }
 
@@ -37,14 +40,14 @@ const _renderTeams = (teamRows, teamsFulfilled) =>
       title: t.name,
       className: 'fulfiller',
       key: t.$key,
-      iconName: teamsFulfilled[t.$key] ? 'check_box_outline_blank' : 'check_box',
+      iconName: teamsFulfilled[t.$key] ? 'check_box' : 'check_box_outline_blank',
     })),
   ]
 
 const _render = ({teams, fulfillers, textareaQuestionDOM}) =>
   col(
     textareaQuestionDOM,
-    ..._renderTeams(rows(teams), rows(fulfillers))
+    ..._renderTeams(rows(teams), _teamsFulfilled(fulfillers))
   )
 
 const TextareaQuestion = makeTextareaListItem({
@@ -53,11 +56,11 @@ const TextareaQuestion = makeTextareaListItem({
 })
 
 export default sources => {
-  const fulfillers$ = sources.projectKey$
-    .flatMapLatest(projectKey =>
+  const fulfillers$ = sources.oppKey$
+    .flatMapLatest(oppKey =>
       sources.firebase('Fulfillers', {
-        orderByChild: 'projectKey',
-        equalTo: projectKey,
+        orderByChild: 'oppKey',
+        equalTo: oppKey,
       })
     )
 
