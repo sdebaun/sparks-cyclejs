@@ -9,7 +9,9 @@ import {col} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import {textQuote} from 'helpers/text'
-import {centeredSignup} from 'helpers/buttons'
+import {centeredSignup, bigButton} from 'helpers/buttons'
+
+import {Engagements} from 'remote'
 
 const _renderOppHeader = (project, opp) =>
   col(
@@ -33,6 +35,7 @@ const _render = ({
   project,
   opp,
   commitments,
+  userProfile,
 }) =>
   col(
     _renderOppHeader(project,opp),
@@ -44,7 +47,7 @@ const _render = ({
       'you GET',
       rows(commitments).filter(c => c.party === 'proj')
     ),
-    centeredSignup(),
+    userProfile ? bigButton('Apply Now!','apply') : centeredSignup(),
   )
 
 const _authActions = sources => Observable.merge(
@@ -53,21 +56,6 @@ const _authActions = sources => Observable.merge(
   sources.DOM.select('.signup .google').events('click')
     .map(() => PROVIDERS.google),
 )
-
-
-// const _signUp =
-//   Row({style: {width: '100%', textAlign: 'center'}, className: 'signup'}, [
-//     // Col({type: 'xs-6'}, [
-//     //   Button({onClick, primary: true, className: 'facebook'}, [
-//     //     'Sign Up using Facebook',
-//     //   ]),
-//     // ]),
-//     Col({type: 'xs-12'}, [
-//       Button({onClick, primary: true, className: 'google'}, [
-//         'Sign Up using Google',
-//       ]),
-//     ]),
-//   ])
 
 export default sources => {
   const oppKey$ = sources.oppKey$
@@ -82,10 +70,23 @@ export default sources => {
       equalTo: oppKey,
     }))
 
+  const applyClick$ = sources.DOM.select('.apply').events('click')
+
+  const newApplication$ = Observable.combineLatest(
+    oppKey$,
+    sources.userProfileKey$,
+    (oppKey, userProfileKey) => ({oppKey, userProfileKey}),
+  )
+
   const auth$ = _authActions(sources)
+
+  const queue$ = newApplication$
+    .sample(applyClick$)
+    .map(Engagements.create)
 
   const viewState = {
     project$: sources.project$,
+    userProfile$: sources.userProfile$,
     opp$,
     commitments$,
   }
@@ -95,6 +96,7 @@ export default sources => {
   return {
     DOM,
     auth$,
+    queue$,
   }
 }
 //   const title = Title({

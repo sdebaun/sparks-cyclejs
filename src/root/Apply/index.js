@@ -93,16 +93,16 @@ export default sources => {
 
   const DOM = frame.DOM
 
-  const route$ = mergeOrFlatMapLatest('route$', ...children)
-
-  // const queue$ = frame.queue$
-
   const auth$ = mergeOrFlatMapLatest('auth$', ...children)
+
+  const queue$ = mergeOrFlatMapLatest('queue$', ...children)
+
+  const route$ = mergeOrFlatMapLatest('route$', ...children)
 
   return {
     DOM,
-    route$,
-    // queue$,
     auth$,
+    queue$,
+    route$,
   }
 }

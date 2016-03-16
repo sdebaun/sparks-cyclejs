@@ -13,6 +13,13 @@ export const submitAndCancel = (submitLabel, cancelLabel) =>
 
 export const centeredSignup = () =>
   span({class: {signup: true}},[
-    Button({onClick: true, primary: true, className: 'facebook'},['Sign up with Facebook']),
-    Button({onClick: true, primary: true, className: 'google'},['Sign up with Google']),
+    Button({onClick: true, primary: true, className: 'facebook'},
+      ['Sign up with Facebook']
+    ),
+    Button({onClick: true, primary: true, className: 'google'},
+      ['Sign up with Google']
+    ),
   ])
+
+export const bigButton = (label, className) =>
+  Button({onClick: true, primary: true, className},[label])

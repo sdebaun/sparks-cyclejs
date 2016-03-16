@@ -79,7 +79,7 @@ export const Fulfillers = {
   }),
 }
 
-// Proviso
+// Commitment
 // for a specific opportunity
 // wot the project or volunteer is delivering to fulfill their commitment
 // has a 'party' field that designates project or volunteer
@@ -88,3 +88,17 @@ export const Fulfillers = {
 // Engagement
 // relates a volunteer profile to an opportunity
 // comes in many different states - applied, priority, accepted, confirmed
+
+export const Engagements = {
+  create: (payload) => ({
+    domain: 'Engagements',
+    action: 'create',
+    payload,
+  }),
+  update: (key, values) => ({
+    domain: 'Engagements',
+    action: 'update',
+    payload: {key, values},
+  }),
+}
+
