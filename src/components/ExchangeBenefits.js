@@ -40,7 +40,7 @@ const _render = ({isOpen}) =>
       iconBackgroundColor: 'yellow',
       clickable: true,
     }),
-    isOpen && div({style: {paddingLeft: '1em', paddinRight: '1em'}}, [
+    isOpen && div({style: {paddingLeft: '1em', paddingRight: '1em'}}, [
       toHelp(),
       ticketTo(),
       benefits(),

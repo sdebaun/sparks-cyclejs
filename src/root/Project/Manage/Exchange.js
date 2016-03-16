@@ -1,5 +1,4 @@
 import isolate from '@cycle/isolate'
-import {Subject} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 import ExchangeGive from 'components/ExchangeGive'
 import ExchangeBenefits from 'components/ExchangeBenefits'
