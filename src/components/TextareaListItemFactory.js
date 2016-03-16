@@ -2,7 +2,7 @@ import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {textarea} from 'cycle-snabbdom'
-import submitAndCancel from 'helpers/submitAndCancel'
+import {submitAndCancel} from 'helpers/buttons'
 
 import listItem from 'helpers/listItem'
 import {col, div} from 'helpers'
