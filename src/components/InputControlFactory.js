@@ -3,9 +3,9 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {Input} from 'snabbdom-material'
 
-import {log} from 'util'
+// import {log} from 'util'
 
-export default ({label, className, defaultValue}) => sources => {
+export default ({label, className}) => sources => {
   // render is nested so it can use factory args
   const _render = ({value}) =>
     Input({label, className, value})

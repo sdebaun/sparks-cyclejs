@@ -1,4 +1,4 @@
-import {div, span} from 'cycle-snabbdom'
+import {span} from 'cycle-snabbdom'
 import {Dialog} from 'snabbdom-material'
 
 const Button = Dialog.Button

@@ -57,3 +57,34 @@ export const Opps = {
     payload: {key, values},
   }),
 }
+
+// Fulfiller
+// links a specific opp and team
+// indicates that opp provisos fulfilled by shifts on team
+export const Fulfillers = {
+  create: (values) => ({
+    domain: 'Fulfillers',
+    action: 'create',
+    payload: values,
+  }),
+  update: (key, values) => ({
+    domain: 'Fulfillers',
+    action: 'update',
+    payload: {key, values},
+  }),
+  delete: (key) => ({
+    domain: 'Fulfillers',
+    action: 'delete',
+    payload: key,
+  }),
+}
+
+// Proviso
+// for a specific opportunity
+// wot the project or volunteer is delivering to fulfill their commitment
+// has a 'party' field that designates project or volunteer
+// has a 'code' field that says what kind it is (shifts, deposit, etc)
+
+// Engagement
+// relates a volunteer profile to an opportunity
+// comes in many different states - applied, priority, accepted, confirmed

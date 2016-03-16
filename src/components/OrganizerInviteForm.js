@@ -1,6 +1,5 @@
-import {Observable} from 'rx'
+// import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
-import {Input,Select} from 'snabbdom-material'
 import {col} from 'helpers'
 import isolate from '@cycle/isolate'
 
@@ -13,7 +12,6 @@ const authorityOptions = [
 ]
 
 const _render = ({
-  organizer: {inviteEmail, projectKey},
   authoritySelectDOM, inviteEmailInputDOM,
 }) =>
   col(

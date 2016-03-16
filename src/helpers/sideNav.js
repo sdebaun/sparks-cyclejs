@@ -1,6 +1,5 @@
 import {div, span} from 'cycle-snabbdom'
 import {Mask} from 'snabbdom-material'
-import {icon} from 'helpers'
 import {material} from 'util'
 
 const defaultStyles = {
