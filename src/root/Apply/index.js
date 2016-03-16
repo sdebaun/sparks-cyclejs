@@ -5,14 +5,15 @@ import ComingSoon from 'components/ComingSoon'
 import SoloFrame from 'components/SoloFrame'
 import Title from 'components/Title'
 
-// export default ComingSoon('Apply')
+import ApplyQuickNavMenu from 'components/ApplyQuickNavMenu'
 
-import {rows, nestedComponent} from 'util'
+import {rows, nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import {col} from 'helpers'
 
 const Glance = ComingSoon('Apply/Glance')
-const Opp = ComingSoon('Apply/Opp/#')
+import Opp from './Opp'
+// const Opp = ComingSoon('Apply/Opp/#')
 
 const _routes = {
   // isolating breaks child tab navigation?
@@ -27,7 +28,9 @@ export default sources => {
   const projectKey$ = sources.projectKey$
 
   // const projectImage$ = projectKey$
-  //   .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
+    // .flatMapLatest(projectKey =>
+    //   sources.firebase('ProjectImages',projectKey)
+    // )
 
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
@@ -55,19 +58,28 @@ export default sources => {
     ...sources,
   })
 
+  const applyQuickNavMenu = ApplyQuickNavMenu({opps$, project$, ...sources})
+  // const applyQuickNavMenu = Observable.just({DOM: ['foo']})
+
   const page$ = nestedComponent(sources.router.define(_routes),sources)
 
-  const pageDOM = col(title.DOM, page$.flatMapLatest(({DOM}) => DOM))
+  const pageDOM = col(
+    title.DOM,
+    applyQuickNavMenu.DOM,
+    page$.flatMapLatest(({DOM}) => DOM)
+  )
 
   const frame = SoloFrame({pageDOM, ...sources})
 
+  const children = [frame, page$, applyQuickNavMenu]
+
   const DOM = frame.DOM
 
-  const route$ = frame.route$
+  const route$ = mergeOrFlatMapLatest('route$', ...children)
 
   // const queue$ = frame.queue$
 
-  const auth$ = frame.auth$
+  const auth$ = mergeOrFlatMapLatest('auth$', ...children)
 
   return {
     DOM,

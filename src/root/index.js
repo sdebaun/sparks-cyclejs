@@ -61,6 +61,12 @@ export default sources => {
   // userProfileKey$.subscribe(log('userProfileKey$'))
   // userProfile$.subscribe(log('userProfile$'))
 
+  // unfortunately this does not gather global uses of navlink
+  // i suspect its because of how the DOM driver uses isolate()
+  // to intentionally ignore isolated events
+  const navRouting$ = sources.DOM.select('.navLink').events('click')
+    .map(e => e.ownerTarget.dataset.link)
+
   // these two redirects are passed on to child components
   // who simply plug them into their route$ sink
   // if they want this behavior
@@ -92,9 +98,11 @@ export default sources => {
 
   authedActions$.subscribe(log('authedActions$'))
 
-  const router = page$
-    .flatMapLatest(({route$}) => route$ || Observable.never())
-    .merge(redirectUnconfirmed$)
+  const router = Observable.merge(
+    page$.flatMapLatest(({route$}) => route$ || Observable.never()),
+    redirectUnconfirmed$,
+    navRouting$,
+  )
 
   router.subscribe(log('router'))
 
