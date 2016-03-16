@@ -9,6 +9,7 @@ import Project from './Project'
 import Team from './Team'
 import Opp from './Opp'
 import Apply from './Apply'
+import Engagement from './Engagement'
 
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
@@ -35,6 +36,8 @@ const routes = {
     isolate(Opp)({oppKey$: just(key), ...sources}),
   '/apply/:key': key => sources =>
     isolate(Apply)({projectKey$: just(key), ...sources}),
+  '/engaged/:key': key => sources =>
+    isolate(Engagement)({engagementKey$: just(key), ...sources}),
 }
 
 export default sources => {

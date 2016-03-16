@@ -57,6 +57,10 @@ const _authActions = sources => Observable.merge(
     .map(() => PROVIDERS.google),
 )
 
+const _redirectResponses = ({responses$}) => responses$
+  .filter(({domain,event}) => domain === 'Engagements' && event === 'create')
+  .map(response => '/engaged/' + response.payload)
+
 export default sources => {
   const oppKey$ = sources.oppKey$
   oppKey$.subscribe(log('oppKey$'))
@@ -75,7 +79,7 @@ export default sources => {
   const newApplication$ = Observable.combineLatest(
     oppKey$,
     sources.userProfileKey$,
-    (oppKey, userProfileKey) => ({oppKey, userProfileKey}),
+    (oppKey, userProfileKey) => ({oppKey, profileKey: userProfileKey}),
   )
 
   const auth$ = _authActions(sources)
@@ -83,6 +87,8 @@ export default sources => {
   const queue$ = newApplication$
     .sample(applyClick$)
     .map(Engagements.create)
+
+  const route$ = _redirectResponses(sources)
 
   const viewState = {
     project$: sources.project$,
@@ -97,6 +103,7 @@ export default sources => {
     DOM,
     auth$,
     queue$,
+    route$,
   }
 }
 //   const title = Title({
