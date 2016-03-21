@@ -55,11 +55,7 @@ export default sources => {
   const engagements$ = sources.userProfileKey$
     .flatMapLatest(Engagements.query.byUser(sources))
 
-  const projectForm = isolate(ProjectForm)({
-    ...sources,
-    project$: just({}),
-  })
-
+  const projectForm = isolate(ProjectForm)(sources)
   const projectList = isolate(ProjectList)({...sources, projects$})
 
   const queue$ = projectForm.project$
