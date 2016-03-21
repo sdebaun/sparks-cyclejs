@@ -1,0 +1,1 @@
+export {makeModal} from './Modal'

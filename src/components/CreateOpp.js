@@ -6,9 +6,9 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import {Opps} from 'remote'
 
 import OppForm from 'components/OppForm'
+import {makeModal} from 'components/ui'
 
 import {col} from 'helpers'
-import modal from 'helpers/modal'
 import listItem from 'helpers/listItem'
 
 // import {log} from 'util'
@@ -18,10 +18,7 @@ const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.close').events('click').map(false),
 )
 
-const _submitAction$ = ({DOM}) =>
-  DOM.select('.submit').events('click').map(true)
-
-const _render = ({isOpen, oppFormDOM}) =>
+const _render = ({modalDOM}) =>
   col(
     listItem({
       iconName: 'power',
@@ -30,36 +27,39 @@ const _render = ({isOpen, oppFormDOM}) =>
       className: 'open',
       clickable: true,
     }),
-    modal({
-      isOpen,
-      title: 'Create an Opportunity',
-      iconName: 'power',
-      submitLabel: 'But of Course',
-      closeLabel: 'Not the Now',
-      content: oppFormDOM,
-    })
+    modalDOM,
   )
 
+const OppModal = makeModal({
+  title: 'Create an Opportunity',
+  iconName: 'power',
+  submitLabel: 'But of Course',
+  closeLabel: 'Not the Now',
+})
+
 export default sources => {
+  const isOpen$ = _openActions$(sources)
+    .startWith(false)
+
   const oppForm = OppForm(sources)
 
-  const submit$ = _submitAction$(sources)
+  const oppModal = OppModal({
+    ...sources,
+    contentDOM$: oppForm.DOM,
+    isOpen$,
+  })
 
   const queue$ = oppForm.opp$
-    .sample(submit$)
+    .sample(oppModal.submit$)
     .zip(sources.projectKey$,
       (opp,projectKey) => ({projectKey, ...opp})
     )
     .map(Opps.create)
 
-  const isOpen$ = _openActions$(sources)
-    .merge(submit$.map(false))
-    .startWith(false)
-
   const viewState = {
     isOpen$,
     project$: sources.project$,
-    oppFormDOM$: oppForm.DOM,
+    modalDOM$: oppModal.DOM,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
