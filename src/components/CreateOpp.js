@@ -1,4 +1,4 @@
-import {Observable} from 'rx'
+// import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
 // import isolate from '@cycle/isolate'
@@ -12,11 +12,6 @@ import {col} from 'helpers'
 import listItem from 'helpers/listItem'
 
 // import {log} from 'util'
-
-const _openActions$ = ({DOM}) => Observable.merge(
-  DOM.select('.open').events('click').map(true),
-  DOM.select('.close').events('click').map(false),
-)
 
 const _render = ({modalDOM}) =>
   col(
@@ -38,7 +33,8 @@ const OppModal = makeModal({
 })
 
 export default sources => {
-  const isOpen$ = _openActions$(sources)
+  const isOpen$ = sources.DOM.select('.open').events('click')
+    .map(true)
     .startWith(false)
 
   const oppForm = OppForm(sources)
@@ -64,5 +60,8 @@ export default sources => {
 
   const DOM = combineLatestObj(viewState).map(_render)
 
-  return {DOM, queue$}
+  return {
+    DOM,
+    queue$,
+  }
 }
