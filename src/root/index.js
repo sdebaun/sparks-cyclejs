@@ -80,26 +80,18 @@ const UserManager = sources => {
   }
 }
 
-const AuthedResponseManager = sources => {
-  const responses$ = sources.auth$
+const AuthedResponseManager = sources => ({
+  responses$: sources.auth$
     .flatMapLatest(auth => auth ? sources.queue$(auth.uid) : empty())
     .pluck('val')
-    .share()
+    .share(),
+})
 
-  return {
-    responses$,
-  }
-}
-
-const AuthedActionManager = sources => {
-  const queue$ = sources.queue$
+const AuthedActionManager = sources => ({
+  queue$: sources.queue$
     .withLatestFrom(sources.auth$)
-    .map(([action,auth]) => ({uid: auth && auth.uid, ...action}))
-
-  return {
-    queue$,
-  }
-}
+    .map(([action,auth]) => ({uid: auth && auth.uid, ...action})),
+})
 
 export default sources => {
   const user = UserManager(sources)
