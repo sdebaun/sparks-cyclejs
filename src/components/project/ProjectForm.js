@@ -3,7 +3,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {projectForm} from 'helpers'
 
-export default sources => {
+export const ProjectForm = sources => {
   const submitClick$ = sources.DOM.select('.submit').events('click')
 
   const submitForm$ = sources.DOM.select('.project').events('submit')
@@ -29,6 +29,7 @@ export default sources => {
 
   const project$ = editProject$
     .sample(submit$)
+    .filter(p => p !== {})
 
   const DOM = editProject$.startWith({}).map(projectForm)
 

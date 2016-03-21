@@ -6,7 +6,6 @@ import quickNavMenu from 'helpers/quickNavMenu'
 import {rows} from 'util'
 // import {log} from 'util'
 
-
 // const _navActions$ = ({DOM, projectKey$}) =>
 //   Observable.merge(
 //     projectKey$.sample(DOM.select('.project').events('click'))
