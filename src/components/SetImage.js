@@ -31,7 +31,7 @@ const _render = ({dataUrl, isOpen, dropAndCrop}) =>
       title: dataUrl ? 'Change your picture.' : 'Choose a picture to use.',
       clickable: true,
     }),
-    isOpen && div({},[dropAndCrop])
+    isOpen && div({style: {maxWidth: 800, maxHeight: 800}},[dropAndCrop])
   )
 
 export default sources => {

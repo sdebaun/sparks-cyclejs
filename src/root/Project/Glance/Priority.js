@@ -37,6 +37,12 @@ const _render = (createHref) => ({
         title: 'Choose a photo for your project',
         link: createHref('/manage/describe'),
       }),
+      listItem({
+        iconName: 'balance-scale',
+        iconBackgroundColor: 'yellow',
+        title: 'What\'s the Enery Exchange you\'re offering your volunteers?',
+        link: createHref('/manage/exchange'),
+      })
     )
 
 const _responseRedirects$ = ({responses$, router: {createHref}}) =>

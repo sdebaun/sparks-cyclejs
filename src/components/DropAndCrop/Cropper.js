@@ -12,7 +12,9 @@ class Cropper extends React.Component {
   )
 
   render() {
-    return <ReactCropper ref='cropper' {
+    return <ReactCropper ref='cropper'
+      style={{maxHeight: 400, maxWidth: 400, margin: '0 auto'}}
+    {
       ...{...this.props, crop: this.crop, autoCrop: true}
     }/>
   }
