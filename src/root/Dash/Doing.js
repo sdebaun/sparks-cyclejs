@@ -1,5 +1,4 @@
 import {Observable} from 'rx'
-const {just} = Observable
 
 import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
