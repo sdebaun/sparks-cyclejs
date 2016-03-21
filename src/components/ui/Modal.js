@@ -4,7 +4,7 @@ import modal from 'helpers/modal'
 const _submitAction$ = ({DOM}) =>
   DOM.select('.submit').events('click').map(true)
 
-const makeModal = ({title, iconName, submitLabel, closeLabel}) =>
+const makeModal = ({title, iconName, submitLabel = 'OK', closeLabel = 'CANCEL'}) =>
   sources => {
     const _modalRender = ({isOpen, contentDOM}) =>
       modal({

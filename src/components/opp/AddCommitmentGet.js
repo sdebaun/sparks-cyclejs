@@ -35,7 +35,7 @@ const extras = () =>
     title: 'All these awesome extras: _________',
   })
 
-const _render = ({dropdownDOM}) =>
+const _render = ({dropdownDOM, getHelpModalDOM}) =>
   col(
     listItem({
       iconName: 'plus',
@@ -44,19 +44,52 @@ const _render = ({dropdownDOM}) =>
       clickable: true,
     }),
     dropdownDOM,
-    // isOpen && menu({isOpen}, [
-    //   toHelp(),
-    //   ticketTo(),
-    //   benefits(),
-    //   extras(),
-    // ])
+    getHelpModalDOM,
   )
+
+import {makeModal} from 'components/ui'
+
+const GetHelpModal = makeModal({
+  title: 'a title',
+  icon: 'power',
+})
+
+const GetHelpForm = sources => {
+  const DOM = just(div({},['a form']))
+  return {
+    DOM,
+  }
+}
+
+const GetHelp = sources => {
+  const isOpen$ = sources.DOM.select('.get-help').events('click')
+    .map(true)
+    .startWith(false)
+  const f = GetHelpForm(sources)
+  const m = GetHelpModal({contentDOM$: f.DOM, isOpen$, ...sources})
+
+  const DOM = just(
+    menuItem({
+      iconName: 'users',
+      title: 'To help a community',
+      className: 'get-help',
+    }),
+  )
+
+  return {
+    DOM,
+    modalDOM: m.DOM,
+  }
+}
 
 export const AddCommitmentGet = sources => {
   const isOpen$ = _openActions$(sources).startWith(false)
 
+  const getHelp = GetHelp(sources)
+
   const children$ = just([div({},[
-    toHelp(),
+    getHelp.DOM,
+    // getHelp.modalDOM,
     ticketTo(),
     benefits(),
     extras(),
@@ -66,6 +99,7 @@ export const AddCommitmentGet = sources => {
 
   const viewState = {
     dropdownDOM$: dropdown.DOM,
+    getHelpModalDOM$: getHelp.modalDOM,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
