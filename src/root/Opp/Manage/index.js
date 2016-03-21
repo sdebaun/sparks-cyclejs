@@ -8,7 +8,7 @@ import {Observable} from 'rx'
 // import Title from 'components/Title'
 // import Header from 'components/Header'
 import TabBar from 'components/TabBar'
-import ComingSoon from 'components/ComingSoon'
+// import ComingSoon from 'components/ComingSoon'
 // import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
@@ -17,10 +17,11 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 // import {rows, log} from 'util'
 
 import Describe from './Describe'
+import Exchange from './Exchange'
 import Applying from './Applying'
 
 // const Describe = ComingSoon('Opp/Glance/Describe')
-const Exchange = ComingSoon('Opp/Glance/Exchange')
+// const Exchange = ComingSoon('Opp/Glance/Exchange')
 // const Applying = ComingSoon('Opp/Glance/Applying')
 
 const _routes = {

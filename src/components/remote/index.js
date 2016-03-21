@@ -40,3 +40,13 @@ export const Engagements = {
     byUser: filterBy('Engagements','profileKey'),
   },
 }
+
+export const Commitments = {
+  query: {
+    byOpp: filterBy('Commitments','oppKey'),
+  },
+  action: {
+    create: actionCreator('Commitments', 'create'),
+  },
+}
+
