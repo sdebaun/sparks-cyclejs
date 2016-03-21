@@ -86,7 +86,9 @@ const AuthedResponseManager = sources => {
     .pluck('val')
     .share()
 
-  return {responses$}
+  return {
+    responses$,
+  }
 }
 
 const AuthedActionManager = sources => {
@@ -94,7 +96,9 @@ const AuthedActionManager = sources => {
     .withLatestFrom(sources.auth$)
     .map(([action,auth]) => ({uid: auth && auth.uid, ...action}))
 
-  return {queue$}
+  return {
+    queue$,
+  }
 }
 
 export default sources => {
