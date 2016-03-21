@@ -1,5 +1,13 @@
+import {Observable} from 'rx'
+const {merge} = Observable
+
+import combineLatestObj from 'rx-combine-latest-obj'
 import {Mask, getScreenSize} from 'snabbdom-material'
 import {div} from 'cycle-snabbdom'
+
+import {NavClicker} from 'components'
+
+// import {log} from 'util'
 
 const insert = (vnode) => {
   const {height: screenHeight} = getScreenSize()
@@ -50,19 +58,38 @@ const menuStyle = {
   maxWidth: '400px',
 }
 
-function menu(config, children) {
-  const {isOpen, rightAlign, style: styles = {}} = config
+const alignStyle = leftAlign =>
+  leftAlign ? {left: '0', right: 'auto'} : {right: '0', left: 'auto'}
 
-  const style = Object.assign(
-    menuStyle,
-    styles,
-    rightAlign ? {right: '0', left: 'auto'} : {left: '0', right: 'auto'}
+const _render = ({isOpen, children, leftAlign = true}) =>
+  div('.menu', {style: containerStyle}, [
+    Mask({className: 'close', dark: false, isOpen}),
+    isOpen ? div('.paper1', {
+      hook: {insert},
+      style: Object.assign({}, menuStyle, alignStyle(leftAlign)),
+    }, children) : null,
+  ])
+
+const BaseDropdownMenu = sources => {
+  const isOpen$ = merge(
+    sources.isOpen$,
+    sources.DOM.select('.close').events('click').map(() => false),
   )
 
-  return div('.app-menu', {style: containerStyle}, [
-    Mask({className: 'close-menu', dark: false, isOpen}),
-    isOpen ? div('.paper1', {hook: {insert}, style}, children) : null,
-  ])
+  const viewState = {
+    children$: sources.children$,
+    isOpen$,
+  }
+
+  const DOM = combineLatestObj(viewState).map(_render)
+
+  const route$ = NavClicker(sources)
+
+  return {
+    DOM,
+    route$,
+  }
 }
 
-export {menu}
+// dont isolate yet
+export const DropdownMenu = BaseDropdownMenu

@@ -19,7 +19,7 @@ const fadeInOut = {
 }
 
 const style = {
-  lineHeight: '32px',
+  lineHeight: '48px',
   // lineHeight: '64px',
   cursor: 'pointer',
   margin: '0',
@@ -27,12 +27,12 @@ const style = {
 }
 
 const iconCellStyle = {
-  width: '64px',
-  'font-size': '32px',
+  width: '48px',
+  'font-size': '24px',
 }
 
 const titleStyle = {
-  fontSize: '1.2em',
+  fontSize: '1.3em',
 }
 
 const subtitleStyle = {

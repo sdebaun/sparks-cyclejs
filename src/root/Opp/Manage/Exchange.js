@@ -17,10 +17,9 @@ const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
 
 const CommitmentList = sources => ({
   DOM: sources.commitments$.map(rows =>
-    div({}, rows.map(({$key, name}) =>
+    div({}, rows.map(({$key}) =>
       listItem(
-        {title: name, subtitle: 'project',
-        link: '/project/' + $key, className: 'project.nav'}
+        {title: $key, className: 'commitment', clickable: true}
       )
     ))
   ),
