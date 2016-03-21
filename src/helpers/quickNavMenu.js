@@ -9,10 +9,10 @@ import menuItem from 'helpers/menuItem'
 // is to abstract away the details of dom-specific representation
 // and express that as reusable interface metaphors
 
-const svgDropDownIcon =
+const svgDropDownIcon = color =>
   h('svg', {
     attrs: {
-      fill: 'white',
+      fill: color,
       height: 16,
       viewBox: '0 0 16 16',
       width: 16,
@@ -30,13 +30,20 @@ const _menuItems = items =>
   //   divider ? Separator({}) : Item({className}, label)
   // )
 
-export default ({isOpen, className, label, menu: {rightAlign}, items}) =>
+export default ({
+  isOpen,
+  className,
+  label,
+  menu: {rightAlign},
+  items,
+  color = '#FFF',
+}) =>
   div({},[
     Button(
       {className, flat: true, onClick: true,
-        style: {color: 'white', margin: 0, paddingLeft: '0.5em'},
+        style: {color, margin: 0, paddingLeft: '0.5em'},
       },
-      [label, svgDropDownIcon]
+      [label, svgDropDownIcon(color)]
     ),
     menu({isOpen, rightAlign}, _menuItems(items)),
   ])

@@ -12,15 +12,35 @@ import {Projects} from 'remote'
 
 import {rows} from 'util'
 
-const _renderProjects = projects =>
-  rows(projects).map(({name,$key}) =>
+const _renderProjects = projectRows => [
+  projectRows.length > 0 ?
+    listItem({title: 'Projects You Manage', header: true}) :
+    null,
+  ...projectRows.map(({name,$key}) =>
     listItem(
       {title: name, subtitle: 'project',
       link: '/project/' + $key, className: 'project'}
     )
-  )
+  ),
+]
 
-const _render = ({projects, projectFormDOM}) =>
+const _label = ({isApplied, isAccepted, isConfirmed}) =>
+  isConfirmed && 'Confirmed' ||
+    isAccepted && 'Accepted' ||
+      isApplied && 'Applied' ||
+        'Unknown'
+
+const _renderEngagements = (title, engagementRows) => [
+  engagementRows.length > 0 ? listItem({title, header: true}) : null,
+  ...engagementRows.map(({oppKey, $key, ...props}) =>
+    listItem(
+      {title: oppKey, subtitle: _label(props),
+      link: '/engaged/' + $key, className: 'project'}
+    )
+  ),
+]
+
+const _render = ({projectRows, projectFormDOM, engagementRows}) =>
   col(
     importantTip('The Sparks.Network is not open to the public right now.'),
     `
@@ -31,7 +51,11 @@ const _render = ({projects, projectFormDOM}) =>
     If you'd like to be part of our Early Access Program, contact us below!
     `,
     projectFormDOM,
-    ..._renderProjects(projects),
+    ..._renderProjects(projectRows),
+    ..._renderEngagements('Applied To',
+      engagementRows
+        .filter(e => e.isApplied && !e.isAccepted && !e.isConfirmed),
+    ),
   )
 
 const _redirectResponses = ({responses$}) => responses$
@@ -40,10 +64,20 @@ const _redirectResponses = ({responses$}) => responses$
 
 export default sources => {
   const project$ = Observable.just({})
+
   const projects$ = sources.userProfileKey$
     .flatMapLatest(profileKey => sources.firebase('Projects',{
       orderByChild: 'ownerProfileKey', equalTo: profileKey,
     }))
+
+  const projectRows$ = projects$.map(rows)
+
+  const engagements$ = sources.userProfileKey$
+    .flatMapLatest(profileKey => sources.firebase('Engagements',{
+      orderByChild: 'profileKey', equalTo: profileKey,
+    }))
+
+  const engagementRows$ = engagements$.map(rows)
 
   const projectForm = isolate(ProjectForm)({project$, ...sources})
 
@@ -59,10 +93,13 @@ export default sources => {
 
   const route$ = Observable.merge(nav$, redirect$)
 
-  const DOM = combineLatestObj({
-    projects$,
+  const viewState = {
+    projectRows$,
     projectFormDOM$: projectForm.DOM,
-  }).map(_render)
+    engagementRows$,
+  }
+
+  const DOM = combineLatestObj(viewState).map(_render)
 
   return {
     DOM,

@@ -8,6 +8,8 @@ import Admin from './Admin'
 import Project from './Project'
 import Team from './Team'
 import Opp from './Opp'
+import Apply from './Apply'
+import Engagement from './Engagement'
 
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
@@ -32,6 +34,10 @@ const routes = {
     isolate(Team)({teamKey$: just(key), ...sources}),
   '/opp/:key': key => sources =>
     isolate(Opp)({oppKey$: just(key), ...sources}),
+  '/apply/:key': key => sources =>
+    isolate(Apply)({projectKey$: just(key), ...sources}),
+  '/engaged/:key': key => sources =>
+    isolate(Engagement)({engagementKey$: just(key), ...sources}),
 }
 
 export default sources => {
@@ -57,6 +63,12 @@ export default sources => {
   // sources.auth$.subscribe(log('auth$'))
   // userProfileKey$.subscribe(log('userProfileKey$'))
   // userProfile$.subscribe(log('userProfile$'))
+
+  // unfortunately this does not gather global uses of navlink
+  // i suspect its because of how the DOM driver uses isolate()
+  // to intentionally ignore isolated events
+  const navRouting$ = sources.DOM.select('.navLink').events('click')
+    .map(e => e.ownerTarget.dataset.link)
 
   // these two redirects are passed on to child components
   // who simply plug them into their route$ sink
@@ -89,9 +101,11 @@ export default sources => {
 
   authedActions$.subscribe(log('authedActions$'))
 
-  const router = page$
-    .flatMapLatest(({route$}) => route$ || Observable.never())
-    .merge(redirectUnconfirmed$)
+  const router = Observable.merge(
+    page$.flatMapLatest(({route$}) => route$ || Observable.never()),
+    redirectUnconfirmed$,
+    navRouting$,
+  )
 
   router.subscribe(log('router'))
 

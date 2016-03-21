@@ -30,8 +30,8 @@ export default ({
   const DOM = combineLatestObj({
     isMobile$,
     labelText$,
-    subLabelText$,
-    tabsDOM$,
+    subLabelText$: subLabelText$ || Observable.just(null),
+    tabsDOM$: tabsDOM$ || Observable.just(null),
     quickNavDOM$: quickNavDOM$ || Observable.just(null),
   }).map(_DOM)
 
