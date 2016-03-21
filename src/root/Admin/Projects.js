@@ -4,8 +4,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import {div} from 'cycle-snabbdom'
 
 import {Projects} from 'components/remote'
-import ProjectForm from 'components/ProjectForm'
-import {ProjectList} from 'components/projects'
+import {ProjectList, ProjectForm} from 'components/project'
 
 // import {log} from 'util'
 

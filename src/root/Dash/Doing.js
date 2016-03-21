@@ -4,14 +4,12 @@ const {just} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
-import ProjectForm from 'components/ProjectForm'
-
 import {col, importantTip} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import {NavClicker} from 'components'
 import {Projects, Engagements} from 'components/remote'
-import {ProjectList} from 'components/projects'
+import {ProjectList, ProjectForm} from 'components/project'
 
 const _label = ({isApplied, isAccepted, isConfirmed}) =>
   isConfirmed && 'Confirmed' ||

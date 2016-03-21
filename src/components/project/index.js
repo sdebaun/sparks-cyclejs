@@ -15,3 +15,4 @@ export const ProjectList = sources => ({
   ),
 })
 
+export {ProjectForm} from './ProjectForm'
