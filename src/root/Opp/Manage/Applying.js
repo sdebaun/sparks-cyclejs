@@ -16,7 +16,18 @@ const _toggleActions = sources => Observable.merge(
     .map(e => e.ownerTarget.dataset.key),
 )
 
-const _renderTeams = teamRows =>
+// const _teamsFulfilled = fulfillers => {
+//   const lookup = {}
+//   if (fulfillers) {
+//     Object.keys(fulfillers).map(key => {
+//       lookup[fulfillers[key].teamKey] = key
+//     })
+//   }
+//   console.log('fulfilled', lookup)
+//   return lookup
+// }
+
+const _renderTeams = (teamRows, fulfilledLookup) =>
   teamRows.length === 0 ? ['Add a team'] : [
     listItem({title: 'allowed teams', header: true}),
     listItem({
@@ -29,14 +40,15 @@ const _renderTeams = teamRows =>
       title: t.name,
       className: 'fulfiller',
       key: t.$key,
-      iconName: 'check_box_outline_blank',
+      iconName:
+        fulfilledLookup[t.$key] ? 'check_box' : 'check_box_outline_blank',
     })),
   ]
 
-const _render = ({teams, textareaQuestionDOM}) =>
+const _render = ({teams, fulfilledLookup, textareaQuestionDOM}) =>
   col(
     textareaQuestionDOM,
-    ..._renderTeams(rows(teams))
+    ..._renderTeams(rows(teams), fulfilledLookup)
   )
 
 const TextareaQuestion = makeTextareaListItem({
@@ -45,6 +57,25 @@ const TextareaQuestion = makeTextareaListItem({
 })
 
 export default sources => {
+  const fulfillers$ = sources.oppKey$
+    .flatMapLatest(oppKey =>
+      sources.firebase('Fulfillers', {
+        orderByChild: 'oppKey',
+        equalTo: oppKey,
+      })
+    )
+
+  const fulfilledLookup$ = fulfillers$.map(fulfillers => {
+    const lookup = {}
+    if (fulfillers) {
+      Object.keys(fulfillers).map(key => {
+        lookup[fulfillers[key].teamKey] = key
+      })
+    }
+    console.log('fulfilled', lookup)
+    return lookup
+  })
+
   const textareaQuestion = isolate(TextareaQuestion)({
     value$: sources.opp$.pluck('question'),
     ...sources,
@@ -60,19 +91,27 @@ export default sources => {
   clickedTeamKeys$.subscribe(log('teamKey$'))
 
   const addFulfiller$ = clickedTeamKeys$
-    .withLatestFrom(sources.oppKey$, (teamKey,oppKey) =>
-      Fulfillers.create({teamKey, oppKey})
+    .withLatestFrom(
+      sources.oppKey$,
+      fulfilledLookup$,
+      (teamKey,oppKey,fulfilledLookup) =>
+        fulfilledLookup[teamKey] &&
+          Fulfillers.delete(fulfilledLookup[teamKey]) ||
+          Fulfillers.create({teamKey, oppKey})
     )
 
   addFulfiller$.subscribe(log('addFulfiller$'))
 
   const queue$ = Observable.merge(
     updateQuestion$,
+    addFulfiller$,
   )
 
   const viewState = {
     textareaQuestionDOM: textareaQuestion.DOM,
     teams$: sources.teams$,
+    fulfillers$,
+    fulfilledLookup$,
   }
 
   sources.teams$.subscribe(log('teams$'))

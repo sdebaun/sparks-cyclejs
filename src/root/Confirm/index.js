@@ -41,7 +41,7 @@ import {Profiles} from 'remote'
 import SoloFrame from 'components/SoloFrame'
 import ProfileForm from 'components/ProfileForm'
 import {narrowCol, pageTitle} from 'helpers'
-import submitAndCancel from 'helpers/submitAndCancel'
+import {submitAndCancel} from 'helpers/buttons'
 
 // import {log} from 'util'
 

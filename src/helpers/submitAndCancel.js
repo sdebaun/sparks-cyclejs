@@ -1,10 +1,12 @@
-import {span} from 'cycle-snabbdom'
-import {Dialog} from 'snabbdom-material'
+// moved to helpers/buttons
 
-const Button = Dialog.Button
+// import {span} from 'cycle-snabbdom'
+// import {Dialog} from 'snabbdom-material'
 
-export default (submitLabel, cancelLabel) =>
-  span({},[
-    Button({onClick: true, primary: true, className: 'submit'},[submitLabel]),
-    Button({onClick: true, flat: true, className: 'cancel'},[cancelLabel]),
-  ])
+// const Button = Dialog.Button
+
+// export default (submitLabel, cancelLabel) =>
+//   span({},[
+//     Button({onClick: true, primary: true, className: 'submit'},[submitLabel]),
+//     Button({onClick: true, flat: true, className: 'cancel'},[cancelLabel]),
+//   ])
