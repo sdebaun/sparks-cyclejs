@@ -3,7 +3,6 @@ const {empty, just} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {col, div} from 'helpers'
-// import {menu} from 'helpers/menu'
 import listItem from 'helpers/listItem'
 import menuItem from 'helpers/menuItem'
 import {DropdownMenu} from 'components/DropdownMenu'
@@ -39,8 +38,8 @@ const extras = () =>
 const _render = ({dropdownDOM}) =>
   col(
     listItem({
-      iconName: 'trophy',
-      title: 'What do you your volunteers get?',
+      iconName: 'plus',
+      title: 'What do Volunteers GET?',
       iconBackgroundColor: 'yellow',
       clickable: true,
     }),

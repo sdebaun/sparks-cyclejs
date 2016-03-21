@@ -54,7 +54,7 @@ const menuStyle = {
   remove: {
     opacity: '0',
   },
-  minWidth: '200px',
+  minWidth: '340px',
   maxWidth: '400px',
 }
 
