@@ -29,6 +29,7 @@ export default sources => {
 
   const project$ = editProject$
     .sample(submit$)
+    .filter(p => p !== {})
 
   const DOM = editProject$.startWith({}).map(projectForm)
 

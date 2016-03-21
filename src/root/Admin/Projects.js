@@ -3,56 +3,38 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
 
+import {Projects} from 'components/remote'
 import ProjectForm from 'components/ProjectForm'
+import {ProjectList} from 'components/projects'
 
-import listItem from 'helpers/listItem'
-
-// import {log} from 'util'
-
-// TODO: move to helpers
-const rows = obj =>
-  Object.keys(obj).map(k => ({$key: k, ...obj[k]}))
-
-const _renderProjects = projects =>
-  rows(projects).map(({name,$key}) =>
-    listItem(
-      {title: name, subtitle: 'project',
-      link: '/project/' + $key, className: 'project'}
-    )
-  )
-
-const _DOM = ({projects, formDOM}) =>
-  div({}, [
-    formDOM,
-    div({attrs: {class: 'projects'}}, _renderProjects(projects)),
-  ])
-
-import {Projects} from 'remote'
+import {log} from 'util'
 
 export default sources => {
-  const projects$ = sources.firebase('Projects')
-    .map(p => p || {})
+  const projects$ = Projects.query.all(sources)()
+  projects$.subscribe(log('projects$'))
 
   const projectForm = ProjectForm(sources)
+  const projectList = ProjectList({...sources, projects$})
 
-  const newProject$ = projectForm.project$
-    .filter(p => p !== {})
-    .map(Projects.create)
+  const queue$ = projectForm.project$
+    .map(Projects.action.create)
 
-  const nav$ = sources.DOM.select('.projects .project').events('click')
-    .map(e => e.ownerTarget.dataset.link)
+  const route$ = Observable.merge(
+    projectList.route$,
+    Projects.redirect.create(sources).route$,
+  )
 
-  const redirectOnCreate$ = sources.responses$
-    .filter(({domain,event}) => domain === 'Projects' && event === 'create')
-    .map(response => '/project/' + response.payload)
+  const viewState = {
+    listDOM$: projectList.DOM,
+    formDOM$: projectForm.DOM,
+  }
 
-  const route$ = Observable.merge(nav$, redirectOnCreate$)
-
-  const DOM = combineLatestObj({projects$, formDOM$: projectForm.DOM}).map(_DOM)
+  const DOM = combineLatestObj(viewState)
+    .map(({listDOM, formDOM}) => div({},[formDOM, listDOM]))
 
   return {
     DOM,
-    queue$: newProject$,
+    queue$,
     route$,
   }
 }

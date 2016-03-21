@@ -1,28 +1,17 @@
 import {Observable} from 'rx'
+const {just} = Observable
+
 import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import ProjectForm from 'components/ProjectForm'
 
 import {col, importantTip} from 'helpers'
-// import listHeader from 'helpers/listHeader'
 import listItem from 'helpers/listItem'
 
-import {Projects} from 'remote'
-
-import {rows} from 'util'
-
-const _renderProjects = projectRows => [
-  projectRows.length > 0 ?
-    listItem({title: 'Projects You Manage', header: true}) :
-    null,
-  ...projectRows.map(({name,$key}) =>
-    listItem(
-      {title: name, subtitle: 'project',
-      link: '/project/' + $key, className: 'project'}
-    )
-  ),
-]
+import {NavClicker} from 'components'
+import {Projects, Engagements} from 'components/remote'
+import {ProjectList} from 'components/projects'
 
 const _label = ({isApplied, isAccepted, isConfirmed}) =>
   isConfirmed && 'Confirmed' ||
@@ -40,7 +29,7 @@ const _renderEngagements = (title, engagementRows) => [
   ),
 ]
 
-const _render = ({projectRows, projectFormDOM, engagementRows}) =>
+const _render = ({projects, projectListDOM, projectFormDOM, engagements}) =>
   col(
     importantTip('The Sparks.Network is not open to the public right now.'),
     `
@@ -51,52 +40,44 @@ const _render = ({projectRows, projectFormDOM, engagementRows}) =>
     If you'd like to be part of our Early Access Program, contact us below!
     `,
     projectFormDOM,
-    ..._renderProjects(projectRows),
+    projects.length > 0 ?
+      listItem({title: 'Projects You Manage', header: true}) :
+      null,
+    projectListDOM,
     ..._renderEngagements('Applied To',
-      engagementRows
+      engagements
         .filter(e => e.isApplied && !e.isAccepted && !e.isConfirmed),
     ),
   )
 
-const _redirectResponses = ({responses$}) => responses$
-  .filter(({domain,event}) => domain === 'Projects' && event === 'create')
-  .map(response => '/project/' + response.payload)
-
 export default sources => {
-  const project$ = Observable.just({})
-
   const projects$ = sources.userProfileKey$
-    .flatMapLatest(profileKey => sources.firebase('Projects',{
-      orderByChild: 'ownerProfileKey', equalTo: profileKey,
-    }))
-
-  const projectRows$ = projects$.map(rows)
+    .flatMapLatest(Projects.query.byOwner(sources))
 
   const engagements$ = sources.userProfileKey$
-    .flatMapLatest(profileKey => sources.firebase('Engagements',{
-      orderByChild: 'profileKey', equalTo: profileKey,
-    }))
+    .flatMapLatest(Engagements.query.byUser(sources))
 
-  const engagementRows$ = engagements$.map(rows)
+  const projectForm = isolate(ProjectForm)({
+    ...sources,
+    project$: just({}),
+  })
 
-  const projectForm = isolate(ProjectForm)({project$, ...sources})
+  const projectList = isolate(ProjectList)({...sources, projects$})
 
-  const newProject$ = projectForm.project$
-    .filter(p => p !== {})
+  const queue$ = projectForm.project$
+    .map(Projects.action.create)
 
-  const queue$ = newProject$.map(Projects.create)
-
-  const nav$ = sources.DOM.select('.project').events('click')
-    .map(e => e.ownerTarget.dataset.link)
-
-  const redirect$ = _redirectResponses(sources)
-
-  const route$ = Observable.merge(nav$, redirect$)
+  const route$ = Observable.merge(
+    projectList.route$,
+    NavClicker(sources).route$,
+    Projects.redirect.create(sources).route$,
+  )
 
   const viewState = {
-    projectRows$,
+    projectListDOM$: projectList.DOM,
     projectFormDOM$: projectForm.DOM,
-    engagementRows$,
+    projects$,
+    engagements$,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
