@@ -1,4 +1,4 @@
-// WIP extracting remote data fetching and parsing to wrap in convenience methods
+// WIP extracting remote data interface
 import {rows, byMatch} from 'util'
 
 const filterAll = collection => sources => () =>
