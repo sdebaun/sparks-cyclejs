@@ -1,10 +1,15 @@
+import {Observable} from 'rx'
+const {merge} = Observable
+
 import combineLatestObj from 'rx-combine-latest-obj'
 import modal from 'helpers/modal'
 
-const _submitAction$ = ({DOM}) =>
-  DOM.select('.submit').events('click').map(true)
-
-const makeModal = ({title, iconName, submitLabel = 'OK', closeLabel = 'CANCEL'}) =>
+const makeModal = ({
+  title,
+  iconName,
+  submitLabel = 'OK',
+  closeLabel = 'CANCEL',
+}) =>
   sources => {
     const _modalRender = ({isOpen, contentDOM}) =>
       modal({
@@ -16,10 +21,15 @@ const makeModal = ({title, iconName, submitLabel = 'OK', closeLabel = 'CANCEL'})
         content: contentDOM,
       })
 
-    const submit$ = _submitAction$(sources)
+    const submit$ = sources.DOM.select('.submit').events('click')
 
-    const isOpen$ = sources.isOpen$
-      .merge(submit$.map(false))
+    const close$ = sources.DOM.select('.close').events('click')
+
+    const isOpen$ = merge(
+      sources.isOpen$,
+      submit$.map(false),
+      close$.map(false),
+    )
 
     const viewState = {
       isOpen$,
@@ -31,6 +41,7 @@ const makeModal = ({title, iconName, submitLabel = 'OK', closeLabel = 'CANCEL'})
     return {
       DOM,
       submit$,
+      close$,
     }
   }
 

@@ -2,6 +2,8 @@ import {Observable} from 'rx'
 const {empty, just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
+import isolate from '@cycle/isolate'
+
 import {col, div} from 'helpers'
 import listItem from 'helpers/listItem'
 import menuItem from 'helpers/menuItem'
@@ -9,6 +11,7 @@ import {DropdownMenu} from 'components/DropdownMenu'
 
 import makeInputControl from 'components/InputControlFactory'
 import {Commitments} from 'components/remote'
+import {makeMenuItemPopup} from 'components/ui'
 
 import {log} from 'util'
 
@@ -52,14 +55,6 @@ const _render = ({dropdownDOM, getHelpModalDOM}) =>
     getHelpModalDOM,
   )
 
-import {makeModal} from 'components/ui'
-
-const GetHelpModal = makeModal({
-  title: 'a title',
-  icon: 'power',
-})
-
-
 const WhoInput = makeInputControl({
   label: 'Who is being helped?',
   className: 'help',
@@ -86,36 +81,29 @@ const GetHelpForm = sources => {
   }
 }
 
+const GetHelpItemPopup = makeMenuItemPopup({
+  iconName: 'users',
+  title: 'To help a community',
+  className: 'get-help',
+})
+
 const GetHelp = sources => {
-  const isOpen$ = sources.DOM.select('.get-help').events('click')
-    .map(true)
-    .startWith(false)
   const f = GetHelpForm(sources)
-  const m = GetHelpModal({contentDOM$: f.DOM, isOpen$, ...sources})
-
-  const itemDOM = just(
-    menuItem({
-      iconName: 'users',
-      title: 'To help a community',
-      className: 'get-help',
-    }),
-  )
-
-  const modalDOM = m.DOM
+  const control = GetHelpItemPopup({contentDOM$: f.DOM, ...sources})
 
   const commitment$ = f.commitment$
-    .sample(m.submit$)
+    .sample(control.submit$)
+    .map(c => ({code: 'help', ...c}))
 
   return {
-    itemDOM,
-    modalDOM,
+    itemDOM: control.itemDOM,
+    modalDOM: control.modalDOM,
+    submit$: control.submit$,
     commitment$,
   }
 }
 
 export const AddCommitmentGet = sources => {
-  const isOpen$ = _openActions$(sources).startWith(false)
-
   const getHelp = GetHelp(sources)
 
   const children$ = just([div({},[
@@ -124,6 +112,9 @@ export const AddCommitmentGet = sources => {
     benefits(),
     extras(),
   ])])
+
+  const isOpen$ = _openActions$(sources).startWith(false)
+    .merge(getHelp.submit$.map(false))
 
   const dropdown = DropdownMenu({...sources, isOpen$, children$})
 
@@ -141,7 +132,6 @@ export const AddCommitmentGet = sources => {
   return {
     DOM,
     isOpen$,
-    queue$: empty(),
     commitment$,
   }
 }

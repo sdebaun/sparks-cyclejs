@@ -21,9 +21,9 @@ const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
 
 const CommitmentList = sources => ({
   DOM: sources.commitments$.map(rows =>
-    div({}, rows.map(({$key}) =>
+    div({}, rows.map(({code, $key}) =>
       listItem(
-        {title: $key, className: 'commitment', clickable: true}
+        {title: code, className: 'commitment', clickable: true}
       )
     ))
   ),
