@@ -17,7 +17,7 @@ import codeIcons from 'components/opp/codeIcons'
 
 const SchwagWhoInput = makeInputControl({
   label: 'What will they get?',
-  className: 'schwag',
+  className: 'schwag-what',
 })
 
 const GetSchwagForm = sources => Form({...sources,
@@ -87,7 +87,7 @@ const GetTicket = makeMenuItemFormPopup({
 
 const HelpWhoInput = makeInputControl({
   label: 'Who are they helping?',
-  className: 'help',
+  className: 'help-who',
 })
 
 const GetHelpForm = sources => Form({...sources,
@@ -152,7 +152,7 @@ export const AddCommitmentGet = sources => {
 
   const commitment$ = merge(
     getHelp.item$.map(c => ({...c, code: 'help'})),
-    getTicket.item$.map(c => ({...c, code: 'pass'})),
+    getTicket.item$.map(c => ({...c, code: 'ticket'})),
     getTracked.item$.map(c => ({...c, code: 'tracked'})),
     getSchwag.item$.map(c => ({...c, code: 'schwag'})),
   ).map(c => ({...c, party: 'org'}))

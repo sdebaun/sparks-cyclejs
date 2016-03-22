@@ -42,7 +42,7 @@ const makeMenuItemFormPopup = ({
 }) => sources => {
   const ItemControl = makeMenuItemPopup({title, iconName, className})
 
-  const form = FormControl(sources)
+  const form = isolate(FormControl)(sources)
   const control = ItemControl({contentDOM$: form.DOM, ...sources})
 
   const item$ = form.item$

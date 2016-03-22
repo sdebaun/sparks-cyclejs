@@ -11,6 +11,8 @@ import listItem from 'helpers/listItem'
 import menuItem from 'helpers/menuItem'
 
 import codeIcons from 'components/opp/codeIcons'
+import codeTitles from 'components/opp/codeTitles'
+
 import {DropdownMenu} from 'components/DropdownMenu'
 
 import {log} from 'util'
@@ -45,10 +47,10 @@ const CommitmentItem = sources => {
 
   queue$.subscribe(log('CI/queue$'))
 
-  const DOM = sources.item$.map(({code}) =>
+  const DOM = sources.item$.map(({code, ...vals}) =>
     div({},[
       listItem({
-        title: code,
+        title: codeTitles[code](vals),
         iconName: codeIcons[code],
         className: 'commitment',
         clickable: true,

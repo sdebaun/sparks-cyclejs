@@ -35,7 +35,7 @@ const PaymentAmountInput = makeInputControl({
 })
 
 const GivePaymentForm = sources => Form({...sources,
-  Controls$: just([{field: 'count', Control: PaymentAmountInput}]),
+  Controls$: just([{field: 'amount', Control: PaymentAmountInput}]),
 })
 
 const GivePayment = makeMenuItemFormPopup({
@@ -51,7 +51,7 @@ const LegalNameInput = makeInputControl({
 })
 
 const GiveWaiverForm = sources => Form({...sources,
-  Controls$: just([{field: 'count', Control: LegalNameInput}]),
+  Controls$: just([{field: 'who', Control: LegalNameInput}]),
 })
 
 const GiveWaiver = makeMenuItemFormPopup({
@@ -67,7 +67,7 @@ const DepositAmountInput = makeInputControl({
 })
 
 const GiveDepositForm = sources => Form({...sources,
-  Controls$: just([{field: 'count', Control: DepositAmountInput}]),
+  Controls$: just([{field: 'amount', Control: DepositAmountInput}]),
 })
 
 const GiveDeposit = makeMenuItemFormPopup({
