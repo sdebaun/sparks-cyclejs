@@ -6,7 +6,7 @@ import './styles.scss'
 
 const tabs = (props,children) =>
   children && div({class: {'tab-wrap': true}, style: {
-    'background-color': material.primaryColor,
+    // 'background-color': material.primaryColor,
   }},
     children.reduce((a,b) => a.concat(b))
       .concat([div({class: {slide: true}},'')])

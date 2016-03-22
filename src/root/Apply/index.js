@@ -24,13 +24,13 @@ const _routes = {
 }
 
 const _render = ({
-  titleDOM,
+  // titleDOM,
   applyQuickNavMenuDOM,
   pageDOM,
   projectDescription,
 }) =>
   col(
-    titleDOM,
+    // titleDOM,
     textTweetSized(projectDescription),
     applyQuickNavMenuDOM,
     pageDOM,
@@ -39,13 +39,11 @@ const _render = ({
 export default sources => {
   const projectKey$ = sources.projectKey$
 
-  // const projectImage$ = projectKey$
-    // .flatMapLatest(projectKey =>
-    //   sources.firebase('ProjectImages',projectKey)
-    // )
-
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
+
+  const projectImage$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
 
   // const teams$ = projectKey$
   //   .flatMapLatest(projectKey => sources.firebase('Teams',{
@@ -66,6 +64,7 @@ export default sources => {
     subLabelText$: oppRows$.map(opps =>
       opps.length + ' Opportunities Available'
     ),
+    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
     oppRows$,
     ...sources,
   })
@@ -78,7 +77,7 @@ export default sources => {
   })
 
   const viewState = {
-    titleDOM$: title.DOM,
+    // titleDOM$: title.DOM,
     applyQuickNavMenuDOM$: applyQuickNavMenu.DOM,
     pageDOM$: page$.flatMapLatest(({DOM}) => DOM),
     projectDescription: project$.pluck('description'),
@@ -87,7 +86,11 @@ export default sources => {
   const pageDOM = combineLatestObj(viewState)
     .map(_render)
 
-  const frame = SoloFrame({pageDOM, ...sources})
+  const frame = SoloFrame({
+    pageDOM,
+    headerDOM: title.DOM,
+    ...sources,
+  })
 
   const children = [frame, page$, applyQuickNavMenu]
 

@@ -37,6 +37,9 @@ export default sources => {
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
 
+  const projectImage$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
+
   const teams$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Teams',{
       orderByChild: 'projectKey',
@@ -68,6 +71,7 @@ export default sources => {
     tabsDOM$: tabsDOM,
     labelText$,
     subLabelText$,
+    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
     ...sources,
   })
 
