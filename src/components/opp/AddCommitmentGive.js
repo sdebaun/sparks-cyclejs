@@ -7,11 +7,14 @@ import listItem from 'helpers/listItem'
 import menuItem from 'helpers/menuItem'
 import {DropdownMenu} from 'components/DropdownMenu'
 
+import {Form, makeMenuItemFormPopup} from 'components/ui'
+import makeInputControl from 'components/InputControlFactory'
+
 import {log} from 'util'
 
-const _openActions$ = ({DOM}) => Observable.merge(
-  DOM.select('.clickable').events('click').map(() => true),
-)
+// const _openActions$ = ({DOM}) => Observable.merge(
+//   DOM.select('.clickable').events('click').map(() => true),
+// )
 
 const shifts =
   menuItem({
@@ -47,40 +50,10 @@ const _render = ({dropdownDOM, giveWaiverModalDOM, giveDepositModalDOM}) =>
     giveDepositModalDOM,
   )
 
-import {makeMenuItemFormPopup} from 'components/ui'
-import makeInputControl from 'components/InputControlFactory'
-
 const WhoInput = makeInputControl({
   label: 'Who is being helped?',
   className: 'help',
 })
-
-const Form = sources => {
-  // sources.Controls$ is an array of components
-
-  // controls$ is array of the created components (sink collections technically)
-  const controls$ = sources.Controls$.map(Controls =>
-    Controls.map(({field,Control}) => ({field, control: Control(sources)}))
-  )
-
-  // item$ gets their values$
-  const item$ = controls$.flatMapLatest(controls =>
-    combineLatestObj(
-      controls.reduce((a, {field,control}) =>
-        (a[field] = control.value$) && a, {}
-      )
-    )
-  )
-
-  const DOM = controls$.map(controls =>
-    div({}, controls.map(({control}) => control.DOM))
-  )
-
-  return {
-    DOM,
-    item$,
-  }
-}
 
 const GiveWaiverForm = sources => {
   const Controls$ = just([
@@ -90,46 +63,17 @@ const GiveWaiverForm = sources => {
   return Form({...sources, Controls$})
 }
 
-const OldGiveWaiverForm = sources => {
-  const whoInput = WhoInput(sources)
-
-  const item$ = combineLatestObj({
-    who$: whoInput.value$,
-  })
-
-  const viewState = {
-    whoInputDOM: whoInput.DOM,
-  }
-
-  const DOM = combineLatestObj(viewState).map(({whoInputDOM}) =>
-    col(whoInputDOM)
-  )
-
-  return {
-    DOM,
-    item$,
-  }
-}
+const DepositAmountInput = makeInputControl({
+  label: 'How much is their Deposit?',
+  className: 'deposit',
+})
 
 const GiveDepositForm = sources => {
-  const whoInput = WhoInput(sources)
+  const Controls$ = just([
+    {field: 'amount', Control: DepositAmountInput},
+  ])
 
-  const item$ = combineLatestObj({
-    who$: whoInput.value$,
-  })
-
-  const viewState = {
-    whoInputDOM: whoInput.DOM,
-  }
-
-  const DOM = combineLatestObj(viewState).map(({whoInputDOM}) =>
-    col(whoInputDOM)
-  )
-
-  return {
-    DOM,
-    item$,
-  }
+  return Form({...sources, Controls$})
 }
 
 const GiveWaiver = makeMenuItemFormPopup({
@@ -157,9 +101,11 @@ export const AddCommitmentGive = sources => {
     giveDeposit.itemDOM,
   ])])
 
-  const isOpen$ = _openActions$(sources).startWith(false)
+  const isOpen$ = sources.DOM.select('.clickable').events('click')
+    .map(true)
     .merge(giveWaiver.submit$.map(false))
     .merge(giveDeposit.submit$.map(false))
+    .startWith(false)
 
   const dropdown = DropdownMenu({...sources, isOpen$, children$})
 
