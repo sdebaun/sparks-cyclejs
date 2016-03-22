@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-// const {merge, empty} = Observable
+const {just, merge, empty} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
@@ -8,8 +8,12 @@ import {Commitments} from 'components/remote'
 
 import {div} from 'helpers'
 import listItem from 'helpers/listItem'
+import menuItem from 'helpers/menuItem'
 
-// import {log} from 'util'
+import codeIcons from 'components/opp/codeIcons'
+import {DropdownMenu} from 'components/DropdownMenu'
+
+import {log} from 'util'
 
 const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
   div({}, [
@@ -19,15 +23,86 @@ const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
     getListDOM,
   ])
 
-const CommitmentList = sources => ({
-  DOM: sources.commitments$.map(rows =>
-    div({}, rows.map(({code}) =>
-      listItem(
-        {title: code, className: 'commitment', clickable: true}
-      )
-    ))
-  ),
-})
+const CommitmentItem = sources => {
+  const openClick$ = sources.DOM.select('.commitment').events('click')
+
+  const isOpen$ = openClick$.map(true)
+    .startWith(false)
+
+  const menuItems = just([
+    // menuItem({title: 'Edit', iconName: 'pencil', className: 'edit', clickable: true}),
+    menuItem({title: 'Delete', iconName: 'remove', className: 'delete', clickable: true}),
+  ])
+
+  const deleteClick$ = sources.DOM.select('.delete').events('click')
+  const editClick$ = sources.DOM.select('.edit').events('click')
+
+  const dropdown = DropdownMenu({...sources, isOpen$, children$: menuItems})
+
+  const queue$ = sources.item$
+    .sample(deleteClick$)
+    .map(({$key}) => Commitments.action.remove($key))
+
+  queue$.subscribe(log('CI/queue$'))
+
+  const DOM = sources.item$.map(({code}) =>
+    div({},[
+      listItem({
+        title: code,
+        iconName: codeIcons[code],
+        className: 'commitment',
+        clickable: true,
+      }),
+      dropdown.DOM,
+    ])
+  )
+
+  return {
+    DOM,
+    queue$,
+  }
+}
+
+const CommitmentList = sources => {
+  const children$ = sources.commitments$
+  .distinctUntilChanged()
+  .map(rows =>
+    rows.map(row => isolate(CommitmentItem)({item$: just(row), ...sources}))
+    // rows.map(row => CommitmentItem({item$: just(row), ...sources}))
+  )
+
+  children$.subscribe(log('children$'))
+
+  const DOM = children$.map(children =>
+    div({},children.map(c => c.DOM))
+  )
+  const queue$ = children$.flatMapLatest(children =>
+  //   // merge(...children.map(c => c.queue$))
+    merge(...children.map(c => c.queue$))
+  )
+  // const childQueues$ = children$
+  //   .map(children => children
+  //     .map(c => c.queue$.subscribe(log('child.queue2')) && c.queue$)
+  //   )
+
+  // childQueues$.subscribe(log('CL/childQueues$'))
+  // childQueues$.subscribe(queues =>
+  //   queues.forEach(q => q.subscribe(log('child.queue$')))
+  // )
+
+  // const queue$ = childQueues$
+  //   .flatMapLatest(queues => merge(...queues))
+
+  // children$.flatMapLatest(cs => cs.map(c => c.queue$))
+
+  queue$.subscribe(log('CL/queue$'))
+
+  return {
+    DOM,
+    // queue$,
+    queue$: empty(),
+  }
+}
 
 export default sources => {
   const commitments$ = sources.oppKey$
@@ -47,9 +122,19 @@ export default sources => {
     addGet.commitment$,
   )
 
-  const queue$ = commitment$
+  const createQueues$ = commitment$
     .combineLatest(sources.oppKey$, (action,oppKey) => ({...action, oppKey}))
     .map(Commitments.action.create)
+
+  const itemQueues$ = merge(
+    giveList.queue$,
+    getList.queue$,
+  )
+
+  const queue$ = merge(
+    createQueues$,
+    itemQueues$,
+  )
 
   const viewState = {
     addGiveDOM: addGive.DOM,
