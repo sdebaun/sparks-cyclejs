@@ -47,6 +47,7 @@ export const Commitments = {
   },
   action: {
     create: actionCreator('Commitments', 'create'),
+    remove: actionCreator('Commitments', 'remove'),
   },
 }
 
