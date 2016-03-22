@@ -62,6 +62,7 @@ export default sources => {
     tabsDOM$: tabsDOM,
     labelText$,
     subLabelText$,
+    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
     ...sources,
   })
 

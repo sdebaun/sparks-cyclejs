@@ -63,6 +63,9 @@ export default sources => {
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
 
+  const projectImage$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
+
   const page$ = nestedComponent(
     sources.router.define(_routes),
     {team$, project$, projectKey$, ...sources}
@@ -78,6 +81,7 @@ export default sources => {
     tabsDOM$: tabBar.DOM,
     labelText$: team$.pluck('name'),
     subLabelText$: Observable.just('At a Glance'), // eventually page$.something
+    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
     ...sources,
   })
 
