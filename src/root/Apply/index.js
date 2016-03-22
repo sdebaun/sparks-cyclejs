@@ -24,13 +24,13 @@ const _routes = {
 }
 
 const _render = ({
-  titleDOM,
+  // titleDOM,
   applyQuickNavMenuDOM,
   pageDOM,
   projectDescription,
 }) =>
   col(
-    titleDOM,
+    // titleDOM,
     textTweetSized(projectDescription),
     applyQuickNavMenuDOM,
     pageDOM,
@@ -77,7 +77,7 @@ export default sources => {
   })
 
   const viewState = {
-    titleDOM$: title.DOM,
+    // titleDOM$: title.DOM,
     applyQuickNavMenuDOM$: applyQuickNavMenu.DOM,
     pageDOM$: page$.flatMapLatest(({DOM}) => DOM),
     projectDescription: project$.pluck('description'),
@@ -86,7 +86,11 @@ export default sources => {
   const pageDOM = combineLatestObj(viewState)
     .map(_render)
 
-  const frame = SoloFrame({pageDOM, ...sources})
+  const frame = SoloFrame({
+    pageDOM,
+    headerDOM: title.DOM,
+    ...sources,
+  })
 
   const children = [frame, page$, applyQuickNavMenu]
 

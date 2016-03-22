@@ -30,7 +30,7 @@ export default ({image$}) => {
       .map(src => reactComponent(Cropper, {
         src,
         onCrop: e => cropped$.onNext(e),
-        aspectRatio: 300/120,
+        aspectRatio: 300 / 120, // HAX
       }, 'update')),
   }
 }

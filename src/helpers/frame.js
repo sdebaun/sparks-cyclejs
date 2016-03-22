@@ -1,11 +1,14 @@
 import {div} from 'cycle-snabbdom'
 
 export const mobileFrame = ({sideNav, appBar, header, page}) =>
-  div({}, [sideNav, appBar, header, div({style: {padding: '0em 1em'}}, [page])])
+  div({class: {frame: true}}, [
+    sideNav, appBar, header, div({style: {padding: '0em 1em'}}, [page]),
+  ])
 
 const navlessStyle = {
-  maxWidth: '1024px',
+  maxWidth: '800px',
   margin: 'auto',
+  // display: 'flex',
 }
 
 const withSidenav = (sideNav, header, page) =>
