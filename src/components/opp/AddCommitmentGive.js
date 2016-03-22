@@ -7,7 +7,7 @@ import listItem from 'helpers/listItem'
 import menuItem from 'helpers/menuItem'
 import {DropdownMenu} from 'components/DropdownMenu'
 
-// import {log} from 'util'
+import {log} from 'util'
 
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.clickable').events('click').map(() => true),
@@ -55,7 +55,42 @@ const WhoInput = makeInputControl({
   className: 'help',
 })
 
+const Form = sources => {
+  // sources.Controls$ is an array of components
+
+  // controls$ is array of the created components (sink collections technically)
+  const controls$ = sources.Controls$.map(Controls =>
+    Controls.map(({field,Control}) => ({field, control: Control(sources)}))
+  )
+
+  // item$ gets their values$
+  const item$ = controls$.flatMapLatest(controls =>
+    combineLatestObj(
+      controls.reduce((a, {field,control}) =>
+        (a[field] = control.value$) && a, {}
+      )
+    )
+  )
+
+  const DOM = controls$.map(controls =>
+    div({}, controls.map(({control}) => control.DOM))
+  )
+
+  return {
+    DOM,
+    item$,
+  }
+}
+
 const GiveWaiverForm = sources => {
+  const Controls$ = just([
+    {field: 'who', Control: WhoInput},
+  ])
+
+  return Form({...sources, Controls$})
+}
+
+const OldGiveWaiverForm = sources => {
   const whoInput = WhoInput(sources)
 
   const item$ = combineLatestObj({
