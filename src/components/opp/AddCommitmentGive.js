@@ -2,15 +2,14 @@ import {Observable} from 'rx'
 const {just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import {col, div} from 'helpers'
+import {div} from 'helpers'
 import listItem from 'helpers/listItem'
-import menuItem from 'helpers/menuItem'
 import {DropdownMenu} from 'components/DropdownMenu'
 
 import {Form, makeMenuItemFormPopup} from 'components/ui'
 import makeInputControl from 'components/InputControlFactory'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const ShiftCountInput = makeInputControl({
   label: 'How many shifts?',
@@ -49,13 +48,9 @@ const LegalNameInput = makeInputControl({
   className: 'legal-name',
 })
 
-const GiveWaiverForm = sources => {
-  const Controls$ = just([
-    {field: 'who', Control: LegalNameInput},
-  ])
-
-  return Form({...sources, Controls$})
-}
+const GiveWaiverForm = sources => Form({...sources,
+  Controls$: just([{field: 'count', Control: LegalNameInput}]),
+})
 
 const GiveWaiver = makeMenuItemFormPopup({
   FormControl: GiveWaiverForm,
@@ -69,13 +64,9 @@ const DepositAmountInput = makeInputControl({
   className: 'deposit',
 })
 
-const GiveDepositForm = sources => {
-  const Controls$ = just([
-    {field: 'amount', Control: DepositAmountInput},
-  ])
-
-  return Form({...sources, Controls$})
-}
+const GiveDepositForm = sources => Form({...sources,
+  Controls$: just([{field: 'count', Control: DepositAmountInput}]),
+})
 
 const GiveDeposit = makeMenuItemFormPopup({
   FormControl: GiveDepositForm,
