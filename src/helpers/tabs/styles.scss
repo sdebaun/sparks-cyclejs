@@ -4,6 +4,14 @@ $grey: #9e9e9e;
 
 $num-of-tabs: 3;
 
+.tab-wrap {
+  background-color: rgb(102,102,102);
+}
+
+.title .tab-wrap {
+  background-color: transparent;
+}
+
 @mixin tabs {
   @for $i from 1 through $num-of-tabs {
     &:nth-of-type(#{$i}) {

@@ -39,13 +39,11 @@ const _render = ({
 export default sources => {
   const projectKey$ = sources.projectKey$
 
-  // const projectImage$ = projectKey$
-    // .flatMapLatest(projectKey =>
-    //   sources.firebase('ProjectImages',projectKey)
-    // )
-
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
+
+  const projectImage$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
 
   // const teams$ = projectKey$
   //   .flatMapLatest(projectKey => sources.firebase('Teams',{
@@ -66,6 +64,7 @@ export default sources => {
     subLabelText$: oppRows$.map(opps =>
       opps.length + ' Opportunities Available'
     ),
+    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
     oppRows$,
     ...sources,
   })
