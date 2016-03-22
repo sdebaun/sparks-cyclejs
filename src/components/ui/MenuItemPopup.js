@@ -33,7 +33,14 @@ const makeMenuItemPopup = ({iconName, title, className}) => sources => {
   }
 }
 
-const makeMenuItemFormPopup = ({FormControl, ItemControl}) => sources => {
+const makeMenuItemFormPopup = ({
+  FormControl,
+  title = 'No Title',
+  iconName,
+  className,
+}) => sources => {
+  const ItemControl = makeMenuItemPopup({title, iconName, className})
+
   const form = FormControl(sources)
   const control = ItemControl({contentDOM$: form.DOM, ...sources})
 
