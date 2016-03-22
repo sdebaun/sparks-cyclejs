@@ -52,5 +52,5 @@ const modal = ({title, iconName, content, submitLabel, closeLabel}) =>
   // ])
 
 export default ({isOpen, ...props}) =>
-  isOpen && modal(props) || null
+  isOpen && modal(props) || div({},[])
 

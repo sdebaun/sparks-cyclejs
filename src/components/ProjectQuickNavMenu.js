@@ -46,7 +46,7 @@ const _render = ({isOpen, project, teams, opps}) =>
     isOpen,
     className: 'project-menu-button', // necessary with isolate?
     label: project.name,
-    menu: {rightAlign: true},
+    menu: {rightAlign: false},
     items: _menuItems(project,teams,opps),
   })
 
