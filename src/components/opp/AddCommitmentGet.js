@@ -2,48 +2,105 @@ import {Observable} from 'rx'
 const {just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
-// import isolate from '@cycle/isolate'
-
-import {col, div} from 'helpers'
+import {div} from 'helpers'
 import listItem from 'helpers/listItem'
-import menuItem from 'helpers/menuItem'
 import {DropdownMenu} from 'components/DropdownMenu'
 
+import {Form, makeMenuItemFormPopup} from 'components/ui'
 import makeInputControl from 'components/InputControlFactory'
-import {makeMenuItemPopup} from 'components/ui'
 
 // import {log} from 'util'
 
-const _openActions$ = ({DOM}) => Observable.merge(
-  DOM.select('.clickable').events('click').map(() => true),
-)
+// SCHWAG
 
-// const toHelp = () =>
-//   menuItem({
-//     iconName: 'users',
-//     title: 'To help with __________',
-//   })
+const SchwagWhoInput = makeInputControl({
+  label: 'What will they get?',
+  className: 'schwag',
+})
 
-const ticketTo = () =>
-  menuItem({
-    iconName: 'ticket',
-    title: 'A ticket to __________',
-  })
+const GetSchwagForm = sources => Form({...sources,
+  Controls$: just([{field: 'what', Control: SchwagWhoInput}]),
+})
 
-const benefits = () =>
-  menuItem({
-    iconName: 'insert_invitation',
-    title: 'The awesome benefits of ......',
-  })
+const GetSchwag = makeMenuItemFormPopup({
+  FormControl: GetSchwagForm,
+  title: 'Cool Schwag',
+  iconName: 'gift',
+  className: 'schwag',
+})
 
-const extras = () =>
-  menuItem({
-    iconName: 'build',
-    title: 'All these awesome extras: _________',
-  })
+// TRACKED
 
-const _render = ({dropdownDOM, getHelpModalDOM}) =>
-  col(
+const TrackedCountInput = makeInputControl({
+  label: 'How many are they getting?',
+  className: 'tracked-count',
+})
+
+const TrackedDescriptionInput = makeInputControl({
+  label: 'What are they getting?',
+  className: 'tracked-description',
+})
+
+const GetTrackedForm = sources => Form({...sources,
+  Controls$: just([
+    {field: 'count', Control: TrackedCountInput},
+    {field: 'description', Control: TrackedDescriptionInput},
+  ]),
+})
+
+const GetTracked = makeMenuItemFormPopup({
+  FormControl: GetTrackedForm,
+  title: 'Tracked consumables',
+  iconName: 'restaurant',
+  className: 'tracked',
+})
+
+// TICKET
+
+const EventCodeInput = makeInputControl({
+  label: 'What is your Eventbrite Event Code?',
+  className: 'event-code',
+})
+
+const TicketTypeInput = makeInputControl({
+  label: 'What is your Eventbrite Ticket Type?',
+  className: 'ticket-type',
+})
+
+const GetTicketForm = sources => Form({...sources,
+  Controls$: just([
+    {field: 'eventCode', Control: EventCodeInput},
+    {field: 'ticketType', Control: TicketTypeInput},
+  ]),
+})
+
+const GetTicket = makeMenuItemFormPopup({
+  FormControl: GetTicketForm,
+  title: 'A Ticket to an event',
+  iconName: 'ticket',
+  className: 'ticket',
+})
+
+// HELP
+
+const HelpWhoInput = makeInputControl({
+  label: 'Who are they helping?',
+  className: 'help',
+})
+
+const GetHelpForm = sources => Form({...sources,
+  Controls$: just([{field: 'who', Control: HelpWhoInput}]),
+})
+
+const GetHelp = makeMenuItemFormPopup({
+  FormControl: GetHelpForm,
+  title: 'To help a community',
+  iconName: 'heart',
+  className: 'help',
+})
+
+const _render = ({dropdownDOM, modalDOMs}) =>
+  div({},[
     listItem({
       iconName: 'plus',
       title: 'What do Volunteers GET?',
@@ -51,82 +108,52 @@ const _render = ({dropdownDOM, getHelpModalDOM}) =>
       clickable: true,
     }),
     dropdownDOM,
-    getHelpModalDOM,
-  )
-
-const WhoInput = makeInputControl({
-  label: 'Who is being helped?',
-  className: 'help',
-})
-
-const GetHelpForm = sources => {
-  const whoInput = WhoInput(sources)
-
-  const commitment$ = combineLatestObj({
-    who$: whoInput.value$,
-  })
-
-  const viewState = {
-    whoInputDOM: whoInput.DOM,
-  }
-
-  const DOM = combineLatestObj(viewState).map(({whoInputDOM}) =>
-    col(whoInputDOM)
-  )
-
-  return {
-    DOM,
-    commitment$,
-  }
-}
-
-const GetHelpItemPopup = makeMenuItemPopup({
-  iconName: 'users',
-  title: 'To help a community',
-  className: 'get-help',
-})
-
-const GetHelp = sources => {
-  const f = GetHelpForm(sources)
-  const control = GetHelpItemPopup({contentDOM$: f.DOM, ...sources})
-
-  const commitment$ = f.commitment$
-    .sample(control.submit$)
-    .map(c => ({code: 'help', ...c}))
-
-  return {
-    itemDOM: control.itemDOM,
-    modalDOM: control.modalDOM,
-    submit$: control.submit$,
-    commitment$,
-  }
-}
+    ...modalDOMs,
+  ])
 
 export const AddCommitmentGet = sources => {
   const getHelp = GetHelp(sources)
+  const getTicket = GetTicket(sources)
+  const getTracked = GetTracked(sources)
+  const getSchwag = GetSchwag(sources)
 
-  const children$ = just([div({},[
-    getHelp.itemDOM,
-    ticketTo(),
-    benefits(),
-    extras(),
-  ])])
+  const children = [
+    getHelp,
+    getTicket,
+    getTracked,
+    getSchwag,
+  ]
 
-  const isOpen$ = _openActions$(sources).startWith(false)
-    .merge(getHelp.submit$.map(false))
+  const menuItemDOMs$ = just([div({},
+    children.map(c => c.itemDOM)
+  )])
 
-  const dropdown = DropdownMenu({...sources, isOpen$, children$})
+  const modalDOMs$ = just(
+    children.map(c => c.modalDOM)
+  )
+
+  const submits$ = merge(...children.map(c => c.submit$))
+
+  const isOpen$ = sources.DOM.select('.clickable').events('click')
+    .map(true)
+    .merge(submits$.map(false))
+    .startWith(false)
+
+  const dropdown = DropdownMenu({...sources, isOpen$, children$: menuItemDOMs$})
 
   const viewState = {
     dropdownDOM$: dropdown.DOM,
-    getHelpModalDOM$: getHelp.modalDOM,
+    modalDOMs$,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
 
   const commitment$ = merge(
-    getHelp.commitment$,
-  ).map(c => ({party: 'org', ...c}))
+    getHelp.item$.map(c => ({...c, code: 'help'})),
+    getTicket.item$.map(c => ({...c, code: 'pass'})),
+    getTracked.item$.map(c => ({...c, code: 'tracked'})),
+    getSchwag.item$.map(c => ({...c, code: 'schwag'})),
+  ).map(c => ({...c, party: 'org'}))
 
   return {
     DOM,
