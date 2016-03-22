@@ -83,13 +83,20 @@ const GiveWaiverForm = sources => {
   }
 }
 
-const GiveWaiverItemPopup = makeMenuItemPopup({
-  iconName: 'event_available',
-  title: 'A Liability Waiver',
-  className: 'waiver',
-})
+// const GiveWaiverItemPopup = makeMenuItemPopup({
+//   iconName: 'event_available',
+//   title: 'A Liability Waiver',
+//   className: 'waiver',
+// })
 
-const makeMenuItemFormPopup = ({FormControl, ItemControl}) => sources => {
+const makeMenuItemFormPopup = ({
+  FormControl,
+  title = 'No Title',
+  iconName,
+  className,
+}) => sources => {
+  const ItemControl = makeMenuItemPopup({title, iconName, className})
+
   const form = FormControl(sources)
   const control = ItemControl({contentDOM$: form.DOM, ...sources})
 
@@ -106,7 +113,9 @@ const makeMenuItemFormPopup = ({FormControl, ItemControl}) => sources => {
 
 const GiveWaiver = makeMenuItemFormPopup({
   FormControl: GiveWaiverForm,
-  ItemControl: GiveWaiverItemPopup,
+  title: 'A Liability Waiver',
+  iconName: 'event_available',
+  className: 'waiver',
 })
 
 export const AddCommitmentGive = sources => {
@@ -132,8 +141,8 @@ export const AddCommitmentGive = sources => {
   const DOM = combineLatestObj(viewState).map(_render)
 
   const commitment$ = merge(
-    giveWaiver.commitment$,
-  ).map(c => ({party: 'vol', ...c}))
+    giveWaiver.item$.map(c => ({...c, code: 'waiver'})),
+  ).map(c => ({...c, party: 'vol'}))
 
   return {
     DOM,

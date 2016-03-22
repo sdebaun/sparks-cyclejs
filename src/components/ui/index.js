@@ -1,3 +1,5 @@
 export {makeModal} from './Modal'
-export {makeMenuItemPopup} from './MenuItemPopup'
-
+export {
+  makeMenuItemPopup,
+  makeMenuItemFormPopup,
+} from './MenuItemPopup'
