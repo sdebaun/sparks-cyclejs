@@ -5,14 +5,25 @@ import {div} from 'cycle-snabbdom'
 import {Appbar} from 'snabbdom-material'
 import {icon} from 'helpers'
 
+const style = (backgroundUrl) => ({
+  backgroundImage: backgroundUrl &&
+    'linear-gradient(rgba(0,0,0,0.60),rgba(0,0,0,0.90)), url(' + backgroundUrl + ')' ||
+    'linear-gradient(rgba(0,0,0,0.80),rgba(0,0,0,0.80))',
+  zIndex: 0,
+  color: 'white',
+  minHeight: '80px',
+  backgroundSize: 'cover',
+})
+
 const _DOM = ({
   isMobile,
+  backgroundUrl,
   labelText = 'No Label',
   subLabelText = '',
   quickNavDOM,
   tabsDOM,
 }) =>
-  div({style: {backgroundColor: '#666', color: '#FFF', minHeight: '80px'}},[
+  div({style: style(backgroundUrl)},[
     quickNavDOM,
     div({style: {padding: '0.5em', lineHeight: '48px'}},[
       isMobile && Appbar.Button({className: 'nav-button'}, [icon('menu')]),
