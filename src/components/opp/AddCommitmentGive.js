@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {empty, just, merge} = Observable
+const {just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {col, div} from 'helpers'
@@ -7,19 +7,19 @@ import listItem from 'helpers/listItem'
 import menuItem from 'helpers/menuItem'
 import {DropdownMenu} from 'components/DropdownMenu'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.clickable').events('click').map(() => true),
 )
 
-const waiver =
-  menuItem({
-    iconName: 'calendar-check-o',
-    title: 'A signed liability waiver',
-    iconBackgroundColor: 'red',
-    className: 'give.waiver',
-  })
+// const waiver =
+//   menuItem({
+//     iconName: 'calendar-check-o',
+//     title: 'A signed liability waiver',
+//     iconBackgroundColor: 'red',
+//     className: 'give.waiver',
+//   })
 
 const shifts =
   menuItem({

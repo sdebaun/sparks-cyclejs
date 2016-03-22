@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {merge, empty} = Observable
+// const {merge, empty} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
@@ -9,7 +9,7 @@ import {Commitments} from 'components/remote'
 import {div} from 'helpers'
 import listItem from 'helpers/listItem'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
   div({}, [
@@ -21,7 +21,7 @@ const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
 
 const CommitmentList = sources => ({
   DOM: sources.commitments$.map(rows =>
-    div({}, rows.map(({code, $key}) =>
+    div({}, rows.map(({code}) =>
       listItem(
         {title: code, className: 'commitment', clickable: true}
       )
@@ -42,14 +42,10 @@ export default sources => {
   const addGive = isolate(AddCommitmentGive)(sources)
   const addGet = isolate(AddCommitmentGet)(sources)
 
-  // addGet.commitment$.subscribe(log('commitment$'))
-
   const commitment$ = Observable.merge(
     addGive.commitment$,
     addGet.commitment$,
   )
-
-  // const commitment$ = empty()
 
   const queue$ = commitment$
     .combineLatest(sources.oppKey$, (action,oppKey) => ({...action, oppKey}))

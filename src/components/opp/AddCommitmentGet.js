@@ -1,8 +1,8 @@
 import {Observable} from 'rx'
-const {empty, just, merge} = Observable
+const {just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import {col, div} from 'helpers'
 import listItem from 'helpers/listItem'
@@ -10,20 +10,19 @@ import menuItem from 'helpers/menuItem'
 import {DropdownMenu} from 'components/DropdownMenu'
 
 import makeInputControl from 'components/InputControlFactory'
-import {Commitments} from 'components/remote'
 import {makeMenuItemPopup} from 'components/ui'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.clickable').events('click').map(() => true),
 )
 
-const toHelp = () =>
-  menuItem({
-    iconName: 'users',
-    title: 'To help with __________',
-  })
+// const toHelp = () =>
+//   menuItem({
+//     iconName: 'users',
+//     title: 'To help with __________',
+//   })
 
 const ticketTo = () =>
   menuItem({
