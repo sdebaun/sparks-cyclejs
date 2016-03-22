@@ -93,26 +93,26 @@ export const AddCommitmentGive = sources => {
   const givePayment = GivePayment(sources)
   const giveShifts = GiveShifts(sources)
 
-  const menuItemDOMs$ = just([div({},[
-    giveWaiver.itemDOM,
-    giveShifts.itemDOM,
-    givePayment.itemDOM,
-    giveDeposit.itemDOM,
-  ])])
+  const children = [
+    giveWaiver,
+    giveShifts,
+    givePayment,
+    giveDeposit,
+  ]
 
-  const modalDOMs$ = just([
-    giveWaiver.modalDOM,
-    giveDeposit.modalDOM,
-    givePayment.modalDOM,
-    giveShifts.modalDOM,
-  ])
+  const menuItemDOMs$ = just([div({},
+    children.map(c => c.itemDOM)
+  )])
+
+  const modalDOMs$ = just(
+    children.map(c => c.modalDOM)
+  )
+
+  const submits$ = merge(...children.map(c => c.submit$))
 
   const isOpen$ = sources.DOM.select('.clickable').events('click')
     .map(true)
-    .merge(giveWaiver.submit$.map(false))
-    .merge(giveDeposit.submit$.map(false))
-    .merge(givePayment.submit$.map(false))
-    .merge(giveShifts.submit$.map(false))
+    .merge(submits$.map(false))
     .startWith(false)
 
   const dropdown = DropdownMenu({...sources, isOpen$, children$: menuItemDOMs$})
