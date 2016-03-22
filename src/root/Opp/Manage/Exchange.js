@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, merge, empty} = Observable
+const {just, merge} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
@@ -15,7 +15,7 @@ import codeTitles from 'components/opp/codeTitles'
 
 import {DropdownMenu} from 'components/DropdownMenu'
 
-import {log} from 'util'
+import {mergeOrFlatMapLatest} from 'util'
 
 const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
   div({}, [
@@ -25,30 +25,37 @@ const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
     getListDOM,
   ])
 
-const CommitmentItem = sources => {
-  const openClick$ = sources.DOM.select('.commitment').events('click')
+const CommitmentItem = (sources, className) => {
+  const openClick$ = sources.DOM
+    .select(`.${className}`)
+    .select('.commitment')
+    .events('click')
 
   const isOpen$ = openClick$.map(true)
     .startWith(false)
 
   const menuItems = just([
-    // menuItem({title: 'Edit', iconName: 'pencil', className: 'edit', clickable: true}),
-    menuItem({title: 'Delete', iconName: 'remove', className: 'delete', clickable: true}),
+    /*menuItem({
+      title: 'Edit',
+      iconName: 'pencil',
+      className: 'edit',
+      clickable: true}),*/
+    menuItem({
+      title: 'Delete',
+      iconName: 'remove',
+      className: 'delete',
+      clickable: true}),
   ])
 
-  const deleteClick$ = sources.DOM.select('.delete').events('click')
-  const editClick$ = sources.DOM.select('.edit').events('click')
+  const queue$ = sources.DOM.select('.delete').events('click')
+    .flatMapLatest(() => sources.item$)
+    .pluck('$key')
+    .map(Commitments.action.remove)
 
   const dropdown = DropdownMenu({...sources, isOpen$, children$: menuItems})
 
-  const queue$ = sources.item$
-    .sample(deleteClick$)
-    .map(({$key}) => Commitments.action.remove($key))
-
-  queue$.subscribe(log('CI/queue$'))
-
   const DOM = sources.item$.map(({code, ...vals}) =>
-    div({},[
+    div({props: {className}},[
       listItem({
         title: codeTitles[code](vals),
         iconName: codeIcons[code],
@@ -65,44 +72,26 @@ const CommitmentItem = sources => {
   }
 }
 
-const CommitmentList = sources => {
-  const children$ = sources.commitments$
-  .distinctUntilChanged()
-  .map(rows =>
-    rows.map(row => isolate(CommitmentItem)({item$: just(row), ...sources}))
-    // rows.map(row => CommitmentItem({item$: just(row), ...sources}))
+const createItem = (sources, name) => rows =>
+  rows.map(
+    (row, i) => CommitmentItem({item$: just(row), ...sources}, `${name}-${i}`)
   )
 
-  children$.subscribe(log('children$'))
+const CommitmentList = (sources, name) => {
+  const children$ = sources.commitments$
+    .map(createItem(sources, name))
 
   const DOM = children$.map(children =>
-    div({},children.map(c => c.DOM))
+    div({}, children.map(c => c.DOM))
   )
+
   const queue$ = children$.flatMapLatest(children =>
-  //   // merge(...children.map(c => c.queue$))
-    merge(...children.map(c => c.queue$))
+    mergeOrFlatMapLatest('queue$', ...children)
   )
-  // const childQueues$ = children$
-  //   .map(children => children
-  //     .map(c => c.queue$.subscribe(log('child.queue2')) && c.queue$)
-  //   )
-
-  // childQueues$.subscribe(log('CL/childQueues$'))
-  // childQueues$.subscribe(queues =>
-  //   queues.forEach(q => q.subscribe(log('child.queue$')))
-  // )
-
-  // const queue$ = childQueues$
-  //   .flatMapLatest(queues => merge(...queues))
-
-  // children$.flatMapLatest(cs => cs.map(c => c.queue$))
-
-  queue$.subscribe(log('CL/queue$'))
 
   return {
     DOM,
-    // queue$,
-    queue$: empty(),
+    queue$,
   }
 }
 
@@ -113,8 +102,8 @@ export default sources => {
   const gives$ = commitments$.map(rows => rows.filter(r => r.party === 'vol'))
   const gets$ = commitments$.map(rows => rows.filter(r => r.party === 'org'))
 
-  const giveList = CommitmentList({...sources, commitments$: gives$})
-  const getList = CommitmentList({...sources, commitments$: gets$})
+  const giveList = CommitmentList({...sources, commitments$: gives$}, 'give')
+  const getList = CommitmentList({...sources, commitments$: gets$}, 'get')
 
   const addGive = isolate(AddCommitmentGive)(sources)
   const addGet = isolate(AddCommitmentGet)(sources)
