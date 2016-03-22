@@ -65,7 +65,7 @@ const WhoInput = makeInputControl({
 const GiveWaiverForm = sources => {
   const whoInput = WhoInput(sources)
 
-  const commitment$ = combineLatestObj({
+  const item$ = combineLatestObj({
     who$: whoInput.value$,
   })
 
@@ -79,31 +79,35 @@ const GiveWaiverForm = sources => {
 
   return {
     DOM,
-    commitment$,
+    item$,
   }
 }
 
-const GetWaiverItemPopup = makeMenuItemPopup({
+const GiveWaiverItemPopup = makeMenuItemPopup({
   iconName: 'event_available',
   title: 'A Liability Waiver',
   className: 'waiver',
 })
 
-const GiveWaiver = sources => {
-  const f = GiveWaiverForm(sources)
-  const control = GetWaiverItemPopup({contentDOM$: f.DOM, ...sources})
+const makeMenuItemFormPopup = ({FormControl, ItemControl}) => sources => {
+  const form = FormControl(sources)
+  const control = ItemControl({contentDOM$: form.DOM, ...sources})
 
-  const commitment$ = f.commitment$
+  const item$ = form.item$
     .sample(control.submit$)
-    .map(c => ({code: 'waiver', ...c}))
 
   return {
     itemDOM: control.itemDOM,
     modalDOM: control.modalDOM,
     submit$: control.submit$,
-    commitment$,
+    item$,
   }
 }
+
+const GiveWaiver = makeMenuItemFormPopup({
+  FormControl: GiveWaiverForm,
+  ItemControl: GiveWaiverItemPopup,
+})
 
 export const AddCommitmentGive = sources => {
   const giveWaiver = GiveWaiver(sources)
