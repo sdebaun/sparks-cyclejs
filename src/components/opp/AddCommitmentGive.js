@@ -11,6 +11,8 @@ import makeInputControl from 'components/InputControlFactory'
 
 // import {log} from 'util'
 
+import codeIcons from 'components/opp/codeIcons'
+
 const ShiftCountInput = makeInputControl({
   label: 'How many shifts?',
   className: 'shifts',
@@ -23,7 +25,7 @@ const GiveShiftForm = sources => Form({...sources,
 const GiveShifts = makeMenuItemFormPopup({
   FormControl: GiveShiftForm,
   title: 'One or more Shifts',
-  iconName: 'calendar2',
+  iconName: codeIcons['shifts'],
   className: 'shifts',
 })
 
@@ -39,7 +41,7 @@ const GivePaymentForm = sources => Form({...sources,
 const GivePayment = makeMenuItemFormPopup({
   FormControl: GivePaymentForm,
   title: 'A Payment',
-  iconName: 'event_available',
+  iconName: codeIcons['payment'],
   className: 'payment',
 })
 
@@ -55,7 +57,7 @@ const GiveWaiverForm = sources => Form({...sources,
 const GiveWaiver = makeMenuItemFormPopup({
   FormControl: GiveWaiverForm,
   title: 'A Liability Waiver',
-  iconName: 'event_available',
+  iconName: codeIcons['waiver'],
   className: 'waiver',
 })
 
@@ -71,8 +73,8 @@ const GiveDepositForm = sources => Form({...sources,
 const GiveDeposit = makeMenuItemFormPopup({
   FormControl: GiveDepositForm,
   title: 'A refundable deposit',
-  iconName: 'ticket',
-  className: 'give.deposit',
+  iconName: codeIcons['deposit'],
+  className: 'deposit',
 })
 
 const _render = ({dropdownDOM, modalDOMs}) =>

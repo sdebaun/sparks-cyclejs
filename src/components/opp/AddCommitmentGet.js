@@ -11,6 +11,8 @@ import makeInputControl from 'components/InputControlFactory'
 
 // import {log} from 'util'
 
+import codeIcons from 'components/opp/codeIcons'
+
 // SCHWAG
 
 const SchwagWhoInput = makeInputControl({
@@ -25,7 +27,7 @@ const GetSchwagForm = sources => Form({...sources,
 const GetSchwag = makeMenuItemFormPopup({
   FormControl: GetSchwagForm,
   title: 'Cool Schwag',
-  iconName: 'gift',
+  iconName: codeIcons['schwag'],
   className: 'schwag',
 })
 
@@ -51,7 +53,7 @@ const GetTrackedForm = sources => Form({...sources,
 const GetTracked = makeMenuItemFormPopup({
   FormControl: GetTrackedForm,
   title: 'Tracked consumables',
-  iconName: 'restaurant',
+  iconName: codeIcons['tracked'],
   className: 'tracked',
 })
 
@@ -77,7 +79,7 @@ const GetTicketForm = sources => Form({...sources,
 const GetTicket = makeMenuItemFormPopup({
   FormControl: GetTicketForm,
   title: 'A Ticket to an event',
-  iconName: 'ticket',
+  iconName: codeIcons['ticket'],
   className: 'ticket',
 })
 
@@ -95,7 +97,7 @@ const GetHelpForm = sources => Form({...sources,
 const GetHelp = makeMenuItemFormPopup({
   FormControl: GetHelpForm,
   title: 'To help a community',
-  iconName: 'heart',
+  iconName: codeIcons['help'],
   className: 'help',
 })
 
