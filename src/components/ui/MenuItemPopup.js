@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 const {just} = Observable
+import isolate from '@cycle/isolate'
 // import {log} from 'util'
 
 import {makeModal} from 'components/ui'
@@ -13,7 +14,7 @@ const makeMenuItemPopup = ({iconName, title, className}) => sources => {
     .startWith(false)
 
   const ModalComponent = makeModal({title, icon: iconName})
-  const modalComponent = ModalComponent({
+  const modalComponent = isolate(ModalComponent)({
     isOpen$,
     ...sources,
   })

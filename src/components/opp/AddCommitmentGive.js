@@ -12,56 +12,57 @@ import makeInputControl from 'components/InputControlFactory'
 
 import {log} from 'util'
 
-// const _openActions$ = ({DOM}) => Observable.merge(
-//   DOM.select('.clickable').events('click').map(() => true),
-// )
+const ShiftCountInput = makeInputControl({
+  label: 'How many shifts?',
+  className: 'shifts',
+})
 
-const shifts =
-  menuItem({
-    iconName: 'calendar2',
-    title: 'One or more shifts',
-    className: 'give.shifts',
-  })
+const GiveShiftForm = sources => Form({...sources,
+  Controls$: just([{field: 'count', Control: ShiftCountInput}]),
+})
 
-const payment =
-  menuItem({
-    iconName: 'banknote',
-    title: 'A payment',
-    className: 'give.payment',
-  })
+const GiveShifts = makeMenuItemFormPopup({
+  FormControl: GiveShiftForm,
+  title: 'One or more Shifts',
+  iconName: 'calendar2',
+  className: 'shifts',
+})
 
-// const deposit =
-//   menuItem({
-//     iconName: 'ticket',
-//     title: 'A refundable deposit',
-//     className: 'give.deposit',
-//   })
+const PaymentAmountInput = makeInputControl({
+  label: 'How much do they pay?',
+  className: 'banknote',
+})
 
-const _render = ({dropdownDOM, giveWaiverModalDOM, giveDepositModalDOM}) =>
-  col(
-    listItem({
-      iconName: 'plus',
-      title: 'What do Volunteers GIVE?',
-      iconBackgroundColor: 'yellow',
-      clickable: true,
-    }),
-    dropdownDOM,
-    giveWaiverModalDOM,
-    giveDepositModalDOM,
-  )
+const GivePaymentForm = sources => Form({...sources,
+  Controls$: just([{field: 'count', Control: PaymentAmountInput}]),
+})
 
-const WhoInput = makeInputControl({
-  label: 'Who is being helped?',
-  className: 'help',
+const GivePayment = makeMenuItemFormPopup({
+  FormControl: GivePaymentForm,
+  title: 'A Payment',
+  iconName: 'event_available',
+  className: 'payment',
+})
+
+const LegalNameInput = makeInputControl({
+  label: 'What is the Legal Name of your Organization?',
+  className: 'legal-name',
 })
 
 const GiveWaiverForm = sources => {
   const Controls$ = just([
-    {field: 'who', Control: WhoInput},
+    {field: 'who', Control: LegalNameInput},
   ])
 
   return Form({...sources, Controls$})
 }
+
+const GiveWaiver = makeMenuItemFormPopup({
+  FormControl: GiveWaiverForm,
+  title: 'A Liability Waiver',
+  iconName: 'event_available',
+  className: 'waiver',
+})
 
 const DepositAmountInput = makeInputControl({
   label: 'How much is their Deposit?',
@@ -76,13 +77,6 @@ const GiveDepositForm = sources => {
   return Form({...sources, Controls$})
 }
 
-const GiveWaiver = makeMenuItemFormPopup({
-  FormControl: GiveWaiverForm,
-  title: 'A Liability Waiver',
-  iconName: 'event_available',
-  className: 'waiver',
-})
-
 const GiveDeposit = makeMenuItemFormPopup({
   FormControl: GiveDepositForm,
   title: 'A refundable deposit',
@@ -90,29 +84,51 @@ const GiveDeposit = makeMenuItemFormPopup({
   className: 'give.deposit',
 })
 
+const _render = ({dropdownDOM, modalDOMs}) =>
+  div({},[
+    listItem({
+      iconName: 'plus',
+      title: 'What do Volunteers GIVE?',
+      iconBackgroundColor: 'yellow',
+      clickable: true,
+    }),
+    dropdownDOM,
+    ...modalDOMs,
+  ])
+
 export const AddCommitmentGive = sources => {
   const giveWaiver = GiveWaiver(sources)
   const giveDeposit = GiveDeposit(sources)
+  const givePayment = GivePayment(sources)
+  const giveShifts = GiveShifts(sources)
 
-  const children$ = just([div({},[
+  const menuItemDOMs$ = just([div({},[
     giveWaiver.itemDOM,
-    shifts,
-    payment,
+    giveShifts.itemDOM,
+    givePayment.itemDOM,
     giveDeposit.itemDOM,
   ])])
+
+  const modalDOMs$ = just([
+    giveWaiver.modalDOM,
+    giveDeposit.modalDOM,
+    givePayment.modalDOM,
+    giveShifts.modalDOM,
+  ])
 
   const isOpen$ = sources.DOM.select('.clickable').events('click')
     .map(true)
     .merge(giveWaiver.submit$.map(false))
     .merge(giveDeposit.submit$.map(false))
+    .merge(givePayment.submit$.map(false))
+    .merge(giveShifts.submit$.map(false))
     .startWith(false)
 
-  const dropdown = DropdownMenu({...sources, isOpen$, children$})
+  const dropdown = DropdownMenu({...sources, isOpen$, children$: menuItemDOMs$})
 
   const viewState = {
     dropdownDOM$: dropdown.DOM,
-    giveWaiverModalDOM$: giveWaiver.modalDOM,
-    giveDepositModalDOM$: giveDeposit.modalDOM,
+    modalDOMs$,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
@@ -120,6 +136,8 @@ export const AddCommitmentGive = sources => {
   const commitment$ = merge(
     giveWaiver.item$.map(c => ({...c, code: 'waiver'})),
     giveDeposit.item$.map(c => ({...c, code: 'deposit'})),
+    givePayment.item$.map(c => ({...c, code: 'payment'})),
+    giveShifts.item$.map(c => ({...c, code: 'shifts'})),
   ).map(c => ({...c, party: 'vol'}))
 
   return {
