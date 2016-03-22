@@ -136,7 +136,7 @@ export const AddCommitmentGet = sources => {
 
   const commitment$ = merge(
     getHelp.commitment$,
-  )
+  ).map(c => ({party: 'org', ...c}))
 
   return {
     DOM,
