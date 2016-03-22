@@ -8,7 +8,7 @@ import isolate from '@cycle/isolate'
 // import Title from 'components/Title'
 // import Header from 'components/Header'
 import TabBar from 'components/TabBar'
-// import ComingSoon from 'components/ComingSoon'
+import ComingSoon from 'components/ComingSoon'
 // import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
@@ -18,24 +18,21 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import Describe from './Describe'
 import Staff from './Staff'
-import Exchange from './Exchange'
 
 // const Describe = ComingSoon('Manage/Details')
 // const Staff = ComingSoon('Manage/Details')
-// const Connect = ComingSoon('Manage/Connect')
+const Connect = ComingSoon('Manage/Connect')
 
 const _routes = {
   '/': isolate(Describe),
   '/staff': isolate(Staff),
-  //'/connect': isolate(Connect),
-  '/exchange': isolate(Exchange),
+  '/connect': isolate(Connect),
 }
 
 const _tabs = [
   {path: '/', label: 'Describe'},
   {path: '/staff', label: 'Staff'},
-  //{path: '/connect', label: 'Connect'},
-  {path: '/exchange', label: 'Exchange'},
+  {path: '/connect', label: 'Connect'},
 ]
 
 export default sources => {
