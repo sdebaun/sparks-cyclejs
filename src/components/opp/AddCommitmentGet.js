@@ -1,11 +1,16 @@
 import {Observable} from 'rx'
-const {empty, just} = Observable
+const {empty, just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {col, div} from 'helpers'
 import listItem from 'helpers/listItem'
 import menuItem from 'helpers/menuItem'
 import {DropdownMenu} from 'components/DropdownMenu'
+
+import makeInputControl from 'components/InputControlFactory'
+import {Commitments} from 'components/remote'
+
+import {log} from 'util'
 
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.clickable').events('click').map(() => true),
@@ -54,10 +59,30 @@ const GetHelpModal = makeModal({
   icon: 'power',
 })
 
+
+const WhoInput = makeInputControl({
+  label: 'Who is being helped?',
+  className: 'help',
+})
+
 const GetHelpForm = sources => {
-  const DOM = just(div({},['a form']))
+  const whoInput = WhoInput(sources)
+
+  const commitment$ = combineLatestObj({
+    who$: whoInput.value$,
+  })
+
+  const viewState = {
+    whoInputDOM: whoInput.DOM,
+  }
+
+  const DOM = combineLatestObj(viewState).map(({whoInputDOM}) =>
+    col(whoInputDOM)
+  )
+
   return {
     DOM,
+    commitment$,
   }
 }
 
@@ -68,7 +93,7 @@ const GetHelp = sources => {
   const f = GetHelpForm(sources)
   const m = GetHelpModal({contentDOM$: f.DOM, isOpen$, ...sources})
 
-  const DOM = just(
+  const itemDOM = just(
     menuItem({
       iconName: 'users',
       title: 'To help a community',
@@ -76,9 +101,15 @@ const GetHelp = sources => {
     }),
   )
 
+  const modalDOM = m.DOM
+
+  const commitment$ = f.commitment$
+    .sample(m.submit$)
+
   return {
-    DOM,
-    modalDOM: m.DOM,
+    itemDOM,
+    modalDOM,
+    commitment$,
   }
 }
 
@@ -88,8 +119,7 @@ export const AddCommitmentGet = sources => {
   const getHelp = GetHelp(sources)
 
   const children$ = just([div({},[
-    getHelp.DOM,
-    // getHelp.modalDOM,
+    getHelp.itemDOM,
     ticketTo(),
     benefits(),
     extras(),
@@ -104,9 +134,14 @@ export const AddCommitmentGet = sources => {
 
   const DOM = combineLatestObj(viewState).map(_render)
 
+  const commitment$ = merge(
+    getHelp.commitment$,
+  )
+
   return {
     DOM,
     isOpen$,
     queue$: empty(),
+    commitment$,
   }
 }

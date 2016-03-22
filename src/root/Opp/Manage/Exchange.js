@@ -1,4 +1,6 @@
 import {Observable} from 'rx'
+const {merge, empty} = Observable
+
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {AddCommitmentGive, AddCommitmentGet} from 'components/opp'
@@ -6,6 +8,8 @@ import {Commitments} from 'components/remote'
 
 import {div} from 'helpers'
 import listItem from 'helpers/listItem'
+
+import {log} from 'util'
 
 const _render = ({addGiveDOM, giveListDOM, addGetDOM, getListDOM}) =>
   div({}, [
@@ -38,10 +42,18 @@ export default sources => {
   const addGive = isolate(AddCommitmentGive)(sources)
   const addGet = isolate(AddCommitmentGet)(sources)
 
-  const queue$ = Observable.merge(
-    addGive.queue$,
-    addGet.queue$,
+  // addGet.commitment$.subscribe(log('commitment$'))
+
+  const commitment$ = Observable.merge(
+    addGive.commitment$,
+    addGet.commitment$,
   )
+
+  // const commitment$ = empty()
+
+  const queue$ = commitment$
+    .combineLatest(sources.oppKey$, (action,oppKey) => ({...action, oppKey}))
+    .map(Commitments.action.create)
 
   const viewState = {
     addGiveDOM: addGive.DOM,

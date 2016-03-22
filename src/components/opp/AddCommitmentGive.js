@@ -82,6 +82,6 @@ export const AddCommitmentGive = sources => {
   return {
     DOM,
     isOpen$,
-    queue$: empty(),
+    commitment$: empty(),
   }
 }
