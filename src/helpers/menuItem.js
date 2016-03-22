@@ -42,6 +42,7 @@ const subtitleStyle = {
 export default ({
   iconName, title, subtitle, className, link, key, iconBackgroundColor,
 }) =>
+  // h('div.row.list-item.clickable.' + className, {
   h('div.row.list-item.' + className, {
     style, attrs: {'data-link': link, 'data-key': key},
   }, [
