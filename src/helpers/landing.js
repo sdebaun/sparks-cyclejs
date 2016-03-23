@@ -44,8 +44,8 @@ const benefits =
 const basicLink = (title, href = '') =>
   a({props: {href}, style: {color: '#FFF'}}, [title])
 
-const signUp = buttons =>
-  div({}, [buttons])
+// const signUp = buttons =>
+  // div({}, [buttons])
   // Row({style: {width: '100%', textAlign: 'center'}, className: 'signup'}, [
   //   // Col({type: 'xs-6'}, [
   //   //   Button({onClick, primary: true, className: 'facebook'}, [

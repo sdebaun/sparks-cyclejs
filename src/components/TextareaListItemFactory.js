@@ -7,7 +7,7 @@ import {submitAndCancel} from 'helpers/buttons'
 import listItem from 'helpers/listItem'
 import {col, div} from 'helpers'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.clickable').events('click').scan((a) => !a, false),

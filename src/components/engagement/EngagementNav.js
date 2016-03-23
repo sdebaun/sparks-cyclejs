@@ -1,17 +1,17 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import listItem from 'helpers/listItem'
 // import listHeader from 'helpers/listHeader'
 
 import {h, div} from 'cycle-snabbdom'
 
-import {rows} from 'util'
+// import {rows} from 'util'
 // import {log} from 'util'
 
-import {CreateTeamHeader} from 'components/team'
-import {CreateOppHeader} from 'components/opp'
+// import {CreateTeamHeader} from 'components/team'
+// import {CreateOppHeader} from 'components/opp'
 
 const _navActions = sources => Observable.merge(
   sources.DOM.select('.navAction').events('click')
@@ -24,23 +24,23 @@ const _navActions = sources => Observable.merge(
     .map(e => '/opp/' + e.ownerTarget.dataset.key),
 )
 
-const _teamItems = _rows =>
-  _rows.map(({name, $key}) =>
-    listItem({title: name, className: 'team', key: $key})
-  )
+// const _teamItems = _rows =>
+//   _rows.map(({name, $key}) =>
+//     listItem({title: name, className: 'team', key: $key})
+//   )
 
-const _oppItems = _rows =>
-  _rows.map(({name, $key}) =>
-    listItem({title: name, className: 'opp', key: $key})
-  )
+// const _oppItems = _rows =>
+//   _rows.map(({name, $key}) =>
+//     listItem({title: name, className: 'opp', key: $key})
+//   )
 
 const _render = ({
   isMobile,
-  teams,
-  opps,
+  // teams,
+  // opps,
   titleDOM,
-  teamListHeaderDOM,
-  oppListHeaderDOM,
+  // teamListHeaderDOM,
+  // oppListHeaderDOM,
   createHref,
 }) => {
   // const teamRows = rows(teams)

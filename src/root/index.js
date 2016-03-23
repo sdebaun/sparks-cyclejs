@@ -18,7 +18,7 @@ import '!style!css!snabbdom-material/lib/index.css'
 
 import {nestedComponent} from 'util'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 import './styles.scss'
 

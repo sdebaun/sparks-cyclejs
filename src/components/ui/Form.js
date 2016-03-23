@@ -5,10 +5,15 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
-import {log} from 'util'
+// import {log} from 'util'
 
-const startValue = (item$, field) =>
+const pluckStartValue = (item$, field) =>
   item$ && item$.map(i => i[field]) || just(null)
+
+const reduceControlsToObject = controls =>
+  controls.reduce((a, {field,control}) =>
+    field && (a[field] = control.value$) && a || a, {}
+  )
 
 const Form = sources => {
   // sources.Controls$ is an array of components
@@ -19,25 +24,15 @@ const Form = sources => {
       field,
       control: isolate(Control,field)({
         ...sources,
-        value$: startValue(sources.item$, field),
+        value$: pluckStartValue(sources.item$, field),
       }),
     }))
-  ).shareReplay(1)
-
-  const reduceControls = controls => {
-    const foo = controls.reduce((a, {field,control}) =>
-      field && (a[field] = control.value$) && a || a, {}
-    )
-    // console.log('reduced', foo)
-    return foo
-  }
+  ).shareReplay(1) // keeps it from being pwnd every time
 
   // item$ gets their values$
   const item$ = controls$.flatMapLatest(controls =>
-    combineLatestObj(reduceControls(controls))
+    combineLatestObj(reduceControlsToObject(controls))
   )
-
-  item$.subscribe(log('Form.item$'))
 
   const DOM = controls$.map(controls =>
     div({}, controls.map(({control}) => control.DOM))

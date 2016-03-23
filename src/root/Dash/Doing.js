@@ -11,13 +11,18 @@ import {Projects, Engagements} from 'components/remote'
 import {ProjectList, ProjectForm} from 'components/project'
 import {EngagementList} from 'components/engagement'
 
-const _render = ({projects, projectListDOM, projectFormDOM, engagements, engagementListDOM}) =>
+const engagementHeader = engagements =>
+  engagements.length > 0 ? listItem({title: 'Applied To', header: true}) : null
+
+const _render = ({
+  projects, projectListDOM, projectFormDOM, engagements, engagementListDOM,
+}) =>
   col(
     projects.length > 0 ?
       listItem({title: 'Projects You Manage', header: true}) :
       null,
     projectListDOM,
-    engagements.length > 0 ? listItem({title: 'Applied To', header: true}) : null,
+    engagementHeader(engagements),
     engagementListDOM,
     importantTip('The Sparks.Network is not open to the public right now.'),
     `

@@ -5,9 +5,9 @@ import {div} from 'cycle-snabbdom'
 import {Appbar} from 'snabbdom-material'
 import {icon} from 'helpers'
 
-const style = (backgroundUrl) => ({
-  backgroundImage: backgroundUrl &&
-    'linear-gradient(rgba(0,0,0,0.60),rgba(0,0,0,0.90)), url(' + backgroundUrl + ')' ||
+const style = (bgUrl) => ({
+  backgroundImage: bgUrl &&
+    'linear-gradient(rgba(0,0,0,0.60),rgba(0,0,0,0.90)), url(' + bgUrl + ')' ||
     'linear-gradient(rgba(0,0,0,0.80),rgba(0,0,0,0.80))',
   zIndex: 0,
   color: 'white',
