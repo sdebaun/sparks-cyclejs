@@ -1,4 +1,4 @@
-import AppBar from 'components/AppBar'
+import {AppBar} from 'components/AppBar'
 import SideNav from 'components/SideNav'
 
 import {mobileFrame, desktopFrame} from 'helpers'

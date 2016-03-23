@@ -1,19 +1,21 @@
-// import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
+import {Toolbar} from 'components/sdm'
 
 import AppMenu from 'components/AppMenu'
+import HeaderLogo from 'components/HeaderLogo'
 
-import {appBar} from 'helpers'
-
-export default sources => {
+const AppBar = sources => {
   const appMenu = AppMenu(sources)
-  const DOM = combineLatestObj({
-    appMenu: appMenu.DOM,
-  }).map(appBar)
+  const headerLogo = HeaderLogo(sources)
 
   return {
-    DOM,
     auth$: appMenu.auth$,
     route$: appMenu.route$,
+    ...Toolbar({
+      ...sources,
+      titleDOM: headerLogo.DOM,
+      rightItemDOM: appMenu.DOM,
+    }),
   }
 }
+
+export {AppBar}
