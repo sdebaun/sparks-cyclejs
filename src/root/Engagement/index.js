@@ -15,14 +15,14 @@ import ComingSoon from 'components/ComingSoon'
 
 const _routes = {
   '/': ComingSoon('Dash/Priority'),
-  '/application': ComingSoon('Dash/Application'),
   '/commitments': ComingSoon('Dash/Commitments'),
+  '/more': ComingSoon('Dash/More Info'),
 }
 
 const _tabs = [
   {path: '/', label: 'Priority'},
-  {path: '/application', label: 'Application'},
   {path: '/commitments', label: 'Commitments'},
+  {path: '/more', label: 'More Info'},
 ]
 
 const Nav = sources => ({

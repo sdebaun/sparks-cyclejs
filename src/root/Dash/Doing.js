@@ -11,24 +11,14 @@ import {Projects, Engagements} from 'components/remote'
 import {ProjectList, ProjectForm} from 'components/project'
 import {EngagementList} from 'components/engagement'
 
-const _label = ({isApplied, isAccepted, isConfirmed}) =>
-  isConfirmed && 'Confirmed' ||
-    isAccepted && 'Accepted' ||
-      isApplied && 'Applied' ||
-        'Unknown'
-
-const _renderEngagements = (title, engagementRows) => [
-  engagementRows.length > 0 ? listItem({title, header: true}) : null,
-  ...engagementRows.map(({oppKey, $key, ...props}) =>
-    listItem(
-      {title: oppKey, subtitle: _label(props),
-      link: '/engaged/' + $key, className: 'project'}
-    )
-  ),
-]
-
 const _render = ({projects, projectListDOM, projectFormDOM, engagements, engagementListDOM}) =>
   col(
+    projects.length > 0 ?
+      listItem({title: 'Projects You Manage', header: true}) :
+      null,
+    projectListDOM,
+    engagements.length > 0 ? listItem({title: 'Applied To', header: true}) : null,
+    engagementListDOM,
     importantTip('The Sparks.Network is not open to the public right now.'),
     `
     We are currently working with our Early Access Partners
@@ -38,16 +28,6 @@ const _render = ({projects, projectListDOM, projectFormDOM, engagements, engagem
     If you'd like to be part of our Early Access Program, contact us below!
     `,
     projectFormDOM,
-    projects.length > 0 ?
-      listItem({title: 'Projects You Manage', header: true}) :
-      null,
-    projectListDOM,
-    engagements.length > 0 ? listItem({title: 'Applied To', header: true}) : null,
-    engagementListDOM,
-    // ..._renderEngagements('Applied To',
-    //   engagements
-    //     .filter(e => e.isApplied && !e.isAccepted && !e.isConfirmed),
-    // ),
   )
 
 export default sources => {
