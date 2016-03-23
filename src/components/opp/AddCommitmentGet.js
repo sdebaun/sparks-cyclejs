@@ -7,7 +7,6 @@ import listItem from 'helpers/listItem'
 import {Menu} from 'components/sdm'
 
 import {Form, makeMenuItemFormPopup} from 'components/ui'
-import makeInputControl from 'components/InputControlFactory'
 import {InputControl} from 'components/sdm'
 
 // import {log} from 'util'
@@ -37,9 +36,8 @@ const TrackedCountInput = sources => InputControl({...sources,
   label$: just('How many are they getting?'),
 })
 
-const TrackedDescriptionInput = makeInputControl({
-  label: 'What are they getting?',
-  className: 'tracked-description',
+const TrackedDescriptionInput = sources => InputControl({...sources,
+  label$: just('What are they getting?'),
 })
 
 const GetTrackedForm = sources => Form({...sources,
