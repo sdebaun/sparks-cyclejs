@@ -50,7 +50,7 @@ const _render = ({isOpen, project, teams, opps}) =>
     items: _menuItems(project,teams,opps),
   })
 
-export default sources => {
+const ProjectQuickNavMenu = sources => {
   const route$ = _navActions$(sources)
 
   const isOpen$ = _openActions$(sources)
@@ -70,3 +70,5 @@ export default sources => {
 
   return {DOM, route$}
 }
+
+export {ProjectQuickNavMenu}

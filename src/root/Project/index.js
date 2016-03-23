@@ -5,7 +5,7 @@ import {Observable} from 'rx'
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
-import ProjectNav from 'components/ProjectNav'
+import {ProjectNav} from 'components/project'
 // import ComingSoon from 'components/ComingSoon'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'

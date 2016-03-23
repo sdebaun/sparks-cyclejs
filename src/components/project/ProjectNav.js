@@ -10,7 +10,7 @@ import {h, div} from 'cycle-snabbdom'
 import {rows} from 'util'
 // import {log} from 'util'
 
-import CreateTeamHeader from 'components/CreateTeamHeader'
+import {CreateTeamHeader} from 'components/team'
 import {CreateOppHeader} from 'components/opp'
 
 const _navActions = sources => Observable.merge(
@@ -71,7 +71,7 @@ const _render = ({
   )
 }
 
-export default sources => {
+const ProjectNav = sources => {
   const route$ = _navActions(sources)
 
   const teamListHeader = isolate(CreateTeamHeader)(sources)
@@ -96,3 +96,5 @@ export default sources => {
 
   return {DOM, route$, queue$}
 }
+
+export {ProjectNav}

@@ -1,8 +1,5 @@
 import {div, h1, h2, h3, h4, h5, ul, li, a, b, br} from 'cycle-snabbdom'
-// import {Col, Row, Button} from 'snabbdom-material'
 import {Col, Row} from 'snabbdom-material'
-
-// import {RaisedButton as Button} from 'components/cyclic-surface-material'
 
 import {headerLogo} from './index'
 

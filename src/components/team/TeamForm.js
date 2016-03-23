@@ -17,7 +17,7 @@ const NameInput = makeInputControl({
   className: 'name',
 })
 
-export default sources => {
+const TeamForm = sources => {
   // why does isolate break this???
   // const inviteEmailInput = isolate(InviteEmailInput)(sources)
   const nameInput = NameInput(sources)
@@ -35,3 +35,5 @@ export default sources => {
 
   return {DOM, team$}
 }
+
+export {TeamForm}

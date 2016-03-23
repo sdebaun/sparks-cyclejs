@@ -1,3 +1,5 @@
+// literally one line differene wit CreateTeam
+
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
@@ -5,7 +7,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {Teams} from 'remote'
 
-import TeamForm from 'components/TeamForm'
+import {TeamForm} from './TeamForm'
 
 import {col} from 'helpers'
 import modal from 'helpers/modal'
@@ -26,13 +28,14 @@ const _render = ({isOpen, teamFormDOM}) =>
     listItem({
       iconName: 'group_add',
       iconBackgroundColor: 'yellow',
-      title: 'Build your first Team',
+      title: 'Teams',
       className: 'open',
       clickable: true,
+      header: true, // this is the line
     }),
     modal({
       isOpen,
-      title: 'Build your first Team',
+      title: 'Add a Team',
       iconName: 'group_add',
       submitLabel: 'Make It So',
       closeLabel: 'Hang On',
@@ -40,7 +43,7 @@ const _render = ({isOpen, teamFormDOM}) =>
     })
   )
 
-export default sources => {
+const CreateTeamHeader = sources => {
   const teamForm = TeamForm(sources)
 
   const submit$ = _submitAction$(sources)
@@ -66,3 +69,5 @@ export default sources => {
 
   return {DOM, queue$}
 }
+
+export {CreateTeamHeader}

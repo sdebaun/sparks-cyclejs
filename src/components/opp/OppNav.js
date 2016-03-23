@@ -8,7 +8,7 @@ import {h, div} from 'cycle-snabbdom'
 
 // import {log} from 'util'
 
-import CreateTeamHeader from 'components/CreateTeamHeader'
+import {CreateTeamHeader} from 'components/team'
 import {CreateOppHeader} from 'components/opp'
 
 const _navActions = sources => Observable.merge(

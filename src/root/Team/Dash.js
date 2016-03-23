@@ -4,7 +4,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
-import CreateTeam from 'components/CreateTeam'
+import {CreateTeam} from 'components/team'
 
 import listItemDisabled from 'helpers/listItemDisabled'
 

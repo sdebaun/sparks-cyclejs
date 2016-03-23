@@ -26,7 +26,7 @@ const _routes = {
   // '/manage': isolate(ComingSoon('Manage')),
 }
 
-import ProjectQuickNavMenu from 'components/ProjectQuickNavMenu'
+import {ProjectQuickNavMenu} from 'components/project'
 
 export default sources => {
   const opp$ = sources.oppKey$

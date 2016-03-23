@@ -40,7 +40,7 @@ const Nav = sources => ({
     ),
 })
 
-import ProjectQuickNavMenu from 'components/ProjectQuickNavMenu'
+import {ProjectQuickNavMenu} from 'components/project'
 
 export default sources => {
   const team$ = sources.teamKey$
