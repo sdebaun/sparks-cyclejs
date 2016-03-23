@@ -29,6 +29,7 @@ const TogglePublic = makeToggleListItem({
 const TextareaDescription = makeTextareaListItem({
   iconName: 'playlist_add',
   title: 'Write a short tweet-length description.',
+  maxLength: '140',
 })
 
 export default sources => {
