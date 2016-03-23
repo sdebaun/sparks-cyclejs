@@ -1,80 +1,121 @@
-// import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
-import {col, importantTip} from 'helpers'
-// import isolate from '@cycle/isolate'
+import {Observable} from 'rx'
+const {just} = Observable
 
-// import {log} from 'util'
+import {Form} from 'components/ui/Form'
+import {InputControl} from 'components/sdm'
 
-import makeInputControl from 'components/InputControlFactory'
+import {importantTip} from 'helpers'
 
-const _render = ({
-  fullNameDOM, emailDOM, phoneDOM, zipDOM,
-}) =>
-  col(
-    fullNameDOM,
+const InfoBlock = () => ({
+  DOM: just(
     importantTip(`
 Your email and phone number will only be shared
 with organizers that you work with.
     `),
-    emailDOM,
-    phoneDOM,
-    zipDOM,
-  )
-
-const FullNameInput = makeInputControl({
-  label: 'Your Full Name',
-  className: 'fullName',
+  ),
 })
-const EmailInput = makeInputControl({
-  label: 'Your Email Address',
-  className: 'email',
+
+const FullNameInput = sources =>
+  InputControl({label$: just('Your Full Name'), ...sources})
+
+const EmailInput = sources =>
+  InputControl({label$: just('Your Email Address'), ...sources})
+
+const PhoneInput = sources =>
+  InputControl({label$: just('Your Phone Number'), ...sources})
+
+const ProfileForm = sources => Form({
+  ...sources,
+  Controls$: just([
+    {field: 'fullName', Control: FullNameInput},
+    {Control: InfoBlock},
+    {field: 'email', Control: EmailInput},
+    {field: 'phone', Control: PhoneInput},
+  ]),
 })
-const PhoneInput = makeInputControl({
-  label: 'Your Phone Number',
-  className: 'phone',
-})
-// const ZipInput = makeInputControl({
-//   label: 'Your ZIP or Postal Code',
-//   className: 'zip',
-// })
 
-const isEmail = () => true
+// // // import {Observable} from 'rx'
+// import combineLatestObj from 'rx-combine-latest-obj'
+// import {col, importantTip} from 'helpers'
+// // // import isolate from '@cycle/isolate'
 
-export default sources => {
-  const fullNameInput =
-    FullNameInput({...sources, value$: sources.profile$.pluck('fullName')})
+// // // import {log} from 'util'
 
-  const emailInput =
-    EmailInput({...sources, value$: sources.profile$.pluck('email')})
+// // import makeInputControl from 'components/InputControlFactory'
 
-  const phoneInput =
-    PhoneInput({...sources, value$: sources.profile$.pluck('phone')})
+// const _render = ({
+//   fullNameDOM, emailDOM, phoneDOM, zipDOM,
+// }) =>
+//   col(
+//     fullNameDOM,
+//     importantTip(`
+// Your email and phone number will only be shared
+// with organizers that you work with.
+//     `),
+//     emailDOM,
+//     phoneDOM,
+//     zipDOM,
+//   )
 
-  // const zipInput =
-  //   ZipInput({...sources, value$: sources.profile$.pluck('zip')})
+// // const FullNameInput = makeInputControl({
+// //   label: 'Your Full Name',
+// //   className: 'fullName',
+// // })
+// // const EmailInput = makeInputControl({
+// //   label: 'Your Email Address',
+// //   className: 'email',
+// // })
+// // const PhoneInput = makeInputControl({
+// //   label: 'Your Phone Number',
+// //   className: 'phone',
+// // })
+// // // const ZipInput = makeInputControl({
+// // //   label: 'Your ZIP or Postal Code',
+// // //   className: 'zip',
+// // // })
 
-  const profile$ = combineLatestObj({
-    fullName$: fullNameInput.value$,
-    email$: emailInput.value$,
-    phone$: phoneInput.value$,
-    // zip$: zipInput.value$,
-  })
+// const isEmail = () => true
 
-  const valid$ = profile$
-    .map(({fullName,email,phone}) =>
-      !!fullName && !!email && !!phone &&
-      isEmail(email)
-    )
+// const xProfileForm = sources => {
+//   const fullNameInput =
+//     FullNameInput({...sources, value$: sources.item$.pluck('fullName')})
 
-  const viewState = {
-    profile$,
-    fullNameDOM$: fullNameInput.DOM,
-    emailDOM$: emailInput.DOM,
-    phoneDOM$: phoneInput.DOM,
-    // zipDOM$: zipInput.DOM,
-  }
+//   const emailInput =
+//     EmailInput({...sources, value$: sources.item$.pluck('email')})
 
-  const DOM = combineLatestObj(viewState).map(_render)
+//   const phoneInput =
+//     PhoneInput({...sources, value$: sources.item$.pluck('phone')})
 
-  return {DOM, profile$, valid$}
-}
+//   // const zipInput =
+//   //   ZipInput({...sources, value$: sources.profile$.pluck('zip')})
+
+//   // const profile$ = combineLatestObj({
+//   const item$ = combineLatestObj({
+//     fullName$: fullNameInput.value$,
+//     email$: emailInput.value$,
+//     phone$: phoneInput.value$,
+//     // zip$: zipInput.value$,
+//   })
+
+//   // const valid$ = profile$
+//   const valid$ = item$
+//     .map(({fullName,email,phone}) =>
+//       !!fullName && !!email && !!phone &&
+//       isEmail(email)
+//     )
+
+//   const viewState = {
+//     profile$: item$,
+//     fullNameDOM$: fullNameInput.DOM,
+//     emailDOM$: emailInput.DOM,
+//     phoneDOM$: phoneInput.DOM,
+//     // zipDOM$: zipInput.DOM,
+//   }
+
+//   const DOM = combineLatestObj(viewState).map(_render)
+
+//   // return {DOM, profile$, valid$}
+//   return {DOM, item$, valid$}
+// }
+
+export {ProfileForm}

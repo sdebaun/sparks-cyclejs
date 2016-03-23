@@ -1,7 +1,8 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
+// import isolate from '@cycle/isolate'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 // import AppBar from 'components/AppBar'
 
@@ -41,7 +42,7 @@ const ProjectEditPage = sources =>{
 import {Profiles} from 'remote'
 
 import SoloFrame from 'components/SoloFrame'
-import ProfileForm from 'components/ProfileForm'
+import {ProfileForm} from 'components/ProfileForm'
 import {narrowCol, pageTitle} from 'helpers'
 import {submitAndCancel} from 'helpers/buttons'
 
@@ -80,18 +81,26 @@ const _render = ({valid, profileFormDOM}) =>
   )
 
 export default sources => {
-  const profile$ = _fromAuthData$(sources)
+  const authProfile$ = _fromAuthData$(sources)
 
-  const profileForm = ProfileForm({profile$, ...sources})
+  const profileForm = ProfileForm({item$: authProfile$, ...sources})
+  // const profileForm = isolate(ProfileForm,'confirm-profile-form')(sources)
 
   const submit$ = _submitAction$(sources)
 
-  const queue$ = profileForm.profile$
+  const profile$ = profileForm.item$
+
+  const valid$ = profile$
+    .map(({fullName,email,phone}) =>
+      !!fullName && !!email && !!phone
+    )
+
+  const queue$ = profile$
     .sample(submit$)
     .map(Profiles.create)
 
   const viewState = {
-    valid$: profileForm.valid$,
+    valid$,
     auth$: sources.auth$,
     userProfile$: sources.userProfile$,
     profileFormDOM$: profileForm.DOM,
@@ -103,8 +112,11 @@ export default sources => {
 
   const redirectLogin$ = sources.previousRoute$
     .sample(sources.redirectLogin$)
+    .map(r => r || '/dash')
+
   const redirectLogout$ = sources.previousRoute$
     .sample(sources.redirectLogout$)
+    .map(r => r || '/')
 
   const route$ = Observable.merge(
     frame.route$,
