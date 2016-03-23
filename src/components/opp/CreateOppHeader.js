@@ -46,7 +46,7 @@ const CreateOppHeader = sources => {
 
   const submit$ = _submitAction$(sources)
 
-  const queue$ = oppForm.opp$
+  const queue$ = oppForm.item$
     .sample(submit$)
     .zip(sources.projectKey$,
       (opp,projectKey) => ({projectKey, ...opp})

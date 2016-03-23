@@ -8,7 +8,7 @@ import {PROVIDERS} from 'util'
 import {landing} from 'helpers'
 
 // import {RaisedButton} from 'components/cyclic-surface-material'
-import {RaisedButton} from 'components/RaisedButton'
+import {RaisedButton} from 'components/sdm'
 
 import {log} from 'util'
 

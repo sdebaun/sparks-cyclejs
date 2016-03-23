@@ -1,5 +1,6 @@
 export {AddCommitmentGive} from './AddCommitmentGive'
 export {AddCommitmentGet} from './AddCommitmentGet'
-export {OppForm} from './OppForm'
 export {CreateOpp} from './CreateOpp'
 export {CreateOppHeader} from './CreateOppHeader'
+export {OppForm} from './OppForm'
+export {OppNav} from './OppNav'

@@ -62,7 +62,7 @@ const _render = ({
   )
 }
 
-export default sources => {
+const OppNav = sources => {
   const route$ = _navActions(sources)
 
   const teamListHeader = CreateTeamHeader(sources)
@@ -86,3 +86,5 @@ export default sources => {
 
   return {DOM, route$, queue$}
 }
+
+export {OppNav}

@@ -45,7 +45,7 @@ const CreateOpp = sources => {
     isOpen$,
   })
 
-  const queue$ = oppForm.opp$
+  const queue$ = oppForm.item$
     .sample(oppModal.submit$)
     .zip(sources.projectKey$,
       (opp,projectKey) => ({projectKey, ...opp})
