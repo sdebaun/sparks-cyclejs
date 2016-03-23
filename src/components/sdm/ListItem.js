@@ -7,21 +7,25 @@ import listItem from 'helpers/listItem'
 
 import {ToggleControl} from 'components/sdm'
 
+import {Menu} from 'components/sdm'
+
 const ListItemClickable = sources => {
   const click$ = sources.DOM.select('.item').events('click')
 
   const viewState = {
     iconDOM$: sources.iconDOM$ || just(null),
+    iconName$: sources.iconName$ || just(null),
     title$: sources.title$ || just('no title$'),
-    subtitle$: sources.title$ || just(null),
+    subtitle$: sources.subtitle$ || just(null),
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({iconDOM, title, subtitle}) =>
+    .map(({iconDOM, iconName, title, subtitle}) =>
       div({},[listItem({ //need extra div for isolate
         title,
         subtitle,
         iconDOM,
+        iconName,
         className: 'item',
         clickable: true,
       })])
@@ -49,7 +53,36 @@ const ListItemToggle = sources => {
   }
 }
 
+const ListItemWithMenu = sources => {
+  const item = ListItemClickable(sources)
+
+  const isOpen$ = item.click$.map(true).startWith(false)
+
+  const children$ = sources.menuItems$ || just([])
+
+  const menu = Menu({
+    ...sources,
+    isOpen$,
+    children$,
+  })
+
+  const viewState = {
+    itemDOM$: item.DOM,
+    menuDOM$: menu.DOM,
+  }
+
+  const DOM = combineLatestObj(viewState)
+    .map(({itemDOM, menuDOM}) =>
+      div({},[itemDOM, menuDOM])
+    )
+
+  return {
+    DOM,
+  }
+}
+
 export {
   ListItemClickable,
   ListItemToggle,
+  ListItemWithMenu,
 }
