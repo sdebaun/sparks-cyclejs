@@ -9,6 +9,7 @@ import listItem from 'helpers/listItem'
 import {NavClicker} from 'components'
 import {Projects, Engagements} from 'components/remote'
 import {ProjectList, ProjectForm} from 'components/project'
+import {EngagementList} from 'components/engagement'
 
 const _label = ({isApplied, isAccepted, isConfirmed}) =>
   isConfirmed && 'Confirmed' ||
@@ -26,7 +27,7 @@ const _renderEngagements = (title, engagementRows) => [
   ),
 ]
 
-const _render = ({projects, projectListDOM, projectFormDOM, engagements}) =>
+const _render = ({projects, projectListDOM, projectFormDOM, engagements, engagementListDOM}) =>
   col(
     importantTip('The Sparks.Network is not open to the public right now.'),
     `
@@ -41,10 +42,12 @@ const _render = ({projects, projectListDOM, projectFormDOM, engagements}) =>
       listItem({title: 'Projects You Manage', header: true}) :
       null,
     projectListDOM,
-    ..._renderEngagements('Applied To',
-      engagements
-        .filter(e => e.isApplied && !e.isAccepted && !e.isConfirmed),
-    ),
+    engagements.length > 0 ? listItem({title: 'Applied To', header: true}) : null,
+    engagementListDOM,
+    // ..._renderEngagements('Applied To',
+    //   engagements
+    //     .filter(e => e.isApplied && !e.isAccepted && !e.isConfirmed),
+    // ),
   )
 
 export default sources => {
@@ -57,11 +60,14 @@ export default sources => {
   const projectForm = isolate(ProjectForm)(sources)
   const projectList = isolate(ProjectList)({...sources, projects$})
 
+  const engagementList = isolate(EngagementList)({...sources, engagements$})
+
   const queue$ = projectForm.project$
     .map(Projects.action.create)
 
   const route$ = Observable.merge(
     projectList.route$,
+    engagementList.route$,
     NavClicker(sources).route$,
     Projects.redirect.create(sources).route$,
   )
@@ -69,6 +75,7 @@ export default sources => {
   const viewState = {
     projectListDOM$: projectList.DOM,
     projectFormDOM$: projectForm.DOM,
+    engagementListDOM$: engagementList.DOM,
     projects$,
     engagements$,
   }
