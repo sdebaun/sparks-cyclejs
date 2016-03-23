@@ -1,4 +1,5 @@
 import combineLatestObj from 'rx-combine-latest-obj'
+import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 import {log} from 'util'
@@ -8,14 +9,14 @@ const Form = sources => {
 
   // controls$ is array of the created components (sink collections technically)
   const controls$ = sources.Controls$.map(Controls =>
-    Controls.map(({field,Control}) => ({field, control: Control(sources)}))
+    Controls.map(({field,Control}) => ({field, control: isolate(Control,field)(sources)}))
   )
 
   const reduceControls = controls => {
     const foo = controls.reduce((a, {field,control}) =>
       (a[field] = control.value$) && a, {}
     )
-    console.log('reduced', foo)
+    // console.log('reduced', foo)
     return foo
   }
 

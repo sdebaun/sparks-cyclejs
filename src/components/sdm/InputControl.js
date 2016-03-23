@@ -3,19 +3,18 @@ const {just} = Observable
 
 import combineLatestObj from 'rx-combine-latest-obj'
 
+import {div} from 'helpers'
+
 import {Input} from 'snabbdom-material'
 
-// import {log} from 'util'
-
-import newId from './id'
+import {log} from 'util'
 
 const InputControl = sources => {
-  const id = newId()
-
-  const input$ = sources.DOM.select('.' + id).events('input')
+  const input$ = sources.DOM.select('.input').events('input')
 
   const value$ = (sources.value$ || just(null))
     .merge(input$.pluck('target','value'))
+  value$.subscribe(log('value$'))
 
   const viewState = {
     label$: sources.label$ || just(null),
@@ -25,7 +24,9 @@ const InputControl = sources => {
 
   const DOM = combineLatestObj(viewState)
     .map(({label, value, classNames}) =>
-      Input({label, value, className: [id, ...classNames].join('.')})
+      div({},[
+        Input({label, value, className: ['input', ...classNames].join('.')}),
+      ])
     )
 
   return {

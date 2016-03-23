@@ -1,39 +1,15 @@
-// import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
-import {col} from 'helpers'
-// import isolate from '@cycle/isolate'
+import {Observable} from 'rx'
+const {just} = Observable
 
-import makeInputControl from 'components/InputControlFactory'
+import {Form} from 'components/ui/Form'
+import {InputControl} from 'components/sdm'
 
-const _render = ({
-  nameInputDOM,
-}) =>
-  col(
-    nameInputDOM,
-  )
+const NameInput = sources =>
+  InputControl({label$: just('Name the Team'), ...sources})
 
-const NameInput = makeInputControl({
-  label: 'Name the new Team',
-  className: 'name',
+const TeamForm = sources => Form({
+  ...sources,
+  Controls$: just([{field: 'name', Control: NameInput}]),
 })
-
-const TeamForm = sources => {
-  // why does isolate break this???
-  // const inviteEmailInput = isolate(InviteEmailInput)(sources)
-  const nameInput = NameInput(sources)
-
-  const team$ = combineLatestObj({
-    name$: nameInput.value$,
-  })
-
-  const viewState = {
-    team$,
-    nameInputDOM$: nameInput.DOM,
-  }
-
-  const DOM = combineLatestObj(viewState).map(_render)
-
-  return {DOM, team$}
-}
 
 export {TeamForm}

@@ -45,7 +45,7 @@ const CreateTeam = sources => {
 
   const submit$ = _submitAction$(sources)
 
-  const queue$ = teamForm.team$
+  const queue$ = teamForm.item$
     .sample(submit$)
     .zip(sources.projectKey$,
       (team,projectKey) => ({projectKey, ...team})

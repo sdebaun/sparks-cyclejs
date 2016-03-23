@@ -7,15 +7,16 @@ import listItem from 'helpers/listItem'
 import {DropdownMenu} from 'components/DropdownMenu'
 
 import {Form, makeMenuItemFormPopup} from 'components/ui'
-import makeInputControl from 'components/InputControlFactory'
+import {InputControl} from 'components/sdm'
 
 // import {log} from 'util'
 
 import codeIcons from 'components/opp/codeIcons'
 
-const ShiftCountInput = makeInputControl({
-  label: 'How many shifts?',
-  className: 'shifts',
+const ShiftCountInput = sources => InputControl({
+  ...sources,
+  label$: just('How many shifts?'),
+  value$: just(1),
 })
 
 const GiveShiftForm = sources => Form({...sources,
@@ -29,9 +30,9 @@ const GiveShifts = makeMenuItemFormPopup({
   className: 'shifts',
 })
 
-const PaymentAmountInput = makeInputControl({
-  label: 'How much do they pay?',
-  className: 'banknote',
+const PaymentAmountInput = sources => InputControl({
+  ...sources,
+  label$: just('How much do they pay?'),
 })
 
 const GivePaymentForm = sources => Form({...sources,
@@ -45,9 +46,9 @@ const GivePayment = makeMenuItemFormPopup({
   className: 'payment',
 })
 
-const LegalNameInput = makeInputControl({
-  label: 'What is the Legal Name of your Organization?',
-  className: 'legal-name',
+const LegalNameInput = sources => InputControl({
+  ...sources,
+  label$: just('What is the Legal Name of your Organization?'),
 })
 
 const GiveWaiverForm = sources => Form({...sources,
@@ -61,9 +62,9 @@ const GiveWaiver = makeMenuItemFormPopup({
   className: 'waiver',
 })
 
-const DepositAmountInput = makeInputControl({
-  label: 'How much is their Deposit?',
-  className: 'deposit',
+const DepositAmountInput = sources => InputControl({
+  ...sources,
+  label$: just('How much is their Deposit?'),
 })
 
 const GiveDepositForm = sources => Form({...sources,
