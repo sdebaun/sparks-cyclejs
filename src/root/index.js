@@ -18,7 +18,7 @@ import '!style!css!snabbdom-material/lib/index.css'
 
 import {nestedComponent} from 'util'
 
-// import {log} from 'util'
+import {log} from 'util'
 
 import './styles.scss'
 
@@ -100,11 +100,20 @@ export default sources => {
 
   const {responses$} = AuthedResponseManager(sources)
 
+  const previousRoute$ = sources.router.observable
+    .pluck('pathname')
+    .scan((acc,val) => [val, acc[0]], [null,null])
+    .map(arr => arr[1])
+    .shareReplay(1)
+
+  previousRoute$.subscribe(log('previousRoute$'))
+
   const page$ = nestedComponent(sources.router.define(routes), {
     ...sources,
     ...user,
     ...redirects,
     responses$,
+    previousRoute$,
   })
 
   const DOM = page$.pluckFlat('DOM')

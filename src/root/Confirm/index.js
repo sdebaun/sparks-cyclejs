@@ -1,6 +1,8 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
+import {log} from 'util'
+
 // import AppBar from 'components/AppBar'
 
 // import {div} from 'cycle-snabbdom'
@@ -99,8 +101,15 @@ export default sources => {
 
   const frame = SoloFrame({pageDOM, ...sources})
 
+  const redirectLogin$ = sources.previousRoute$
+    .sample(sources.redirectLogin$)
+  const redirectLogout$ = sources.previousRoute$
+    .sample(sources.redirectLogout$)
+
   const route$ = Observable.merge(
-    frame.route$, sources.redirectLogin$, sources.redirectLogout$
+    frame.route$,
+    redirectLogin$,
+    redirectLogout$,
   )
 
   const auth$ = frame.auth$
