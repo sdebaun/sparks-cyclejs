@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
-const {merge} = Observable
+const {merge, just} = Observable
+
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {Mask, getScreenSize} from 'snabbdom-material'
@@ -41,15 +42,16 @@ const Menu = sources => {
   const isOpen$ = merge(
     sources.isOpen$,
     sources.DOM.select('.close').events('click').map(() => false),
-  )
+  ).startWith(false)
 
   const viewState = {
     children$: sources.children$,
     isOpen$,
+    leftAlign$: sources.leftAlign$ || just(true),
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({isOpen, children, leftAlign = true}) =>
+    .map(({isOpen, children, leftAlign}) =>
       div('.menu', [
         Mask({className: 'close', dark: false, isOpen}),
         isOpen ? div('.menu-contents.paper1', {

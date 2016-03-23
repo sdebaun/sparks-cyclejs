@@ -18,12 +18,12 @@
     min-width: 340px;
     max-width: 400px;
 
-    .left {
+    &.left {
       left: 0;
       right: auto;
     }
 
-    .right {
+    &.right {
       right: 0;
       left: auto;
     }
