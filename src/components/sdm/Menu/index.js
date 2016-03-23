@@ -5,6 +5,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {Mask, getScreenSize} from 'snabbdom-material'
 import {div} from 'cycle-snabbdom'
+import menuItem from 'helpers/menuItem'
 
 require('./styles.scss')
 
@@ -67,4 +68,28 @@ const Menu = sources => {
   }
 }
 
-export {Menu}
+const MenuItem = sources => {
+  const click$ = sources.DOM.select('.item').events('click')
+
+  const viewState = {
+    iconName$: sources.iconName$ || just(null),
+    title$: sources.title$ || just('no title$'),
+  }
+
+  const DOM = combineLatestObj(viewState)
+    .map(({iconName, title}) =>
+      div({},[menuItem({ //need extra div for isolate
+        title: title,
+        iconName: iconName,
+        className: 'item',
+        clickable: true,
+      })])
+    )
+
+  return {
+    click$,
+    DOM,
+  }
+}
+
+export {Menu, MenuItem}

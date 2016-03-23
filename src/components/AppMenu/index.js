@@ -1,52 +1,53 @@
 import {Observable} from 'rx'
 const {just, merge} = Observable
+import combineLatestObj from 'rx-combine-latest-obj'
+import isolate from '@cycle/isolate'
+
 import {div} from 'cycle-snabbdom'
 
-import combineLatestObj from 'rx-combine-latest-obj'
+// import {log} from 'util'
 
 // these are action creators specific to cyclic-fire and should live there
 import {PROVIDERS} from 'util'
 
-import {Fab, Menu} from 'components/sdm'
+import {Fab, Menu, MenuItem} from 'components/sdm'
 import {icon} from 'helpers'
-import menuItem from 'helpers/menuItem'
-import {log} from 'util'
 
-const Logout = sources => ({
-  click$: sources.DOM.select('.logout').events('click'),
-  DOM: just(
-    menuItem({
-      title: 'Logout',
-      iconName: 'remove',
-      className: 'logout',
-      clickable: true,
-    }),
-  ),
+const Dash = sources => MenuItem({...sources,
+  iconName$: just('home'),
+  title$: sources.userProfile$.pluck('fullName'),
 })
 
-const GoogleLogin = sources => ({
-  click$: sources.DOM.select('.login').events('click'),
-  DOM: just(
-    menuItem({
-      title: 'Login with Google',
-      iconName: 'remove',
-      className: 'login',
-      clickable: true,
-    }),
-  ),
+const Admin = sources => MenuItem({...sources,
+  iconName$: just('build'),
+  title$: just('Admin'),
+})
+
+const Logout = sources => MenuItem({...sources,
+  iconName$: just('sign-out'),
+  title$: just('Logout'),
+})
+
+const GoogleLogin = sources => MenuItem({...sources,
+  iconName$: just('google-plus-square'),
+  title$: just('Login with Google'),
 })
 
 const AppMenu = sources => {
   const fab = Fab({iconDOM$: just(icon('more_vert')), ...sources})
 
-  const logout = Logout(sources)
-  const googleLogin = GoogleLogin(sources)
+  const dash = isolate(Dash,'dash')(sources)
+  const admin = isolate(Admin,'admin')(sources)
+  const logout = isolate(Logout,'logout')(sources)
+  const googleLogin = isolate(GoogleLogin,'google')(sources)
 
   const isOpen$ = fab.click$.startWith(false)
 
   const menuItems$ = sources.userProfile$
     .map(userProfile =>
-      userProfile ? [logout] : [googleLogin]
+      userProfile ?
+        [dash, userProfile.isAdmin ? admin : null, logout].filter(i => !!i) :
+        [googleLogin]
     ).shareReplay(1)
 
   const menu = Menu({
@@ -62,20 +63,22 @@ const AppMenu = sources => {
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({fabDOM, menuDOM}) =>
-      div({},[fabDOM,menuDOM])
-    )
+    .map(({fabDOM, menuDOM}) => div({},[fabDOM,menuDOM]))
 
   const auth$ = merge(
     googleLogin.click$.map(PROVIDERS.google),
     logout.click$.map(PROVIDERS.logout),
   )
 
+  const route$ = merge(
+    dash.click$.map('/dash'),
+    admin.click$.map('/admin'),
+  )
+
   return {
     DOM,
     auth$,
-    route$: Observable.empty(),
-    // route$,
+    route$,
   }
 }
 
