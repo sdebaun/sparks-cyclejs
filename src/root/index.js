@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, empty} = Observable
+const {just, empty, merge} = Observable
 
 import isolate from '@cycle/isolate'
 
@@ -106,8 +106,6 @@ export default sources => {
     .map(arr => arr[1])
     .shareReplay(1)
 
-  previousRoute$.subscribe(log('previousRoute$'))
-
   const page$ = nestedComponent(sources.router.define(routes), {
     ...sources,
     ...user,
@@ -120,12 +118,10 @@ export default sources => {
 
   const auth$ = page$.pluckFlat('auth$')
 
-  const {queue$} = AuthedActionManager({
-    ...sources,
-    queue$: page$.pluckFlat('queue$'), // must be 2d arg to override sources
-  })
+  const {queue$} =
+    AuthedActionManager({...sources, queue$: page$.pluckFlat('queue$')})
 
-  const router = Observable.merge(
+  const router = merge(
     page$.pluckFlat('route$'),
     redirects.redirectUnconfirmed$,
   )
