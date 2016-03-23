@@ -1,5 +1,8 @@
 import {div, h1, h2, h3, h4, h5, ul, li, a, b, br} from 'cycle-snabbdom'
-import {Col, Row, Button} from 'snabbdom-material'
+// import {Col, Row, Button} from 'snabbdom-material'
+import {Col, Row} from 'snabbdom-material'
+
+// import {RaisedButton as Button} from 'components/cyclic-surface-material'
 
 import {headerLogo} from './index'
 
@@ -44,21 +47,21 @@ const benefits =
 const basicLink = (title, href = '') =>
   a({props: {href}, style: {color: '#FFF'}}, [title])
 
-const onClick = () => {}
-
-const signUp =
-  Row({style: {width: '100%', textAlign: 'center'}, className: 'signup'}, [
-    // Col({type: 'xs-6'}, [
-    //   Button({onClick, primary: true, className: 'facebook'}, [
-    //     'Sign Up using Facebook',
-    //   ]),
-    // ]),
-    Col({type: 'xs-12'}, [
-      Button({onClick, primary: true, className: 'google'}, [
-        'Sign Up using Google',
-      ]),
-    ]),
-  ])
+const signUp = buttons =>
+  div({}, [buttons])
+  // Row({style: {width: '100%', textAlign: 'center'}, className: 'signup'}, [
+  //   // Col({type: 'xs-6'}, [
+  //   //   Button({onClick, primary: true, className: 'facebook'}, [
+  //   //     'Sign Up using Facebook',
+  //   //   ]),
+  //   // ]),
+  //   Col({type: 'xs-12'}, [
+  //     buttons,
+  //     // Button({onClick, primary: true, className: 'google'}, [
+  //     //   'Sign Up using Google',
+  //     // ]),
+  //   ]),
+  // ])
 
 const footer =
   div('#footer', {static: true}, [
@@ -98,7 +101,7 @@ const footer =
     ]),
   ])
 
-const landing = (appMenu) =>
+const landing = (appMenu, buttons) =>
   div('#landing', {}, [
     div('#hook', {
       style: {backgroundImage: 'url("' + headerSrc + '")'},
@@ -120,7 +123,8 @@ const landing = (appMenu) =>
     div('#cta', {static: true}, [
       div('.container', {}, [
         h4({}, ['Sign Up For', br({}), 'The Sparks Network!']),
-        signUp,
+        buttons,
+        // signUp(buttons),
       ]),
     ]),
     footer,
