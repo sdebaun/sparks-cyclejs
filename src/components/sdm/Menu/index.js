@@ -1,13 +1,11 @@
 import {Observable} from 'rx'
 const {merge} = Observable
-
 import combineLatestObj from 'rx-combine-latest-obj'
+
 import {Mask, getScreenSize} from 'snabbdom-material'
 import {div} from 'cycle-snabbdom'
 
-import {NavClicker} from 'components'
-
-// import {log} from 'util'
+require('./styles.scss')
 
 const insert = (vnode) => {
   const {height: screenHeight} = getScreenSize()
@@ -30,47 +28,16 @@ const insert = (vnode) => {
   vnode.elm.scrollTop += offsetTop
 }
 
-const containerStyle = {
-  zIndex: '1000',
-  position: 'relative',
-  height: '0',
-  overflow: 'visible',
-}
-
-const menuStyle = {
-  zIndex: '1001',
-  padding: '10px 0',
-  backgroundColor: '#fff',
-  color: '#000',
-  position: 'absolute',
-  overflowY: 'auto',
-  scrollbar: 'width: 4px',
-  top: '-8px',
-  opacity: '0',
-  transition: `opacity 0.3s`,
+const style = {
   delayed: {
     opacity: '1',
   },
   remove: {
     opacity: '0',
   },
-  minWidth: '340px',
-  maxWidth: '400px',
 }
 
-const alignStyle = leftAlign =>
-  leftAlign ? {left: '0', right: 'auto'} : {right: '0', left: 'auto'}
-
-const _render = ({isOpen, children, leftAlign = true}) =>
-  div('.menu', {style: containerStyle}, [
-    Mask({className: 'close', dark: false, isOpen}),
-    isOpen ? div('.paper1', {
-      hook: {insert},
-      style: Object.assign({}, menuStyle, alignStyle(leftAlign)),
-    }, children) : null,
-  ])
-
-const BaseDropdownMenu = sources => {
+const Menu = sources => {
   const isOpen$ = merge(
     sources.isOpen$,
     sources.DOM.select('.close').events('click').map(() => false),
@@ -81,15 +48,21 @@ const BaseDropdownMenu = sources => {
     isOpen$,
   }
 
-  const DOM = combineLatestObj(viewState).map(_render)
-
-  const route$ = NavClicker(sources)
+  const DOM = combineLatestObj(viewState)
+    .map(({isOpen, children, leftAlign = true}) =>
+      div('.menu', [
+        Mask({className: 'close', dark: false, isOpen}),
+        isOpen ? div('.menu-contents.paper1', {
+          style,
+          hook: {insert},
+          class: {left: leftAlign, right: !leftAlign},
+        }, children) : null,
+      ])
+    )
 
   return {
     DOM,
-    route$,
   }
 }
 
-// dont isolate yet
-export const DropdownMenu = BaseDropdownMenu
+export {Menu}

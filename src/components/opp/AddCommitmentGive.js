@@ -4,7 +4,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'helpers'
 import listItem from 'helpers/listItem'
-import {DropdownMenu} from 'components/DropdownMenu'
+import {Menu} from 'components/sdm'
 
 import {Form, makeMenuItemFormPopup} from 'components/ui'
 import {InputControl} from 'components/sdm'
@@ -118,7 +118,7 @@ export const AddCommitmentGive = sources => {
     .merge(submits$.map(false))
     .startWith(false)
 
-  const dropdown = DropdownMenu({...sources, isOpen$, children$: menuItemDOMs$})
+  const dropdown = Menu({...sources, isOpen$, children$: menuItemDOMs$})
 
   const viewState = {
     dropdownDOM$: dropdown.DOM,

@@ -13,7 +13,7 @@ import menuItem from 'helpers/menuItem'
 import codeIcons from 'components/opp/codeIcons'
 import codeTitles from 'components/opp/codeTitles'
 
-import {DropdownMenu} from 'components/DropdownMenu'
+import {Menu} from 'components/sdm'
 
 import {mergeOrFlatMapLatest} from 'util'
 
@@ -47,12 +47,12 @@ const CommitmentItem = (sources, className) => {
       clickable: true}),
   ])
 
-  const queue$ = sources.DOM.select('.delete').events('click')
+  const queue$ = sources.DOM.select(`.${className}`).select('.delete').events('click')
     .flatMapLatest(() => sources.item$)
     .pluck('$key')
     .map(Commitments.action.remove)
 
-  const dropdown = DropdownMenu({...sources, isOpen$, children$: menuItems})
+  const dropdown = Menu({...sources, isOpen$, children$: menuItems})
 
   const DOM = sources.item$.map(({code, ...vals}) =>
     div({props: {className}},[
