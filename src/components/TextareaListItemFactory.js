@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 
-import {textarea} from 'cycle-snabbdom'
+import {textarea, h6} from 'cycle-snabbdom'
 import {submitAndCancel} from 'helpers/buttons'
 
 import listItem from 'helpers/listItem'
@@ -16,9 +16,39 @@ const _openActions$ = ({DOM}) => Observable.merge(
 const _submitAction$ = ({DOM}) =>
   DOM.select('.submit').events('click').map(true)
 
-export default ({title, className, iconName}) => sources => {
-  // render is nested so it can use factory args
-  const _render = ({value, isOpen}) =>
+const divStyle = {
+  border: '2px solid rgb(0, 150, 136)',
+  width: 'auto',
+  display: 'flex',
+}
+
+const textAreaStyle = (height) => ({
+  overflow: 'hidden',
+  padding: '1em',
+  paddingRight: '6em',
+  height,
+  minHeight: '3em',
+  width: '100%',
+  lineHeight: '16px',
+  zIndex: 1,
+})
+
+const labelStyle = (height) => ({
+  zIndex: 5,
+  position: 'absolute',
+  fontSize: '1.25em',
+  fontWeight: 'lighter',
+  textAlign: 'right',
+  display: 'inline',
+  right: '0',
+  marginRight: '.8em',
+  marginTop: `calc(${height} - 1.8em)`,
+  padding: '0.1em',
+  border: '2px solid rgb(0, 150, 136)',
+})
+
+const _render = ({iconName, className, title, maxLength}) =>
+  ({value, length, isOpen, height}) =>
     col(
       listItem({
         iconName,
@@ -26,32 +56,64 @@ export default ({title, className, iconName}) => sources => {
         title,
         clickable: true,
       }),
-      isOpen && div({},[
-        textarea({class: {input: true}},[value]),
-        submitAndCancel(
-          'This sounds great',
-          'Ditch these changes',
-        ),
+      isOpen && div({}, [
+        div({style: divStyle}, [
+          textarea({
+            props: {maxLength},
+            class: {input: true},
+            style: textAreaStyle(height),
+          }, [
+            value,
+          ]),
+          h6({style: labelStyle(height)}, [`${length}/${maxLength}`]),
+        ]),
+        div({}, [
+          submitAndCancel(
+            'This sounds great',
+            'Ditch these changes',
+          ),
+        ]),
       ]),
     )
 
-  const input$ = sources.DOM.select('.input').events('input')
-  input$.subscribe(log('input$'))
+export default factoryInput => sources => {
+  const input = sources.DOM.select('.input')
+  const input$ = input.observable
+
+  const inputEvent$ = input.events('input').share()
+
+  const intialLength$ = input$
+    .map(elements => elements[0])
+    .map(elm => elm ? elm.value : '')
+    .pluck('length')
+    .distinctUntilChanged()
+
+  const length$ = intialLength$
+    .merge(inputEvent$.pluck('target', 'value', 'length'))
+    .startWith(0)
+
+  const height$ = input$
+    .map(elements => elements[0])
+    .map(elm => elm ? elm.scrollHeight + 'px' : 'auto')
+    .distinctUntilChanged()
+    .startWith('auto')
 
   const isOpen$ = _openActions$(sources)
     .startWith(false)
 
   const submit$ = _submitAction$(sources)
 
-  const value$ = input$.pluck('target','value')
+  const value$ = inputEvent$.pluck('target','value')
     .sample(submit$)
 
   const viewState = {
+    length$,
+    height$,
     isOpen$,
     value$: sources.value$ || Observable.just(null),
   }
 
-  const DOM = combineLatestObj(viewState).map(_render)
+  const DOM = combineLatestObj(viewState).map(_render(factoryInput))
 
   return {DOM, value$}
 }
