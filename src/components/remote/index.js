@@ -9,6 +9,9 @@ const filterBy = (collection, orderByChild) => sources => equalTo =>
   sources.firebase(collection, {orderByChild, equalTo})
     .map(rows)
 
+const filterOne = collection => sources => key =>
+  sources.firebase(collection,key)
+
 const responseRedirect = (collection, action, routeMapper) => sources => ({
   route$: sources.responses$
     .filter(byMatch(collection, action))
@@ -23,6 +26,7 @@ const actionCreator = (domain, action) => payload => ({
 
 export const Projects = {
   query: {
+    one: filterOne('Projects'),
     all: filterAll('Projects'),
     byOwner: filterBy('Projects', 'ownerProfileKey'),
   },
@@ -31,6 +35,12 @@ export const Projects = {
   },
   redirect: {
     create: responseRedirect('Projects', 'create', key => '/project/' + key),
+  },
+}
+
+export const ProjectImages = {
+  query: {
+    one: filterOne('ProjectImages'),
   },
 }
 
@@ -51,3 +61,34 @@ export const Commitments = {
   },
 }
 
+export const Teams = {
+  query: {
+    one: filterOne('Teams'),
+    byProject: filterBy('Teams','projectKey'),
+  },
+  action: {
+    create: actionCreator('Teams', 'create'),
+    remove: actionCreator('Teams', 'remove'),
+  },
+}
+
+export const Opps = {
+  query: {
+    one: filterOne('Opps'),
+    byProject: filterBy('Opps','projectKey'),
+  },
+  action: {
+    create: actionCreator('Opps', 'create'),
+    remove: actionCreator('Opps', 'remove'),
+  },
+}
+
+export const Organizers = {
+  query: {
+    byProject: filterBy('Organizers','projectKey'),
+  },
+  action: {
+    create: actionCreator('Organizers', 'create'),
+    remove: actionCreator('Organizers', 'remove'),
+  },
+}

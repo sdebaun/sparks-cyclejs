@@ -21,32 +21,31 @@ const _routes = {
   '/manage': Manage,
 }
 
+import {
+  Projects,
+  ProjectImages,
+  Teams,
+  Opps,
+  Organizers,
+} from 'components/remote'
+
 export default sources => {
   const projectKey$ = sources.projectKey$
 
-  const projectImage$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
+  const project$ = sources.projectKey$
+    .flatMapLatest(Projects.query.one(sources))
 
-  const project$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
+  const projectImage$ = sources.projectKey$
+    .flatMapLatest(ProjectImages.query.one(sources))
 
-  const teams$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Teams',{
-      orderByChild: 'projectKey',
-      equalTo: projectKey,
-    }))
+  const teams$ = sources.projectKey$
+    .flatMapLatest(Teams.query.byProject(sources))
 
   const opps$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Opps', {
-      orderByChild: 'projectKey',
-      equalTo: projectKey,
-    }))
+    .flatMapLatest(Opps.query.byProject(sources))
 
   const organizers$ = sources.projectKey$
-    .flatMapLatest(key => sources.firebase('Organizers',{
-      orderByChild: 'projectKey',
-      equalTo: key,
-    }))
+    .flatMapLatest(Organizers.query.byProject(sources))
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
