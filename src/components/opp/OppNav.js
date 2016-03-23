@@ -9,7 +9,7 @@ import {h, div} from 'cycle-snabbdom'
 // import {log} from 'util'
 
 import CreateTeamHeader from 'components/CreateTeamHeader'
-import CreateOppHeader from 'components/CreateOppHeader'
+import {CreateOppHeader} from 'components/opp'
 
 const _navActions = sources => Observable.merge(
   sources.DOM.select('.nav').events('click')

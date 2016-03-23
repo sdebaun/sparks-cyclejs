@@ -11,7 +11,7 @@ import {rows} from 'util'
 // import {log} from 'util'
 
 import CreateTeamHeader from 'components/CreateTeamHeader'
-import CreateOppHeader from 'components/CreateOppHeader'
+import {CreateOppHeader} from 'components/opp'
 
 const _navActions = sources => Observable.merge(
   sources.DOM.select('.navAction').events('click')

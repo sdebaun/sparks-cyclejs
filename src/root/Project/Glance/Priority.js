@@ -5,7 +5,7 @@ import isolate from '@cycle/isolate'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
 import CreateTeam from 'components/CreateTeam'
-import CreateOpp from 'components/CreateOpp'
+import {CreateOpp} from 'components/opp'
 
 import listItem from 'helpers/listItem'
 import listItemDisabled from 'helpers/listItemDisabled'

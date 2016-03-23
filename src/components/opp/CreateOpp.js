@@ -32,7 +32,7 @@ const OppModal = makeModal({
   closeLabel: 'Not the Now',
 })
 
-export default sources => {
+const CreateOpp = sources => {
   const isOpen$ = sources.DOM.select('.open').events('click')
     .map(true)
     .startWith(false)
@@ -65,3 +65,5 @@ export default sources => {
     queue$,
   }
 }
+
+export {CreateOpp}

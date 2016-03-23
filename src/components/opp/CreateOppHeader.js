@@ -41,7 +41,7 @@ const _render = ({isOpen, oppFormDOM}) =>
     })
   )
 
-export default sources => {
+const CreateOppHeader = sources => {
   const oppForm = OppForm(sources)
 
   const submit$ = _submitAction$(sources)
@@ -67,3 +67,5 @@ export default sources => {
 
   return {DOM, queue$}
 }
+
+export {CreateOppHeader}
