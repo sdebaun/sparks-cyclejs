@@ -1,55 +1,75 @@
 import {Observable} from 'rx'
+// import combineLatestObj from 'rx-combine-latest-obj'
+// import isolate from '@cycle/isolate'
 
-import {div} from 'cycle-snabbdom'
+import {div, span} from 'cycle-snabbdom'
 
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
-import TabBar from 'components/TabBar'
+// import TabBar from 'components/TabBar'
+// import ComingSoon from 'components/ComingSoon'
+import {EngagementNav} from 'components/engagement'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
-import ComingSoon from 'components/ComingSoon'
+// import {log} from 'util'
 
-// import Doing from './Doing'
+import Glance from './Glance'
+import Application from './Application'
+import Schedule from './Schedule'
 
 const _routes = {
-  '/': ComingSoon('Dash/Priority'),
-  '/commitments': ComingSoon('Dash/Commitments'),
-  '/more': ComingSoon('Dash/More Info'),
+  '/': Glance,
+  '/application': Application,
+  '/schedule': Schedule,
 }
 
-const _tabs = [
-  {path: '/', label: 'Priority'},
-  {path: '/commitments', label: 'Commitments'},
-  {path: '/more', label: 'More Info'},
-]
-
-const Nav = sources => ({
-  DOM: sources.isMobile$
-    .map(isMobile =>
-      div(
-        {},
-        [isMobile ? null : sources.titleDOM, '']
-      )
-    ),
-})
+// import ProjectQuickNavMenu from 'components/ProjectQuickNavMenu'
 
 export default sources => {
-  const page$ = nestedComponent(sources.router.define(_routes),sources)
+  const engagement$ = sources.engagementKey$
+    .flatMapLatest(key => sources.firebase('Engagements',key))
 
-  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
+  // const oppKey$ = engagement$.pluck('oppKey')
+  const opp$ = engagement$.pluck('opp')
+
+  const projectKey$ = opp$.pluck('projectKey')
+  const project$ = opp$.pluck('project')
+
+  const projectImage$ = projectKey$
+    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
+
+  const page$ = nestedComponent(
+    sources.router.define(_routes),
+    {engagement$, opp$, projectKey$, project$, ...sources}
+  )
+
+  const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
+
+  // const quickNav = ProjectQuickNavMenu(
+  //   {...sources, engagement$, project$, projectKey$, opp$}
+  // )
+
+  const labelText$ = opp$.pluck('name')
+  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
 
   const title = Title({
-    tabsDOM$: tabBar.DOM,
-    labelText$: sources.userProfile$.map(up => up && up.fullName || 'None'),
-    subLabelText$: Observable.just(''),
+    quickNavDOM$: project$.pluck('name').map(name => div({},[name])),
+    tabsDOM$: tabsDOM,
+    labelText$,
+    subLabelText$,
+    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
     ...sources,
   })
 
-  const nav = Nav({titleDOM: title.DOM, ...sources})
+  const nav = EngagementNav({
+    titleDOM: title.DOM,
+    engagement$,
+    ...sources,
+  })
 
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
+  const header = Header({titleDOM: title.DOM, tabsDOM: tabsDOM, ...sources})
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
@@ -58,11 +78,13 @@ export default sources => {
     ...sources,
   })
 
-  const children = [appFrame, page$, tabBar, title, nav, header]
+  const children = [appFrame, page$, title, nav, header]
+
+  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
 
   const route$ = Observable.merge(
     mergeOrFlatMapLatest('route$', ...children),
-    sources.redirectLogout$,
+    redirectOnLogout$,
   )
 
   return {
@@ -72,4 +94,3 @@ export default sources => {
     route$,
   }
 }
-
