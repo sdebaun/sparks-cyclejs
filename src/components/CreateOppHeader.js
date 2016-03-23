@@ -5,7 +5,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {Opps} from 'remote'
 
-import OppForm from 'components/OppForm'
+import {OppForm} from 'components/opp'
 
 import {col} from 'helpers'
 import modal from 'helpers/modal'

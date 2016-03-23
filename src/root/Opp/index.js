@@ -9,7 +9,7 @@ import Title from 'components/Title'
 import Header from 'components/Header'
 // import TabBar from 'components/TabBar'
 // import ComingSoon from 'components/ComingSoon'
-import OppNav from 'components/OppNav'
+import {OppNav} from 'components/opp'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
