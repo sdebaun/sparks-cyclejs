@@ -1,6 +1,3 @@
-import {Observable} from 'rx'
-const {just} = Observable
-
 import {ListItemNavigating} from 'components/sdm'
 
 import {ProjectImages} from 'components/remote'

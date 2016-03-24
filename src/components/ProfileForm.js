@@ -24,8 +24,7 @@ const EmailInput = sources =>
 const PhoneInput = sources =>
   InputControl({label$: just('Your Phone Number'), ...sources})
 
-const ProfileForm = sources => Form({
-  ...sources,
+const ProfileForm = sources => Form({...sources,
   Controls$: just([
     {field: 'fullName', Control: FullNameInput},
     {Control: InfoBlock},
@@ -33,4 +32,5 @@ const ProfileForm = sources => Form({
     {field: 'phone', Control: PhoneInput},
   ]),
 })
+
 export {ProfileForm}

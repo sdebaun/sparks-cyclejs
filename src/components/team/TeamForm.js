@@ -4,11 +4,11 @@ const {just} = Observable
 import {Form} from 'components/ui/Form'
 import {InputControl} from 'components/sdm'
 
-const NameInput = sources =>
-  InputControl({label$: just('Name the Team'), ...sources})
+const NameInput = sources => InputControl({...sources,
+  label$: just('Name the Team'),
+})
 
-const TeamForm = sources => Form({
-  ...sources,
+const TeamForm = sources => Form({...sources,
   Controls$: just([{field: 'name', Control: NameInput}]),
 })
 

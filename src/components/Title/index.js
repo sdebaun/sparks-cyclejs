@@ -1,3 +1,5 @@
+// TODO: PRIORITY
+
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {div} from 'cycle-snabbdom'

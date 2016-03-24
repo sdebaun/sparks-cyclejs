@@ -12,8 +12,8 @@ const AppBar = sources => {
     route$: appMenu.route$,
     ...Toolbar({
       ...sources,
-      titleDOM: headerLogo.DOM,
-      rightItemDOM: appMenu.DOM,
+      titleDOM$: headerLogo.DOM,
+      rightItemDOM$: appMenu.DOM,
     }),
   }
 }

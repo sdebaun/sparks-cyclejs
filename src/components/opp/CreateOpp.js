@@ -1,6 +1,8 @@
 // TODO: NEXT - test case for extracting modal dialog
 
-// import {Observable} from 'rx'
+import {Observable} from 'rx'
+const {just} = Observable
+
 import combineLatestObj from 'rx-combine-latest-obj'
 
 // import isolate from '@cycle/isolate'
@@ -9,8 +11,9 @@ import {Opps} from 'remote'
 
 import {OppForm} from 'components/opp'
 import {makeModal} from 'components/ui'
+import {Dialog} from 'components/sdm'
 
-import {col} from 'helpers'
+import {div, col} from 'helpers'
 import listItem from 'helpers/listItem'
 
 // import {log} from 'util'
@@ -34,6 +37,10 @@ const OppModal = makeModal({
   closeLabel: 'Not the Now',
 })
 
+const NewOppDialog = sources => Dialog({...sources,
+  titleDOM$: just('My Dialog'),
+})
+
 const CreateOpp = sources => {
   const isOpen$ = sources.DOM.select('.open').events('click')
     .map(true)
@@ -41,11 +48,17 @@ const CreateOpp = sources => {
 
   const oppForm = OppForm(sources)
 
-  const oppModal = OppModal({
+  const oppModal = NewOppDialog({
     ...sources,
     contentDOM$: oppForm.DOM,
     isOpen$,
   })
+
+  // const oppModal = OppModal({
+  //   ...sources,
+  //   contentDOM$: oppForm.DOM,
+  //   isOpen$,
+  // })
 
   const queue$ = oppForm.item$
     .sample(oppModal.submit$)
