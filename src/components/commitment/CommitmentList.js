@@ -4,12 +4,9 @@ const {just} = Observable
 
 import isolate from '@cycle/isolate'
 
-import {div} from 'helpers'
-
 import {Commitments} from 'components/remote'
-import {mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
-import {MenuItem, ListItemWithMenu} from 'components/sdm'
+import {List, ListItemWithMenu, MenuItem} from 'components/sdm'
 
 import codeIcons from 'components/opp/codeIcons'
 import codeTitles from 'components/opp/codeTitles'
@@ -39,23 +36,8 @@ const CommitmentItem = sources => {
   }
 }
 
-const CommitmentList = sources => {
-  const controls$ = sources.commitments$
-    .map(commitments => controlsFromRows(sources, commitments, CommitmentItem))
-
-  const children$ = controls$
-    .map(controls => controls.map(c => c.DOM))
-
-  const DOM = children$.map(children => div({}, children))
-
-  const queue$ = controls$.flatMapLatest(children =>
-    mergeOrFlatMapLatest('queue$', ...children)
-  )
-
-  return {
-    DOM,
-    queue$,
-  }
-}
+const CommitmentList = sources => List({...sources,
+  Control$: just(CommitmentItem),
+})
 
 export {CommitmentItem, CommitmentList}

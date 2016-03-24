@@ -1,13 +1,7 @@
 import {Observable} from 'rx'
 const {just} = Observable
 
-// import {NavClicker} from 'components'
-// import listItem from 'helpers/listItem'
-// import {div} from 'cycle-snabbdom'
-
 import {List, ListItemNavigating} from 'components/sdm'
-
-// import {mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
 const _label = ({isApplied, isAccepted, isConfirmed}) =>
   isConfirmed && 'Confirmed' ||

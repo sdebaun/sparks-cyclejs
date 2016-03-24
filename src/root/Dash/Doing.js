@@ -43,7 +43,9 @@ export default sources => {
     .flatMapLatest(Engagements.query.byUser(sources))
 
   const projectForm = isolate(ProjectForm)(sources)
-  const projectList = isolate(ProjectList)({...sources, projects$})
+  const projectList = isolate(ProjectList)({...sources,
+    rows$: projects$,
+  })
 
   const engagementList = isolate(EngagementList)({...sources,
     rows$: engagements$,

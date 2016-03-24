@@ -25,8 +25,8 @@ export default sources => {
   const gives$ = commitments$.map(rows => rows.filter(r => r.party === 'vol'))
   const gets$ = commitments$.map(rows => rows.filter(r => r.party === 'org'))
 
-  const giveList = CommitmentList({...sources, commitments$: gives$}, 'give')
-  const getList = CommitmentList({...sources, commitments$: gets$}, 'get')
+  const giveList = CommitmentList({...sources, rows$: gives$}, 'give')
+  const getList = CommitmentList({...sources, rows$: gets$}, 'get')
 
   const addGive = isolate(AddCommitmentGive)(sources)
   const addGet = isolate(AddCommitmentGet)(sources)

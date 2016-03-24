@@ -1,18 +1,16 @@
-import {NavClicker} from 'components'
-import listItem from 'helpers/listItem'
-import {div} from 'cycle-snabbdom'
+import {Observable} from 'rx'
+const {just} = Observable
 
-const ProjectList = sources => ({
-  route$: NavClicker(sources).route$,
+import {List, ListItemNavigating} from 'components/sdm'
 
-  DOM: sources.projects$.map(projects =>
-    div({}, projects.map(({name,$key}) =>
-      listItem(
-        {title: name, subtitle: 'project',
-        link: '/project/' + $key, className: 'project.nav'}
-      )
-    ))
-  ),
+const ProjectItem = sources => ListItemNavigating({...sources,
+  title$: sources.item$.map(({name}) => name),
+  subtitle$: just('owner'),
+  path$: sources.item$.map(({$key}) => '/project/' + $key),
+})
+
+const ProjectList = sources => List({...sources,
+  Control$: just(ProjectItem),
 })
 
 export {ProjectList}
