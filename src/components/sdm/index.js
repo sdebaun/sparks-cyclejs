@@ -19,4 +19,5 @@ export {
   ListItemToggle,
   ListItemWithMenu,
   ListItemNavigating,
+  ListItemWithDialog,
 } from './ListItem'

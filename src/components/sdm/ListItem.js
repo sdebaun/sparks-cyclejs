@@ -4,9 +4,10 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
 import listItem from 'helpers/listItem'
+import {icon} from 'helpers'
 
 import {ToggleControl} from 'components/sdm'
-
+import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
 
 const ListItemClickable = sources => {
@@ -95,9 +96,36 @@ const ListItemNavigating = sources => {
   }
 }
 
+const ListItemWithDialog = sources => {
+  const _listItem = ListItemClickable(sources)
+
+  const dialog = Dialog({...sources,
+    isOpen$: _listItem.click$.map(true),
+    titleDOM$: sources.dialogTitleDOM$,
+    leftItemDOM$: sources.iconName$.map(icon),
+    contentDOM$: sources.dialogContentDOM$,
+  })
+
+  const DOM = combineLatestObj({
+    listItemDOM$: _listItem.DOM,
+    dialogDOM$: dialog.DOM,
+  }).map(({
+    listItemDOM,
+    dialogDOM,
+  }) =>
+    div({},[listItemDOM, dialogDOM])
+  )
+
+  return {
+    DOM,
+    submit$: dialog.submit$,
+  }
+}
+
 export {
   ListItemClickable,
   ListItemToggle,
   ListItemWithMenu,
   ListItemNavigating,
+  ListItemWithDialog,
 }
