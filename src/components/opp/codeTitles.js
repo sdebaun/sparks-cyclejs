@@ -1,3 +1,5 @@
+// TODO: where should these live
+
 export default {
   help: ({who}) => 'To help ' + who,
   ticket: ({ticketType}) => 'A ' + ticketType + ' ticket.',

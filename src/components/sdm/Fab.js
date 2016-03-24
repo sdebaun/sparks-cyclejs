@@ -3,7 +3,6 @@ import {Observable} from 'rx'
 const {just} = Observable
 
 import combineLatestObj from 'rx-combine-latest-obj'
-// import {Button} from 'snabbdom-material'
 import {Appbar} from 'snabbdom-material'
 
 import newId from './id'

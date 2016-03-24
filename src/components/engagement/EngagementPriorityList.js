@@ -1,5 +1,5 @@
-// import {Observable} from 'rx'
-// const {merge} = Observable
+// TODO: TLC
+
 import combineLatestObj from 'rx-combine-latest-obj'
 import listItem from 'helpers/listItem'
 import {div} from 'cycle-snabbdom'

@@ -1,6 +1,37 @@
 // WIP extracting remote data interface
 import {rows, byMatch} from 'util'
 
+/*
+exports what are essentially namespaced components
+or mutators that are used by other components to translate intent
+into other things:
+
+ACTIONS - are functions that map payloads to actions
+
+Profiles:
+  action:
+    create: actionCreator('Profiles','create')
+
+can then be used as
+
+const newProfile$ = ...from component logic
+const queue$ = newProfile$.map(Profiles.action.create)
+
+and the queue$ is returned as a sink back up to the driver which processes it.
+
+QUERIES - return parameterized streams of remote data state
+
+Projects:
+  query:
+    byOwner: filterBy('Projects', 'ownerProfileKey')
+
+  const myProjects$ = currentUserProfileKey$
+    .flatMapLatest(Projects.query.byOwner(sources))
+
+myProjects$ is now a stream
+each emit consisting of an array of all the user's projects
+*/
+
 const filterAll = collection => sources => () =>
   sources.firebase(collection)
     .map(rows)

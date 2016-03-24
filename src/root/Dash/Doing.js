@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+const {just} = Observable
 
 import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
@@ -6,10 +7,11 @@ import isolate from '@cycle/isolate'
 import {col, importantTip} from 'helpers'
 import listItem from 'helpers/listItem'
 
-import {NavClicker} from 'components'
 import {Projects, Engagements} from 'components/remote'
-import {ProjectList, ProjectForm} from 'components/project'
-import {EngagementList} from 'components/engagement'
+
+import {List} from 'components/sdm'
+import {ProjectItem, ProjectForm} from 'components/project'
+import {EngagementItem} from 'components/engagement'
 
 const engagementHeader = engagements =>
   engagements.length > 0 ? listItem({title: 'Applied To', header: true}) : null
@@ -35,6 +37,10 @@ const _render = ({
     projectFormDOM,
   )
 
+const ProjectOwnedItem = sources => ProjectItem({...sources,
+  subtitle$: just('owner'),
+})
+
 export default sources => {
   const projects$ = sources.userProfileKey$
     .flatMapLatest(Projects.query.byOwner(sources))
@@ -43,11 +49,13 @@ export default sources => {
     .flatMapLatest(Engagements.query.byUser(sources))
 
   const projectForm = isolate(ProjectForm)(sources)
-  const projectList = isolate(ProjectList)({...sources,
+  const projectList = isolate(List)({...sources,
+    Control$: just(ProjectOwnedItem),
     rows$: projects$,
   })
 
-  const engagementList = isolate(EngagementList)({...sources,
+  const engagementList = isolate(List)({...sources,
+    Control$: just(EngagementItem),
     rows$: engagements$,
   })
 
@@ -57,7 +65,6 @@ export default sources => {
   const route$ = Observable.merge(
     projectList.route$,
     engagementList.route$,
-    NavClicker(sources).route$,
     Projects.redirect.create(sources).route$,
   )
 

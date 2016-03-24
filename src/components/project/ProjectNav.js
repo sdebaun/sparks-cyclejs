@@ -1,9 +1,10 @@
+// TODO: TLC
+
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import listItem from 'helpers/listItem'
-// import listHeader from 'helpers/listHeader'
 
 import {h, div} from 'cycle-snabbdom'
 

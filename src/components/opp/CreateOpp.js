@@ -1,3 +1,5 @@
+// TODO: NEXT - test case for extracting modal dialog
+
 // import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 

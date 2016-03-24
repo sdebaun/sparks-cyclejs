@@ -26,8 +26,3 @@ const Toolbar = sources => ({
 })
 
 export {Toolbar}
-// export const appBar = ({appMenu}) =>
-//   Appbar({fixed: true, material}, [
-//     Appbar.Title({style: {float: 'left'}}, [headerLogo]),
-//     div({style: {float: 'right'}}, [appMenu]),
-//   ])
