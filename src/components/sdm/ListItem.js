@@ -15,17 +15,19 @@ const ListItemClickable = sources => {
   const viewState = {
     iconDOM$: sources.iconDOM$ || just(null),
     iconName$: sources.iconName$ || just(null),
+    iconSrc$: sources.iconSrc$ || just(null),
     title$: sources.title$ || just('no title$'),
     subtitle$: sources.subtitle$ || just(null),
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({iconDOM, iconName, title, subtitle}) =>
+    .map(({iconDOM, iconName, iconSrc, title, subtitle}) =>
       div({},[listItem({ //need extra div for isolate
         title,
         subtitle,
         iconDOM,
         iconName,
+        iconSrc,
         className: 'item',
         clickable: true,
       })])
