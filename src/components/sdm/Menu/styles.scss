@@ -1,0 +1,32 @@
+.menu {
+  z-index: 1000;
+  position: relative;
+  height: 0;
+  overflow: visible;
+
+  .menu-contents {
+    z-index: 1001;
+    padding: 10px 0;
+    background-color: #fff;
+    color: #000;
+    position: absolute;
+    overflow-y: auto;
+    scrollbar-width: 4px;
+    top: -8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    min-width: 340px;
+    max-width: 400px;
+
+    &.left {
+      left: 0;
+      right: auto;
+    }
+
+    &.right {
+      right: 0;
+      left: auto;
+    }
+  }
+}
+

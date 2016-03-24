@@ -1,3 +1,5 @@
+// TODO: where should these live
+
 export default {
   help: 'heart',
   ticket: 'ticket',

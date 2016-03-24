@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {div, a, img, h} from 'cycle-snabbdom'
-import {Icon, Appbar} from 'snabbdom-material'
-import {material} from 'util'
+import {div, h} from 'cycle-snabbdom'
+import {Icon} from 'snabbdom-material'
+// import {material} from 'util'
 
 import 'images/sn-logo-32.png'
 
@@ -34,19 +34,19 @@ export const fabIcon = name =>
 
 const src = require('images/sn-logo-32.png')
 
-export const headerLogo =
-  a({props: {href: '/'}}, [
-    img({
-      style: {height: '24px', float: 'left'},
-      attrs: {src: '/' + src},
-    }),
-  ])
+// export const headerLogo =
+//   a({props: {href: '/'}}, [
+//     img({
+//       style: {height: '24px', float: 'left'},
+//       attrs: {src: '/' + src},
+//     }),
+//   ])
 
-export const appBar = ({appMenu}) =>
-  Appbar({fixed: true, material}, [
-    Appbar.Title({style: {float: 'left'}}, [headerLogo]),
-    div({style: {float: 'right'}}, [appMenu]),
-  ])
+// export const appBar = ({appMenu}) =>
+//   Appbar({fixed: true, material}, [
+//     Appbar.Title({style: {float: 'left'}}, [headerLogo]),
+//     div({style: {float: 'right'}}, [appMenu]),
+//   ])
 
 // export const appBar = ({})
 

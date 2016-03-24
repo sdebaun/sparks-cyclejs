@@ -1,10 +1,12 @@
 import {Observable} from 'rx'
+const {just} = Observable
+
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {col} from 'helpers'
-// import listItem from 'helpers/listItem'
 
-import makeToggleListItem from 'components/ToggleListItemFactory'
+import {ListItemToggle} from 'components/sdm'
+
 import makeTextareaListItem from 'components/TextareaListItemFactory'
 
 import {Opps} from 'remote'
@@ -13,17 +15,11 @@ const _render = ({togglePublicDOM, textareaDescriptionDOM}) =>
   col(
     togglePublicDOM,
     textareaDescriptionDOM,
-    // listItem({
-    //   iconName: 'playlist_add',
-    //   title: 'Write a short tweet-length description.',
-    //   subtitle: 'Coming Soon!',
-    //   disabled: true,
-    // }),
   )
 
-const TogglePublic = makeToggleListItem({
-  labelTrue: 'This is a Public Opportunity, and anyone can apply.',
-  labelFalse: 'This is Private, and is only seen by people you invite.',
+const TogglePublic = sources => ListItemToggle({...sources,
+  titleTrue$: just('This is a Public Opportunity, and anyone can apply.'),
+  titleFalse$: just('This is Private, and is only seen by people you invite.'),
 })
 
 const TextareaDescription = makeTextareaListItem({
@@ -34,14 +30,12 @@ const TextareaDescription = makeTextareaListItem({
 
 export default sources => {
   // isolate breaks this!??! @tylors
-  const togglePublic = TogglePublic({
+  const togglePublic = TogglePublic({...sources,
     value$: sources.opp$.pluck('isPublic'),
-    ...sources,
   })
 
-  const textareaDescription = isolate(TextareaDescription)({
+  const textareaDescription = isolate(TextareaDescription)({...sources,
     value$: sources.opp$.pluck('description'),
-    ...sources,
   })
 
   const updateIsPublic$ = togglePublic.value$

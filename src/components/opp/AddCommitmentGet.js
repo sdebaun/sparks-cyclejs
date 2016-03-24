@@ -1,13 +1,15 @@
+// TODO: convert makeMenuItemFormPopup
+
 import {Observable} from 'rx'
 const {just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'helpers'
 import listItem from 'helpers/listItem'
-import {DropdownMenu} from 'components/DropdownMenu'
+import {Menu} from 'components/sdm'
 
 import {Form, makeMenuItemFormPopup} from 'components/ui'
-import makeInputControl from 'components/InputControlFactory'
+import {InputControl} from 'components/sdm'
 
 // import {log} from 'util'
 
@@ -15,13 +17,12 @@ import codeIcons from 'components/opp/codeIcons'
 
 // SCHWAG
 
-const SchwagWhoInput = makeInputControl({
-  label: 'What will they get?',
-  className: 'schwag-what',
+const SchwagWhatInput = sources => InputControl({...sources,
+  label$: just('What will they get?'),
 })
 
 const GetSchwagForm = sources => Form({...sources,
-  Controls$: just([{field: 'what', Control: SchwagWhoInput}]),
+  Controls$: just([{field: 'what', Control: SchwagWhatInput}]),
 })
 
 const GetSchwag = makeMenuItemFormPopup({
@@ -33,14 +34,12 @@ const GetSchwag = makeMenuItemFormPopup({
 
 // TRACKED
 
-const TrackedCountInput = makeInputControl({
-  label: 'How many are they getting?',
-  className: 'tracked-count',
+const TrackedCountInput = sources => InputControl({...sources,
+  label$: just('How many are they getting?'),
 })
 
-const TrackedDescriptionInput = makeInputControl({
-  label: 'What are they getting?',
-  className: 'tracked-description',
+const TrackedDescriptionInput = sources => InputControl({...sources,
+  label$: just('What are they getting?'),
 })
 
 const GetTrackedForm = sources => Form({...sources,
@@ -59,14 +58,12 @@ const GetTracked = makeMenuItemFormPopup({
 
 // TICKET
 
-const EventCodeInput = makeInputControl({
-  label: 'What is your Eventbrite Event Code?',
-  className: 'event-code',
+const EventCodeInput = sources => InputControl({...sources,
+  label$: just('What is your Eventbrite Event Code?'),
 })
 
-const TicketTypeInput = makeInputControl({
-  label: 'What is your Eventbrite Ticket Type?',
-  className: 'ticket-type',
+const TicketTypeInput = sources => InputControl({...sources,
+  label$: just('What is your Eventbrite Ticket Type?'),
 })
 
 const GetTicketForm = sources => Form({...sources,
@@ -85,9 +82,8 @@ const GetTicket = makeMenuItemFormPopup({
 
 // HELP
 
-const HelpWhoInput = makeInputControl({
-  label: 'Who are they helping?',
-  className: 'help-who',
+const HelpWhoInput = sources => InputControl({...sources,
+  label$: just('Who are they helping?'),
 })
 
 const GetHelpForm = sources => Form({...sources,
@@ -141,7 +137,7 @@ export const AddCommitmentGet = sources => {
     .merge(submits$.map(false))
     .startWith(false)
 
-  const dropdown = DropdownMenu({...sources, isOpen$, children$: menuItemDOMs$})
+  const dropdown = Menu({...sources, isOpen$, children$: menuItemDOMs$})
 
   const viewState = {
     dropdownDOM$: dropdown.DOM,

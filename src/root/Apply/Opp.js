@@ -13,6 +13,9 @@ import {centeredSignup, bigButton} from 'helpers/buttons'
 
 import {Engagements} from 'remote'
 
+import codeIcons from 'components/opp/codeIcons'
+import codeTitles from 'components/opp/codeTitles'
+
 const _renderOppHeader = (project, opp) =>
   col(
     textQuote(opp.description),
@@ -24,10 +27,13 @@ const _renderCommitments = (title, commitmentRows) =>
       title,
       header: true,
     }),
-    ...commitmentRows.map(commitment =>
+    ...commitmentRows.map(({code, ...vals}) =>
       listItem({
-        title: commitment.description,
-      })
+        title: codeTitles[code](vals),
+        iconName: codeIcons[code],
+        className: 'commitment',
+        clickable: true,
+      }),
     )
   )
 
@@ -45,7 +51,7 @@ const _render = ({
     ),
     _renderCommitments(
       'you GET',
-      rows(commitments).filter(c => c.party === 'proj')
+      rows(commitments).filter(c => c.party === 'org')
     ),
     userProfile ? bigButton('Apply Now!','apply') : centeredSignup(),
   )

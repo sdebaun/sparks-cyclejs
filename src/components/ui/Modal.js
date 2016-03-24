@@ -1,3 +1,5 @@
+// TODO: exterminate
+
 import {Observable} from 'rx'
 const {merge} = Observable
 

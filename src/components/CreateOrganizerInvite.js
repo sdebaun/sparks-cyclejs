@@ -5,17 +5,13 @@ import combineLatestObj from 'rx-combine-latest-obj'
 
 import {Organizers} from 'remote'
 
-import OrganizerInviteForm from 'components/OrganizerInviteForm'
+import {OrganizerInviteForm} from 'components/OrganizerInviteForm'
 
 import {col} from 'helpers'
 import modal from 'helpers/modal'
 import listItem from 'helpers/listItem'
 
 // import {log} from 'util'
-
-// Bunch Of Sources and Sinks (BOSS) approach to components
-// or Bunch of Stinkin' Streams if you prefer
-// discuss here: https://github.com/sdebaun/sparks-cyclejs/issues/38
 
 const _openActions$ = ({DOM}) => Observable.merge(
   DOM.select('.open').events('click').map(true),
@@ -49,7 +45,7 @@ export default sources => {
 
   const submit$ = _submitAction$(sources)
 
-  const queue$ = organizerInviteForm.organizer$
+  const queue$ = organizerInviteForm.item$
     .sample(submit$)
     .zip(sources.projectKey$,
       (organizer,projectKey) => ({projectKey, ...organizer})

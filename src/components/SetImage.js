@@ -6,12 +6,7 @@ import {ProjectImages} from 'remote'
 
 // import isolate from '@cycle/isolate'
 
-// import {Opps} from 'remote'
-
-// import OppForm from 'components/OppForm'
-
 import {col, div} from 'helpers'
-// import modal from 'helpers/modal'
 import listItem from 'helpers/listItem'
 
 // import {log} from 'util'

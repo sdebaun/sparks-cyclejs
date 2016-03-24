@@ -1,10 +1,13 @@
 import {Observable} from 'rx'
+const {just} = Observable
+
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
 
 import {Projects} from 'components/remote'
-import {ProjectList, ProjectForm} from 'components/project'
+import {List} from 'components/sdm'
+import {ProjectItem, ProjectForm} from 'components/project'
 
 // import {log} from 'util'
 
@@ -12,7 +15,10 @@ export default sources => {
   const projects$ = Projects.query.all(sources)()
 
   const projectForm = ProjectForm(sources)
-  const projectList = ProjectList({...sources, projects$})
+  const projectList = List({...sources,
+    Control$: just(ProjectItem),
+    rows$: projects$,
+  })
 
   const queue$ = projectForm.project$
     .map(Projects.action.create)
