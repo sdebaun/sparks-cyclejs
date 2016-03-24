@@ -5,7 +5,7 @@ import isolate from '@cycle/isolate'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
 import {CreateTeam} from 'components/team'
-import {CreateOpp} from 'components/opp'
+import {CreateOppListItem} from 'components/opp'
 
 import listItem from 'helpers/listItem'
 import listItemDisabled from 'helpers/listItemDisabled'
@@ -60,7 +60,7 @@ const _responseRedirects$ = ({responses$, router: {createHref}}) =>
 export default sources => {
   const createOrganizerInvite = isolate(CreateOrganizerInvite)(sources)
   const createTeam = isolate(CreateTeam)(sources)
-  const createOpp = isolate(CreateOpp)(sources)
+  const createOpp = isolate(CreateOppListItem)(sources)
 
   const queue$ = Observable.merge(
     createOrganizerInvite.queue$,
