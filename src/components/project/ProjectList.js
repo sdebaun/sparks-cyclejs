@@ -13,7 +13,7 @@ const ProjectItem = sources => {
 
   return ListItemNavigating({...sources,
     iconSrc$: projectImage$.map(i => i && i.dataUrl),
-    title$: sources.item$.map(({name}) => name),
+    title$: sources.item$.pluck('name'),
     subtitle$: just('owner'),
     path$: sources.item$.map(({$key}) => '/project/' + $key),
   })
