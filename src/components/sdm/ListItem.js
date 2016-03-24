@@ -81,8 +81,21 @@ const ListItemWithMenu = sources => {
   }
 }
 
+const ListItemNavigating = sources => {
+  const item = ListItemClickable(sources)
+
+  const route$ = item.click$
+    .flatMapLatest(sources.path$ || just('/'))
+
+  return {
+    DOM: item.DOM,
+    route$,
+  }
+}
+
 export {
   ListItemClickable,
   ListItemToggle,
   ListItemWithMenu,
+  ListItemNavigating,
 }

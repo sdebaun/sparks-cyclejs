@@ -45,7 +45,9 @@ export default sources => {
   const projectForm = isolate(ProjectForm)(sources)
   const projectList = isolate(ProjectList)({...sources, projects$})
 
-  const engagementList = isolate(EngagementList)({...sources, engagements$})
+  const engagementList = isolate(EngagementList)({...sources,
+    rows$: engagements$,
+  })
 
   const queue$ = projectForm.project$
     .map(Projects.action.create)

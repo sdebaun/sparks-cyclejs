@@ -1,10 +1,16 @@
 import {Observable} from 'rx'
+const {just} = Observable
+
+import isolate from '@cycle/isolate'
 
 export const PROVIDERS = {
   google: {type: 'popup', provider: 'google'},
   facebook: {type: 'popup', provider: 'facebook'},
   logout: {type: 'logout'},
 }
+
+export const controlsFromRows = (sources, rows, Control) =>
+  rows.map(row => isolate(Control,row.$key)({...sources, item$: just(row)}))
 
 export const byMatch = (matchDomain,matchEvent) =>
   ({domain,event}) => domain === matchDomain && event === matchEvent
