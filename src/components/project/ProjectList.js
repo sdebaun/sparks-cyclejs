@@ -3,9 +3,7 @@ const {just} = Observable
 
 import {List, ListItemNavigating} from 'components/sdm'
 
-import {
-  ProjectImages,
-} from 'components/remote'
+import {ProjectImages} from 'components/remote'
 
 const ProjectItem = sources => {
   const projectImage$ = sources.item$.pluck('$key')
