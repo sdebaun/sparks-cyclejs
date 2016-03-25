@@ -17,6 +17,7 @@ const divStyle = {
   display: 'flex',
 }
 
+// can we make these scss
 const textAreaStyle = (height) => ({
   overflow: 'hidden',
   padding: '1em',
@@ -45,7 +46,6 @@ const labelStyle = (height) => ({
 const TextAreaControl = sources => {
   const input = sources.DOM.select('.input')
   const input$ = input.observable
-  // const height$ = just(100)
   const height$ = input$
     .map(elements => elements[0])
     .map(elm => elm ? elm.scrollHeight + 'px' : 'auto')
@@ -91,80 +91,80 @@ export {TextAreaControl}
 
 // import {log} from 'util'
 
-const _openActions$ = ({DOM}) => Observable.merge(
-  DOM.select('.clickable').events('click').scan((a) => !a, false),
-)
+// const _openActions$ = ({DOM}) => Observable.merge(
+//   DOM.select('.clickable').events('click').scan((a) => !a, false),
+// )
 
-const _submitAction$ = ({DOM}) =>
-  DOM.select('.submit').events('click').map(true)
+// const _submitAction$ = ({DOM}) =>
+//   DOM.select('.submit').events('click').map(true)
 
-const _render = ({iconName, className, title, maxLength}) =>
-  ({value, length, isOpen, height}) =>
-    col(
-      listItem({
-        iconName,
-        className,
-        title,
-        clickable: true,
-      }),
-      isOpen && div({}, [
-        div({style: divStyle}, [
-          textarea({
-            props: {maxLength},
-            class: {input: true},
-            style: textAreaStyle(height),
-          }, [
-            value,
-          ]),
-          h6({style: labelStyle(height)}, [`${length}/${maxLength}`]),
-        ]),
-        div({}, [
-          submitAndCancel(
-            'This sounds great',
-            'Ditch these changes',
-          ),
-        ]),
-      ]),
-    )
+// const _render = ({iconName, className, title, maxLength}) =>
+//   ({value, length, isOpen, height}) =>
+//     col(
+//       listItem({
+//         iconName,
+//         className,
+//         title,
+//         clickable: true,
+//       }),
+//       isOpen && div({}, [
+//         div({style: divStyle}, [
+//           textarea({
+//             props: {maxLength},
+//             class: {input: true},
+//             style: textAreaStyle(height),
+//           }, [
+//             value,
+//           ]),
+//           h6({style: labelStyle(height)}, [`${length}/${maxLength}`]),
+//         ]),
+//         div({}, [
+//           submitAndCancel(
+//             'This sounds great',
+//             'Ditch these changes',
+//           ),
+//         ]),
+//       ]),
+//     )
 
-export default factoryInput => sources => {
-  const input = sources.DOM.select('.input')
-  const input$ = input.observable
+// export default factoryInput => sources => {
+//   const input = sources.DOM.select('.input')
+//   const input$ = input.observable
 
-  const inputEvent$ = input.events('input').share()
+//   const inputEvent$ = input.events('input').share()
 
-  const intialLength$ = input$
-    .map(elements => elements[0])
-    .map(elm => elm ? elm.value : '')
-    .pluck('length')
-    .distinctUntilChanged()
+//   const intialLength$ = input$
+//     .map(elements => elements[0])
+//     .map(elm => elm ? elm.value : '')
+//     .pluck('length')
+//     .distinctUntilChanged()
 
-  const length$ = intialLength$
-    .merge(inputEvent$.pluck('target', 'value', 'length'))
-    .startWith(0)
+//   const length$ = intialLength$
+//     .merge(inputEvent$.pluck('target', 'value', 'length'))
+//     .startWith(0)
 
-  const height$ = input$
-    .map(elements => elements[0])
-    .map(elm => elm ? elm.scrollHeight + 'px' : 'auto')
-    .distinctUntilChanged()
-    .startWith('auto')
+//   const height$ = input$
+//     .map(elements => elements[0])
+//     .map(elm => elm ? elm.scrollHeight + 'px' : 'auto')
+//     .distinctUntilChanged()
+//     .startWith('auto')
 
-  const isOpen$ = _openActions$(sources)
-    .startWith(false)
+//   const isOpen$ = _openActions$(sources)
+//     .startWith(false)
 
-  const submit$ = _submitAction$(sources)
+//   const submit$ = _submitAction$(sources)
 
-  const value$ = inputEvent$.pluck('target','value')
-    .sample(submit$)
+//   const value$ = inputEvent$.pluck('target','value')
+//     .sample(submit$)
 
-  const viewState = {
-    length$,
-    height$,
-    isOpen$,
-    value$: sources.value$ || Observable.just(null),
-  }
+//   const viewState = {
+//     length$,
+//     height$,
+//     isOpen$,
+//     value$: sources.value$ || Observable.just(null),
+//   }
 
-  const DOM = combineLatestObj(viewState).map(_render(factoryInput))
+//   const DOM = combineLatestObj(viewState).map(_render(factoryInput))
 
-  return {DOM, value$}
-}
+//   return {DOM, value$}
+// }

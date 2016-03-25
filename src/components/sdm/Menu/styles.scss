@@ -4,6 +4,11 @@
   height: 0;
   overflow: visible;
 
+  .list-item {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  
   .menu-contents {
     z-index: 1001;
     padding: 10px 0;

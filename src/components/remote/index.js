@@ -116,6 +116,7 @@ export const Opps = {
 
 export const Organizers = {
   query: {
+    one: filterOne('Organizers'),
     byProject: filterBy('Organizers','projectKey'),
   },
   action: {

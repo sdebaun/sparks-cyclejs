@@ -1,44 +1,30 @@
 import {Observable} from 'rx'
-// import combineLatestObj from 'rx-combine-latest-obj'
-import isolate from '@cycle/isolate'
-
-import {div} from 'cycle-snabbdom'
 
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
-import TabBar from 'components/TabBar'
+// import {OppNav} from 'components/opp'
+
 import ComingSoon from 'components/ComingSoon'
+const TeamNav = ComingSoon('Foo')
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-// import {icon} from 'helpers'
 
 // import {log} from 'util'
 
-import Dash from './Dash'
-// import Staff from './Staff'
+import {
+  ProjectImages,
+  Teams,
+  Opps,
+} from 'components/remote'
+
+import Glance from './Glance'
+import Manage from './Manage'
 
 const _routes = {
-  '/': isolate(Dash),
-  '/leads': isolate(ComingSoon('Leads')),
-  '/find': isolate(ComingSoon('Find')),
+  '/': Glance,
+  '/manage': Manage,
 }
-
-const _tabs = [
-  {path: '/', label: 'Dash'},
-  {path: '/leads', label: 'Leads'},
-  {path: '/find', label: 'Find'},
-]
-
-const Nav = sources => ({
-  DOM: sources.isMobile$
-    .map(isMobile =>
-      div(
-        {},
-        [isMobile ? null : sources.titleDOM, 'Nav Items']
-      )
-    ),
-})
 
 import {ProjectQuickNavMenu} from 'components/project'
 
@@ -48,46 +34,51 @@ export default sources => {
 
   const projectKey$ = team$.pluck('projectKey')
 
-  const teams$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Teams', {
-      orderByChild: 'projectKey',
-      equalTo: projectKey,
-    }))
-
-  const opps$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Opps', {
-      orderByChild: 'projectKey',
-      equalTo: projectKey,
-    }))
-
   const project$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
 
   const projectImage$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
+    .flatMapLatest(ProjectImages.query.one(sources))
+
+  const teams$ = projectKey$
+    .flatMapLatest(Teams.query.byProject(sources))
+
+  const opps$ = projectKey$
+    .flatMapLatest(Opps.query.byProject(sources))
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
-    {team$, project$, projectKey$, ...sources}
+    {team$, projectKey$, project$, teams$, opps$, ...sources}
   )
 
-  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
+  const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
+
   const quickNav = ProjectQuickNavMenu(
     {...sources, project$, projectKey$, team$, teams$, opps$}
   )
 
+  const labelText$ = team$.pluck('name')
+  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
+
   const title = Title({
     quickNavDOM$: quickNav.DOM,
-    tabsDOM$: tabBar.DOM,
-    labelText$: team$.pluck('name'),
-    subLabelText$: Observable.just('At a Glance'), // eventually page$.something
+    tabsDOM$: tabsDOM,
+    labelText$,
+    subLabelText$,
     backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
     ...sources,
   })
 
-  const nav = Nav({titleDOM: title.DOM, ...sources})
+  const nav = TeamNav({
+    titleDOM: title.DOM,
+    project$,
+    teams$,
+    opps$,
+    projectKey$,
+    ...sources,
+  })
 
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
+  const header = Header({titleDOM: title.DOM, tabsDOM: tabsDOM, ...sources})
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
@@ -96,7 +87,7 @@ export default sources => {
     ...sources,
   })
 
-  const children = [appFrame, page$, tabBar, quickNav, title, nav, header]
+  const children = [appFrame, page$, quickNav, title, nav, header]
 
   const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
 
