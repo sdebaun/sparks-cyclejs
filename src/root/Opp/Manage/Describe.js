@@ -2,8 +2,7 @@ import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
-import combineLatestObj from 'rx-combine-latest-obj'
-import {col, div} from 'helpers'
+import {div} from 'helpers'
 
 import {
   ListItemToggle,
@@ -12,12 +11,6 @@ import {
 } from 'components/sdm'
 
 import {Opps} from 'remote'
-
-const _render = ({togglePublicDOM, textareaDescriptionDOM}) =>
-  col(
-    togglePublicDOM,
-    textareaDescriptionDOM,
-  )
 
 const PreviewRecruiting = sources => ListItemNavigating({...sources,
   title$: just('Preview your Recruiting page.'),
@@ -74,12 +67,6 @@ export default sources => {
     (...doms) => div({}, doms)
   )
 
-  // const viewState = {
-  //   togglePublicDOM: togglePublic.DOM,
-  //   textareaDescriptionDOM: textareaDescription.DOM,
-  // }
-
-  // const DOM = combineLatestObj(viewState).map(_render)
   return {
     DOM,
     queue$,
