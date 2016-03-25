@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {div, h} from 'cycle-snabbdom'
+import {div, h, img} from 'cycle-snabbdom'
 import {Icon} from 'snabbdom-material'
 // import {material} from 'util'
 
@@ -29,10 +29,21 @@ export const icon = (name, color = '#FFF', backgroundColor) =>
     padding: '4px',
   }})
 
+const iconImageStyle = {
+  width: '40px',
+  height: '40px',
+  marginTop: '12px',
+  marginLeft: '-4px', // such hax
+  borderRadius: '20px',
+}
+
+export const iconSrc = src =>
+  img({style: iconImageStyle, attrs: {src}}, [])
+
 export const fabIcon = name =>
   Icon({name, style: {backgroundColor: 'yellow', borderRadius: '16px'}})
 
-const src = require('images/sn-logo-32.png')
+require('images/sn-logo-32.png')
 
 // export const headerLogo =
 //   a({props: {href: '/'}}, [

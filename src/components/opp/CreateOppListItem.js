@@ -1,48 +1,12 @@
-// TODO: NEXT - test case for extracting modal dialog
-
 import {Observable} from 'rx'
 const {just} = Observable
-
-import combineLatestObj from 'rx-combine-latest-obj'
 
 // import isolate from '@cycle/isolate'
 
 import {Opps} from 'remote'
 
 import {OppForm} from 'components/opp'
-import {Dialog, ListItemClickable} from 'components/sdm'
-
-import {div} from 'helpers'
-
-// import {log} from 'util'
-
-const CreateOppDialog = sources => Dialog({...sources,
-  titleDOM$: just('Create an Opportunity'),
-})
-
-const ListItemWithDialog = sources => {
-  const listItem = ListItemClickable(sources)
-
-  const dialog = CreateOppDialog({...sources,
-    isOpen$: listItem.click$.map(true),
-    contentDOM$: sources.dialogContentDOM$,
-  })
-
-  const DOM = combineLatestObj({
-    listItemDOM$: listItem.DOM,
-    dialogDOM$: dialog.DOM,
-  }).map(({
-    listItemDOM,
-    dialogDOM,
-  }) =>
-    div({},[listItemDOM, dialogDOM])
-  )
-
-  return {
-    DOM,
-    submit$: dialog.submit$,
-  }
-}
+import {ListItemWithDialog} from 'components/sdm'
 
 const CreateOppListItem = sources => {
   const form = OppForm(sources)
@@ -50,6 +14,7 @@ const CreateOppListItem = sources => {
   const listItem = ListItemWithDialog({...sources,
     iconName$: just('power'),
     title$: just('Create an Opportunity to get volunteers.'),
+    dialogTitleDOM$: just('Create an Opportunity'),
     dialogContentDOM$: form.DOM,
   })
 

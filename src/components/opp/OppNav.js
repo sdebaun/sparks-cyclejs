@@ -1,71 +1,30 @@
-// TODO: TLC
-
 import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
+const {just, merge, combineLatest} = Observable
 
-import listItem from 'helpers/listItem'
-// import listHeader from 'helpers/listHeader'
+import isolate from '@cycle/isolate'
 
-import {h, div} from 'cycle-snabbdom'
+import {div} from 'cycle-snabbdom'
 
 // import {log} from 'util'
 
 import {CreateTeamHeader} from 'components/team'
 import {CreateOppHeader} from 'components/opp'
 
-const _navActions = sources => Observable.merge(
-  sources.DOM.select('.nav').events('click')
-    .map(e => sources.router.createHref(e.ownerTarget.dataset.link)),
-)
-
-// const _teamItems = _rows =>
-//   _rows.map(({name, $key}) =>
-//     listItem({title: name, className: 'team', key: $key}))
-
-// const _oppItems = _rows =>
-//   _rows.map(({name, $key}) =>
-//     listItem({title: name, className: 'opp', key: $key}))
-
-// const _teamHeader = () =>
-//   listItem({
-//     header: true,
-//     title: 'Teams', clickable: true, className: 'teams-list',
-//     iconName: 'plus', iconBackgroundColor: 'yellow',
-//   })
-
-const _render = ({
-  isMobile,
-  // teams,
-  // opps,
-  titleDOM,
-  // teamListHeaderDOM,
-  // oppListHeaderDOM,
-}) => {
-  // const teamRows = rows(teams)
-  // const oppRows = rows(opps)
-  return div(
-    {},
-    [
-      isMobile ? null : titleDOM,
-      h('div.rowwrap', {style: {padding: '0px 15px'}}, [
-        listItem(
-          {title: 'At a Glance', iconName: 'home', className: 'nav', link: '/'}
-        ),
-        listItem(
-          {title: 'Manage', iconName: 'settings',
-          className: 'nav', link: '/manage'}
-        ),
-        // teamRows.length > 0 ? teamListHeaderDOM : null,
-        // ..._teamItems(teamRows),
-        // oppRows.length > 0 ? oppListHeaderDOM : null,
-        // ..._oppItems(oppRows),
-      ]),
-    ]
-  )
-}
+import {ListItemNavigating} from 'components/sdm'
 
 const OppNav = sources => {
-  const route$ = _navActions(sources)
+  const glance = isolate(ListItemNavigating,'glance')({...sources,
+    title$: just('At a Glance'),
+    iconName$: just('home'),
+    path$: just('/'),
+  })
+  const manage = isolate(ListItemNavigating,'manage')({...sources,
+    title$: just('Manage'),
+    iconName$: just('settings'),
+    path$: just('/manage'),
+  })
+
+  const listDOM$ = combineLatest(glance.DOM, manage.DOM, (...doms) => doms)
 
   const teamListHeader = CreateTeamHeader(sources)
   const oppListHeader = CreateOppHeader(sources)
@@ -75,16 +34,19 @@ const OppNav = sources => {
     oppListHeader.queue$,
   )
 
-  const viewState$ = {
-    isMobile$: sources.isMobile$,
-    // teamListHeaderDOM$: teamListHeader.DOM,
-    // oppListHeaderDOM$: oppListHeader.DOM,
-    // teams$: sources.teams$,
-    // opps$: sources.opps$,
-    titleDOM$: sources.titleDOM,
-  }
+  const route$ = merge(glance.route$, manage.route$)
+    .map(sources.router.createHref)
 
-  const DOM = combineLatestObj(viewState$).map(_render)
+  const DOM = combineLatest(
+    sources.isMobile$,
+    sources.titleDOM,
+    listDOM$,
+    (isMobile, titleDOM, listDOM) =>
+      div({}, [
+        isMobile ? null : titleDOM,
+        div('.rowwrap', {style: {padding: '0px 15px'}}, listDOM),
+      ])
+  )
 
   return {DOM, route$, queue$}
 }

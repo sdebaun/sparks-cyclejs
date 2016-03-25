@@ -12,6 +12,7 @@ import Team from './Team'
 import Opp from './Opp'
 import Apply from './Apply'
 import Engagement from './Engagement'
+import Organize from './Organize'
 
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
@@ -38,6 +39,8 @@ const routes = {
     isolate(Apply)({projectKey$: just(key), ...sources}),
   '/engaged/:key': key => sources =>
     isolate(Engagement)({engagementKey$: just(key), ...sources}),
+  '/organize/:key': key => sources =>
+    isolate(Organize)({organizerKey$: just(key), ...sources}),
 }
 
 const AuthRedirectManager = sources => {

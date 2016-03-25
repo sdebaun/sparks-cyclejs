@@ -1,35 +1,42 @@
 import {Observable} from 'rx'
-const {just} = Observable
+const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
-import combineLatestObj from 'rx-combine-latest-obj'
-import {col} from 'helpers'
+import {div} from 'helpers'
 
-import {ListItemToggle} from 'components/sdm'
-
-import makeTextareaListItem from 'components/TextareaListItemFactory'
+import {
+  ListItemToggle,
+  ListItemCollapsibleTextArea,
+  ListItemNavigating,
+} from 'components/sdm'
 
 import {Opps} from 'remote'
 
-const _render = ({togglePublicDOM, textareaDescriptionDOM}) =>
-  col(
-    togglePublicDOM,
-    textareaDescriptionDOM,
-  )
+const PreviewRecruiting = sources => ListItemNavigating({...sources,
+  title$: just('Preview your Recruiting page.'),
+  iconName$: just('remove'),
+  path$: combineLatest(
+    sources.projectKey$, sources.oppKey$,
+    (pk, ok) => '/apply/' + pk + '/opp/' + ok
+  ),
+})
 
 const TogglePublic = sources => ListItemToggle({...sources,
   titleTrue$: just('This is a Public Opportunity, and anyone can apply.'),
   titleFalse$: just('This is Private, and is only seen by people you invite.'),
 })
 
-const TextareaDescription = makeTextareaListItem({
-  iconName: 'playlist_add',
-  title: 'Write a short tweet-length description.',
-  maxLength: '140',
+const TextareaDescription = sources => ListItemCollapsibleTextArea({
+  ...sources,
+  title$: just('Write a short tweet-length description'),
+  iconName$: just('playlist_add'),
+  okLabel$: just('this sounds great'),
+  cancelLabel$: just('hang on ill do this later'),
 })
 
 export default sources => {
-  // isolate breaks this!??! @tylors
+  const preview = PreviewRecruiting(sources)
+
   const togglePublic = TogglePublic({...sources,
     value$: sources.opp$.pluck('isPublic'),
   })
@@ -53,14 +60,16 @@ export default sources => {
     updateDescription$,
   )
 
-  const viewState = {
-    togglePublicDOM: togglePublic.DOM,
-    textareaDescriptionDOM: textareaDescription.DOM,
-  }
+  const DOM = combineLatest(
+    preview.DOM,
+    togglePublic.DOM,
+    textareaDescription.DOM,
+    (...doms) => div({}, doms)
+  )
 
-  const DOM = combineLatestObj(viewState).map(_render)
   return {
     DOM,
     queue$,
+    route$: preview.route$,
   }
 }

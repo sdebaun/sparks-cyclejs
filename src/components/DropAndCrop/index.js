@@ -22,16 +22,18 @@ const _render = ({dropper, dropped, cropper, cropped}) =>
         ]),
         cropped && img({attrs: {src: cropped}, style: imageStyle}),
       ),
-      cropped && Button({className: 'submit', onClick: true}, [
+      cropped && Button({className: 'save-image', onClick: true}, [
         'Click me when finished!',
       ]),
     ])
   )
 
 export default (sources) => {
-  const click$ = sources.DOM.select('.submit').events('click')
-  const {DOM: dropper, dropped$} = Dropper()
-  const {DOM: cropper, cropped$} = Cropper({image$: dropped$})
+  const click$ = sources.DOM.select('.save-image').events('click')
+  const {DOM: dropper, dropped$} = Dropper(sources)
+  const {DOM: cropper, cropped$} = Cropper({...sources,
+    image$: dropped$,
+  })
 
   const dataUrl$ = cropped$.sample(click$)
 

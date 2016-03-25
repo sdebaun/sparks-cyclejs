@@ -5,10 +5,9 @@ import ComingSoon from 'components/ComingSoon'
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import Priority from './Priority'
-
-// const Priority = ComingSoon('Opp/Glance/Priority')
-const Find = ComingSoon('Opp/Glance/Find')
-const Recently = ComingSoon('Opp/Glance/Recently')
+// const Priority = ComingSoon('Manage/Glance/Priority')
+const Find = ComingSoon('Manage/Glance/Find')
+const Recently = ComingSoon('Manage/Glance/Recently')
 
 const _routes = {
   '/': Priority,

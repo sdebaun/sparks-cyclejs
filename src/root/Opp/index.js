@@ -1,14 +1,8 @@
 import {Observable} from 'rx'
-// import combineLatestObj from 'rx-combine-latest-obj'
-// import isolate from '@cycle/isolate'
-
-// import {div, span} from 'cycle-snabbdom'
 
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
-// import TabBar from 'components/TabBar'
-// import ComingSoon from 'components/ComingSoon'
 import {OppNav} from 'components/opp'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
@@ -21,9 +15,6 @@ import Manage from './Manage'
 const _routes = {
   '/': Glance,
   '/manage': Manage,
-  // '/leads': isolate(ComingSoon('Leads')),
-  // '/find': isolate(ComingSoon('Find')),
-  // '/manage': isolate(ComingSoon('Manage')),
 }
 
 import {ProjectQuickNavMenu} from 'components/project'

@@ -1,20 +1,10 @@
 import {Observable} from 'rx'
-// import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
-// import {div, span} from 'cycle-snabbdom'
-
-// import AppFrame from 'components/AppFrame'
-// import Title from 'components/Title'
-// import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
-// import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-// import {icon} from 'helpers'
-
-// import {rows, log} from 'util'
 
 import Describe from './Describe'
 import Staff from './Staff'
@@ -55,8 +45,6 @@ export default sources => {
   const queue$ = mergeOrFlatMapLatest('queue$', ...children)
 
   const route$ = mergeOrFlatMapLatest('route$', ...children)
-
-  // route$.subscribe(log('route$'))
 
   return {
     DOM,

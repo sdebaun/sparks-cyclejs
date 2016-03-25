@@ -73,6 +73,18 @@ export const ProjectImages = {
   query: {
     one: filterOne('ProjectImages'),
   },
+  action: {
+    set: actionCreator('ProjectImages', 'set'),
+  },
+}
+
+export const TeamImages = {
+  query: {
+    one: filterOne('TeamImages'),
+  },
+  action: {
+    set: actionCreator('TeamImages', 'set'),
+  },
 }
 
 export const Engagements = {
@@ -99,6 +111,7 @@ export const Teams = {
   },
   action: {
     create: actionCreator('Teams', 'create'),
+    update: actionCreator('Teams', 'update'),
     remove: actionCreator('Teams', 'remove'),
   },
 }
@@ -116,6 +129,7 @@ export const Opps = {
 
 export const Organizers = {
   query: {
+    one: filterOne('Organizers'),
     byProject: filterBy('Organizers','projectKey'),
   },
   action: {
