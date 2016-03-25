@@ -11,19 +11,19 @@ import {
 
 const WhatItem = sources => ListItemNavigating({...sources,
   title$: just('What\'s this Team all about?'),
-  iconName$: just('remove'),
+  iconName$: just('users'),
   path$: just('/manage'),
 })
 
 const InviteItem = sources => ListItemNavigating({...sources,
   title$: just('Invite some people to Lead this Team'),
-  iconName$: just('remove'),
+  iconName$: just('person_add'),
   path$: just('/manage/leads'),
 })
 
 const HowItem = sources => ListItemNavigating({...sources,
   title$: just('How are volunteers joining this Team?'),
-  iconName$: just('remove'),
+  iconName$: just('event_note'),
   path$: just('/manage/applying'),
 })
 

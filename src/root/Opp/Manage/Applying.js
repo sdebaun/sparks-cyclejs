@@ -6,7 +6,6 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import {col} from 'helpers'
 import listItem from 'helpers/listItem'
 
-// import makeTextareaListItem from 'components/TextareaListItemFactory'
 import {
   ListItemCollapsibleTextArea,
   ListItemNavigating,
@@ -21,17 +20,6 @@ const _toggleActions = sources => Observable.merge(
   sources.DOM.select('.fulfiller').events('click')
     .map(e => e.ownerTarget.dataset.key),
 )
-
-// const _teamsFulfilled = fulfillers => {
-//   const lookup = {}
-//   if (fulfillers) {
-//     Object.keys(fulfillers).map(key => {
-//       lookup[fulfillers[key].teamKey] = key
-//     })
-//   }
-//   console.log('fulfilled', lookup)
-//   return lookup
-// }
 
 const _renderTeams = (teamRows, fulfilledLookup) =>
   teamRows.length === 0 ? ['Add a team'] : [
@@ -57,11 +45,6 @@ const _render = ({teams, fulfilledLookup, textareaQuestionDOM}) =>
     ..._renderTeams(rows(teams), fulfilledLookup)
   )
 
-// const TextareaQuestion = makeTextareaListItem({
-//   iconName: 'playlist_add',
-//   title: 'You can ask people one special question when they apply.',
-// })
-
 const TextareaQuestion = sources => ListItemCollapsibleTextArea({
   ...sources,
   title$: just('You can ask people one special question when they apply.'),
@@ -70,13 +53,13 @@ const TextareaQuestion = sources => ListItemCollapsibleTextArea({
   cancelLabel$: just('hang on ill do this later'),
 })
 
-const PreviewRecruiting = sources => ListItemNavigating({...sources,
-  title$: just('Preview your Recruiting page.'),
-  path$: combineLatest(
-    sources.projectKey$, sources.oppKey$,
-    (pk, ok) => '/apply/' + pk + '/opp/' + ok
-  ),
-})
+// const PreviewRecruiting = sources => ListItemNavigating({...sources,
+//   title$: just('Preview your Recruiting page.'),
+//   path$: combineLatest(
+//     sources.projectKey$, sources.oppKey$,
+//     (pk, ok) => '/apply/' + pk + '/opp/' + ok
+//   ),
+// })
 
 export default sources => {
   const fulfillers$ = sources.oppKey$
@@ -97,6 +80,8 @@ export default sources => {
     console.log('fulfilled', lookup)
     return lookup
   })
+
+  // const preview = PreviewRecruiting(sources)
 
   const textareaQuestion = isolate(TextareaQuestion)({...sources,
     value$: sources.opp$.pluck('question'),

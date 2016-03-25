@@ -1,13 +1,17 @@
 import {Observable} from 'rx'
-const {just} = Observable
+const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
+
+import {div} from 'helpers'
+
+import SetImage from 'components/SetImage'
 
 import {
   ListItemCollapsibleTextArea,
 } from 'components/sdm'
 
-import {Teams} from 'components/remote'
+import {Teams, TeamImages} from 'components/remote'
 
 const TextareaDescription = sources => ListItemCollapsibleTextArea({
   ...sources,
@@ -18,6 +22,18 @@ const TextareaDescription = sources => ListItemCollapsibleTextArea({
 })
 
 export default sources => {
+  const setImage = SetImage({...sources,
+    image$: sources.teamImage$,
+    aspectRatio$: just(1),
+  })
+
+  const setImage$ = setImage.dataUrl$
+    .withLatestFrom(
+      sources.teamKey$,
+      (dataUrl,key) => ({key, values: {dataUrl}})
+    )
+    .map(TeamImages.action.set)
+
   const textareaDescription = isolate(TextareaDescription)({...sources,
     value$: sources.team$.map(({description}) => description || ''),
   })
@@ -31,9 +47,14 @@ export default sources => {
 
   const queue$ = Observable.merge(
     updateDescription$,
+    setImage$,
   )
 
-  const DOM = textareaDescription.DOM
+  const DOM = combineLatest(
+    textareaDescription.DOM,
+    setImage.DOM,
+    (...doms) => div({},doms)
+  )
 
   return {
     DOM,

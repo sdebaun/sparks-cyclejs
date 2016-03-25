@@ -1,43 +1,50 @@
-// import {ListItemClickable} from 'components/sdm'
+import {Observable} from 'rx'
+const {just, merge, combineLatest} = Observable
 
-// const DoAThing = sources => ListItemClickable({
-//   title$: just('do a thing'),
-// })
+import isolate from '@cycle/isolate'
 
-// const priorityList = sources => [
-//   sources.commitments$.map(c => DoAThing(sources)),
-// ].filter(i => !!i)
+import {div} from 'helpers'
 
-// export default sources => {
-//   const createOrganizerInvite = isolate(CreateOrganizerInvite)(sources)
-//   const createTeam = isolate(CreateTeam)(sources)
-//   const createOpp = isolate(CreateOppListItem)(sources)
+import {
+  ListItemNavigating,
+} from 'components/sdm'
 
-//   const queue$ = Observable.merge(
-//     createOrganizerInvite.queue$,
-//     createTeam.queue$,
-//     createOpp.queue$,
-//   )
+const WhatItem = sources => ListItemNavigating({...sources,
+  title$: just('Tell applicants about this Opportunity.'),
+  iconName$: just('power'),
+  path$: just('/manage'),
+})
 
-//   const route$ = _responseRedirects$(sources)
-//     .merge(
-//       sources.DOM.select('.clickable').events('click') // omg brilliant +1
-//         .filter(e => !!e.ownerTarget.dataset.link)
-//         .map(e => e.ownerTarget.dataset.link)
-//     )
+const ExchangeItem = sources => ListItemNavigating({...sources,
+  title$: just('Determine the Energy Exchange you\'re offering.'),
+  iconName$: just('balance-scale'),
+  path$: just('/manage/exchange'),
+})
 
-//   const viewState = {
-//     project$: sources.project$,
-//     projectImage$: sources.projectImage$.startWith(null),
-//     teams$: sources.teams$,
-//     organizers$: sources.organizers$,
-//     createOrganizerInviteDOM$: createOrganizerInvite.DOM,
-//     createTeamDOM$: createTeam.DOM,
-//     createOppDOM$: createOpp.DOM,
-//   }
+const HowItem = sources => ListItemNavigating({...sources,
+  title$: just('What Teams can be filled by this Opportunity?'),
+  iconName$: just('users'),
+  path$: just('/manage/applying'),
+})
 
-//   const DOM = combineLatestObj(viewState)
-//     .map(_render(sources.router.createHref))
+export default sources => {
+  const what = isolate(WhatItem,'what')(sources)
+  const exchange = isolate(ExchangeItem,'invite')(sources)
+  const how = isolate(HowItem,'how')(sources)
 
-//   return {DOM, queue$, route$}
-// }
+  const items = [what, exchange, how]
+
+  const route$ = merge(...items.map(i => i.route$))
+    .map(sources.router.createHref)
+
+  const DOM = combineLatest(
+    ...items.map(i => i.DOM),
+    (...doms) => div({},doms)
+  )
+
+  return {
+    DOM,
+    // queue$,
+    route$,
+  }
+}

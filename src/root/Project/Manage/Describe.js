@@ -4,6 +4,10 @@ import listItem from 'helpers/listItem'
 
 import SetImage from 'components/SetImage'
 
+import {ProjectImages} from 'components/remote'
+
+// import {log} from 'util'
+
 const _render = ({setImageDOM}) =>
   col(
     listItem({
@@ -16,9 +20,16 @@ const _render = ({setImageDOM}) =>
   )
 
 function Photo(sources) {
-  const setImage = SetImage({image$: sources.projectImage$, ...sources})
+  const setImage = SetImage({...sources,
+    image$: sources.projectImage$,
+  })
 
-  const queue$ = setImage.queue$
+  const queue$ = setImage.dataUrl$
+    .withLatestFrom(
+      sources.projectKey$,
+      (dataUrl,key) => ({key, values: {dataUrl}})
+    )
+    .map(ProjectImages.action.set)
 
   const viewState = {
     setImageDOM: setImage.DOM,

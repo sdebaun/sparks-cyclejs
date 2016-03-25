@@ -4,7 +4,7 @@ const {merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {Dialog as SmDialog} from 'snabbdom-material'
-import {div, span} from 'cycle-snabbdom'
+import {div} from 'cycle-snabbdom'
 
 import {OkAndCancel} from 'components/sdm/Button'
 

@@ -41,7 +41,10 @@ const SelectControl = sources => {
   const DOM = combineLatestObj(viewState)
     .map(({isOpen, label, value, options, classNames}) =>
       div({},[
-        Select({isOpen, label, value, options, className: ['input', ...classNames].join('.')}),
+        Select({
+          isOpen, label, value, options,
+          className: ['input', ...classNames].join('.'),
+        }),
       ])
     )
 

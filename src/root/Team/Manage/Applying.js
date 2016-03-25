@@ -21,7 +21,8 @@ const ToggleOpen = sources => ListItemToggle({...sources,
 
 const TextAreaQuestion = sources => ListItemCollapsibleTextArea({
   ...sources,
-  title$: just('What question do you want to ask people who apply for this Team?'),
+  title$:
+    just('What question do you want to ask people who apply for this Team?'),
   iconName$: just('playlist_add'),
   okLabel$: just('this sounds great'),
   cancelLabel$: just('hang on ill do this later'),

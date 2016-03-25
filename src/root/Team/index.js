@@ -7,9 +7,9 @@ import Title from 'components/Title'
 import Header from 'components/Header'
 // import {OppNav} from 'components/opp'
 
-import {div} from 'helpers'
+import {div, iconSrc} from 'helpers'
 
-import ComingSoon from 'components/ComingSoon'
+// import ComingSoon from 'components/ComingSoon'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
@@ -20,6 +20,7 @@ import {ListItemNavigating} from 'components/sdm'
 import {
   ProjectImages,
   Teams,
+  TeamImages,
   Opps,
 } from 'components/remote'
 
@@ -68,7 +69,8 @@ const TeamNav = sources => {
 }
 
 export default sources => {
-  const team$ = sources.teamKey$
+  const teamKey$ = sources.teamKey$
+  const team$ = teamKey$
     .flatMapLatest(key => sources.firebase('Teams',key))
 
   const projectKey$ = team$.pluck('projectKey')
@@ -79,6 +81,9 @@ export default sources => {
   const projectImage$ = projectKey$
     .flatMapLatest(ProjectImages.query.one(sources))
 
+  const teamImage$ = teamKey$
+    .flatMapLatest(TeamImages.query.one(sources))
+
   const teams$ = projectKey$
     .flatMapLatest(Teams.query.byProject(sources))
 
@@ -87,7 +92,7 @@ export default sources => {
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
-    {team$, projectKey$, project$, teams$, opps$, ...sources}
+    {team$, teamImage$, projectKey$, project$, teams$, opps$, ...sources}
   )
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
@@ -96,7 +101,16 @@ export default sources => {
     {...sources, project$, projectKey$, team$, teams$, opps$}
   )
 
-  const labelText$ = team$.pluck('name')
+  const labelText$ = combineLatest(
+    team$,
+    teamImage$,
+    ({name},img) => div({}, [
+      img && iconSrc(img.dataUrl),
+      name,
+    ].filter(i => !!i))
+  )
+
+  // team$.pluck('name')
   const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
 
   const title = Title({

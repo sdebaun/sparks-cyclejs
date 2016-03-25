@@ -7,7 +7,6 @@ import isolate from '@cycle/isolate'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
 
-import listItem from 'helpers/listItem'
 import listHeader from 'helpers/listHeader'
 
 import {col} from 'helpers'
@@ -20,13 +19,6 @@ import {List} from 'components/sdm'
 const OrganizerInviteList = sources => List({...sources,
   Control$: just(OrganizerInviteItem),
 })
-
-const _renderOrganizerInvite = ({inviteEmail, authority}) =>
-  listItem({
-    iconName: 'mail_outline',
-    title: inviteEmail,
-    subtitle: authority,
-  })
 
 const _render = ({organizers, createOrganizerInviteDOM, listDOM}) =>
   col(

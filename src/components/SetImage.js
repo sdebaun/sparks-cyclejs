@@ -2,8 +2,6 @@ import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
 import DropAndCrop from 'components/DropAndCrop'
 
-import {ProjectImages} from 'remote'
-
 // import isolate from '@cycle/isolate'
 
 import {col, div} from 'helpers'
@@ -34,11 +32,7 @@ export default sources => {
 
   const submit$ = _submitAction$(sources)
 
-  const queue$ = dropAndCrop.dataUrl$
-    .map(dataUrl => ({dataUrl}))
-    .withLatestFrom(sources.projectKey$, (values,key) =>
-      ProjectImages.set(key,values)
-    )
+  const dataUrl$ = dropAndCrop.dataUrl$
 
   const isOpen$ = _openActions$(sources)
     .merge(submit$.map(false))
@@ -55,6 +49,6 @@ export default sources => {
 
   return {
     DOM,
-    queue$,
+    dataUrl$,
   }
 }
