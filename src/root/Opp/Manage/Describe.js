@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just} = Observable
+const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
@@ -8,6 +8,7 @@ import {col, div} from 'helpers'
 import {
   ListItemToggle,
   ListItemCollapsibleTextArea,
+  ListItemNavigating,
 } from 'components/sdm'
 
 import {Opps} from 'remote'
@@ -17,6 +18,15 @@ const _render = ({togglePublicDOM, textareaDescriptionDOM}) =>
     togglePublicDOM,
     textareaDescriptionDOM,
   )
+
+const PreviewRecruiting = sources => ListItemNavigating({...sources,
+  title$: just('Preview your Recruiting page.'),
+  iconName$: just('remove'),
+  path$: combineLatest(
+    sources.projectKey$, sources.oppKey$,
+    (pk, ok) => '/apply/' + pk + '/opp/' + ok
+  ),
+})
 
 const TogglePublic = sources => ListItemToggle({...sources,
   titleTrue$: just('This is a Public Opportunity, and anyone can apply.'),
@@ -32,7 +42,8 @@ const TextareaDescription = sources => ListItemCollapsibleTextArea({
 })
 
 export default sources => {
-  // isolate breaks this!??! @tylors
+  const preview = PreviewRecruiting(sources)
+
   const togglePublic = TogglePublic({...sources,
     value$: sources.opp$.pluck('isPublic'),
   })
@@ -56,14 +67,22 @@ export default sources => {
     updateDescription$,
   )
 
-  const viewState = {
-    togglePublicDOM: togglePublic.DOM,
-    textareaDescriptionDOM: textareaDescription.DOM,
-  }
+  const DOM = combineLatest(
+    preview.DOM,
+    togglePublic.DOM,
+    textareaDescription.DOM,
+    (...doms) => div({}, doms)
+  )
 
-  const DOM = combineLatestObj(viewState).map(_render)
+  // const viewState = {
+  //   togglePublicDOM: togglePublic.DOM,
+  //   textareaDescriptionDOM: textareaDescription.DOM,
+  // }
+
+  // const DOM = combineLatestObj(viewState).map(_render)
   return {
     DOM,
     queue$,
+    route$: preview.route$,
   }
 }

@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just} = Observable
+const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
@@ -9,6 +9,7 @@ import listItem from 'helpers/listItem'
 // import makeTextareaListItem from 'components/TextareaListItemFactory'
 import {
   ListItemCollapsibleTextArea,
+  ListItemNavigating,
 } from 'components/sdm'
 
 import {Opps, Fulfillers} from 'remote'
@@ -69,6 +70,13 @@ const TextareaQuestion = sources => ListItemCollapsibleTextArea({
   cancelLabel$: just('hang on ill do this later'),
 })
 
+const PreviewRecruiting = sources => ListItemNavigating({...sources,
+  title$: just('Preview your Recruiting page.'),
+  path$: combineLatest(
+    sources.projectKey$, sources.oppKey$,
+    (pk, ok) => '/apply/' + pk + '/opp/' + ok
+  ),
+})
 
 export default sources => {
   const fulfillers$ = sources.oppKey$
