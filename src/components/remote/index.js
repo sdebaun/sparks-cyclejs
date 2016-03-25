@@ -99,6 +99,7 @@ export const Teams = {
   },
   action: {
     create: actionCreator('Teams', 'create'),
+    update: actionCreator('Teams', 'update'),
     remove: actionCreator('Teams', 'remove'),
   },
 }

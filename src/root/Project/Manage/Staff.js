@@ -32,7 +32,6 @@ const _render = ({organizers, createOrganizerInviteDOM, listDOM}) =>
   col(
     createOrganizerInviteDOM,
     organizers.length > 0 ? listHeader({title: 'Open Invites'}) : null,
-    // ...organizers.map(o => _renderOrganizerInvite(o)),
     listDOM,
   )
 

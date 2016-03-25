@@ -1,10 +1,15 @@
 import {Observable} from 'rx'
+const {just} = Observable
+
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
 import {col} from 'helpers'
 import listItem from 'helpers/listItem'
 
-import makeTextareaListItem from 'components/TextareaListItemFactory'
+// import makeTextareaListItem from 'components/TextareaListItemFactory'
+import {
+  ListItemCollapsibleTextArea,
+} from 'components/sdm'
 
 import {Opps, Fulfillers} from 'remote'
 
@@ -51,10 +56,19 @@ const _render = ({teams, fulfilledLookup, textareaQuestionDOM}) =>
     ..._renderTeams(rows(teams), fulfilledLookup)
   )
 
-const TextareaQuestion = makeTextareaListItem({
-  iconName: 'playlist_add',
-  title: 'You can ask people one special question when they apply.',
+// const TextareaQuestion = makeTextareaListItem({
+//   iconName: 'playlist_add',
+//   title: 'You can ask people one special question when they apply.',
+// })
+
+const TextareaQuestion = sources => ListItemCollapsibleTextArea({
+  ...sources,
+  title$: just('You can ask people one special question when they apply.'),
+  iconName$: just('playlist_add'),
+  okLabel$: just('this sounds great'),
+  cancelLabel$: just('hang on ill do this later'),
 })
+
 
 export default sources => {
   const fulfillers$ = sources.oppKey$
@@ -76,9 +90,8 @@ export default sources => {
     return lookup
   })
 
-  const textareaQuestion = isolate(TextareaQuestion)({
+  const textareaQuestion = isolate(TextareaQuestion)({...sources,
     value$: sources.opp$.pluck('question'),
-    ...sources,
   })
 
   const updateQuestion$ = textareaQuestion.value$
