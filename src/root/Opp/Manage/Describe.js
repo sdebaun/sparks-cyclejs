@@ -3,11 +3,12 @@ const {just} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
-import {col} from 'helpers'
+import {col, div} from 'helpers'
 
-import {ListItemToggle} from 'components/sdm'
-
-import makeTextareaListItem from 'components/TextareaListItemFactory'
+import {
+  ListItemToggle,
+  ListItemCollapsibleTextArea,
+} from 'components/sdm'
 
 import {Opps} from 'remote'
 
@@ -22,10 +23,12 @@ const TogglePublic = sources => ListItemToggle({...sources,
   titleFalse$: just('This is Private, and is only seen by people you invite.'),
 })
 
-const TextareaDescription = makeTextareaListItem({
-  iconName: 'playlist_add',
-  title: 'Write a short tweet-length description.',
-  maxLength: '140',
+const TextareaDescription = sources => ListItemCollapsibleTextArea({
+  ...sources,
+  title$: just('Write a short tweet-length description'),
+  iconName$: just('playlist_add'),
+  okLabel$: just('this sounds great'),
+  cancelLabel$: just('hang on ill do this later'),
 })
 
 export default sources => {

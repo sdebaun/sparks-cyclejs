@@ -1,12 +1,12 @@
 import {Observable} from 'rx'
-const {just} = Observable
+const {just, empty, merge, combineLatest} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
 import listItem from 'helpers/listItem'
 import {icon} from 'helpers'
 
-import {ToggleControl} from 'components/sdm'
+import {ToggleControl, TextAreaControl} from 'components/sdm'
 import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
 
@@ -122,10 +122,52 @@ const ListItemWithDialog = sources => {
   }
 }
 
+const ListItemCollapsible = sources => {
+  const li = ListItemClickable(sources)
+
+  const isOpen$ = (sources.isOpen$ || empty())
+    .merge(li.click$.map(-1))
+    .scan((a,x) => x === -1 ? !a : x)
+    .startWith(false)
+
+  const viewState = {
+    isOpen$,
+    listItemDOM$: li.DOM,
+    contentDOM$: sources.contentDOM$ || just(div({},['no contentDOM$'])),
+  }
+
+  const DOM = combineLatestObj(viewState)
+    .map(({isOpen, listItemDOM, contentDOM}) =>
+      div({},[listItemDOM, isOpen && contentDOM].filter(i => !!i))
+    )
+
+  return {
+    DOM,
+  }
+}
+
+import {OkAndCancel} from './Button'
+
+const ListItemCollapsibleTextArea = sources => {
+  const ta = TextAreaControl(sources)
+  const oac = OkAndCancel(sources)
+  const li = ListItemCollapsible({...sources,
+    contentDOM$: combineLatest(ta.DOM, oac.DOM, (...doms) => div({},doms)),
+    isOpen$: merge(oac.ok$, oac.cancel$).map(false),
+  })
+
+  return {
+    DOM: li.DOM,
+    value$: ta.value$.sample(oac.ok$),
+  }
+}
+
 export {
   ListItemClickable,
   ListItemToggle,
   ListItemWithMenu,
   ListItemNavigating,
   ListItemWithDialog,
+  ListItemCollapsible,
+  ListItemCollapsibleTextArea,
 }
