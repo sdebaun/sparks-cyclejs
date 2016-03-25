@@ -15,9 +15,6 @@ import Manage from './Manage'
 const _routes = {
   '/': Glance,
   '/manage': Manage,
-  // '/leads': isolate(ComingSoon('Leads')),
-  // '/find': isolate(ComingSoon('Find')),
-  // '/manage': isolate(ComingSoon('Manage')),
 }
 
 import {ProjectQuickNavMenu} from 'components/project'

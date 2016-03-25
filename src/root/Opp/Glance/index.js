@@ -1,22 +1,8 @@
 import {Observable} from 'rx'
-// import combineLatestObj from 'rx-combine-latest-obj'
-// import isolate from '@cycle/isolate'
-
-// import {div, span} from 'cycle-snabbdom'
-
-// import AppFrame from 'components/AppFrame'
-// import Title from 'components/Title'
-// import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
-// import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-// import {icon} from 'helpers'
-
-// import {rows, log} from 'util'
-
-// import Priority from './Priority'
 
 const Priority = ComingSoon('Opp/Glance/Priority')
 const Find = ComingSoon('Opp/Glance/Find')

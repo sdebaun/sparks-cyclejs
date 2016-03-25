@@ -4,7 +4,8 @@ import ComingSoon from 'components/ComingSoon'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
-const Priority = ComingSoon('Manage/Glance/Priority')
+import Priority from './Priority'
+// const Priority = ComingSoon('Manage/Glance/Priority')
 const Find = ComingSoon('Manage/Glance/Find')
 const Recently = ComingSoon('Manage/Glance/Recently')
 

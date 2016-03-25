@@ -1,14 +1,19 @@
 import {Observable} from 'rx'
+const {just, merge, combineLatest} = Observable
+import isolate from '@cycle/isolate'
 
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
 // import {OppNav} from 'components/opp'
 
+import {div} from 'helpers'
+
 import ComingSoon from 'components/ComingSoon'
-const TeamNav = ComingSoon('Foo')
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+
+import {ListItemNavigating} from 'components/sdm'
 
 // import {log} from 'util'
 
@@ -27,6 +32,40 @@ const _routes = {
 }
 
 import {ProjectQuickNavMenu} from 'components/project'
+
+const TeamNav = sources => {
+  const glance = isolate(ListItemNavigating,'glance')({...sources,
+    title$: just('At a Glance'),
+    iconName$: just('home'),
+    path$: just('/'),
+  })
+  const manage = isolate(ListItemNavigating,'manage')({...sources,
+    title$: just('Manage'),
+    iconName$: just('settings'),
+    path$: just('/manage'),
+  })
+
+  const listDOM$ = combineLatest(glance.DOM, manage.DOM, (...doms) => doms)
+
+  const route$ = merge(glance.route$, manage.route$)
+    .map(sources.router.createHref)
+
+  const DOM = combineLatest(
+    sources.isMobile$,
+    sources.titleDOM,
+    listDOM$,
+    (isMobile, titleDOM, listDOM) =>
+      div({}, [
+        isMobile ? null : titleDOM,
+        div('.rowwrap', {style: {padding: '0px 15px'}}, listDOM),
+      ])
+  )
+
+  return {
+    DOM,
+    route$,
+  }
+}
 
 export default sources => {
   const team$ = sources.teamKey$

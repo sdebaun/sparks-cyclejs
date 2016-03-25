@@ -4,20 +4,20 @@ import ComingSoon from 'components/ComingSoon'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
-const Priority = ComingSoon('Manage/Glance/Priority')
-const Find = ComingSoon('Manage/Glance/Find')
-const Recently = ComingSoon('Manage/Glance/Recently')
+const Details = ComingSoon('Manage/Glance/Details')
+const Leads = ComingSoon('Manage/Glance/Leads')
+const Applying = ComingSoon('Manage/Glance/Applying')
 
 const _routes = {
-  '/': Priority,
-  '/find': Find,
-  '/recently': Recently,
+  '/': Details,
+  '/leads': Leads,
+  '/applying': Applying,
 }
 
 const _tabs = [
-  {path: '/', label: 'Priority'},
-  {path: '/find', label: 'Find'},
-  {path: '/recently', label: 'Recently'},
+  {path: '/', label: 'Details'},
+  {path: '/leads', label: 'Leads'},
+  {path: '/applying', label: 'Applying'},
 ]
 
 export default sources => {
