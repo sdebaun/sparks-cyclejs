@@ -1,3 +1,5 @@
+require('./styles.scss')
+
 import {Observable} from 'rx'
 const {merge, just} = Observable
 
@@ -6,8 +8,6 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import {Mask, getScreenSize} from 'snabbdom-material'
 import {div} from 'cycle-snabbdom'
 import menuItem from 'helpers/menuItem'
-
-require('./styles.scss')
 
 const insert = (vnode) => {
   const {height: screenHeight} = getScreenSize()

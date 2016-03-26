@@ -3,26 +3,25 @@ const {just} = Observable
 
 // import isolate from '@cycle/isolate'
 
-import {Organizers} from 'remote'
+import {Teams} from 'remote'
 
-// import {OppForm} from 'components/opp'
+import {TeamForm} from 'components/team'
 import {ListItemWithDialog} from 'components/sdm'
-import {OrganizerInviteForm} from 'components/OrganizerInviteForm'
 
-const CreateOrganizerListItem = sources => {
-  const form = OrganizerInviteForm(sources)
+const CreateTeamListItem = sources => {
+  const form = TeamForm(sources)
 
   const listItem = ListItemWithDialog({...sources,
-    iconName$: just('person_add'),
-    title$: just('Invite another Organizer to help you run the project.'),
-    dialogTitleDOM$: just('Invite Organizer'),
+    iconName$: just('group_add'),
+    title$: just('Build your first Team.'),
+    dialogTitleDOM$: just('Create a Team'),
     dialogContentDOM$: form.DOM,
   })
 
   const queue$ = form.item$
     .sample(listItem.submit$)
-    .zip(sources.projectKey$, (opp,projectKey) => ({projectKey, ...opp}))
-    .map(Organizers.create)
+    .zip(sources.projectKey$, (item,projectKey) => ({projectKey, ...item}))
+    .map(Teams.create)
 
   return {
     DOM: listItem.DOM,
@@ -30,19 +29,19 @@ const CreateOrganizerListItem = sources => {
   }
 }
 
-export default CreateOrganizerListItem
+export {CreateTeamListItem}
 
-///
 
+// // TODO: TLC
 
 // import {Observable} from 'rx'
 // import combineLatestObj from 'rx-combine-latest-obj'
 
 // // import isolate from '@cycle/isolate'
 
-// import {Organizers} from 'remote'
+// import {Teams} from 'remote'
 
-// import {OrganizerInviteForm} from 'components/OrganizerInviteForm'
+// import {TeamForm} from './TeamForm'
 
 // import {col} from 'helpers'
 // import modal from 'helpers/modal'
@@ -58,36 +57,36 @@ export default CreateOrganizerListItem
 // const _submitAction$ = ({DOM}) =>
 //   DOM.select('.submit').events('click').map(true)
 
-// const _render = ({isOpen, organizerInviteFormDOM}) =>
+// const _render = ({isOpen, teamFormDOM}) =>
 //   col(
 //     listItem({
-//       iconName: 'person_add',
+//       iconName: 'group_add',
 //       iconBackgroundColor: 'yellow',
-//       title: 'Invite Organizer',
+//       title: 'Build your first Team',
 //       className: 'open',
 //       clickable: true,
 //     }),
 //     modal({
 //       isOpen,
-//       title: 'Invite Organizer',
-//       iconName: 'person_add',
-//       submitLabel: 'Bring Em On',
-//       closeLabel: 'Not Yet',
-//       content: organizerInviteFormDOM,
+//       title: 'Build your first Team',
+//       iconName: 'group_add',
+//       submitLabel: 'Make It So',
+//       closeLabel: 'Hang On',
+//       content: teamFormDOM,
 //     })
 //   )
 
-// export default sources => {
-//   const organizerInviteForm = OrganizerInviteForm(sources)
+// const CreateTeam = sources => {
+//   const teamForm = TeamForm(sources)
 
 //   const submit$ = _submitAction$(sources)
 
-//   const queue$ = organizerInviteForm.item$
+//   const queue$ = teamForm.item$
 //     .sample(submit$)
 //     .zip(sources.projectKey$,
-//       (organizer,projectKey) => ({projectKey, ...organizer})
+//       (team,projectKey) => ({projectKey, ...team})
 //     )
-//     .map(Organizers.create)
+//     .map(Teams.create)
 
 //   const isOpen$ = _openActions$(sources)
 //     .merge(submit$.map(false))
@@ -96,10 +95,12 @@ export default CreateOrganizerListItem
 //   const viewState = {
 //     isOpen$,
 //     project$: sources.project$,
-//     organizerInviteFormDOM$: organizerInviteForm.DOM,
+//     teamFormDOM$: teamForm.DOM,
 //   }
 
 //   const DOM = combineLatestObj(viewState).map(_render)
 
 //   return {DOM, queue$}
 // }
+
+// export {CreateTeam}

@@ -21,13 +21,14 @@ export const reactComponent = (Klass,attrs,hookName = 'update') =>
     hook: {[hookName]: ({elm}) => ReactDOM.render(<Klass {...attrs}/>,elm)},
   })
 
-export const icon = (name, color = '#FFF', backgroundColor) =>
-  Icon({name, style: {
-    color, backgroundColor,
-    borderRadius: '20px',
-    margin: '-4px',
-    padding: '4px',
-  }})
+export const icon = (name, className) =>
+  h(`i.icon-${name}.${className}`,[])
+
+  // Icon({name, className, style: {
+  //   borderRadius: '20px',
+  //   margin: '-4px',
+  //   padding: '4px',
+  // }})
 
 const iconImageStyle = {
   width: '40px',

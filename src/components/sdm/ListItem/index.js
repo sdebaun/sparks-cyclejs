@@ -1,58 +1,90 @@
+require('./styles.scss')
+
 import {Observable} from 'rx'
 const {just, empty, merge, combineLatest} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
+import isolate from '@cycle/isolate'
 
 import {div} from 'cycle-snabbdom'
-import listItem from 'helpers/listItem'
-import {icon} from 'helpers'
+// import listItem from 'helpers/listItem'
+import {icon, iconSrc} from 'helpers'
 
 import {ToggleControl, TextAreaControl} from 'components/sdm'
 import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
+import {OkAndCancel} from 'components/sdm'
 
-const ListItemClickable = sources => {
-  const click$ = sources.DOM.select('.item').events('click')
+import {log} from 'util'
 
+const liClasses = {'list-item': true, row: true}
+
+const contentClass = (...doms) =>
+  '.content.xcol-sm-' +
+  (12 - doms.filter(i => !!i).length)
+
+const listItem = ({leftDOM, title, subtitle, rightDOM, classes}) =>
+  div({class: {...liClasses, ...classes}}, [
+    leftDOM && div('.left.xcol-sm-1', [leftDOM]),
+    div(contentClass(leftDOM,rightDOM), [
+      div('.title', [title]),
+      subtitle && div('.subtitle', [subtitle]),
+    ].filter(i => !!i)),
+    rightDOM && div('.right.xcol-sm-1',[rightDOM]),
+  ].filter(i => !!i))
+
+const ListItem = sources => {
   const viewState = {
-    iconDOM$: sources.iconDOM$ || just(null),
-    iconName$: sources.iconName$ || just(null),
-    iconSrc$: sources.iconSrc$ || just(null),
+    classes$: sources.classes$ || just({}),
+    leftDOM$: sources.leftDOM$ ||
+      sources.iconName$ && sources.iconName$.map(n => icon(n)) ||
+      sources.iconSrc$ && sources.iconSrc$.map(url => iconSrc(url)) ||
+      just(null),
     title$: sources.title$ || just('no title$'),
     subtitle$: sources.subtitle$ || just(null),
+    rightDOM$: sources.rightDOM$ || just(null),
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({iconDOM, iconName, iconSrc, title, subtitle}) =>
+    .map(({leftDOM, title, subtitle, rightDOM, classes}) =>
       div({},[listItem({ //need extra div for isolate
         title,
         subtitle,
-        iconDOM,
-        iconName,
-        iconSrc,
-        className: 'item',
-        clickable: true,
+        rightDOM,
+        leftDOM,
+        classes,
       })])
     )
 
   return {
-    click$,
     DOM,
   }
 }
+
+const ListItemClickable = sources => ({
+  click$: sources.DOM.select('.list-item').events('click'),
+
+  DOM: ListItem({...sources,
+    classes$: just({clickable: true}),
+  }).DOM,
+})
 
 const ListItemToggle = sources => {
   const toggle = ToggleControl(sources)
 
   const item = ListItemClickable({...sources,
-    iconDOM$: toggle.DOM,
+    leftDOM$: toggle.DOM,
     title$: sources.value$.flatMapLatest(v =>
       v ? sources.titleTrue$ : sources.titleFalse$
     ),
   })
 
+  const value$ = sources.value$
+    .sample(item.click$)
+    .map(x => !x)
+
   return {
     DOM: item.DOM,
-    value$: toggle.value$,
+    value$,
   }
 }
 
@@ -146,8 +178,6 @@ const ListItemCollapsible = sources => {
   }
 }
 
-import {OkAndCancel} from './Button'
-
 const ListItemCollapsibleTextArea = sources => {
   const ta = TextAreaControl(sources)
   const oac = OkAndCancel(sources)
@@ -163,6 +193,7 @@ const ListItemCollapsibleTextArea = sources => {
 }
 
 export {
+  ListItem,
   ListItemClickable,
   ListItemToggle,
   ListItemWithMenu,

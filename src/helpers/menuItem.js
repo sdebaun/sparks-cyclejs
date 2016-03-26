@@ -5,7 +5,7 @@ import {icon} from 'helpers'
 // import {Menu} from 'snabbdom-material'
 // const Item = Menu.Item
 
-import 'helpers/listItem/styles.scss'
+// import 'helpers/listItem/styles.scss'
 
 const fadeInOut = {
   opacity: 0,

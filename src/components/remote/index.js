@@ -137,3 +137,14 @@ export const Organizers = {
     remove: actionCreator('Organizers', 'remove'),
   },
 }
+
+export const Fulfillers = {
+  query: {
+    byTeam: filterBy('Fulfillers','teamKey'),
+    byOpp: filterBy('Fulfillers','oppKey'),
+  },
+  action: {
+    create: actionCreator('Fulfillers', 'create'),
+    remove: actionCreator('Fulfillers', 'delete'), // CHANGE
+  },
+}
