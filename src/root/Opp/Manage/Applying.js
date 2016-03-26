@@ -3,7 +3,7 @@ const {just} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
-import {col, icon} from 'helpers'
+import {col, icon, iconSrc} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import {
@@ -13,6 +13,10 @@ import {
 } from 'components/sdm'
 
 import {Opps, Fulfillers} from 'remote'
+
+import {
+  TeamImages,
+} from 'components/remote'
 
 import {rows} from 'util'
 import {log} from 'util'
@@ -44,7 +48,7 @@ const _render = ({teams, fulfilledLookup, textareaQuestionDOM, listDOM}) =>
   col(
     textareaQuestionDOM,
     listDOM,
-    ..._renderTeams(rows(teams), fulfilledLookup)
+    // ..._renderTeams(rows(teams), fulfilledLookup)
   )
 
 const TextareaQuestion = sources => ListItemCollapsibleTextArea({
@@ -63,10 +67,33 @@ const TextareaQuestion = sources => ListItemCollapsibleTextArea({
 //   ),
 // })
 
-const FulfilledListItem = sources => {
+const TeamIcon = sources => ({
+  DOM: sources.key$
+    .flatMapLatest(key => TeamImages.query.one(sources)(key))
+    .map(i => i && i.dataUrl && iconSrc(i.dataUrl) || icon('power')),
+})
+
+const TeamFulfillerLookup = sources => ({
+  fulfiller$: sources.fulfillers$.combineLatest(
+    sources.key$,
+    (fulfillers, key) =>
+      fulfillers.find(({$key, teamKey}) => key === teamKey ? $key : false)
+  ),
+})
+
+const TeamFulfilledListItem = sources => {
+  const key$ = sources.item$.pluck('$key')
+
+  const value$ = sources.item$
+      .flatMapLatest(({$key}) =>
+        TeamFulfillerLookup({...sources, key$: just($key)}).fulfiller$
+      )
+      .map(v => !!v)
+
   const li = ListItemClickable({...sources,
-    leftDOM$: just(icon('power','#000')),
-    title$: just('title'),
+    leftDOM$: TeamIcon({...sources,key$}).DOM,
+    title$: sources.item$.pluck('name'),
+    rightDOM$: value$.map(v => icon(v ? 'check_box' : 'check_box_outline_blank')),
   })
 
   return {
@@ -74,9 +101,9 @@ const FulfilledListItem = sources => {
   }
 }
 
-const FulfilledList = sources => {
+const TeamFulfilledList = sources => {
   const list = List({...sources,
-    Control$: just(FulfilledListItem),
+    Control$: just(TeamFulfilledListItem),
   })
 
   return {
@@ -92,7 +119,7 @@ export default sources => {
 
   fulfillers$.subscribe(log('fulfillers$'))
 
-  const flist = FulfilledList({...sources,
+  const flist = TeamFulfilledList({...sources,
     rows$: sources.teams$,
     fulfillers$: fulfillers$,
   })

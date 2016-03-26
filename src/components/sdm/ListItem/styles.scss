@@ -24,10 +24,13 @@
     color: #666;
   }
 
-  .left {
+  .left, .right {
     width: 48px;
     font-size: 32px;
-    padding: 0 0 0 16px;
+
+    &.left {
+      padding: 0 0 0 16px;
+    }
   }
 
   .content {
