@@ -6,7 +6,7 @@ import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
-import {CreateTeam} from 'components/team'
+import {CreateTeamListItem} from 'components/team'
 import {CreateOppListItem} from 'components/opp'
 
 import {
@@ -73,7 +73,7 @@ export default sources => {
   const describe = DescribePriority(sources)
   const picture = PicturePriority(sources)
   const invite = isolate(CreateOrganizerInvite)(sources)
-  const team = isolate(CreateTeam)(sources)
+  const team = isolate(CreateTeamListItem)(sources)
   const opp = isolate(CreateOppListItem)(sources)
 
   const queue$ = Observable.merge(
