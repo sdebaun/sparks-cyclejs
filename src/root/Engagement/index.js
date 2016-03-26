@@ -7,8 +7,6 @@ import {div} from 'cycle-snabbdom'
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
-// import TabBar from 'components/TabBar'
-// import ComingSoon from 'components/ComingSoon'
 import {EngagementNav} from 'components/engagement'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
@@ -54,28 +52,28 @@ export default sources => {
   const labelText$ = opp$.pluck('name')
   const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
 
-  const title = Title({
+  const title = Title({...sources,
     quickNavDOM$: project$.pluck('name').map(name => div({},[name])),
     tabsDOM$: tabsDOM,
     labelText$,
     subLabelText$,
     backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-    ...sources,
   })
 
-  const nav = EngagementNav({
+  const nav = EngagementNav({...sources,
     titleDOM: title.DOM,
     engagement$,
-    ...sources,
   })
 
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabsDOM, ...sources})
+  const header = Header({...sources,
+    titleDOM: title.DOM,
+    tabsDOM: tabsDOM,
+  })
 
-  const appFrame = AppFrame({
+  const appFrame = AppFrame({...sources,
     navDOM: nav.DOM,
     headerDOM: header.DOM,
     pageDOM: page$.pluck('DOM'),
-    ...sources,
   })
 
   const children = [appFrame, page$, title, nav, header]
