@@ -10,6 +10,8 @@ import {OkAndCancel} from 'components/sdm/Button'
 
 import {AccentToolbar} from 'components/sdm/Toolbar'
 
+import {icon} from 'helpers'
+
 const dialogStyle = {
   minWidth: '400px',
 }
@@ -35,7 +37,9 @@ const Dialog = sources => {
 
   const oac = OkAndCancel(sources)
 
-  const toolbar = AccentToolbar({...sources})
+  const toolbar = AccentToolbar({...sources,
+    leftItemDOM$: sources.iconName$ && sources.iconName$.map(icon),
+  })
 
   const isOpen$ = merge(
     sources.isOpen$,
