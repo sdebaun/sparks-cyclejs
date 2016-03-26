@@ -9,7 +9,7 @@
     font-weight: bold;
     display: block;
 
-    &:hover {
+    &.clickable:hover {
       background-color: #000 !important;
     }
   }

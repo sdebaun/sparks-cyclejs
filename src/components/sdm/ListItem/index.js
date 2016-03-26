@@ -3,6 +3,7 @@ require('./styles.scss')
 import {Observable} from 'rx'
 const {just, empty, merge, combineLatest} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
+import isolate from '@cycle/isolate'
 
 import {div} from 'cycle-snabbdom'
 // import listItem from 'helpers/listItem'
@@ -13,8 +14,10 @@ import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
 import {OkAndCancel} from 'components/sdm'
 
-const listItem = ({leftDOM, title, subtitle, rightDOM, clickable}) =>
-  div({class: {'list-item': true, row: true, clickable}}, [
+const liClasses = {'list-item': true, row: true}
+
+const listItem = ({leftDOM, title, subtitle, rightDOM, classes}) =>
+  div({class: {...liClasses, ...classes}}, [
     leftDOM && div('.left.col-sm-1', [leftDOM]),
     div('.content.col-sm-10',[
       div('.title', [title]),
@@ -23,10 +26,9 @@ const listItem = ({leftDOM, title, subtitle, rightDOM, clickable}) =>
     rightDOM && div('.right.col-sm-1',[rightDOM]),
   ].filter(i => !!i))
 
-const ListItemClickable = sources => {
-  const click$ = sources.DOM.select('.list-item').events('click')
-
+const ListItem = sources => {
   const viewState = {
+    classes$: sources.classes$ || just({}),
     leftDOM$: sources.leftDOM$ ||
       sources.iconName$ && sources.iconName$.map(n => icon(n)) ||
       sources.iconSrc$ && sources.iconSrc$.map(url => iconSrc(url)) ||
@@ -37,21 +39,28 @@ const ListItemClickable = sources => {
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({leftDOM, title, subtitle, rightDOM}) =>
+    .map(({leftDOM, title, subtitle, rightDOM, classes}) =>
       div({},[listItem({ //need extra div for isolate
         title,
         subtitle,
         rightDOM,
         leftDOM,
-        clickable: true,
+        classes,
       })])
     )
 
   return {
-    click$,
     DOM,
   }
 }
+
+const ListItemClickable = sources => ({
+  click$: sources.DOM.select('.list-item').events('click'),
+
+  DOM: ListItem({...sources,
+    classes$: just({clickable: true}),
+  }).DOM,
+})
 
 const ListItemToggle = sources => {
   const toggle = ToggleControl(sources)
@@ -174,6 +183,7 @@ const ListItemCollapsibleTextArea = sources => {
 }
 
 export {
+  ListItem,
   ListItemClickable,
   ListItemToggle,
   ListItemWithMenu,

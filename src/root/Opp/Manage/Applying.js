@@ -1,13 +1,14 @@
 import {Observable} from 'rx'
-const {just} = Observable
+const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
-import {col, icon, iconSrc} from 'helpers'
+import {div, col, icon, iconSrc} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import {
   List,
+  ListItem,
   ListItemClickable,
   ListItemCollapsibleTextArea,
 } from 'components/sdm'
@@ -81,23 +82,55 @@ const TeamFulfillerLookup = sources => ({
   ),
 })
 
+// const fulfillerByTeam$$ = (sources, key) =>
+//   sources.fulfillers$.map(fulfillers =>
+//     fulfillers.find(({$key, teamKey}) => key === teamKey ? $key : false)
+//   )
+
+const TeamFulfillerHeader = sources => ListItem({
+  classes$: just({header: true}),
+  title$: just('allowed teams'),
+})
+
 const TeamFulfilledListItem = sources => {
   const key$ = sources.item$.pluck('$key')
-
-  const value$ = sources.item$
-      .flatMapLatest(({$key}) =>
-        TeamFulfillerLookup({...sources, key$: just($key)}).fulfiller$
-      )
-      .map(v => !!v)
+  const fulfiller$ = TeamFulfillerLookup({...sources, key$}).fulfiller$
 
   const li = ListItemClickable({...sources,
     leftDOM$: TeamIcon({...sources,key$}).DOM,
     title$: sources.item$.pluck('name'),
-    rightDOM$: value$.map(v => icon(v ? 'check_box' : 'check_box_outline_blank')),
+    rightDOM$: fulfiller$.map(v => icon(v ? 'check_box' : 'check_box_outline_blank')),
   })
+
+  li.click$.subscribe(log('click$'))
+  fulfiller$.subscribe(log('fulfiller$'))
+
+  const queue$ = fulfiller$
+    .sample(li.click$)
+    .combineLatest(
+      key$,
+      // sources.teamKey$,
+      sources.oppKey$,
+      (fulfiller, teamKey, oppKey) => fulfiller && fulfiller.$key ?
+        Fulfillers.delete(fulfiller.$key) :
+        Fulfillers.create({teamKey, oppKey}),
+    )
+
+  // li.click$
+  //   .withLatestFrom(
+  //     key$,
+  //     fulfilledLookup$,
+  //     (teamKey,oppKey,fulfilledLookup) =>
+  //       fulfilledLookup[teamKey] &&
+  //         Fulfillers.delete(fulfilledLookup[teamKey]) ||
+  //         Fulfillers.create({teamKey, oppKey})
+  //   )
+
+  // const queue$ = li.click$
 
   return {
     DOM: li.DOM,
+    queue$,
   }
 }
 
@@ -108,6 +141,7 @@ const TeamFulfilledList = sources => {
 
   return {
     DOM: list.DOM,
+    queue$: list.queue$,
   }
 }
 
@@ -124,6 +158,10 @@ export default sources => {
     fulfillers$: fulfillers$,
   })
 
+  const header = TeamFulfillerHeader(sources)
+
+  flist.queue$.subscribe(log('flist.queue$'))
+
   const fulfilledLookup$ = fulfillers$.map(fulfillers =>
     fulfillers.reduce((a, row) => (a[row.teamKey] = row.$key) && a, {})
   )
@@ -138,40 +176,49 @@ export default sources => {
       Opps.update(key,{question})
     )
 
-  const clickedTeamKeys$ = _toggleActions(sources)
+  // const clickedTeamKeys$ = _toggleActions(sources)
 
-  clickedTeamKeys$.subscribe(log('teamKey$'))
+  // clickedTeamKeys$.subscribe(log('teamKey$'))
 
-  const addFulfiller$ = clickedTeamKeys$
-    .withLatestFrom(
-      sources.oppKey$,
-      fulfilledLookup$,
-      (teamKey,oppKey,fulfilledLookup) =>
-        fulfilledLookup[teamKey] &&
-          Fulfillers.delete(fulfilledLookup[teamKey]) ||
-          Fulfillers.create({teamKey, oppKey})
-    )
+  // const addFulfiller$ = clickedTeamKeys$
+  //   .withLatestFrom(
+  //     sources.oppKey$,
+  //     fulfilledLookup$,
+  //     (teamKey,oppKey,fulfilledLookup) =>
+  //       fulfilledLookup[teamKey] &&
+  //         Fulfillers.delete(fulfilledLookup[teamKey]) ||
+  //         Fulfillers.create({teamKey, oppKey})
+  //   )
 
-  addFulfiller$.subscribe(log('addFulfiller$'))
+  // addFulfiller$.subscribe(log('addFulfiller$'))
 
   const queue$ = Observable.merge(
     updateQuestion$,
-    addFulfiller$,
+    // addFulfiller$,
+    flist.queue$,
   )
 
   flist.DOM.subscribe(log('flistDOM'))
 
-  const viewState = {
-    textareaQuestionDOM: textareaQuestion.DOM,
-    listDOM$: flist.DOM,
-    teams$: sources.teams$,
-    fulfillers$,
-    fulfilledLookup$,
-  }
+  // const viewState = {
+  //   textareaQuestionDOM: textareaQuestion.DOM,
+  //   listDOM$: flist.DOM,
+  //   teams$: sources.teams$,
+  //   fulfillers$,
+  //   fulfilledLookup$,
+  // }
 
   sources.teams$.subscribe(log('teams$'))
 
-  const DOM = combineLatestObj(viewState).map(_render)
+  // const DOM = combineLatestObj(viewState).map(_render)
+
+  const DOM = combineLatest(
+    textareaQuestion.DOM,
+    header.DOM,
+    flist.DOM,
+    (...doms) => div({},doms),
+  )
+
   return {
     DOM,
     queue$,

@@ -19,6 +19,7 @@ export {List} from './List'
 export {Dialog} from './Dialog'
 
 export {
+  ListItem,
   ListItemClickable,
   ListItemToggle,
   ListItemWithMenu,
