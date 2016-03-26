@@ -107,14 +107,23 @@ const HelpItem = sources => ListItem({...sources,
   title$: just('What Teams can these Volunteers apply for?'),
 })
 
+const CheckboxControl = sources => ({
+  DOM: sources.value$.map(v =>
+    v ?
+    icon('check_box','accent') :
+    icon('check_box_outline_blank')
+  ),
+})
+
 const TeamFulfilledListItem = sources => {
   const key$ = sources.item$.pluck('$key')
   const fulfiller$ = TeamFulfillerLookup({...sources, key$}).fulfiller$
+  const cb = CheckboxControl({...sources, value$: fulfiller$})
 
   const li = ListItemClickable({...sources,
     leftDOM$: TeamIcon({...sources,key$}).DOM,
     title$: sources.item$.pluck('name'),
-    rightDOM$: fulfiller$.map(v => icon(v ? 'check_box' : 'check_box_outline_blank')),
+    rightDOM$: cb.DOM,
   })
 
   li.click$.subscribe(log('click$'))

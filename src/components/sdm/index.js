@@ -1,3 +1,5 @@
+require('./styles.scss')
+
 export {Toolbar, AccentToolbar} from './Toolbar'
 export {Menu, MenuItem} from './Menu'
 
