@@ -3,7 +3,7 @@ const {just} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
-import {col} from 'helpers'
+import {col, icon} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import {
@@ -65,6 +65,7 @@ const TextareaQuestion = sources => ListItemCollapsibleTextArea({
 
 const FulfilledListItem = sources => {
   const li = ListItemClickable({...sources,
+    leftDOM$: just(icon('power','#000')),
     title$: just('title'),
   })
 
@@ -88,12 +89,6 @@ import {Fulfillers as _Fulfillers} from 'components/remote'
 export default sources => {
   const fulfillers$ = sources.oppKey$
     .flatMapLatest(_Fulfillers.query.byOpp(sources))
-    // .flatMapLatest(oppKey =>
-    //   sources.firebase('Fulfillers', {
-    //     orderByChild: 'oppKey',
-    //     equalTo: oppKey,
-    //   })
-    // )
 
   fulfillers$.subscribe(log('fulfillers$'))
 
@@ -106,15 +101,6 @@ export default sources => {
     fulfillers.reduce((a, row) => (a[row.teamKey] = row.$key) && a, {})
   )
   fulfilledLookup$.subscribe(log('fulfilledLookup$'))
-  //   const lookup = {}
-  //   fulfillers.map(row => {
-  //     lookup[row.teamKey] = key
-  //   })
-  //   console.log('fulfilled', lookup)
-  //   return lookup
-  // })
-
-  // const preview = PreviewRecruiting(sources)
 
   const textareaQuestion = isolate(TextareaQuestion)({...sources,
     value$: sources.opp$.pluck('question'),

@@ -2,7 +2,7 @@ import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
-import {div} from 'helpers'
+import {div, icon} from 'helpers'
 
 import {
   ListItemToggle,
@@ -29,15 +29,16 @@ const TogglePublic = sources => ListItemToggle({...sources,
 const TextareaDescription = sources => ListItemCollapsibleTextArea({
   ...sources,
   title$: just('Write a short tweet-length description'),
-  iconName$: just('playlist_add'),
+  leftDOM$: just(icon('playlist_add')),
+  // iconName$: just('playlist_add'),
   okLabel$: just('this sounds great'),
   cancelLabel$: just('hang on ill do this later'),
 })
 
 export default sources => {
-  const preview = PreviewRecruiting(sources)
+  const preview = isolate(PreviewRecruiting)(sources)
 
-  const togglePublic = TogglePublic({...sources,
+  const togglePublic = isolate(TogglePublic)({...sources,
     value$: sources.opp$.pluck('isPublic'),
   })
 

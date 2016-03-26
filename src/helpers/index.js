@@ -21,9 +21,8 @@ export const reactComponent = (Klass,attrs,hookName = 'update') =>
     hook: {[hookName]: ({elm}) => ReactDOM.render(<Klass {...attrs}/>,elm)},
   })
 
-export const icon = (name, color = '#FFF', backgroundColor) =>
+export const icon = (name) =>
   Icon({name, style: {
-    color, backgroundColor,
     borderRadius: '20px',
     margin: '-4px',
     padding: '4px',

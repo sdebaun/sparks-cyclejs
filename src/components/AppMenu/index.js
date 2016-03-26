@@ -1,3 +1,5 @@
+require('./styles.scss')
+
 import {Observable} from 'rx'
 const {just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
@@ -63,7 +65,7 @@ const AppMenu = sources => {
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({fabDOM, menuDOM}) => div({},[fabDOM,menuDOM]))
+    .map(({fabDOM, menuDOM}) => div('.app-menu',[fabDOM,menuDOM]))
 
   const auth$ = merge(
     googleLogin.click$.map(PROVIDERS.google),

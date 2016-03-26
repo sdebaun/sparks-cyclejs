@@ -1,0 +1,48 @@
+.list-item {
+  line-height: 64px;
+
+  &.header {
+    background-color: #666;
+    color: #FFF;
+    text-transform: uppercase;
+    font-size: 1.4em;
+    font-weight: bold;
+    display: block;
+
+    &:hover {
+      background-color: #000 !important;
+    }
+  }
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      background-color: #eee;
+    }
+  }
+  &.disabled {
+    color: #666;
+  }
+
+  .left {
+    width: 48px;
+    font-size: 32px;
+    padding: 0 0 0 16px;
+  }
+
+  .content {
+    padding: 0 16px;
+
+    .title {
+      font-size: 18px;
+
+    }
+    .subtitle {
+      color: #666;
+    }
+  }
+
+  .right {
+
+  }
+}
