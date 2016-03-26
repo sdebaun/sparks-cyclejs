@@ -1,7 +1,7 @@
 // TODO: convert makeMenuItemFormPopup
 
 import {Observable} from 'rx'
-const {just, merge} = Observable
+const {just, merge, combineLatest} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'helpers'
@@ -9,7 +9,10 @@ import listItem from 'helpers/listItem'
 import {Menu} from 'components/sdm'
 
 import {Form, makeMenuItemFormPopup} from 'components/ui'
-import {InputControl} from 'components/sdm'
+import {
+  InputControl,
+  ListItemClickable,
+} from 'components/sdm'
 
 // import {log} from 'util'
 
@@ -92,7 +95,13 @@ const _render = ({dropdownDOM, modalDOMs}) =>
     ...modalDOMs,
   ])
 
+const SelectingItem = sources => ListItemClickable({...sources,
+  title$: just('What do Volunteers GET?'),
+  iconName$: just('plus'),
+})
+
 export const AddCommitmentGive = sources => {
+  const selecting = SelectingItem(sources)
   const giveWaiver = GiveWaiver(sources)
   const giveDeposit = GiveDeposit(sources)
   const givePayment = GivePayment(sources)
@@ -122,12 +131,12 @@ export const AddCommitmentGive = sources => {
 
   const dropdown = Menu({...sources, isOpen$, children$: menuItemDOMs$})
 
-  const viewState = {
-    dropdownDOM$: dropdown.DOM,
+  const DOM = combineLatest(
     modalDOMs$,
-  }
-
-  const DOM = combineLatestObj(viewState).map(_render)
+    selecting.DOM,
+    dropdown.DOM,
+    (modals, ...rest) => div({},[...rest, ...modals])
+  )
 
   const commitment$ = merge(
     giveWaiver.item$.map(c => ({...c, code: 'waiver'})),

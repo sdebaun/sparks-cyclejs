@@ -1,7 +1,7 @@
 // TODO: convert makeMenuItemFormPopup
 
 import {Observable} from 'rx'
-const {just, merge} = Observable
+const {just, merge, combineLatest} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'helpers'
@@ -9,7 +9,10 @@ import listItem from 'helpers/listItem'
 import {Menu} from 'components/sdm'
 
 import {Form, makeMenuItemFormPopup} from 'components/ui'
-import {InputControl} from 'components/sdm'
+import {
+  InputControl,
+  ListItemClickable,
+} from 'components/sdm'
 
 // import {log} from 'util'
 
@@ -109,7 +112,13 @@ const _render = ({dropdownDOM, modalDOMs}) =>
     ...modalDOMs,
   ])
 
+const SelectingItem = sources => ListItemClickable({...sources,
+  title$: just('What do Volunteers GET?'),
+  iconName$: just('plus'),
+})
+
 export const AddCommitmentGet = sources => {
+  const selecting = SelectingItem(sources)
   const getHelp = GetHelp(sources)
   const getTicket = GetTicket(sources)
   const getTracked = GetTracked(sources)
@@ -133,18 +142,19 @@ export const AddCommitmentGet = sources => {
   const submits$ = merge(...children.map(c => c.submit$))
 
   const isOpen$ = sources.DOM.select('.clickable').events('click')
+  // const isOpen$ = selecting.click$ //????
     .map(true)
     .merge(submits$.map(false))
     .startWith(false)
 
   const dropdown = Menu({...sources, isOpen$, children$: menuItemDOMs$})
 
-  const viewState = {
-    dropdownDOM$: dropdown.DOM,
+  const DOM = combineLatest(
     modalDOMs$,
-  }
-
-  const DOM = combineLatestObj(viewState).map(_render)
+    selecting.DOM,
+    dropdown.DOM,
+    (modals, ...rest) => div({},[...rest, ...modals])
+  )
 
   const commitment$ = merge(
     getHelp.item$.map(c => ({...c, code: 'help'})),
