@@ -2,7 +2,7 @@ import {h,div,img} from 'cycle-snabbdom'
 import {Col} from 'snabbdom-material'
 import {icon} from 'helpers'
 
-import './styles.scss'
+// import './styles.scss'
 
 const contentStyle = (lines,padLeft) => {
   return {

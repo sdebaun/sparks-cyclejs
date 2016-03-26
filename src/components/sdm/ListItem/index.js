@@ -16,14 +16,18 @@ import {OkAndCancel} from 'components/sdm'
 
 const liClasses = {'list-item': true, row: true}
 
+const contentClass = (...doms) =>
+  '.content.xcol-sm-' +
+  (12 - doms.filter(i => !!i).length)
+
 const listItem = ({leftDOM, title, subtitle, rightDOM, classes}) =>
   div({class: {...liClasses, ...classes}}, [
-    leftDOM && div('.left.col-sm-1', [leftDOM]),
-    div('.content.col-sm-10',[
+    leftDOM && div('.left.xcol-sm-1', [leftDOM]),
+    div(contentClass(leftDOM,rightDOM), [
       div('.title', [title]),
-      div('.subtitle', [subtitle]),
-    ]),
-    rightDOM && div('.right.col-sm-1',[rightDOM]),
+      subtitle && div('.subtitle', [subtitle]),
+    ].filter(i => !!i)),
+    rightDOM && div('.right.xcol-sm-1',[rightDOM]),
   ].filter(i => !!i))
 
 const ListItem = sources => {

@@ -1,5 +1,8 @@
 .list-item {
-  line-height: 64px;
+  min-height: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   &.header {
     background-color: #666;
@@ -7,7 +10,6 @@
     text-transform: uppercase;
     font-size: 1.4em;
     font-weight: bold;
-    display: block;
 
     &.clickable:hover {
       background-color: #000 !important;
@@ -25,19 +27,35 @@
   }
 
   .left, .right {
-    width: 48px;
-    font-size: 32px;
+    flex-basis: 64px;
+
+    i {
+      font-size: 32px;
+      line-height: 40px !important;
+    }
 
     &.left {
       padding: 0 0 0 16px;
     }
+
+    &.right {
+      padding: 0 16px 0 0;
+      text-align: right;
+    }
   }
 
   .content {
+    flex: 1;
+    line-height: 24px;
+
     padding: 0 16px;
 
     .title {
       font-size: 18px;
+
+      &:xonly-child {
+        margin-top: 20px;
+      }
 
     }
     .subtitle {

@@ -9,6 +9,7 @@ import listItem from 'helpers/listItem'
 import {
   List,
   ListItem,
+  ListItemNavigating,
   ListItemClickable,
   ListItemCollapsibleTextArea,
 } from 'components/sdm'
@@ -19,38 +20,38 @@ import {
   TeamImages,
 } from 'components/remote'
 
-import {rows} from 'util'
+// import {rows} from 'util'
 import {log} from 'util'
 
-const _toggleActions = sources => Observable.merge(
-  sources.DOM.select('.fulfiller').events('click')
-    .map(e => e.ownerTarget.dataset.key),
-)
+// const _toggleActions = sources => Observable.merge(
+//   sources.DOM.select('.fulfiller').events('click')
+//     .map(e => e.ownerTarget.dataset.key),
+// )
 
-const _renderTeams = (teamRows, fulfilledLookup) =>
-  teamRows.length === 0 ? ['Add a team'] : [
-    listItem({title: 'allowed teams', header: true}),
-    listItem({
-      title: 'What teams can applicants pick from?',
-      subtitle:
-        `Volunteers can fulfill their commitments
-        with shifts from the teams you select.`,
-    }),
-    ...teamRows.map(t => listItem({
-      title: t.name,
-      className: 'fulfiller',
-      key: t.$key,
-      iconName:
-        fulfilledLookup[t.$key] ? 'check_box' : 'check_box_outline_blank',
-    })),
-  ]
+// const _renderTeams = (teamRows, fulfilledLookup) =>
+//   teamRows.length === 0 ? ['Add a team'] : [
+//     listItem({title: 'allowed teams', header: true}),
+//     listItem({
+//       title: 'What teams can applicants pick from?',
+//       subtitle:
+//         `Volunteers can fulfill their commitments
+//         with shifts from the teams you select.`,
+//     }),
+//     ...teamRows.map(t => listItem({
+//       title: t.name,
+//       className: 'fulfiller',
+//       key: t.$key,
+//       iconName:
+//         fulfilledLookup[t.$key] ? 'check_box' : 'check_box_outline_blank',
+//     })),
+//   ]
 
-const _render = ({teams, fulfilledLookup, textareaQuestionDOM, listDOM}) =>
-  col(
-    textareaQuestionDOM,
-    listDOM,
-    // ..._renderTeams(rows(teams), fulfilledLookup)
-  )
+// const _render = ({teams, fulfilledLookup, textareaQuestionDOM, listDOM}) =>
+//   col(
+//     textareaQuestionDOM,
+//     listDOM,
+//     // ..._renderTeams(rows(teams), fulfilledLookup)
+//   )
 
 const TextareaQuestion = sources => ListItemCollapsibleTextArea({
   ...sources,
@@ -90,6 +91,20 @@ const TeamFulfillerLookup = sources => ({
 const TeamFulfillerHeader = sources => ListItem({
   classes$: just({header: true}),
   title$: just('allowed teams'),
+  rightDOM$: sources.fulfillers$.combineLatest(
+    sources.rows$,
+    (fulfillers, rows) => `${fulfillers.length}/${rows.length}`
+  ),
+})
+
+const GetStartedItem = sources => ListItemNavigating({...sources,
+  title$: just('Add a Team'),
+  iconName$: just('group_add'),
+  subtitle$: just('Once you have Teams, you\'ll be able to add them to this Opportunity.'),
+})
+
+const HelpItem = sources => ListItem({...sources,
+  title$: just('What Teams can these Volunteers apply for?'),
 })
 
 const TeamFulfilledListItem = sources => {
@@ -116,18 +131,6 @@ const TeamFulfilledListItem = sources => {
         Fulfillers.create({teamKey, oppKey}),
     )
 
-  // li.click$
-  //   .withLatestFrom(
-  //     key$,
-  //     fulfilledLookup$,
-  //     (teamKey,oppKey,fulfilledLookup) =>
-  //       fulfilledLookup[teamKey] &&
-  //         Fulfillers.delete(fulfilledLookup[teamKey]) ||
-  //         Fulfillers.create({teamKey, oppKey})
-  //   )
-
-  // const queue$ = li.click$
-
   return {
     DOM: li.DOM,
     queue$,
@@ -135,12 +138,25 @@ const TeamFulfilledListItem = sources => {
 }
 
 const TeamFulfilledList = sources => {
+  const header = TeamFulfillerHeader(sources)
+  const start = GetStartedItem(sources)
+  const help = HelpItem(sources)
+
   const list = List({...sources,
     Control$: just(TeamFulfilledListItem),
   })
 
+  const DOM = sources.rows$.combineLatest(
+    start.DOM,
+    header.DOM,
+    help.DOM,
+    list.DOM,
+    (rows, startDOM, ...restDOM) =>
+      div({}, rows.length > 0 ? restDOM : [startDOM]),
+  )
+
   return {
-    DOM: list.DOM,
+    DOM,
     queue$: list.queue$,
   }
 }
@@ -158,8 +174,6 @@ export default sources => {
     fulfillers$: fulfillers$,
   })
 
-  const header = TeamFulfillerHeader(sources)
-
   flist.queue$.subscribe(log('flist.queue$'))
 
   const fulfilledLookup$ = fulfillers$.map(fulfillers =>
@@ -176,45 +190,17 @@ export default sources => {
       Opps.update(key,{question})
     )
 
-  // const clickedTeamKeys$ = _toggleActions(sources)
-
-  // clickedTeamKeys$.subscribe(log('teamKey$'))
-
-  // const addFulfiller$ = clickedTeamKeys$
-  //   .withLatestFrom(
-  //     sources.oppKey$,
-  //     fulfilledLookup$,
-  //     (teamKey,oppKey,fulfilledLookup) =>
-  //       fulfilledLookup[teamKey] &&
-  //         Fulfillers.delete(fulfilledLookup[teamKey]) ||
-  //         Fulfillers.create({teamKey, oppKey})
-  //   )
-
-  // addFulfiller$.subscribe(log('addFulfiller$'))
-
   const queue$ = Observable.merge(
     updateQuestion$,
-    // addFulfiller$,
     flist.queue$,
   )
 
   flist.DOM.subscribe(log('flistDOM'))
 
-  // const viewState = {
-  //   textareaQuestionDOM: textareaQuestion.DOM,
-  //   listDOM$: flist.DOM,
-  //   teams$: sources.teams$,
-  //   fulfillers$,
-  //   fulfilledLookup$,
-  // }
-
   sources.teams$.subscribe(log('teams$'))
-
-  // const DOM = combineLatestObj(viewState).map(_render)
 
   const DOM = combineLatest(
     textareaQuestion.DOM,
-    header.DOM,
     flist.DOM,
     (...doms) => div({},doms),
   )
