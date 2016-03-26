@@ -29,13 +29,13 @@ const _render = ({dropper, dropped, cropper, cropped}) =>
   )
 
 export default (sources) => {
-  const click$ = sources.DOM.select('.save-image').events('click')
+  const save$ = sources.DOM.select('.save-image').events('click')
   const {DOM: dropper, dropped$} = Dropper(sources)
   const {DOM: cropper, cropped$} = Cropper({...sources,
     image$: dropped$,
   })
 
-  const dataUrl$ = cropped$.sample(click$)
+  const dataUrl$ = cropped$.sample(save$)
 
   const viewState = {
     dropper, dropped$,
@@ -44,5 +44,9 @@ export default (sources) => {
 
   const DOM = combineLatestObj(viewState).map(_render)
 
-  return {DOM, dataUrl$, cropped$}
+  return {
+    DOM,
+    dataUrl$,
+    cropped$,
+  }
 }

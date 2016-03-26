@@ -1,27 +1,39 @@
-import combineLatestObj from 'rx-combine-latest-obj'
-import {col} from 'helpers'
-import listItem from 'helpers/listItem'
+import {Observable} from 'rx'
+const {just, combineLatest} = Observable
+
+import isolate from '@cycle/isolate'
 
 import SetImage from 'components/SetImage'
-
 import {ProjectImages} from 'components/remote'
+
+import {div} from 'helpers'
 
 // import {log} from 'util'
 
-const _render = ({setImageDOM}) =>
-  col(
-    listItem({
-      iconName: 'playlist_add',
-      title: 'Write a short tweet-length description.',
-      subtitle: 'Coming Soon!',
-      disabled: true,
-    }),
-    setImageDOM,
-  )
+import {
+  ListItemCollapsibleTextArea,
+} from 'components/sdm'
 
-function Photo(sources) {
-  const setImage = SetImage({...sources,
-    image$: sources.projectImage$,
+const DescriptionTextarea = sources => ListItemCollapsibleTextArea({
+  ...sources,
+  title$: just('Describe this Project to the world.'),
+  subtitle$: just(`
+    This is shown to all the people involved in your project,
+    so make it general.
+  `),
+  iconName$: just('playlist_add'),
+  okLabel$: just('yes do it'),
+  cancelLabel$: just('wait a sec'),
+})
+
+export default sources => {
+  const inputDataUrl$ = sources.projectImage$
+    .map(i => i && i.dataUrl)
+
+  const setImage = SetImage({...sources, inputDataUrl$})
+
+  const description = isolate(DescriptionTextarea)({...sources,
+    value$: sources.project$.pluck('description'),
   })
 
   const queue$ = setImage.dataUrl$
@@ -31,15 +43,13 @@ function Photo(sources) {
     )
     .map(ProjectImages.action.set)
 
-  const viewState = {
-    setImageDOM: setImage.DOM,
-  }
-
-  const DOM = combineLatestObj(viewState).map(_render)
+  const DOM = combineLatest(
+    description.DOM,
+    setImage.DOM,
+    (...doms) => div({},doms)
+  )
   return {
     DOM,
     queue$,
   }
 }
-
-export default Photo
