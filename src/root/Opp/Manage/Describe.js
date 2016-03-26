@@ -28,7 +28,11 @@ const TogglePublic = sources => ListItemToggle({...sources,
 
 const TextareaDescription = sources => ListItemCollapsibleTextArea({
   ...sources,
-  title$: just('Write a short tweet-length description'),
+  title$: just('Describe this Opportunity to applicants.'),
+  subtitle$: just(`
+    Tell your prospective volunteers what they\'re going to acheive,
+    and how rewarding it will be.
+  `),
   leftDOM$: just(icon('playlist_add')),
   // iconName$: just('playlist_add'),
   okLabel$: just('this sounds great'),

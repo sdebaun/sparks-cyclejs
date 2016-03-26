@@ -14,6 +14,8 @@ import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
 import {OkAndCancel} from 'components/sdm'
 
+import {log} from 'util'
+
 const liClasses = {'list-item': true, row: true}
 
 const contentClass = (...doms) =>
@@ -76,9 +78,13 @@ const ListItemToggle = sources => {
     ),
   })
 
+  const value$ = sources.value$
+    .sample(item.click$)
+    .map(x => !x)
+
   return {
     DOM: item.DOM,
-    value$: toggle.value$,
+    value$,
   }
 }
 

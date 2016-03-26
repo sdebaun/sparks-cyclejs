@@ -15,6 +15,7 @@ export {InputControl} from './InputControl'
 export {SelectControl} from './SelectControl'
 export {ToggleControl} from './ToggleControl'
 export {TextAreaControl} from './TextAreaControl'
+export {CheckboxControl} from './CheckboxControl'
 
 export {List} from './List'
 
