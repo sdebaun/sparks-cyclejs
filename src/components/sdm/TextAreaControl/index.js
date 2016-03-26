@@ -54,10 +54,10 @@ const TextAreaControl = sources => {
   const length$ = merge(
     value$,
     sources.value$ || just(''),
-  ).map(v => v.length).startWith(0)
+  ).map(v => v && v.length || 0).startWith(0)
 
   const viewState = {
-    value$: sources.value$ || just(null),
+    value$: sources.value$ || just(''),
     length$,
     maxLength$: sources.maxLength$ || just(160),
     height$,

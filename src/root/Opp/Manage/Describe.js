@@ -13,8 +13,8 @@ import {
 import {Opps} from 'remote'
 
 const PreviewRecruiting = sources => ListItemNavigating({...sources,
-  title$: just('Preview your Recruiting page.'),
-  iconName$: just('remove'),
+  title$: just('View your Recruiting page.'),
+  iconName$: just('link'),
   path$: combineLatest(
     sources.projectKey$, sources.oppKey$,
     (pk, ok) => '/apply/' + pk + '/opp/' + ok
