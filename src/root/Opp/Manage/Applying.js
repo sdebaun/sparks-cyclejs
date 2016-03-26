@@ -7,6 +7,8 @@ import {col} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import {
+  List,
+  ListItemClickable,
   ListItemCollapsibleTextArea,
 } from 'components/sdm'
 
@@ -38,9 +40,10 @@ const _renderTeams = (teamRows, fulfilledLookup) =>
     })),
   ]
 
-const _render = ({teams, fulfilledLookup, textareaQuestionDOM}) =>
+const _render = ({teams, fulfilledLookup, textareaQuestionDOM, listDOM}) =>
   col(
     textareaQuestionDOM,
+    listDOM,
     ..._renderTeams(rows(teams), fulfilledLookup)
   )
 
@@ -60,25 +63,56 @@ const TextareaQuestion = sources => ListItemCollapsibleTextArea({
 //   ),
 // })
 
+const FulfilledListItem = sources => {
+  const li = ListItemClickable({...sources,
+    title$: just('title'),
+  })
+
+  return {
+    DOM: li.DOM,
+  }
+}
+
+const FulfilledList = sources => {
+  const list = List({...sources,
+    Control$: just(FulfilledListItem),
+  })
+
+  return {
+    DOM: list.DOM,
+  }
+}
+
+import {Fulfillers as _Fulfillers} from 'components/remote'
+
 export default sources => {
   const fulfillers$ = sources.oppKey$
-    .flatMapLatest(oppKey =>
-      sources.firebase('Fulfillers', {
-        orderByChild: 'oppKey',
-        equalTo: oppKey,
-      })
-    )
+    .flatMapLatest(_Fulfillers.query.byOpp(sources))
+    // .flatMapLatest(oppKey =>
+    //   sources.firebase('Fulfillers', {
+    //     orderByChild: 'oppKey',
+    //     equalTo: oppKey,
+    //   })
+    // )
 
-  const fulfilledLookup$ = fulfillers$.map(fulfillers => {
-    const lookup = {}
-    if (fulfillers) {
-      Object.keys(fulfillers).map(key => {
-        lookup[fulfillers[key].teamKey] = key
-      })
-    }
-    console.log('fulfilled', lookup)
-    return lookup
+  fulfillers$.subscribe(log('fulfillers$'))
+
+  const flist = FulfilledList({...sources,
+    rows$: sources.teams$,
+    fulfillers$: fulfillers$,
   })
+
+  const fulfilledLookup$ = fulfillers$.map(fulfillers =>
+    fulfillers.reduce((a, row) => (a[row.teamKey] = row.$key) && a, {})
+  )
+  fulfilledLookup$.subscribe(log('fulfilledLookup$'))
+  //   const lookup = {}
+  //   fulfillers.map(row => {
+  //     lookup[row.teamKey] = key
+  //   })
+  //   console.log('fulfilled', lookup)
+  //   return lookup
+  // })
 
   // const preview = PreviewRecruiting(sources)
 
@@ -112,8 +146,11 @@ export default sources => {
     addFulfiller$,
   )
 
+  flist.DOM.subscribe(log('flistDOM'))
+
   const viewState = {
     textareaQuestionDOM: textareaQuestion.DOM,
+    listDOM$: flist.DOM,
     teams$: sources.teams$,
     fulfillers$,
     fulfilledLookup$,
