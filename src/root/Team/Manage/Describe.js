@@ -22,8 +22,11 @@ const TextareaDescription = sources => ListItemCollapsibleTextArea({
 })
 
 export default sources => {
+  const inputDataUrl$ = sources.teamImage$
+    .map(i => i && i.dataUrl)
+
   const setImage = SetImage({...sources,
-    image$: sources.teamImage$,
+    inputDataUrl$,
     aspectRatio$: just(1),
   })
 
