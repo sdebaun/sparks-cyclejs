@@ -5,10 +5,7 @@ import isolate from '@cycle/isolate'
 
 import {div} from 'cycle-snabbdom'
 
-import {log} from 'util'
-
-// import {CreateTeamHeader} from 'components/team'
-// import {CreateOppHeader} from 'components/opp'
+// import {log} from 'util'
 
 import {ListItemNavigating} from 'components/sdm'
 

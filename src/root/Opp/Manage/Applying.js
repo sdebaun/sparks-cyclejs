@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just} = Observable
 
 import isolate from '@cycle/isolate'
 import combineLatestObj from 'rx-combine-latest-obj'
@@ -8,7 +8,6 @@ import listItem from 'helpers/listItem'
 
 import {
   ListItemCollapsibleTextArea,
-  ListItemNavigating,
 } from 'components/sdm'
 
 import {Opps, Fulfillers} from 'remote'
