@@ -8,7 +8,10 @@ import Header from 'components/Header'
 import {ProjectNav} from 'components/project'
 // import ComingSoon from 'components/ComingSoon'
 
+import {ResponsiveTitle} from 'components/Title'
+
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+
 
 import Glance from './Glance'
 import Manage from './Manage'
@@ -54,16 +57,24 @@ export default sources => {
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
 
-  const labelText$ = project$.pluck('name')
-  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
+  // const labelText$ = project$.pluck('name')
+  // const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
 
-  const title = Title({
+  const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    labelText$,
-    subLabelText$,
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-    ...sources,
+    titleDOM$: project$.pluck('name'),
+    subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
+    // leftDOM$: MediumProfileAvatar({...sources, src$: portraitUrl$}).DOM,
+    // classes$: just(['profile']),
   })
+
+  // const title = Title({
+  //   tabsDOM$: tabsDOM,
+  //   labelText$,
+  //   subLabelText$,
+  //   backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
+  //   ...sources,
+  // })
 
   const nav = ProjectNav({
     titleDOM: title.DOM,
