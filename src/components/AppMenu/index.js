@@ -22,7 +22,7 @@ import {icon} from 'helpers'
 
 const Dash = sources => ListItemClickable({...sources,
   iconName$: just('home'),
-  title$: sources.userProfile$.pluck('fullName'),
+  title$: sources.userProfile$.map(up => up && up.fullName),
 })
 
 const Admin = sources => ListItemClickable({...sources,
