@@ -26,13 +26,13 @@ const OppNav = sources => {
 
   const listDOM$ = combineLatest(glance.DOM, manage.DOM, (...doms) => doms)
 
-  const teamListHeader = CreateTeamHeader(sources)
-  const oppListHeader = CreateOppHeader(sources)
+  // const teamListHeader = CreateTeamHeader(sources)
+  // const oppListHeader = CreateOppHeader(sources)
 
-  const queue$ = Observable.merge(
-    teamListHeader.queue$,
-    oppListHeader.queue$,
-  )
+  // const queue$ = Observable.merge(
+  //   teamListHeader.queue$,
+  //   oppListHeader.queue$,
+  // )
 
   const route$ = merge(glance.route$, manage.route$)
     .map(sources.router.createHref)
@@ -44,11 +44,15 @@ const OppNav = sources => {
     (isMobile, titleDOM, listDOM) =>
       div({}, [
         isMobile ? null : titleDOM,
-        div('.rowwrap', {style: {padding: '0px 15px'}}, listDOM),
+        div('.rowwrap', listDOM),
       ])
   )
 
-  return {DOM, route$, queue$}
+  return {
+    DOM,
+    route$,
+    // queue$,
+  }
 }
 
 export {OppNav}

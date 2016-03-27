@@ -17,7 +17,10 @@ export {ToggleControl} from './ToggleControl'
 export {TextAreaControl} from './TextAreaControl'
 export {CheckboxControl} from './CheckboxControl'
 
-export {List} from './List'
+export {
+  List,
+  ListWithHeader,
+} from './List'
 
 export {Dialog} from './Dialog'
 

@@ -2,7 +2,7 @@ import {div} from 'cycle-snabbdom'
 
 export const mobileFrame = ({sideNav, appBar, header, page}) =>
   div({class: {frame: true}}, [
-    sideNav, appBar, header, div({style: {padding: '0em 1em'}}, [page]),
+    sideNav, appBar, header, div({}, [page]),
   ])
 
 const navlessStyle = {
@@ -16,14 +16,14 @@ const withSidenav = (sideNav, header, page) =>
     sideNav ? div({style: {width: '300px'}}, [sideNav]) : null,
     div({style: {flex: 1}}, [
       header,
-      div({style: {padding: '0em 1em'}}, [page]),
+      div({style: {padding: '1em 1em'}}, [page]),
     ]),
   ])
 
 const noSidenav = (header, page) =>
   div({style: navlessStyle}, [
     header,
-    div({style: {padding: '0em 1em'}}, [page]),
+    div({style: {padding: '1em 1em'}}, [page]),
   ])
 
 export const desktopFrame = ({sideNav, appBar, header, page}) =>

@@ -15,7 +15,7 @@ import {OkAndCancel} from 'components/sdm'
 
 // import {log} from 'util'
 
-const liClasses = {'list-item': true, row: true}
+const liClasses = {'list-item': true}
 
 const contentClass = (...doms) =>
   '.content.xcol-sm-' +
@@ -59,13 +59,16 @@ const ListItem = sources => {
   }
 }
 
-const ListItemClickable = sources => ({
-  click$: sources.DOM.select('.list-item').events('click'),
+const ListItemClickable = sources => {
+  const classes$ = (sources.classes$ || just({}))
+    .map(c => ({...c, clickable: true}))
 
-  DOM: ListItem({...sources,
-    classes$: just({clickable: true}),
-  }).DOM,
-})
+  return {
+    click$: sources.DOM.select('.list-item').events('click'),
+
+    DOM: ListItem({...sources, classes$}).DOM,
+  }
+}
 
 const ListItemToggle = sources => {
   const toggle = ToggleControl(sources)
@@ -130,10 +133,12 @@ const ListItemNavigating = sources => {
 const ListItemWithDialog = sources => {
   const _listItem = ListItemClickable(sources)
 
+  const iconName$ = sources.dialogIconName$ || sources.iconName$
+
   const dialog = Dialog({...sources,
     isOpen$: _listItem.click$.map(true),
     titleDOM$: sources.dialogTitleDOM$,
-    leftItemDOM$: sources.iconName$.map(icon),
+    iconName$,
     contentDOM$: sources.dialogContentDOM$,
   })
 
