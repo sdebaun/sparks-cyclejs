@@ -7,6 +7,8 @@ import Title from 'components/Title'
 import Header from 'components/Header'
 // import {OppNav} from 'components/opp'
 
+import {ResponsiveTitle} from 'components/Title'
+
 import {div, iconSrc} from 'helpers'
 
 // import ComingSoon from 'components/ComingSoon'
@@ -113,14 +115,22 @@ export default sources => {
   // team$.pluck('name')
   const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
 
-  const title = Title({
-    quickNavDOM$: quickNav.DOM,
+  const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    labelText$,
-    subLabelText$,
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-    ...sources,
+    topDOM$: quickNav.DOM,
+    titleDOM$: team$.pluck('name'),
+    subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
+    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
+
+  // const title = Title({
+  //   quickNavDOM$: quickNav.DOM,
+  //   tabsDOM$: tabsDOM,
+  //   labelText$,
+  //   subLabelText$,
+  //   backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
+  //   ...sources,
+  // })
 
   const nav = TeamNav({
     titleDOM: title.DOM,
