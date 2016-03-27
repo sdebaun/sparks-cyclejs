@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 
 import AppFrame from 'components/AppFrame'
-import Title from 'components/Title'
+import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
 import {OppNav} from 'components/opp'
 
@@ -53,16 +53,12 @@ export default sources => {
     {...sources, project$, projectKey$, opp$, teams$, opps$}
   )
 
-  const labelText$ = opp$.pluck('name')
-  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
-
-  const title = Title({
-    quickNavDOM$: quickNav.DOM,
+  const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    labelText$,
-    subLabelText$,
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-    ...sources,
+    topDOM$: quickNav.DOM,
+    titleDOM$: opp$.pluck('name'),
+    subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
+    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 
   const nav = OppNav({
