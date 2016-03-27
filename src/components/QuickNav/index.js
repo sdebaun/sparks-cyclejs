@@ -3,7 +3,7 @@ require('./styles.scss')
 import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
-import {div} from 'helpers'
+import {icon, div} from 'helpers'
 
 import {
   Menu,
@@ -15,7 +15,11 @@ const HeaderClickable = sources => ({
 })
 
 const QuickNav = sources => {
-  const item = HeaderClickable(sources)
+  const item = HeaderClickable({...sources,
+    label$: sources.label$.map(name =>
+      div({},[name, icon('caret-down')])
+    ),
+  })
 
   const isOpen$ = item.click$.map(true).startWith(false)
 
