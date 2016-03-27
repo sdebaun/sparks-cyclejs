@@ -1,11 +1,14 @@
 .title-block {
   z-index: 100;
-  color: #FFF;
   min-height: 120px;
   background-size: cover;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+
+  * {
+    color: white;
+  }
 
   &.profile {
     .left {
@@ -18,11 +21,13 @@
     z-index: 10;
     .bottom {
       display: flex;
+      justify-content: space-between;
       align-items: center;
       .left {
         margin-right: 1em;
       }
       .main {
+        flex: 1;
         .title {
           font-size: 18px;
           font-weight: bold;

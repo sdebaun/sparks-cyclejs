@@ -38,8 +38,16 @@ const TitleContent = sources => ({
   ),
 })
 
+const sidenavButton =
+  Appbar.Button({className: 'nav-button'}, [icon('menu')])
+
 const ResponsiveTitle = sources => {
-  const content = TitleContent(sources)
+  const rightDOM$ = just(sidenavButton)
+
+  const content = TitleContent({...sources,
+    rightDOM$: sources.isMobile$
+      .flatMapLatest(m => m && rightDOM$ || just(null)),
+  })
   const url$ = sources.backgroundUrl$ || just(null)
   const classes$ = sources.classes$ || just([])
 
