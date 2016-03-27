@@ -63,6 +63,8 @@ export const Projects = {
   },
   action: {
     create: actionCreator('Projects', 'create'),
+    update: actionCreator('Projects', 'update'),
+    remove: actionCreator('Projects', 'remove'),
   },
   redirect: {
     create: responseRedirect('Projects', 'create', key => '/project/' + key),
