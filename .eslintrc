@@ -9,5 +9,6 @@
     "quotes": [2, "single"],
     "no-class/no-class": 0,
     "no-unused-vars": [1, {"varsIgnorePattern": "React"}],
+    "max-params": [1, {"maximum": 5}],
   }
 }

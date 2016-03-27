@@ -59,7 +59,8 @@ const ResponsiveTitle = sources => {
     DOM: combineLatest(
       sources.isMobile$, url$, classes$,
       (m, url, classes) =>
-        div('.title-block.' + classes.join('.'), {style: bgStyle(url || sparkly)},
+        div('.title-block.' + classes.join('.'),
+          {style: bgStyle(url || sparkly)},
           m ? [content.DOM, sources.tabsDOM$] : [content.DOM]
         )
     ),

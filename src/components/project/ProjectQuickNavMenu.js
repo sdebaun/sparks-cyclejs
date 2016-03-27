@@ -8,6 +8,8 @@ import {
   ListItemNavigating,
 } from 'components/sdm'
 
+import {TeamItemNavigating} from 'components/team'
+
 import {QuickNav} from 'components/QuickNav'
 
 const OppItem = sources => ListItemNavigating({...sources,
@@ -15,10 +17,10 @@ const OppItem = sources => ListItemNavigating({...sources,
   path$: sources.item$.map(({$key}) => '/opp/' + $key),
 })
 
-const TeamItem = sources => ListItemNavigating({...sources,
-  title$: sources.item$.pluck('name'),
-  path$: sources.item$.map(({$key}) => '/team/' + $key),
-})
+// const TeamItem = sources => ListItemNavigating({...sources,
+//   title$: sources.item$.pluck('name'),
+//   path$: sources.item$.map(({$key}) => '/team/' + $key),
+// })
 
 const ProjectQuickNavMenu = sources => {
   const project = isolate(ListItemNavigating,'project')({...sources,
@@ -27,7 +29,7 @@ const ProjectQuickNavMenu = sources => {
   })
 
   const teams = List({...sources,
-    Control$: just(TeamItem),
+    Control$: just(TeamItemNavigating),
     rows$: sources.teams$,
   })
 
