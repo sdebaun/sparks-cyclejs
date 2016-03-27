@@ -53,15 +53,11 @@ const EngagedHeader = () => ListItem({
   title$: just('projects you\'re involved with'),
 })
 
-const EngagedItem = sources => ProjectItem({...sources,
-  subtitle$: just('owner'),
-})
-
 const EngagedList = sources => {
   const header = EngagedHeader(sources)
 
   const list = List({...sources,
-    Control$: just(EngagedItem),
+    Control$: just(EngagementItem),
   })
 
   const DOM = sources.rows$.combineLatest(
@@ -156,11 +152,6 @@ export default sources => {
   const engaged = isolate(EngagedList,'engaged')({...sources,
     rows$: engagements$,
   })
-
-  // const engaged = isolate(List,'engaged')({...sources,
-  //   Control$: just(EngagementItem),
-  //   rows$: engagements$,
-  // })
 
   const queue$ = create.project$
     .map(Projects.action.create)
