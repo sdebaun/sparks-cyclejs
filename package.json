@@ -74,6 +74,6 @@
     "react-dropzone": "^3.3.2",
     "rx": "^4.1.0",
     "rx-combine-latest-obj": "^1.0.2",
-    "snabbdom-material": "^0.4.4"
+    "snabbdom-material": "0.4.4"
   }
 }

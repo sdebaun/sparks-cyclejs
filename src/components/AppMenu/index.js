@@ -12,25 +12,30 @@ import {div} from 'cycle-snabbdom'
 // these are action creators specific to cyclic-fire and should live there
 import {PROVIDERS} from 'util'
 
-import {Fab, Menu, MenuItem} from 'components/sdm'
+import {
+  Fab,
+  Menu,
+  ListItemClickable,
+} from 'components/sdm'
+
 import {icon} from 'helpers'
 
-const Dash = sources => MenuItem({...sources,
+const Dash = sources => ListItemClickable({...sources,
   iconName$: just('home'),
   title$: sources.userProfile$.pluck('fullName'),
 })
 
-const Admin = sources => MenuItem({...sources,
+const Admin = sources => ListItemClickable({...sources,
   iconName$: just('build'),
   title$: just('Admin'),
 })
 
-const Logout = sources => MenuItem({...sources,
+const Logout = sources => ListItemClickable({...sources,
   iconName$: just('sign-out'),
   title$: just('Logout'),
 })
 
-const GoogleLogin = sources => MenuItem({...sources,
+const GoogleLogin = sources => ListItemClickable({...sources,
   iconName$: just('google-plus-square'),
   title$: just('Login with Google'),
 })

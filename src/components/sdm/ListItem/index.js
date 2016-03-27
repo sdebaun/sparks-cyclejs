@@ -3,10 +3,9 @@ require('./styles.scss')
 import {Observable} from 'rx'
 const {just, empty, merge, combineLatest} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import {div} from 'cycle-snabbdom'
-// import listItem from 'helpers/listItem'
 import {icon, iconSrc} from 'helpers'
 
 import {ToggleControl, TextAreaControl} from 'components/sdm'
@@ -14,7 +13,7 @@ import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
 import {OkAndCancel} from 'components/sdm'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const liClasses = {'list-item': true, row: true}
 

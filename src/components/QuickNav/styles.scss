@@ -1,0 +1,21 @@
+.quick-nav {
+  cursor: pointer;
+
+  .nav {
+    font-size: 16px;
+    font-weight: normal;
+    i {
+      margin-left: 12px;
+    }
+  }
+}
+
+.title-block .quick-nav {
+  .nav {
+    color: #EEE;
+  }
+
+  .menu * {
+    color: black;
+  }
+}

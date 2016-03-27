@@ -1,76 +1,52 @@
-// TODO: TLC
-
 import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
+const {just, merge} = Observable
 
-import quickNavMenu from 'helpers/quickNavMenu'
+import isolate from '@cycle/isolate'
 
-import {rows} from 'util'
-// import {log} from 'util'
+import {
+  List,
+  ListItemNavigating,
+} from 'components/sdm'
 
-const _navActions$ = ({DOM, projectKey$}) =>
-  Observable.merge(
-    projectKey$.sample(DOM.select('.project').events('click'))
-      .map(projectKey => '/project/' + projectKey),
-    DOM.select('.team').events('click')
-      .map(e => '/team/' + e.ownerTarget.dataset.key),
-    DOM.select('.opp').events('click')
-      .map(e => '/opp/' + e.ownerTarget.dataset.key)
-  )
+import {TeamItemNavigating} from 'components/team'
 
-const _openActions$ = ({DOM}) => Observable.merge(
-  DOM.select('.project-menu-button').events('click').map(true),
-  DOM.select('.close-menu').events('click').map(false),
-)
+import {QuickNav} from 'components/QuickNav'
 
-const _teamItems = teamRows => [
-  teamRows.length && {divider: true},
-  ...teamRows.map(({name,$key}) => (
-    {className: 'team', label: name, key: $key}
-  )),
-]
+const OppItem = sources => ListItemNavigating({...sources,
+  title$: sources.item$.pluck('name'),
+  path$: sources.item$.map(({$key}) => '/opp/' + $key),
+})
 
-const _oppItems = oppRows => [
-  oppRows.length && {divider: true},
-  ...oppRows.map(({name,$key}) => (
-    {className: 'opp', label: name, key: $key}
-  )),
-]
-
-const _menuItems = (project, teams, opps) => [
-  {className: 'project', label: project.name},
-  ..._teamItems(rows(teams)),
-  ..._oppItems(rows(opps)),
-].filter(r => !!r)
-
-const _render = ({isOpen, project, teams, opps}) =>
-  quickNavMenu({
-    isOpen,
-    className: 'project-menu-button', // necessary with isolate?
-    label: project.name,
-    menu: {rightAlign: false},
-    items: _menuItems(project,teams,opps),
-  })
+// const TeamItem = sources => ListItemNavigating({...sources,
+//   title$: sources.item$.pluck('name'),
+//   path$: sources.item$.map(({$key}) => '/team/' + $key),
+// })
 
 const ProjectQuickNavMenu = sources => {
-  const route$ = _navActions$(sources)
+  const project = isolate(ListItemNavigating,'project')({...sources,
+    title$: sources.project$.pluck('name'),
+    path$: sources.projectKey$.map($key => '/project/' + $key),
+  })
 
-  const isOpen$ = _openActions$(sources)
-    .merge(route$.map(false))
-    .startWith(false)
+  const teams = List({...sources,
+    Control$: just(TeamItemNavigating),
+    rows$: sources.teams$,
+  })
 
-  const viewState = {
-    isOpen$,
-    project$: sources.project$,
-    teams$: sources.teams$,
-    opps$: sources.opps$,
-    auth$: sources.auth$,
-    userProfile$: sources.userProfile$,
+  const opps = List({...sources,
+    Control$: just(OppItem),
+    rows$: sources.opps$,
+  })
+
+  const nav = isolate(QuickNav,'quicknav')({...sources,
+    label$: sources.project$.pluck('name'),
+    menuItems$: just([project.DOM, teams.DOM, opps.DOM]),
+  })
+
+  return {
+    DOM: nav.DOM,
+    route$: merge(opps.route$, project.route$, teams.route$),
   }
-
-  const DOM = combineLatestObj(viewState).map(_render)
-
-  return {DOM, route$}
 }
 
 export {ProjectQuickNavMenu}

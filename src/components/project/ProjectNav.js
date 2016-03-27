@@ -1,6 +1,6 @@
-// TODO: TLC
-
 import {Observable} from 'rx'
+const {just, merge} = Observable
+
 import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
@@ -11,34 +11,24 @@ import {h, div} from 'cycle-snabbdom'
 import {rows} from 'util'
 // import {log} from 'util'
 
-import {CreateTeamHeader} from 'components/team'
+import {
+  List,
+  ListItemNavigating,
+} from 'components/sdm'
+
+import {
+  TeamItemNavigating,
+  CreateTeamHeader,
+} from 'components/team'
+
 import {CreateOppHeader} from 'components/opp'
-
-const _navActions = sources => Observable.merge(
-  sources.DOM.select('.navAction').events('click')
-    .map(e => e.ownerTarget.dataset.link),
-  sources.DOM.select('.project.glance').events('click')
-    .map(e => '/team/' + e.ownerTarget.dataset.key),
-  sources.DOM.select('.team').events('click')
-    .map(e => '/team/' + e.ownerTarget.dataset.key),
-  sources.DOM.select('.opp').events('click')
-    .map(e => '/opp/' + e.ownerTarget.dataset.key),
-)
-
-const _teamItems = _rows =>
-  _rows.map(({name, $key}) =>
-    listItem({title: name, className: 'team', key: $key})
-  )
-
-const _oppItems = _rows =>
-  _rows.map(({name, $key}) =>
-    listItem({title: name, className: 'opp', key: $key})
-  )
 
 const _render = ({
   isMobile,
   teams,
   opps,
+  teamsDOM,
+  oppsDOM,
   titleDOM,
   teamListHeaderDOM,
   oppListHeaderDOM,
@@ -64,19 +54,34 @@ const _render = ({
           className: 'navAction',
         }),
         teamRows.length > 0 ? teamListHeaderDOM : null,
-        ..._teamItems(teamRows),
+        teamsDOM,
         oppRows.length > 0 ? oppListHeaderDOM : null,
-        ..._oppItems(oppRows),
+        oppsDOM,
       ]),
     ]
   )
 }
 
-const ProjectNav = sources => {
-  const route$ = _navActions(sources)
+const OppItem = sources => ListItemNavigating({...sources,
+  title$: sources.item$.pluck('name'),
+  path$: sources.item$.map(({$key}) => '/opp/' + $key),
+})
 
+const ProjectNav = sources => {
   const teamListHeader = isolate(CreateTeamHeader)(sources)
   const oppListHeader = isolate(CreateOppHeader)(sources)
+
+  const teams = List({...sources,
+    Control$: just(TeamItemNavigating),
+    rows$: sources.teams$,
+  })
+
+  const opps = List({...sources,
+    Control$: just(OppItem),
+    rows$: sources.opps$,
+  })
+
+  const route$ = merge(teams.route$, opps.route$)
 
   const queue$ = Observable.merge(
     teamListHeader.queue$,
@@ -88,14 +93,20 @@ const ProjectNav = sources => {
     teamListHeaderDOM$: teamListHeader.DOM,
     oppListHeaderDOM$: oppListHeader.DOM,
     teams$: sources.teams$,
+    teamsDOM$: teams.DOM,
     opps$: sources.opps$,
+    oppsDOM$: opps.DOM,
     titleDOM$: sources.titleDOM,
     createHref$: Observable.just(sources.router.createHref),
   }
 
   const DOM = combineLatestObj(viewState$).map(_render)
 
-  return {DOM, route$, queue$}
+  return {
+    DOM,
+    route$,
+    queue$,
+  }
 }
 
 export {ProjectNav}

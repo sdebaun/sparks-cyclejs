@@ -2,10 +2,8 @@
 
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
-import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'helpers'
-import listItem from 'helpers/listItem'
 import {Menu} from 'components/sdm'
 
 import {Form, makeMenuItemFormPopup} from 'components/ui'
@@ -82,18 +80,6 @@ const GiveDeposit = makeMenuItemFormPopup({
   iconName: codeIcons['deposit'],
   className: 'deposit',
 })
-
-const _render = ({dropdownDOM, modalDOMs}) =>
-  div({},[
-    listItem({
-      iconName: 'plus',
-      title: 'What do Volunteers GIVE?',
-      iconBackgroundColor: 'yellow',
-      clickable: true,
-    }),
-    dropdownDOM,
-    ...modalDOMs,
-  ])
 
 const SelectingItem = sources => ListItemClickable({...sources,
   title$: just('What do Volunteers GET?'),

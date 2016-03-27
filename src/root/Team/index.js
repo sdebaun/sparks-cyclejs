@@ -3,9 +3,9 @@ const {just, merge, combineLatest} = Observable
 import isolate from '@cycle/isolate'
 
 import AppFrame from 'components/AppFrame'
-import Title from 'components/Title'
 import Header from 'components/Header'
-// import {OppNav} from 'components/opp'
+
+import {ResponsiveTitle} from 'components/Title'
 
 import {div, iconSrc} from 'helpers'
 
@@ -101,25 +101,13 @@ export default sources => {
     {...sources, project$, projectKey$, team$, teams$, opps$}
   )
 
-  const labelText$ = combineLatest(
-    team$,
-    teamImage$,
-    ({name},img) => div({}, [
-      img && iconSrc(img.dataUrl),
-      name,
-    ].filter(i => !!i))
-  )
-
-  // team$.pluck('name')
-  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
-
-  const title = Title({
-    quickNavDOM$: quickNav.DOM,
+  const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    labelText$,
-    subLabelText$,
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-    ...sources,
+    topDOM$: quickNav.DOM,
+    leftDOM$: teamImage$.map(i => i && i.dataUrl && iconSrc(i.dataUrl)),
+    titleDOM$: team$.pluck('name'),
+    subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
+    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 
   const nav = TeamNav({

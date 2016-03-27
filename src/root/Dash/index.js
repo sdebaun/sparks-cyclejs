@@ -1,15 +1,18 @@
 import {Observable} from 'rx'
+const {just} = Observable
 
 import {div} from 'cycle-snabbdom'
 
 import AppFrame from 'components/AppFrame'
-import Title from 'components/Title'
 import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import ComingSoon from 'components/ComingSoon'
+
+import {ResponsiveTitle} from 'components/Title'
+import {MediumProfileAvatar} from 'components/profile'
 
 import Doing from './Doing'
 
@@ -38,13 +41,17 @@ const Nav = sources => ({
 export default sources => {
   const page$ = nestedComponent(sources.router.define(_routes),sources)
 
+  const userName$ = sources.userProfile$.map(up => up && up.fullName || 'None')
+  const portraitUrl$ = sources.userProfile$.map(up => up && up.portraitUrl)
+
   const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
 
-  const title = Title({
+  const title = ResponsiveTitle({...sources,
     tabsDOM$: tabBar.DOM,
-    labelText$: sources.userProfile$.map(up => up && up.fullName || 'None'),
-    subLabelText$: Observable.just(''),
-    ...sources,
+    titleDOM$: userName$,
+    subtitleDOM$: just('Welcome'),
+    leftDOM$: MediumProfileAvatar({...sources, src$: portraitUrl$}).DOM,
+    classes$: just(['profile']),
   })
 
   const nav = Nav({titleDOM: title.DOM, ...sources})

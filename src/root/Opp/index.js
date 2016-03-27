@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 
 import AppFrame from 'components/AppFrame'
-import Title from 'components/Title'
+import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
 import {OppNav} from 'components/opp'
 
@@ -28,32 +28,19 @@ import {ProjectQuickNavMenu} from 'components/project'
 export default sources => {
   const opp$ = sources.oppKey$
     .flatMapLatest(Opps.query.one(sources))
-    // .flatMapLatest(key => sources.firebase('Opps',key))
 
   const projectKey$ = opp$.pluck('projectKey')
 
   const project$ = opp$.pluck('project')
 
-  // const project$ = projectKey$
-  //   .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
-
   const projectImage$ = projectKey$
     .flatMapLatest(ProjectImages.query.one(sources))
-    // .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
 
   const teams$ = projectKey$
     .flatMapLatest(Teams.query.byProject(sources))
-    // .flatMapLatest(projectKey => sources.firebase('Teams',{
-    //   orderByChild: 'projectKey',
-    //   equalTo: projectKey,
-    // }))
 
   const opps$ = projectKey$
     .flatMapLatest(Opps.query.byProject(sources))
-    // .flatMapLatest(projectKey => sources.firebase('Opps', {
-    //   orderByChild: 'projectKey',
-    //   equalTo: projectKey,
-    // }))
 
   const page$ = nestedComponent(
     sources.router.define(_routes),
@@ -66,16 +53,12 @@ export default sources => {
     {...sources, project$, projectKey$, opp$, teams$, opps$}
   )
 
-  const labelText$ = opp$.pluck('name')
-  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
-
-  const title = Title({
-    quickNavDOM$: quickNav.DOM,
+  const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    labelText$,
-    subLabelText$,
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-    ...sources,
+    topDOM$: quickNav.DOM,
+    titleDOM$: opp$.pluck('name'),
+    subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
+    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 
   const nav = OppNav({
