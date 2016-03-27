@@ -1,9 +1,6 @@
 import {Observable} from 'rx'
-// import combineLatestObj from 'rx-combine-latest-obj'
-// import isolate from '@cycle/isolate'
 
 import AppFrame from 'components/AppFrame'
-import Title from 'components/Title'
 import Header from 'components/Header'
 import {ProjectNav} from 'components/project'
 // import ComingSoon from 'components/ComingSoon'
@@ -12,14 +9,11 @@ import {ResponsiveTitle} from 'components/Title'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
-
 import Glance from './Glance'
 import Manage from './Manage'
 
 const _routes = {
   // isolating breaks child tab navigation?
-  // '/': isolate(Glance),
-  // '/manage': isolate(Manage),
   '/': Glance,
   '/manage': Manage,
 }
@@ -57,24 +51,12 @@ export default sources => {
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
 
-  // const labelText$ = project$.pluck('name')
-  // const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
-
   const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
     titleDOM$: project$.pluck('name'),
     subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
-    // leftDOM$: MediumProfileAvatar({...sources, src$: portraitUrl$}).DOM,
-    // classes$: just(['profile']),
+    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
-
-  // const title = Title({
-  //   tabsDOM$: tabsDOM,
-  //   labelText$,
-  //   subLabelText$,
-  //   backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-  //   ...sources,
-  // })
 
   const nav = ProjectNav({
     titleDOM: title.DOM,

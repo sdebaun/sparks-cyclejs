@@ -6,7 +6,7 @@ import {Profiles} from 'remote'
 
 import SoloFrame from 'components/SoloFrame'
 import {ProfileForm} from 'components/ProfileForm'
-import {narrowCol, pageTitle} from 'helpers'
+import {pageTitle} from 'helpers'
 import {submitAndCancel} from 'helpers/buttons'
 
 import {LargeProfileAvatar} from 'components/profile'

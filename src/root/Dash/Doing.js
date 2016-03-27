@@ -1,11 +1,9 @@
 import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
-import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
-import {col, div, importantTip} from 'helpers'
-import listItem from 'helpers/listItem'
+import {div} from 'helpers'
 
 import {Projects, Engagements} from 'components/remote'
 
@@ -14,31 +12,70 @@ import {EngagementItem} from 'components/engagement'
 
 import {
   List,
+  ListItem,
   ListItemCollapsible,
   RaisedButton,
   FlatButton,
   Dialog,
 } from 'components/sdm'
 
-const engagementHeader = engagements =>
-  engagements.length > 0 ? listItem({title: 'Applied To', header: true}) : null
+const ManagedProjectsHeader = () => ListItem({
+  classes$: just({header: true}),
+  title$: just('projects you manage'),
+})
 
-const _render = ({
-  projects, projectListDOM, projectFormDOM, engagements, engagementListDOM,
-}) =>
-  col(
-    projects.length > 0 ?
-      listItem({title: 'Projects You Manage', header: true}) :
-      null,
-    projectListDOM,
-    engagementHeader(engagements),
-    engagementListDOM,
-    projectFormDOM,
-  )
-
-const ProjectOwnedItem = sources => ProjectItem({...sources,
+const ManagedItem = sources => ProjectItem({...sources,
   subtitle$: just('owner'),
 })
+
+const ManagedList = sources => {
+  const header = ManagedProjectsHeader(sources)
+
+  const list = List({...sources,
+    Control$: just(ManagedItem),
+  })
+
+  const DOM = sources.rows$.combineLatest(
+    header.DOM,
+    list.DOM,
+    (rows, ...doms) =>
+      rows.length > 0 && div({}, doms),
+  )
+
+  return {
+    DOM,
+    route$: list.route$,
+  }
+}
+
+const EngagedHeader = () => ListItem({
+  classes$: just({header: true}),
+  title$: just('projects you\'re involved with'),
+})
+
+const EngagedItem = sources => ProjectItem({...sources,
+  subtitle$: just('owner'),
+})
+
+const EngagedList = sources => {
+  const header = EngagedHeader(sources)
+
+  const list = List({...sources,
+    Control$: just(EngagedItem),
+  })
+
+  const DOM = sources.rows$.combineLatest(
+    header.DOM,
+    list.DOM,
+    (rows, ...doms) =>
+      rows.length > 0 && div({}, doms),
+  )
+
+  return {
+    DOM,
+    route$: list.route$,
+  }
+}
 
 const CreateProjectListItem = sources => {
   const createBtn = RaisedButton({...sources,
@@ -88,11 +125,8 @@ const CreateProjectListItem = sources => {
   }
 }
 
-const Welcome = sources => ({
-  DOM: combineLatest(
-    sources.projects$, sources.engagements$,
-    (p,e) => p.length === 0 && e.length === 0
-  ).map(show => show &&
+const Welcome = sources => ({...sources,
+  DOM: sources.isVisible$.map(show => show &&
     div({},`
     Welcome to the Sparks.Network!
     During our Beta, there are only a limited number opportunities,
@@ -108,36 +142,42 @@ export default sources => {
   const engagements$ = sources.userProfileKey$
     .flatMapLatest(Engagements.query.byUser(sources))
 
+  const welcome = Welcome({...sources,
+    isVisible$: combineLatest(
+      projects$, engagements$, (p,e) => p.length === 0 && e.length === 0
+    ),
+  })
   const create = isolate(CreateProjectListItem,'create')(sources)
 
-  const projectList = isolate(List)({...sources,
-    Control$: just(ProjectOwnedItem),
+  const managed = isolate(ManagedList,'managed')({...sources,
     rows$: projects$,
   })
 
-  const engagementList = isolate(List)({...sources,
-    Control$: just(EngagementItem),
+  const engaged = isolate(EngagedList,'engaged')({...sources,
     rows$: engagements$,
   })
+
+  // const engaged = isolate(List,'engaged')({...sources,
+  //   Control$: just(EngagementItem),
+  //   rows$: engagements$,
+  // })
 
   const queue$ = create.project$
     .map(Projects.action.create)
 
   const route$ = Observable.merge(
-    projectList.route$,
-    engagementList.route$,
+    managed.route$,
+    engaged.route$,
     Projects.redirect.create(sources).route$,
   )
 
-  const viewState = {
-    projectListDOM$: projectList.DOM,
-    projectFormDOM$: create.DOM,
-    engagementListDOM$: engagementList.DOM,
-    projects$,
-    engagements$,
-  }
-
-  const DOM = combineLatestObj(viewState).map(_render)
+  const DOM = combineLatest(
+    welcome.DOM,
+    managed.DOM,
+    engaged.DOM,
+    create.DOM,
+    (...doms) => div({},doms)
+  )
 
   return {
     DOM,

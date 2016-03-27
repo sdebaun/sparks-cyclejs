@@ -10,10 +10,12 @@ import {div} from 'cycle-snabbdom'
 import {Appbar} from 'snabbdom-material'
 import {icon} from 'helpers'
 
+const sparkly = '/' + require('images/pitch/sparklerHeader-2048.jpg')
+
 const bgStyle = url => ({
   backgroundImage: url &&
-    'linear-gradient(rgba(0,0,0,0.60),rgba(0,0,0,0.90)), url(' + url + ')' ||
-    'linear-gradient(rgba(0,0,0,0.80),rgba(0,0,0,0.80))',
+    'linear-gradient(rgba(0,0,0,0.40),rgba(0,0,0,0.60)), url(' + url + ')' ||
+    'linear-gradient(rgba(0,0,0,0.40),rgba(0,0,0,0.60))',
 })
 
 const TitleContent = sources => ({
@@ -57,7 +59,7 @@ const ResponsiveTitle = sources => {
     DOM: combineLatest(
       sources.isMobile$, url$, classes$,
       (m, url, classes) =>
-        div('.title-block.' + classes.join('.'), {style: bgStyle(url)},
+        div('.title-block.' + classes.join('.'), {style: bgStyle(url || sparkly)},
           m ? [content.DOM, sources.tabsDOM$] : [content.DOM]
         )
     ),

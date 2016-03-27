@@ -2,9 +2,7 @@ import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
-import combineLatestObj from 'rx-combine-latest-obj'
-import {div, col, icon, iconSrc} from 'helpers'
-import listItem from 'helpers/listItem'
+import {div, icon, iconSrc} from 'helpers'
 
 import {
   List,
@@ -20,38 +18,7 @@ import {
   TeamImages,
 } from 'components/remote'
 
-// import {rows} from 'util'
 import {log} from 'util'
-
-// const _toggleActions = sources => Observable.merge(
-//   sources.DOM.select('.fulfiller').events('click')
-//     .map(e => e.ownerTarget.dataset.key),
-// )
-
-// const _renderTeams = (teamRows, fulfilledLookup) =>
-//   teamRows.length === 0 ? ['Add a team'] : [
-//     listItem({title: 'allowed teams', header: true}),
-//     listItem({
-//       title: 'What teams can applicants pick from?',
-//       subtitle:
-//         `Volunteers can fulfill their commitments
-//         with shifts from the teams you select.`,
-//     }),
-//     ...teamRows.map(t => listItem({
-//       title: t.name,
-//       className: 'fulfiller',
-//       key: t.$key,
-//       iconName:
-//         fulfilledLookup[t.$key] ? 'check_box' : 'check_box_outline_blank',
-//     })),
-//   ]
-
-// const _render = ({teams, fulfilledLookup, textareaQuestionDOM, listDOM}) =>
-//   col(
-//     textareaQuestionDOM,
-//     listDOM,
-//     // ..._renderTeams(rows(teams), fulfilledLookup)
-//   )
 
 const TextareaQuestion = sources => ListItemCollapsibleTextArea({
   ...sources,
@@ -100,7 +67,7 @@ const TeamFulfillerHeader = sources => ListItem({
 const GetStartedItem = sources => ListItemNavigating({...sources,
   title$: just('Add a Team'),
   iconName$: just('group_add'),
-  subtitle$: just('Once you have Teams, you\'ll be able to add them to this Opportunity.'),
+  subtitle$: just('Once you have Teams, you\'ll be able to add them here.'),
 })
 
 const HelpItem = sources => ListItem({...sources,

@@ -28,32 +28,19 @@ import {ProjectQuickNavMenu} from 'components/project'
 export default sources => {
   const opp$ = sources.oppKey$
     .flatMapLatest(Opps.query.one(sources))
-    // .flatMapLatest(key => sources.firebase('Opps',key))
 
   const projectKey$ = opp$.pluck('projectKey')
 
   const project$ = opp$.pluck('project')
 
-  // const project$ = projectKey$
-  //   .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
-
   const projectImage$ = projectKey$
     .flatMapLatest(ProjectImages.query.one(sources))
-    // .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
 
   const teams$ = projectKey$
     .flatMapLatest(Teams.query.byProject(sources))
-    // .flatMapLatest(projectKey => sources.firebase('Teams',{
-    //   orderByChild: 'projectKey',
-    //   equalTo: projectKey,
-    // }))
 
   const opps$ = projectKey$
     .flatMapLatest(Opps.query.byProject(sources))
-    // .flatMapLatest(projectKey => sources.firebase('Opps', {
-    //   orderByChild: 'projectKey',
-    //   equalTo: projectKey,
-    // }))
 
   const page$ = nestedComponent(
     sources.router.define(_routes),

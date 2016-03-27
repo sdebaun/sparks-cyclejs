@@ -1,8 +1,6 @@
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
 
-import combineLatestObj from 'rx-combine-latest-obj'
-
 import isolate from '@cycle/isolate'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
@@ -13,37 +11,10 @@ import {
   ListItemNavigating,
 } from 'components/sdm'
 
-import listItem from 'helpers/listItem'
-import listItemDisabled from 'helpers/listItemDisabled'
-
-import {col, div} from 'helpers'
+import {div} from 'helpers'
 
 // import {log} from 'util'
-import {rows, byMatch} from 'util'
-
-const _render = (createHref) => ({
-  projectImage,
-  teams,
-  organizers,
-  createOrganizerInviteDOM,
-  createTeamDOM,
-  createOppDOM,
-}) =>
-    col(
-      listItemDisabled({
-        iconName: 'playlist_add',
-        title: 'What\'s your project all about?',
-      }),
-      rows(teams).length === 0 ? createTeamDOM : null,
-      rows(organizers).length === 0 ? createOrganizerInviteDOM : null,
-      createOppDOM,
-      !projectImage && listItem({
-        iconName: 'add_a_photo',
-        iconBackgroundColor: 'yellow',
-        title: 'Choose a photo for your project',
-        link: createHref('/manage/describe'),
-      }),
-    )
+import {byMatch} from 'util'
 
 const _responseRedirects$ = ({responses$, router: {createHref}}) =>
   Observable.merge(
@@ -91,16 +62,6 @@ export default sources => {
     picture.route$,
   )
 
-  // _responseRedirects$(sources)
-  //   .merge(
-  //     sources.DOM.select('.clickable').events('click') // omg brilliant +1
-  //       .filter(e => !!e.ownerTarget.dataset.link)
-  //       .map(e => e.ownerTarget.dataset.link)
-  //   )
-  //   .merge(
-  //     priority.route$.map(sources.router.createHref)
-  //   )
-
   const priorityDOMs = [
     describe.DOM,
     picture.DOM,
@@ -113,19 +74,6 @@ export default sources => {
     ...priorityDOMs,
     (...doms) => div({}, doms)
   )
-
-  // const viewState = {
-  //   project$: sources.project$,
-  //   projectImage$: sources.projectImage$.startWith(null),
-  //   teams$: sources.teams$,
-  //   organizers$: sources.organizers$,
-  //   createOrganizerInviteDOM$: createOrganizerInvite.DOM,
-  //   createTeamDOM$: createTeam.DOM,
-  //   createOppDOM$: createOpp.DOM,
-  // }
-
-  // const DOM = combineLatestObj(viewState)
-  //   .map(_render(sources.router.createHref))
 
   return {DOM, queue$, route$}
 }
