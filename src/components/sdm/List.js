@@ -29,4 +29,23 @@ const List = sources => {
   }
 }
 
-export {List}
+const ListWithHeader = sources => {
+  const list = List(sources)
+
+  const DOM = sources.rows$.combineLatest(
+    sources.headerDOM,
+    list.DOM,
+    (rows, ...doms) =>
+      div({}, rows.length > 0 ? doms : []),
+  )
+
+  return {
+    DOM,
+    route$: list.route$,
+  }
+}
+
+export {
+  List,
+  ListWithHeader,
+}

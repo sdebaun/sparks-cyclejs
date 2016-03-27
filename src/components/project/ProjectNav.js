@@ -1,107 +1,145 @@
 import {Observable} from 'rx'
-const {just, merge} = Observable
+const {just, merge, combineLatest} = Observable
 
-import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
-import listItem from 'helpers/listItem'
+import {div, icon} from 'helpers'
 
-import {h, div} from 'cycle-snabbdom'
+import {Opps, Teams} from 'remote'
 
-import {rows} from 'util'
 // import {log} from 'util'
 
 import {
-  List,
   ListItemNavigating,
+  ListItemWithDialog,
+  ListWithHeader,
 } from 'components/sdm'
 
 import {
+  TeamForm,
   TeamItemNavigating,
-  CreateTeamHeader,
 } from 'components/team'
 
-import {CreateOppHeader} from 'components/opp'
+import {
+  OppForm,
+  OppItemNavigating,
+} from 'components/opp'
 
-const _render = ({
-  isMobile,
-  teams,
-  opps,
-  teamsDOM,
-  oppsDOM,
-  titleDOM,
-  teamListHeaderDOM,
-  oppListHeaderDOM,
-  createHref,
-}) => {
-  const teamRows = rows(teams)
-  const oppRows = rows(opps)
-  return div(
-    {},
-    [
-      isMobile ? null : titleDOM,
-      h('div.rowwrap', {style: {padding: '0px 15px'}}, [
-        listItem({
-          title: 'At a Glance',
-          iconName: 'home',
-          link: createHref('/'),
-          className: 'navAction',
-        }),
-        listItem({
-          title: 'Manage',
-          iconName: 'settings',
-          link: createHref('/manage'),
-          className: 'navAction',
-        }),
-        teamRows.length > 0 ? teamListHeaderDOM : null,
-        teamsDOM,
-        oppRows.length > 0 ? oppListHeaderDOM : null,
-        oppsDOM,
-      ]),
-    ]
-  )
-}
-
-const OppItem = sources => ListItemNavigating({...sources,
-  title$: sources.item$.pluck('name'),
-  path$: sources.item$.map(({$key}) => '/opp/' + $key),
+const Glance = sources => ListItemNavigating({...sources,
+  title$: just('At a Glance'),
+  iconName$: just('home'),
+  path$: just(sources.router.createHref('/')),
 })
 
-const ProjectNav = sources => {
-  const teamListHeader = isolate(CreateTeamHeader)(sources)
-  const oppListHeader = isolate(CreateOppHeader)(sources)
+const Manage = sources => ListItemNavigating({...sources,
+  title$: just('Manage'),
+  iconName$: just('settings'),
+  path$: just(sources.router.createHref('/manage')),
+})
 
-  const teams = List({...sources,
+const CreateTeamHeader = sources => {
+  const form = TeamForm(sources)
+
+  const item = ListItemWithDialog({...sources,
+    title$: just('teams'),
+    dialogTitleDOM$: just('Create Team'),
+    dialogContentDOM$: form.DOM,
+    rightDOM$: just(icon('plus')),
+    dialogIconName$: just('group'),
+    classes$: just({header: true}),
+  })
+
+  const queue$ = form.item$
+    .sample(item.submit$)
+    .zip(sources.projectKey$,
+      (team,projectKey) => ({projectKey, ...team})
+    )
+    .map(Teams.create)
+
+  return {
+    DOM: item.DOM,
+    queue$,
+  }
+}
+
+const TeamListNavigatingAndAdding = sources => {
+  const header = isolate(CreateTeamHeader,'create-team')(sources)
+
+  const list = ListWithHeader({...sources,
+    headerDOM: header.DOM,
     Control$: just(TeamItemNavigating),
+  })
+
+  return {
+    DOM: list.DOM,
+    route$: list.route$,
+    queue$: header.queue$,
+  }
+}
+
+const CreateOppHeader = sources => {
+  const form = OppForm(sources)
+
+  const item = ListItemWithDialog({...sources,
+    title$: just('opportunities'),
+    dialogTitleDOM$: just('Create Opportunity'),
+    dialogContentDOM$: form.DOM,
+    rightDOM$: just(icon('plus')),
+    dialogIconName$: just('power'),
+    classes$: just({header: true}),
+  })
+
+  const queue$ = form.item$
+    .sample(item.submit$)
+    .zip(sources.projectKey$,
+      (opp,projectKey) => ({projectKey, ...opp})
+    )
+    .map(Opps.create)
+
+  return {
+    DOM: item.DOM,
+    queue$,
+  }
+}
+
+const OppListNavigatingAndAdding = sources => {
+  const header = isolate(CreateOppHeader,'create-opp')(sources)
+
+  const list = ListWithHeader({...sources,
+    headerDOM: header.DOM,
+    Control$: just(OppItemNavigating),
+  })
+
+  return {
+    DOM: list.DOM,
+    route$: list.route$,
+    queue$: header.queue$,
+  }
+}
+
+const ProjectNav = sources => {
+  const glance = isolate(Glance,'glance')(sources)
+  const manage = isolate(Manage,'manage')(sources)
+
+  const teams = TeamListNavigatingAndAdding({...sources,
     rows$: sources.teams$,
   })
 
-  const opps = List({...sources,
-    Control$: just(OppItem),
+  const opps = OppListNavigatingAndAdding({...sources,
     rows$: sources.opps$,
   })
 
-  const route$ = merge(teams.route$, opps.route$)
+  const childs = [glance, manage, teams, opps]
 
-  const queue$ = Observable.merge(
-    teamListHeader.queue$,
-    oppListHeader.queue$,
+  const route$ = merge(...childs.map(c => c.route$))
+
+  const queue$ = merge(opps.queue$, teams.queue$)
+
+  const DOM = combineLatest(
+    sources.titleDOM,
+    ...childs.map(c => c.DOM),
+    (...doms) => div({},doms)
   )
-
-  const viewState$ = {
-    isMobile$: sources.isMobile$,
-    teamListHeaderDOM$: teamListHeader.DOM,
-    oppListHeaderDOM$: oppListHeader.DOM,
-    teams$: sources.teams$,
-    teamsDOM$: teams.DOM,
-    opps$: sources.opps$,
-    oppsDOM$: opps.DOM,
-    titleDOM$: sources.titleDOM,
-    createHref$: Observable.just(sources.router.createHref),
-  }
-
-  const DOM = combineLatestObj(viewState$).map(_render)
-
   return {
     DOM,
     route$,

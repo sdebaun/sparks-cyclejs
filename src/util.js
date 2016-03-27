@@ -1,5 +1,7 @@
 import {Observable} from 'rx'
-const {just} = Observable
+const {just, combineLatest} = Observable
+
+import {div} from 'helpers'
 
 import isolate from '@cycle/isolate'
 
@@ -8,6 +10,9 @@ export const PROVIDERS = {
   facebook: {type: 'popup', provider: 'facebook'},
   logout: {type: 'logout'},
 }
+
+export const combineLatestToDiv = domstreams =>
+  combineLatest(...domstreams, (...doms) => div({},doms))
 
 export const controlsFromRows = (sources, rows, Control) =>
   rows.map(row => isolate(Control,row.$key)({...sources, item$: just(row)}))
