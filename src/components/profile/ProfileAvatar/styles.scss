@@ -3,6 +3,12 @@
   height: 40px;  
   border-radius: 20px;
   
+  &.medium {
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+  }
+
   &.large {
     width: 200px;
     height: 200px;

@@ -88,6 +88,19 @@ const CreateProjectListItem = sources => {
   }
 }
 
+const Welcome = sources => ({
+  DOM: combineLatest(
+    sources.projects$, sources.engagements$,
+    (p,e) => p.length === 0 && e.length === 0
+  ).map(show => show &&
+    div({},`
+    Welcome to the Sparks.Network!
+    During our Beta, there are only a limited number opportunities,
+    but anyone can apply.
+    `)
+  ),
+})
+
 export default sources => {
   const projects$ = sources.userProfileKey$
     .flatMapLatest(Projects.query.byOwner(sources))
@@ -96,8 +109,6 @@ export default sources => {
     .flatMapLatest(Engagements.query.byUser(sources))
 
   const create = isolate(CreateProjectListItem,'create')(sources)
-
-  const projectForm = isolate(ProjectForm)(sources)
 
   const projectList = isolate(List)({...sources,
     Control$: just(ProjectOwnedItem),

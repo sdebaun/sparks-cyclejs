@@ -51,8 +51,10 @@ const _submitAction$ = ({DOM}) =>
 export default sources => {
   const authProfile$ = _fromAuthData$(sources)
 
+  const portraitUrl$ = authProfile$.pluck('portraitUrl')
+
   const pic = LargeProfileAvatar({...sources,
-    src$: authProfile$.pluck('portraitUrl'),
+    src$: portraitUrl$,
   })
 
   const profileForm = ProfileForm({item$: authProfile$, ...sources})
@@ -60,6 +62,10 @@ export default sources => {
   const submit$ = _submitAction$(sources)
 
   const profile$ = profileForm.item$
+    .combineLatest(
+      portraitUrl$,
+      (p,portraitUrl) => ({...p, portraitUrl})
+    )
 
   const valid$ = profile$
     .map(({fullName,email,phone}) =>

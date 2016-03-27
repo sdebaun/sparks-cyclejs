@@ -8,10 +8,16 @@ const ProfileAvatar = sources => ({
   ),
 })
 
+const MediumProfileAvatar = sources => ({
+  DOM: sources.src$.map(src =>
+    img({class: {avatar: true, medium: true}, attrs: {src}})
+  ),
+})
+
 const LargeProfileAvatar = sources => ({
   DOM: sources.src$.map(src =>
     img({class: {avatar: true, large: true}, attrs: {src}})
   ),
 })
 
-export {LargeProfileAvatar, ProfileAvatar}
+export {LargeProfileAvatar, MediumProfileAvatar, ProfileAvatar}

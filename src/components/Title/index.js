@@ -1,11 +1,60 @@
 // TODO: PRIORITY
+require('./styles.scss')
 
 import {Observable} from 'rx'
+const {just, combineLatest} = Observable
+
 import combineLatestObj from 'rx-combine-latest-obj'
 import {div} from 'cycle-snabbdom'
 
 import {Appbar} from 'snabbdom-material'
 import {icon} from 'helpers'
+
+const bgStyle = url => ({
+  backgroundImage: url &&
+    'linear-gradient(rgba(0,0,0,0.60),rgba(0,0,0,0.90)), url(' + url + ')' ||
+    'linear-gradient(rgba(0,0,0,0.80),rgba(0,0,0,0.80))',
+})
+
+const TitleContent = sources => ({
+  DOM: combineLatest(
+    sources.topDOM$ || just(null),
+    sources.leftDOM$ || just(null),
+    sources.titleDOM$ || just('no titleDOM$'),
+    sources.subtitleDOM$ || just(null),
+    sources.rightDOM$ || just(null),
+    (top,left,title,subtitle,right) =>
+      div('.content', [
+        top,
+        div('.bottom', [
+          left && div('.left', [left]),
+          div('.main', [
+            div('.title',title),
+            subtitle && div('.subtitle',subtitle),
+          ]),
+          right && div('.right', [right]),
+        ]),
+      ])
+  ),
+})
+
+const ResponsiveTitle = sources => {
+  const content = TitleContent(sources)
+  const url$ = sources.backgroundUrl$ || just(null)
+  const classes$ = sources.classes$ || just([])
+
+  return {
+    DOM: combineLatest(
+      sources.isMobile$, url$, classes$,
+      (m, url, classes) =>
+        div('.title-block.' + classes.join('.'), {style: bgStyle(url)},
+          m ? [content.DOM, sources.tabsDOM$] : [content.DOM]
+        )
+    ),
+  }
+}
+
+export {ResponsiveTitle}
 
 const style = (bgUrl) => ({
   backgroundImage: bgUrl &&
