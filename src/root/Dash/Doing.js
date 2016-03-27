@@ -39,7 +39,7 @@ const ManagedList = sources => {
     header.DOM,
     list.DOM,
     (rows, ...doms) =>
-      rows.length > 0 && div({}, doms),
+      div({}, rows.length > 0 ? doms : []),
   )
 
   return {
@@ -64,11 +64,12 @@ const EngagedList = sources => {
     header.DOM,
     list.DOM,
     (rows, ...doms) =>
-      rows.length > 0 && div({}, doms),
+      div({}, rows.length > 0 ? doms : []),
   )
 
   return {
     DOM,
+    // DOM: just(div({},[])),
     route$: list.route$,
   }
 }
