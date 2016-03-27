@@ -14,8 +14,8 @@ deployment:
   staging:
     branch: release
     commands:
-      - gulp deploy --domain sparks-staging.surge.sh
+      - gulp deploy --domain staging.sparks.network
   staging-test:
     branch: deployment-changes
     commands:
-      - gulp deploy --domain sparks-staging.surge.sh
+      - gulp deploy --domain staging.sparks.network
