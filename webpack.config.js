@@ -1,7 +1,9 @@
 var path = require('path')
 var webpack = require('webpack')
+var minimist = require('minimist')
 
 var ENV = process.env.NODE_ENV
+var args = minimist(process.argv.slice(2))
 
 var srcPath = path.join(__dirname, '/src')
 var imagePath = path.join(__dirname, '/images')
@@ -11,6 +13,10 @@ module.exports = {
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js',
+  },
+  devServer: {
+    hot: true,
+    historyApiFallback: true,
   },
   module: {
     loaders: [

@@ -20,6 +20,7 @@
     "serve": "gulp",
     "start": "npm install && npm run serve",
     "build": "gulp build",
+    "build2": "webpack",
     "test": "echo \"No tests, bad developer.\""
   },
   "author": "Sparks.Network",
