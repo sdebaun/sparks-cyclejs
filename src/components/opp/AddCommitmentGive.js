@@ -82,7 +82,7 @@ const GiveDeposit = makeMenuItemFormPopup({
 })
 
 const SelectingItem = sources => ListItemClickable({...sources,
-  title$: just('What do Volunteers GET?'),
+  title$: just('What do Volunteers GIVE?'),
   iconName$: just('plus'),
 })
 
