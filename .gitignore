@@ -1,3 +1,5 @@
+*.local.*
+
 # Logs
 logs
 *.log
