@@ -10,10 +10,10 @@ deployment:
   production:
     branch: master
     commands:
-      - npm run build
+      - BUILD_FIREBASE_HOST=http://sparks-production.firebaseio.com npm run build
       - surge ./dist sparks-production.surge.sh
   staging:
     branch: release
     commands:
-      - npm run build
+      - BUILD_FIREBASE_HOST=http://sparks-staging.firebaseio.com npm run build
       - surge ./dist staging.sparks.network
