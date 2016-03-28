@@ -10,12 +10,10 @@ deployment:
   production:
     branch: master
     commands:
-      - gulp deploy --domain sparks-production.surge.sh
+      - npm run build
+      - surge ./dist sparks-production.surge.sh
   staging:
     branch: release
     commands:
-      - gulp deploy --domain staging.sparks.network
-  staging-test:
-    branch: deployment-changes
-    commands:
-      - gulp deploy --domain staging.sparks.network
+      - npm run build
+      - surge ./dist staging.sparks.network

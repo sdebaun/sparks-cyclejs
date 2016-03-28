@@ -1,16 +1,40 @@
 var path = require('path')
 var webpack = require('webpack')
+var CopyWebpackPlugin = require('copy-webpack-plugin')
 
-var ENV = process.env.NODE_ENV
+var ENV = process.env.BUILD_ENV || 'development'
+
+console.log('webpack run with BUILD_FIREBASE_HOST', process.env.BUILD_FIREBASE_HOST)
+
+if (!process.env.BUILD_FIREBASE_HOST) { console.log('Need BUILD_FIREBASE_HOST env var'); process.exit()}
 
 var srcPath = path.join(__dirname, '/src')
 var imagePath = path.join(__dirname, '/images')
+
+var basePlugins = [
+  new CopyWebpackPlugin([
+    {from: './200.html'},
+  ]),
+  new webpack.DefinePlugin({
+    __FIREBASE_HOST__: JSON.stringify(process.env.BUILD_FIREBASE_HOST.trim()),
+  }),
+]
+
+var prodPlugins = [
+  new webpack.optimize.UglifyJsPlugin({minimize: true}),
+]
+
+var plugins = basePlugins.concat(ENV == 'production' ? prodPlugins : [])
 
 module.exports = {
   entry: ['./src/main'],
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js',
+  },
+  devServer: {
+    hot: true,
+    historyApiFallback: true,
   },
   module: {
     loaders: [
@@ -54,6 +78,5 @@ module.exports = {
       remote: srcPath + '/remote',
     },
   },
-  plugins: ENV === 'production' ?
-    [new webpack.optimize.UglifyJsPlugin({minimize: true})] : [],
+  plugins: plugins,
 }
