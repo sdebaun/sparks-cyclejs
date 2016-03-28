@@ -57,6 +57,8 @@ export default sources => {
     getListDOM: getList.DOM,
   }
 
+  queue$.subscribe(x => console.log('opp queue', x))
+
   const DOM = combineLatestObj(viewState).map(_render)
 
   return {

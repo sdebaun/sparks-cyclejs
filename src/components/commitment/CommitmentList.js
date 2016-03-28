@@ -31,37 +31,40 @@ const CommitmentItem = sources => {
   const deleteItem = isolate(Delete,'delete')(sources)
   const editItem = Edit(sources)
 
-  const code$ = item$.pluck('code')
-
   const listItem = ListItemWithMenu({...sources,
-    iconName$: code$.map(code => codeIcons[code]),
+    iconName$: item$.map(({code}) => codeIcons[code]),
     title$: item$.map(({code, ...vals}) => codeTitles[code](vals)),
     menuItems$: just([deleteItem.DOM, editItem.DOM]),
   })
 
   const edit$ = editItem.click$
-    .flatMapLatest(code$)
-    .map(code => {
+    .flatMapLatest(() => item$)
+    .map(({code}) => {
       const isOpen$ = new BehaviorSubject(true)
       const sinks = codePopups[code]({...sources, isOpen$})
       sinks.submit$
         .map(false)
-        .takeUntil(deleteItem.click$)
         .subscribe(isOpen$.asObserver())
-      return {...sinks, item$: sinks.item$.map(i => ({...i, code}))}
-    }).share()
+
+      return {
+        ...sinks,
+        queue$: item$.map(({$key: key, ...item}) => ({...item, code, key})),
+      }
+    })
 
   const editDOM$ = edit$.pluck('modalDOM')
 
-  // TODO: merge with queue$
-  // const editQueue$ = edit$.pluck('item$')
-  //  ^^ needs to be merged with the queue$, but I don't know how to
-  // 'update' things with firebase
+  const editQueue$ = edit$
+    .flatMapLatest(e => e.queue$)
+    .map(Commitments.action.update)
+
+  editQueue$.subscribe(x => console.log('editQueue', x))
 
   const queue$ = deleteItem.click$
     .flatMapLatest(item$)
     .pluck('$key')
     .map(Commitments.action.remove)
+    .merge(editQueue$)
 
   const DOM = combineLatest(
     listItem.DOM, editDOM$.startWith(null),

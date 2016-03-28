@@ -1,3 +1,4 @@
+import {Observable} from 'rx'
 import {div} from 'helpers'
 import {mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
