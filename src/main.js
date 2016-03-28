@@ -14,7 +14,7 @@ import Root from './root'
 const history = supportsHistory() ?
   createHistory() : createHashHistory()
 
-const fbRoot = new Firebase('http://sparks-dev-stevo.firebaseio.com')
+const fbRoot = new Firebase(__FIREBASE_HOST__) // eslint-disable-line
 
 const {sources, sinks} = run(Root, {
   isMobile$,

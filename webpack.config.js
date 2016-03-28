@@ -1,12 +1,30 @@
 var path = require('path')
 var webpack = require('webpack')
-var minimist = require('minimist')
+var CopyWebpackPlugin = require('copy-webpack-plugin')
 
-var ENV = process.env.NODE_ENV
-var args = minimist(process.argv.slice(2))
+var ENV = process.env.BUILD_ENV || 'development'
+
+console.log('webpack run with FIREBASE_HOST', process.env.FIREBASE_HOST)
+
+if (!process.env.FIREBASE_HOST) { console.log('Need FIREBASE_HOST env var'); process.exit()}
 
 var srcPath = path.join(__dirname, '/src')
 var imagePath = path.join(__dirname, '/images')
+
+var basePlugins = [
+  new CopyWebpackPlugin([
+    {from: './200.html'},
+  ]),
+  new webpack.DefinePlugin({
+    __FIREBASE_HOST__: JSON.stringify(process.env.FIREBASE_HOST.trim()),
+  }),
+]
+
+var prodPlugins = [
+  new webpack.optimize.UglifyJsPlugin({minimize: true}),
+]
+
+var plugins = basePlugins.concat(ENV == 'production' ? prodPlugins : [])
 
 module.exports = {
   entry: ['./src/main'],
@@ -60,6 +78,5 @@ module.exports = {
       remote: srcPath + '/remote',
     },
   },
-  plugins: ENV === 'production' ?
-    [new webpack.optimize.UglifyJsPlugin({minimize: true})] : [],
+  plugins: plugins,
 }
