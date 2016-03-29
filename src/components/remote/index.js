@@ -94,6 +94,9 @@ export const Engagements = {
     all: filterAll('Engagements'),
     byUser: filterBy('Engagements','profileKey'),
   },
+  action: {
+    create: actionCreator('Engagements', 'create'),
+  },
 }
 
 export const Commitments = {

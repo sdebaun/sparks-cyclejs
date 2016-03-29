@@ -1,20 +1,28 @@
 import {Observable} from 'rx'
-import combineLatestObj from 'rx-combine-latest-obj'
+const {combineLatest} = Observable
+
+// import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import ComingSoon from 'components/ComingSoon'
 import SoloFrame from 'components/SoloFrame'
-import Title from 'components/Title'
+import {ResponsiveTitle} from 'components/Title'
 
 import ApplyQuickNavMenu from 'components/ApplyQuickNavMenu'
 
 import {rows, nestedComponent, mergeOrFlatMapLatest} from 'util'
 
-import {col} from 'helpers'
-import {textTweetSized} from 'helpers/text'
+import {div} from 'helpers'
+// import {textTweetSized} from 'helpers/text'
 
 const Glance = ComingSoon('Apply/Glance')
 import Opp from './Opp'
+
+import {
+  Opps,
+  ProjectImages,
+  Projects,
+} from 'components/remote'
 
 const _routes = {
   // isolating breaks child tab navigation?
@@ -23,45 +31,36 @@ const _routes = {
     isolate(Opp)({oppKey$: Observable.just(key), ...sources}),
 }
 
-const _render = ({
-  // titleDOM,
-  applyQuickNavMenuDOM,
-  pageDOM,
-  projectDescription,
-}) =>
-  col(
-    // titleDOM,
-    textTweetSized(projectDescription),
-    applyQuickNavMenuDOM,
-    pageDOM,
-  )
+// const _render = ({
+//   // titleDOM,
+//   applyQuickNavMenuDOM,
+//   pageDOM,
+//   projectDescription,
+// }) =>
+//   col(
+//     // titleDOM,
+//     textTweetSized(projectDescription),
+//     applyQuickNavMenuDOM,
+//     pageDOM,
+//   )
 
 export default sources => {
   const projectKey$ = sources.projectKey$
 
   const project$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Projects',projectKey))
+    .flatMapLatest(Projects.query.one(sources))
 
   const projectImage$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
-
-  // const teams$ = projectKey$
-  //   .flatMapLatest(projectKey => sources.firebase('Teams',{
-  //     orderByChild: 'projectKey',
-  //     equalTo: projectKey,
-  //   }))
+    .flatMapLatest(ProjectImages.query.one(sources))
 
   const opps$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('Opps', {
-      orderByChild: 'projectKey',
-      equalTo: projectKey,
-    }))
+    .flatMapLatest(Opps.query.byProject(sources))
 
   const oppRows$ = opps$.map(rows)
 
-  const title = Title({
-    labelText$: project$.pluck('name'),
-    subLabelText$: oppRows$.map(opps =>
+  const title = ResponsiveTitle({
+    titleDOM$: project$.pluck('name'),
+    subtitleDOM$: oppRows$.map(opps =>
       opps.length + ' Opportunities Available'
     ),
     backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
@@ -76,15 +75,15 @@ export default sources => {
     ...sources,
   })
 
-  const viewState = {
-    // titleDOM$: title.DOM,
-    applyQuickNavMenuDOM$: applyQuickNavMenu.DOM,
-    pageDOM$: page$.flatMapLatest(({DOM}) => DOM),
-    projectDescription: project$.pluck('description'),
-  }
+  const soon = ComingSoon('UNDER DEVELOPMENT')(sources)
 
-  const pageDOM = combineLatestObj(viewState)
-    .map(_render)
+  const pageDOM = combineLatest(
+    soon.DOM,
+    applyQuickNavMenu.DOM,
+    page$.flatMapLatest(({DOM}) => DOM),
+    project$.pluck('description'),
+    (...doms) => div({},doms),
+  )
 
   const frame = SoloFrame({
     pageDOM,

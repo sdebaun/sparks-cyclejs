@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+const {combineLatest} = Observable
 
 import AppFrame from 'components/AppFrame'
 import Header from 'components/Header'
@@ -51,10 +52,17 @@ export default sources => {
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
 
+  const subtitleDOM$ = combineLatest(
+    sources.isMobile$,
+    page$.flatMapLatest(page => page.pageTitle),
+    (isMobile, pageTitle) => isMobile ? pageTitle : null,
+  )
+
   const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
     titleDOM$: project$.pluck('name'),
-    subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
+    subtitleDOM$,
+    // subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
     backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 
