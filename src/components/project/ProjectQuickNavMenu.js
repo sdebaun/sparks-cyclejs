@@ -19,12 +19,12 @@ const ProjectQuickNavMenu = sources => {
     path$: sources.projectKey$.map($key => '/project/' + $key),
   })
 
-  const teams = List({...sources,
+  const teams = isolate(List,'teams')({...sources,
     Control$: just(TeamItemNavigating),
     rows$: sources.teams$,
   })
 
-  const opps = List({...sources,
+  const opps = isolate(List,'opps')({...sources,
     Control$: just(OppItemNavigating),
     rows$: sources.opps$,
   })
