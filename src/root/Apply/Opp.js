@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {combineLatest} = Observable
 
 import combineLatestObj from 'rx-combine-latest-obj'
 import {PROVIDERS} from 'util'
@@ -7,7 +7,7 @@ import {PROVIDERS} from 'util'
 import {rows} from 'util'
 import {log} from 'util'
 
-import {div, col} from 'helpers'
+import {col} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import {textQuote} from 'helpers/text'
@@ -85,13 +85,6 @@ export default sources => {
   const commitments$ = oppKey$
     .flatMapLatest(Commitments.query.byOpp(sources))
 
-  // const commitments$ = oppKey$
-  //   .flatMapLatest(Commitments.query.byOpp(sources))
-  //   .flatMapLatest(oppKey => sources.firebase('Commitments', {
-  //     orderByChild: 'oppKey',
-  //     equalTo: oppKey,
-  //   }))
-
   const applyClick$ = sources.DOM.select('.apply').events('click')
 
   const newApplication$ = combineLatest(
@@ -124,42 +117,3 @@ export default sources => {
     route$,
   }
 }
-//   const title = Title({
-//     labelText$: project$.pluck('name'),
-//     subLabelText$: oppRows$.map(opps =>
-//       opps.length + ' Opportunities Available'
-//     ),
-//     oppRows$,
-//     ...sources,
-//   })
-
-//   const applyQuickNavMenu = ApplyQuickNavMenu({opps$, project$, ...sources})
-//   // const applyQuickNavMenu = Observable.just({DOM: ['foo']})
-
-//   const page$ = nestedComponent(sources.router.define(_routes),sources)
-
-//   const pageDOM = col(
-//     title.DOM,
-//     applyQuickNavMenu.DOM,
-//     page$.flatMapLatest(({DOM}) => DOM)
-//   )
-
-//   const frame = SoloFrame({pageDOM, ...sources})
-
-//   const children = [frame, page$, applyQuickNavMenu]
-
-//   const DOM = frame.DOM
-
-//   const route$ = mergeOrFlatMapLatest('route$', ...children)
-
-//   // const queue$ = frame.queue$
-
-//   const auth$ = mergeOrFlatMapLatest('auth$', ...children)
-
-//   return {
-//     DOM,
-//     route$,
-//     // queue$,
-//     auth$,
-//   }
-// }
