@@ -1,3 +1,4 @@
+import {Observable} from 'rx'
 import {div} from 'helpers'
 import {mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
@@ -22,10 +23,15 @@ const List = sources => {
     mergeOrFlatMapLatest('queue$', ...children)
   )
 
+  const edit$ = controls$.flatMapLatest(children =>
+    mergeOrFlatMapLatest('edit$', ...children)
+  )
+
   return {
     DOM,
     queue$,
     route$,
+    edit$,
   }
 }
 

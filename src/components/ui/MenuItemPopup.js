@@ -48,12 +48,11 @@ const makeMenuItemFormPopup = ({
   const control = ItemControl({contentDOM$: form.DOM, ...sources})
 
   const item$ = form.item$
-    .sample(control.submit$)
 
   return {
     itemDOM: control.itemDOM,
     modalDOM: control.modalDOM,
-    submit$: control.submit$,
+    submit$: control.submit$.share(),
     item$,
   }
 }

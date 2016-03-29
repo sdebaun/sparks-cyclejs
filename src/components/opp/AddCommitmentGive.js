@@ -6,83 +6,11 @@ const {just, merge, combineLatest} = Observable
 import {div} from 'helpers'
 import {Menu} from 'components/sdm'
 
-import {Form, makeMenuItemFormPopup} from 'components/ui'
-import {
-  InputControl,
-  ListItemClickable,
-} from 'components/sdm'
-
-// import {log} from 'util'
-
-import codeIcons from 'components/opp/codeIcons'
-
-const ShiftCountInput = sources => InputControl({
-  ...sources,
-  label$: just('How many shifts?'),
-  value$: just(1),
-})
-
-const GiveShiftForm = sources => Form({...sources,
-  Controls$: just([{field: 'count', Control: ShiftCountInput}]),
-})
-
-const GiveShifts = makeMenuItemFormPopup({
-  FormControl: GiveShiftForm,
-  title: 'One or more Shifts',
-  iconName: codeIcons['shifts'],
-  className: 'shifts',
-})
-
-const PaymentAmountInput = sources => InputControl({
-  ...sources,
-  label$: just('How much do they pay?'),
-})
-
-const GivePaymentForm = sources => Form({...sources,
-  Controls$: just([{field: 'amount', Control: PaymentAmountInput}]),
-})
-
-const GivePayment = makeMenuItemFormPopup({
-  FormControl: GivePaymentForm,
-  title: 'A Payment',
-  iconName: codeIcons['payment'],
-  className: 'payment',
-})
-
-const LegalNameInput = sources => InputControl({
-  ...sources,
-  label$: just('What is the Legal Name of your Organization?'),
-})
-
-const GiveWaiverForm = sources => Form({...sources,
-  Controls$: just([{field: 'who', Control: LegalNameInput}]),
-})
-
-const GiveWaiver = makeMenuItemFormPopup({
-  FormControl: GiveWaiverForm,
-  title: 'A Liability Waiver',
-  iconName: codeIcons['waiver'],
-  className: 'waiver',
-})
-
-const DepositAmountInput = sources => InputControl({
-  ...sources,
-  label$: just('How much is their Deposit?'),
-})
-
-const GiveDepositForm = sources => Form({...sources,
-  Controls$: just([{field: 'amount', Control: DepositAmountInput}]),
-})
-
-const GiveDeposit = makeMenuItemFormPopup({
-  FormControl: GiveDepositForm,
-  title: 'A refundable deposit',
-  iconName: codeIcons['deposit'],
-  className: 'deposit',
-})
+import {ListItemClickable} from 'components/sdm'
+import {GiveWaiver, GiveShifts, GivePayment, GiveDeposit} from './GiveItems'
 
 const SelectingItem = sources => ListItemClickable({...sources,
-  title$: just('What do Volunteers GET?'),
+  title$: just('What do Volunteers GIVE?'),
   iconName$: just('plus'),
 })
 
@@ -125,10 +53,10 @@ export const AddCommitmentGive = sources => {
   )
 
   const commitment$ = merge(
-    giveWaiver.item$.map(c => ({...c, code: 'waiver'})),
-    giveDeposit.item$.map(c => ({...c, code: 'deposit'})),
-    givePayment.item$.map(c => ({...c, code: 'payment'})),
-    giveShifts.item$.map(c => ({...c, code: 'shifts'})),
+    giveWaiver.item$.sample(giveWaiver.submit$).map(c => ({...c, code: 'waiver'})),
+    giveDeposit.item$.sample(giveDeposit.submit$).map(c => ({...c, code: 'deposit'})),
+    givePayment.item$.sample(givePayment.submit$).map(c => ({...c, code: 'payment'})),
+    giveShifts.item$.sample(giveShifts.submit$).map(c => ({...c, code: 'shifts'})),
   ).map(c => ({...c, party: 'vol'}))
 
   return {
