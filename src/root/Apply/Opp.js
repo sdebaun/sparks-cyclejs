@@ -1,20 +1,28 @@
 import {Observable} from 'rx'
+const {just, combineLatest} = Observable
+
 import combineLatestObj from 'rx-combine-latest-obj'
 import {PROVIDERS} from 'util'
 
 import {rows} from 'util'
 import {log} from 'util'
 
-import {col} from 'helpers'
+import {div, col} from 'helpers'
 import listItem from 'helpers/listItem'
 
 import {textQuote} from 'helpers/text'
 import {centeredSignup, bigButton} from 'helpers/buttons'
 
-import {Engagements} from 'remote'
+// import {Engagements} from 'remote'
 
 import codeIcons from 'components/opp/codeIcons'
 import codeTitles from 'components/opp/codeTitles'
+
+import {
+  Opps,
+  Commitments,
+  Engagements,
+} from 'components/remote'
 
 const _renderOppHeader = (project, opp) =>
   col(
@@ -72,17 +80,21 @@ export default sources => {
   oppKey$.subscribe(log('oppKey$'))
 
   const opp$ = oppKey$
-    .flatMapLatest(oppKey => sources.firebase('Opps',oppKey))
+    .flatMapLatest(Opps.query.one(sources))
 
   const commitments$ = oppKey$
-    .flatMapLatest(oppKey => sources.firebase('Commitments', {
-      orderByChild: 'oppKey',
-      equalTo: oppKey,
-    }))
+    .flatMapLatest(Commitments.query.byOpp(sources))
+
+  // const commitments$ = oppKey$
+  //   .flatMapLatest(Commitments.query.byOpp(sources))
+  //   .flatMapLatest(oppKey => sources.firebase('Commitments', {
+  //     orderByChild: 'oppKey',
+  //     equalTo: oppKey,
+  //   }))
 
   const applyClick$ = sources.DOM.select('.apply').events('click')
 
-  const newApplication$ = Observable.combineLatest(
+  const newApplication$ = combineLatest(
     oppKey$,
     sources.userProfileKey$,
     (oppKey, userProfileKey) => ({oppKey, profileKey: userProfileKey}),
@@ -92,7 +104,7 @@ export default sources => {
 
   const queue$ = newApplication$
     .sample(applyClick$)
-    .map(Engagements.create)
+    .map(Engagements.action.create)
 
   const route$ = _redirectResponses(sources)
 

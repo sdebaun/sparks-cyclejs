@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+const {combineLatest} = Observable
 
 import AppFrame from 'components/AppFrame'
 import {ResponsiveTitle} from 'components/Title'
@@ -53,11 +54,18 @@ export default sources => {
     {...sources, project$, projectKey$, opp$, teams$, opps$}
   )
 
+  const subtitleDOM$ = combineLatest(
+    sources.isMobile$,
+    page$.flatMapLatest(page => page.pageTitle),
+    (isMobile, pageTitle) => isMobile ? pageTitle : null,
+  )
+
   const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
     topDOM$: quickNav.DOM,
     titleDOM$: opp$.pluck('name'),
-    subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
+    subtitleDOM$,
+    // subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
     backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 
