@@ -23,8 +23,10 @@ const Form = sources => {
     Controls.map(({field,Control}) => ({
       field,
       control: isolate(Control,field)({
+        value$: sources.value$ && sources.value$
+          .merge(pluckStartValue(sources.item$, field)) ||
+          pluckStartValue(sources.item$, field),
         ...sources,
-        value$: pluckStartValue(sources.item$, field),
       }),
     }))
   ).shareReplay(1) // keeps it from being pwnd every time
