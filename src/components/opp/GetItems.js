@@ -7,8 +7,9 @@ import {InputControl} from 'components/sdm'
 
 // SCHWAG
 
-const SchwagWhatInput = sources => InputControl({...sources,
+const SchwagWhatInput = sources => InputControl({
   label$: just('What will they get?'),
+  ...sources,
 })
 
 const GetSchwagForm = sources => Form({...sources,
@@ -24,19 +25,22 @@ export const GetSchwag = makeMenuItemFormPopup({
 
 // TRACKED
 
-const TrackedCountInput = sources => InputControl({...sources,
+const TrackedCountInput = sources => InputControl({
   label$: just('How many are they getting?'),
+  ...sources,
 })
 
-const TrackedDescriptionInput = sources => InputControl({...sources,
+const TrackedDescriptionInput = sources => InputControl({
   label$: just('What are they getting?'),
+  ...sources,
 })
 
-const GetTrackedForm = sources => Form({...sources,
+const GetTrackedForm = sources => Form({
   Controls$: just([
     {field: 'count', Control: TrackedCountInput},
     {field: 'description', Control: TrackedDescriptionInput},
   ]),
+  ...sources,
 })
 
 export const GetTracked = makeMenuItemFormPopup({
@@ -48,19 +52,22 @@ export const GetTracked = makeMenuItemFormPopup({
 
 // TICKET
 
-const EventCodeInput = sources => InputControl({...sources,
+const EventCodeInput = sources => InputControl({
   label$: just('What is your Eventbrite Event Code?'),
+  ...sources,
 })
 
-const TicketTypeInput = sources => InputControl({...sources,
+const TicketTypeInput = sources => InputControl({
   label$: just('What is your Eventbrite Ticket Type?'),
+  ...sources,
 })
 
-const GetTicketForm = sources => Form({...sources,
+const GetTicketForm = sources => Form({
   Controls$: just([
     {field: 'eventCode', Control: EventCodeInput},
     {field: 'ticketType', Control: TicketTypeInput},
   ]),
+  ...sources,
 })
 
 export const GetTicket = makeMenuItemFormPopup({
@@ -72,12 +79,14 @@ export const GetTicket = makeMenuItemFormPopup({
 
 // HELP
 
-const HelpWhoInput = sources => InputControl({...sources,
+const HelpWhoInput = sources => InputControl({
   label$: just('Who are they helping?'),
+  ...sources,
 })
 
-const GetHelpForm = sources => Form({...sources,
+const GetHelpForm = sources => Form({
   Controls$: just([{field: 'who', Control: HelpWhoInput}]),
+  ...sources,
 })
 
 export const GetHelp = makeMenuItemFormPopup({

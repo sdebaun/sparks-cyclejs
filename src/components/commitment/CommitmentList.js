@@ -1,4 +1,4 @@
-import {Observable, BehaviorSubject} from 'rx'
+import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 // import combineLatestObj from 'rx-combine-latest-obj'
 
@@ -10,8 +10,6 @@ import {List, ListItemWithMenu, MenuItem} from 'components/sdm'
 
 import codeIcons from 'components/opp/codeIcons'
 import codeTitles from 'components/opp/codeTitles'
-import codePopups from 'components/opp/codePopups'
-
 import {div} from 'cycle-snabbdom'
 
 const Delete = sources => MenuItem({...sources,
@@ -26,7 +24,7 @@ const Edit = sources => isolate(MenuItem, 'edit')({
 })
 
 const CommitmentItem = sources => {
-  const item$ = sources.item$.shareReplay(1)
+  const item$ = sources.item$
 
   const deleteItem = isolate(Delete,'delete')(sources)
   const editItem = Edit(sources)
@@ -38,42 +36,22 @@ const CommitmentItem = sources => {
   })
 
   const edit$ = editItem.click$
-    .flatMapLatest(() => item$)
-    .map(({code}) => {
-      const isOpen$ = new BehaviorSubject(true)
-      const sinks = codePopups[code]({...sources, isOpen$})
-      sinks.submit$
-        .map(false)
-        .subscribe(isOpen$.asObserver())
-
-      return {
-        ...sinks,
-        queue$: item$.map(({$key: key, ...item}) => ({...item, code, key})),
-      }
-    })
-
-  const editDOM$ = edit$.pluck('modalDOM')
-
-  const editQueue$ = edit$
-    .flatMapLatest(e => e.queue$)
-    .map(Commitments.action.update)
-
-  editQueue$.subscribe(x => console.log('editQueue', x))
+    .flatMapLatest(item$)
 
   const queue$ = deleteItem.click$
     .flatMapLatest(item$)
     .pluck('$key')
     .map(Commitments.action.remove)
-    .merge(editQueue$)
 
   const DOM = combineLatest(
-    listItem.DOM, editDOM$.startWith(null),
+    listItem.DOM,
     (...doms) => div({}, doms)
   )
 
   return {
     DOM,
     queue$,
+    edit$,
   }
 }
 

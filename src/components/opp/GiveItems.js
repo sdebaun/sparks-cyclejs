@@ -8,8 +8,8 @@ import {Form, makeMenuItemFormPopup} from 'components/ui'
 /* Waiver */
 
 const LegalNameInput = sources => InputControl({
-  ...sources,
   label$: just('What is the Legal Name of your Organization?'),
+  ...sources,
 })
 
 const GiveWaiverForm = sources => Form({...sources,
@@ -32,9 +32,9 @@ export {GiveWaiver}
 /* shifts */
 
 const ShiftCountInput = sources => InputControl({
-  ...sources,
   label$: just('How many shifts?'),
   value$: just(1),
+  ...sources,
 })
 
 const GiveShiftForm = sources => Form({...sources,
@@ -56,8 +56,8 @@ export {GiveShifts}
 
 /* give payment */
 const PaymentAmountInput = sources => InputControl({
-  ...sources,
   label$: just('How much do they pay?'),
+  ...sources,
 })
 
 const GivePaymentForm = sources => Form({...sources,
@@ -78,8 +78,8 @@ export {GivePayment}
 
 /* Deposit */
 const DepositAmountInput = sources => InputControl({
-  ...sources,
   label$: just('How much is their Deposit?'),
+  ...sources,
 })
 
 const GiveDepositForm = sources => Form({...sources,

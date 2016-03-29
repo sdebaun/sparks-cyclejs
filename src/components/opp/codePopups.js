@@ -12,13 +12,18 @@ import {
   GetSchwag,
 } from './GetItems'
 
+const augmentItem$ = (code, component) => sources => {
+  const sinks = component(sources)
+  return {...sinks, item$: sinks.item$.map(i => ({...i, code}))}
+}
+
 export default {
-  waiver: GiveWaiver,
-  shifts: GiveShifts,
-  payment: GivePayment,
-  deposit: GiveDeposit,
-  help: GetHelp,
-  ticket: GetTicket,
-  tracked: GetTracked,
-  schwag: GetSchwag,
+  waiver: augmentItem$('waiver', GiveWaiver),
+  shifts: augmentItem$('shifts', GiveShifts),
+  payment: augmentItem$('payment', GivePayment),
+  deposit: augmentItem$('deposit', GiveDeposit),
+  help: augmentItem$('help', GetHelp),
+  ticket: augmentItem$('ticket', GetTicket),
+  tracked: augmentItem$('tracked', GetTracked),
+  schwag: augmentItem$('schwag', GetSchwag),
 }
