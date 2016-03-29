@@ -27,8 +27,8 @@ export const log = label => emitted => console.log(label,':',emitted)
 
 export const isObservable = obs => typeof obs.subscribe === 'function'
 
-function pluckFlat(key) {
-  return this.flatMapLatest(obj => obj[key] || Observable.never())
+function pluckFlat(component, key) {
+  return component.flatMapLatest(obj => obj[key] || Observable.never())
 }
 
 export function nestedComponent(match$, sources) {
@@ -37,7 +37,7 @@ export function nestedComponent(match$, sources) {
     return value({...sources, router: sources.router.path(path)})
   }).shareReplay(1)
 
-  component.pluckFlat = pluckFlat.bind(component)
+  component.pluckFlat = (key) => pluckFlat(component, key)
 
   return component
 }
