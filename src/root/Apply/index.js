@@ -75,7 +75,10 @@ export default sources => {
     ...sources,
   })
 
+  const soon = ComingSoon('UNDER DEVELOPMENT')(sources)
+
   const pageDOM = combineLatest(
+    soon.DOM,
     applyQuickNavMenu.DOM,
     page$.flatMapLatest(({DOM}) => DOM),
     project$.pluck('description'),
