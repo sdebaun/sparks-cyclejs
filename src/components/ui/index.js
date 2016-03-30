@@ -6,3 +6,5 @@ export {
 } from './MenuItemPopup'
 
 export {Form} from './Form'
+
+export {LoginButtons} from './LoginButtons'
