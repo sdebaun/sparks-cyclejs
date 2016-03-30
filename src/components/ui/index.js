@@ -8,3 +8,5 @@ export {
 export {Form} from './Form'
 
 export {LoginButtons} from './LoginButtons'
+
+export {DescriptionListItem} from './DescriptionListItem'

@@ -1,11 +1,6 @@
 import {Observable} from 'rx'
 import {div} from 'helpers'
-import {mergeOrFlatMapLatest, controlsFromRows} from 'util'
-
-const requireSources = (cname, sources, ...sourceNames) =>
-  sourceNames.forEach(n => {
-    if (!sources[n]) { throw new Error(cname + ' must specify ' + n)}
-  })
+import {requireSources, mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
 const List = sources => {
   requireSources('List', sources, 'rows$', 'Control$')

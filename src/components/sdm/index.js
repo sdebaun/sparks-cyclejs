@@ -33,4 +33,5 @@ export {
   ListItemWithDialog,
   ListItemCollapsible,
   ListItemCollapsibleTextArea,
+  ListItemHeader,
 } from './ListItem'

@@ -196,6 +196,9 @@ const ListItemCollapsibleTextArea = sources => {
   }
 }
 
+const ListItemHeader = sources =>
+  ListItem({...sources, classes$: just({header: true})})
+
 export {
   ListItem,
   ListItemClickable,
@@ -205,4 +208,5 @@ export {
   ListItemWithDialog,
   ListItemCollapsible,
   ListItemCollapsibleTextArea,
+  ListItemHeader,
 }
