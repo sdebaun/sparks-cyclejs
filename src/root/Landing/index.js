@@ -1,9 +1,9 @@
-import combineLatestObj from 'rx-combine-latest-obj'
+import {Observable} from 'rx'
+const {merge, combineLatest} = Observable
 
 import AppMenu from 'components/AppMenu'
 import {landing} from 'helpers'
 
-// import {RaisedButton} from 'components/cyclic-surface-material'
 import {LoginButtons} from 'components/ui'
 
 // import {log} from 'util'
@@ -15,19 +15,15 @@ export default (sources) => {
 
   const logins = LoginButtons(sources)
 
-  const viewState = {
-    appMenuDOM$: appMenu.DOM,
-    googleLoginDOM$: logins.DOM,
-  }
-
-  const DOM = combineLatestObj(viewState)
-    .map(({appMenuDOM, googleLoginDOM}) =>
-      landing(appMenuDOM, googleLoginDOM)
-    )
+  const DOM = combineLatest(
+    appMenu.DOM,
+    logins.DOM,
+    landing
+  )
 
   return {
     DOM,
-    auth$: logins.auth$,
+    auth$: merge(logins.auth$, appMenu.auth$),
     route$: sources.redirectLogin$,
   }
 }
