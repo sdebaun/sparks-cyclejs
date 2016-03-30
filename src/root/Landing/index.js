@@ -14,6 +14,22 @@ import {log} from 'util'
 
 import './styles.scss'
 
+// const LoginButtons = sources => {
+//   const goog = RaisedButton({label$: just('Login with Google'), ...sources})
+//   const fb = RaisedButton({label$: just('Login with Facebook'), ...sources})
+
+//   const auth$ = merge(
+//     goog.click$.map(PROVIDERS.google),
+//     fb.click$.map(PROVIDERS.facebook),
+//   )
+
+//   return {
+//     DOM: combineLatest(goog.DOM, (...doms) => div({},doms)),
+//     auth$,
+//     route$,
+//   }
+// }
+
 export default (sources) => {
   const appMenu = AppMenu(sources)
 
