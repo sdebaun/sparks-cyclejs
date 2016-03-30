@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {combineLatest} = Observable
+const {just, combineLatest} = Observable
 
 // import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
@@ -19,6 +19,10 @@ const Glance = ComingSoon('Apply/Glance')
 import Opp from './Opp'
 
 import {
+  ListItem,
+} from 'components/sdm'
+
+import {
   Opps,
   ProjectImages,
   Projects,
@@ -31,18 +35,9 @@ const _routes = {
     isolate(Opp)({oppKey$: Observable.just(key), ...sources}),
 }
 
-// const _render = ({
-//   // titleDOM,
-//   applyQuickNavMenuDOM,
-//   pageDOM,
-//   projectDescription,
-// }) =>
-//   col(
-//     // titleDOM,
-//     textTweetSized(projectDescription),
-//     applyQuickNavMenuDOM,
-//     pageDOM,
-//   )
+const DescriptionListItem = sources => ListItem({...sources,
+  classes$: just('description'), // no styling yet but here's where
+})
 
 export default sources => {
   const projectKey$ = sources.projectKey$
@@ -55,6 +50,7 @@ export default sources => {
 
   const opps$ = projectKey$
     .flatMapLatest(Opps.query.byProject(sources))
+    .map(opps => opps.filter(({isPublic}) => isPublic))
 
   const oppRows$ = opps$.map(rows)
 
@@ -68,6 +64,10 @@ export default sources => {
     ...sources,
   })
 
+  const desc = DescriptionListItem({...sources,
+    title$: project$.pluck('description'),
+  })
+
   const applyQuickNavMenu = ApplyQuickNavMenu({opps$, project$, ...sources})
 
   const page$ = nestedComponent(sources.router.define(_routes), {
@@ -75,10 +75,8 @@ export default sources => {
     ...sources,
   })
 
-  const soon = ComingSoon('UNDER DEVELOPMENT')(sources)
-
   const pageDOM = combineLatest(
-    soon.DOM,
+    desc.DOM,
     applyQuickNavMenu.DOM,
     page$.flatMapLatest(({DOM}) => DOM),
     project$.pluck('description'),
