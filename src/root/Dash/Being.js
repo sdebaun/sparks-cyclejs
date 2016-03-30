@@ -1,7 +1,9 @@
-import {h} from 'cycle-snabbdom'
-import {Observable} from 'rx'
-const {of} = Observable
+import {LargeProfileAvatar} from 'components/profile'
 
-export default () => ({
-  DOM: of(h('h4', {}, 'About you')),
-})
+export default sources => {
+  const portraitUrl$ = sources.userProfile$.map(up => up && up.portraitUrl)
+
+  return {
+    DOM: LargeProfileAvatar({...sources, src$: portraitUrl$}).DOM,
+  }
+}
