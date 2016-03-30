@@ -4,15 +4,23 @@ const {just, combineLatest} = Observable
 import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
+import {log} from 'util'
 
-import {Projects, Engagements} from 'components/remote'
+import {
+  Projects,
+  ProjectImages,
+  Engagements,
+  Organizers,
+} from 'components/remote'
 
 import {ProjectItem, ProjectForm} from 'components/project'
 import {EngagementItem} from 'components/engagement'
 
 import {
   List,
+  ListWithHeader,
   ListItem,
+  ListItemNavigating,
   ListItemCollapsible,
   RaisedButton,
   FlatButton,
@@ -69,9 +77,34 @@ const EngagedList = sources => {
 
   return {
     DOM,
-    // DOM: just(div({},[])),
     route$: list.route$,
   }
+}
+
+const OrganizingItem = sources => {
+  const projectKey$ = sources.item$.pluck('projectKey')
+
+  const project$ = projectKey$
+    .flatMapLatest(Projects.query.one(sources))
+    // bc ProjectItem expects its item$ to have a $key
+    .combineLatest(projectKey$, (p,$key) => ({...p, $key}))
+
+  return ProjectItem({...sources,
+    subtitle$: sources.item$.pluck('authority'),
+    item$: project$,
+    path$: projectKey$.map(k => '/project/' + k),
+  })
+}
+
+const OrganizingList = sources => {
+  const hdr = ListItem({...sources,
+    title$: just('Projects you\'re Organizing'),
+    classes$: just({header: true}),
+  })
+  return ListWithHeader({...sources,
+    headerDOM: hdr.DOM,
+    Control$: just(OrganizingItem),
+  })
 }
 
 const CreateProjectListItem = sources => {
@@ -139,6 +172,9 @@ export default sources => {
   const engagements$ = sources.userProfileKey$
     .flatMapLatest(Engagements.query.byUser(sources))
 
+  const organizers$ = sources.userProfileKey$
+    .flatMapLatest(Organizers.query.byUser(sources))
+
   const welcome = Welcome({...sources,
     isVisible$: combineLatest(
       projects$, engagements$, (p,e) => p.length === 0 && e.length === 0
@@ -154,18 +190,24 @@ export default sources => {
     rows$: engagements$,
   })
 
+  const organizing = isolate(OrganizingList,'orgz')({...sources,
+    rows$: organizers$,
+  })
+
   const queue$ = create.project$
     .map(Projects.action.create)
 
   const route$ = Observable.merge(
     managed.route$,
     engaged.route$,
+    organizing.route$,
     Projects.redirect.create(sources).route$,
   )
 
   const DOM = combineLatest(
     welcome.DOM,
     managed.DOM,
+    organizing.DOM,
     engaged.DOM,
     create.DOM,
     (...doms) => div({},doms)
