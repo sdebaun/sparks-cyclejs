@@ -137,6 +137,7 @@ export const Organizers = {
   query: {
     one: filterOne('Organizers'),
     byProject: filterBy('Organizers','projectKey'),
+    byUser: filterBy('Organizers','profileKey'),
   },
   action: {
     create: actionCreator('Organizers', 'create'),
