@@ -7,9 +7,6 @@ import {div} from 'cycle-snabbdom'
 
 // import {log} from 'util'
 
-import {CreateTeamHeader} from 'components/team'
-import {CreateOppHeader} from 'components/opp'
-
 import {ListItemNavigating} from 'components/sdm'
 
 const OppNav = sources => {
@@ -25,14 +22,6 @@ const OppNav = sources => {
   })
 
   const listDOM$ = combineLatest(glance.DOM, manage.DOM, (...doms) => doms)
-
-  // const teamListHeader = CreateTeamHeader(sources)
-  // const oppListHeader = CreateOppHeader(sources)
-
-  // const queue$ = Observable.merge(
-  //   teamListHeader.queue$,
-  //   oppListHeader.queue$,
-  // )
 
   const route$ = merge(glance.route$, manage.route$)
     .map(sources.router.createHref)
@@ -51,7 +40,6 @@ const OppNav = sources => {
   return {
     DOM,
     route$,
-    // queue$,
   }
 }
 

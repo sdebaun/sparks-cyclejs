@@ -19,7 +19,7 @@ import {
   QuotingListItem,
 } from 'components/ui'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const Instruct = sources => ListItem({...sources,
   title$: just('The organizer would like to ask you a question:'),

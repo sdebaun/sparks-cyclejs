@@ -53,10 +53,14 @@ export const AddCommitmentGive = sources => {
   )
 
   const commitment$ = merge(
-    giveWaiver.item$.sample(giveWaiver.submit$).map(c => ({...c, code: 'waiver'})),
-    giveDeposit.item$.sample(giveDeposit.submit$).map(c => ({...c, code: 'deposit'})),
-    givePayment.item$.sample(givePayment.submit$).map(c => ({...c, code: 'payment'})),
-    giveShifts.item$.sample(giveShifts.submit$).map(c => ({...c, code: 'shifts'})),
+    giveWaiver.item$.sample(giveWaiver.submit$)
+      .map(c => ({...c, code: 'waiver'})),
+    giveDeposit.item$.sample(giveDeposit.submit$)
+      .map(c => ({...c, code: 'deposit'})),
+    givePayment.item$.sample(givePayment.submit$)
+      .map(c => ({...c, code: 'payment'})),
+    giveShifts.item$.sample(giveShifts.submit$)
+      .map(c => ({...c, code: 'shifts'})),
   ).map(c => ({...c, party: 'vol'}))
 
   return {

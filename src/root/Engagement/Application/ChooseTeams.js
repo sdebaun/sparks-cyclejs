@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
@@ -11,8 +11,6 @@ import {
   ListItemClickable,
   ListItemHeader,
   CheckboxControl,
-  TextAreaControl,
-  OkAndCancel,
 } from 'components/sdm'
 
 import {
@@ -24,24 +22,6 @@ import {
 import {TeamIcon} from 'components/team'
 
 import {log} from 'util'
-
-// const WhatItem = sources => ListItemNavigating({...sources,
-//   title$: just('What\'s this Team all about?'),
-//   iconName$: just('users'),
-//   path$: just('/manage'),
-// })
-
-// const InviteItem = sources => ListItemNavigating({...sources,
-//   title$: just('Invite some people to Lead this Team'),
-//   iconName$: just('person_add'),
-//   path$: just('/manage/leads'),
-// })
-
-// const HowItem = sources => ListItemNavigating({...sources,
-//   title$: just('How are volunteers joining this Team?'),
-//   iconName$: just('event_note'),
-//   path$: just('/manage/applying'),
-// })
 
 const Instruct = sources => ListItem({...sources,
   title$: just('Choose one or more Teams that you want to join.'),
@@ -72,15 +52,10 @@ const FulfillerMemberListItem = sources => {
     rightDOM$: cb.DOM,
   })
 
-  // li.click$.subscribe(log('click$'))
-  // fulfiller$.subscribe(log('fulfiller$'))
-
   const queue$ = membership$
     .sample(li.click$)
     .combineLatest(
       teamKey$,
-      // sources.teamKey$,
-      // sources.userProfileKey$,
       sources.oppKey$,
       sources.engagementKey$,
       (membership, teamKey, oppKey, engagementKey) =>
@@ -127,29 +102,18 @@ export default sources => {
   const fulfillers$ = oppKey$
     .flatMapLatest(Fulfillers.query.byOpp(sources))
 
+  const ictrl = Instruct(sources)
+
   const list = TeamsMembersList({...sources,
     oppKey$,
     rows$: fulfillers$,
     memberships$,
   })
 
-  const ictrl = Instruct(sources)
-  // const qctrl = Question({...sources,
-  //   title$: sources.opp$.map(({question}) => question || 'No Question'),
-  // })
-  // const answer = ListItemTextArea({...sources,
-  //   value$: sources.engagement$.map(e => e ? e.answer : ''),
-  // })
-
   const items = [
     ictrl,
     list,
-    // qctrl,
-    // answer,
   ]
-
-  // const route$ = merge(...items.map(i => i.route$))
-  //   .map(sources.router.createHref)
 
   const DOM = combineLatest(
     ...items.map(i => i.DOM),

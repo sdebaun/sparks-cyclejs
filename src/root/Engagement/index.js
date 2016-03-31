@@ -1,9 +1,6 @@
 import {Observable} from 'rx'
 const {combineLatest} = Observable
-// import combineLatestObj from 'rx-combine-latest-obj'
 // import isolate from '@cycle/isolate'
-
-import {div} from 'cycle-snabbdom'
 
 import AppFrame from 'components/AppFrame'
 import {ResponsiveTitle} from 'components/Title'
@@ -30,7 +27,6 @@ export default sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(key => sources.firebase('Engagements',key))
 
-  // const oppKey$ = engagement$.pluck('oppKey')
   const opp$ = engagement$.pluck('opp')
 
   const projectKey$ = opp$.pluck('projectKey')
@@ -50,17 +46,6 @@ export default sources => {
   //   {...sources, engagement$, project$, projectKey$, opp$}
   // )
 
-  const labelText$ = opp$.pluck('name')
-  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
-
-  // const title = Title({...sources,
-  //   quickNavDOM$: project$.pluck('name').map(name => div({},[name])),
-  //   tabsDOM$: tabsDOM,
-  //   labelText$,
-  //   subLabelText$,
-  //   backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-  // })
-
   const subtitleDOM$ = combineLatest(
     sources.isMobile$,
     page$.flatMapLatest(page => page.pageTitle),
@@ -70,10 +55,8 @@ export default sources => {
   const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
     topDOM$: project$.pluck('name'),
-    // leftDOM$: teamImage$.map(i => i && i.dataUrl && iconSrc(i.dataUrl)),
     titleDOM$: opp$.pluck('name'),
     subtitleDOM$,
-    // subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
     backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 

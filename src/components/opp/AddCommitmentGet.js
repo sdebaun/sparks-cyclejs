@@ -60,10 +60,14 @@ export const AddCommitmentGet = sources => {
   )
 
   const commitment$ = merge(
-    getHelp.item$.sample(getHelp.submit$).map(c => ({...c, code: 'help'})),
-    getTicket.item$.sample(getTicket.submit$).map(c => ({...c, code: 'ticket'})),
-    getTracked.item$.sample(getTracked.submit$).map(c => ({...c, code: 'tracked'})),
-    getSchwag.item$.sample(getSchwag.submit$).map(c => ({...c, code: 'schwag'})),
+    getHelp.item$.sample(getHelp.submit$)
+      .map(c => ({...c, code: 'help'})),
+    getTicket.item$.sample(getTicket.submit$)
+      .map(c => ({...c, code: 'ticket'})),
+    getTracked.item$.sample(getTracked.submit$)
+      .map(c => ({...c, code: 'tracked'})),
+    getSchwag.item$.sample(getSchwag.submit$)
+      .map(c => ({...c, code: 'schwag'})),
   ).map(c => ({...c, party: 'org'}))
 
   return {
