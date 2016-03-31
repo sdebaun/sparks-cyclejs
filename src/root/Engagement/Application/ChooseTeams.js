@@ -6,10 +6,21 @@ import isolate from '@cycle/isolate'
 import {div} from 'helpers'
 
 import {
+  List,
   ListItem,
+  ListItemClickable,
+  ListItemHeader,
+  CheckboxControl,
   TextAreaControl,
   OkAndCancel,
 } from 'components/sdm'
+
+import {
+  Memberships,
+  Fulfillers,
+} from 'components/remote'
+
+import {TeamIcon} from 'components/team'
 
 // const WhatItem = sources => ListItemNavigating({...sources,
 //   title$: just('What\'s this Team all about?'),
@@ -29,27 +40,88 @@ import {
 //   path$: just('/manage/applying'),
 // })
 
-const ListItemTextArea = sources => {
-  const ta = TextAreaControl(sources)
-  const oac = OkAndCancel(sources)
-  const li = ListItem({...sources,
-    title$: combineLatest(ta.DOM, oac.DOM, (...doms) => div({},doms)),
+const Instruct = sources => ListItem({...sources,
+  title$: just('Choose one or more Teams that you want to join.'),
+})
+
+const TeamMemberLookup = sources => ({
+  found$: sources.memberships$.combineLatest(
+    sources.teamKey$,
+    (memberships, key) =>
+      memberships.find(({$key, teamKey}) => key === teamKey ? $key : false)
+  ),
+})
+
+const FulfillerMemberListItem = sources => {
+  const teamKey$ = sources.item$.pluck('teamKey')
+  const membership$ = TeamMemberLookup({...sources, teamKey$}).found$
+  const cb = CheckboxControl({...sources, value$: membership$})
+
+  const li = ListItemClickable({...sources,
+    leftDOM$: TeamIcon({...sources, teamKey$}).DOM,
+    title$: sources.item$.pluck('name'),
+    rightDOM$: cb.DOM,
   })
+
+  // li.click$.subscribe(log('click$'))
+  // fulfiller$.subscribe(log('fulfiller$'))
+
+  const queue$ = membership$
+    .sample(li.click$)
+    .combineLatest(
+      teamKey$,
+      // sources.teamKey$,
+      sources.userProfileKey$,
+      sources.engagementKey$,
+      (membership, teamKey, oppKey, engagementKey) =>
+        membership && membership.$key ?
+        Memberships.delete(membership.$key) :
+        Memberships.create({teamKey, oppKey, engagementKey}),
+    )
 
   return {
     DOM: li.DOM,
-    value$: ta.value$.sample(oac.ok$),
+    queue$,
   }
 }
 
-const Instruct = sources => ListItem({...sources,
-  title$: just('Choose one or more Teams you want to join'),
-})
+const TeamsMembersList = sources => {
+  const header = ListItemHeader({...sources,
+    title$: just('Available Teams'),
+    rightDOM$: just('x'),
+  })
 
-// add formatting etc, ultimate QuoteItem that uses profile
-const Question = sources => ListItem({...sources})
+  const list = List({...sources,
+    Control$: just(FulfillerMemberListItem),
+  })
+
+  const DOM = sources.rows$.combineLatest(
+    header.DOM,
+    list.DOM,
+    (rows, ...restDOM) =>
+      div({}, rows.length > 0 ? restDOM : []),
+  )
+
+  return {
+    DOM,
+    queue$: list.queue$,
+  }
+}
 
 export default sources => {
+  const oppKey$ = sources.engagement$.pluck('oppKey')
+
+  const memberships$ = oppKey$
+    .flatMapLatest(Memberships.query.byOpp(sources))
+
+  const fulfillers$ = oppKey$
+    .flatMapLatest(Fulfillers.query.byOpp(sources))
+
+  const list = TeamsMembersList({...sources,
+    rows$: fulfillers$,
+    memberships$,
+  })
+
   const ictrl = Instruct(sources)
   // const qctrl = Question({...sources,
   //   title$: sources.opp$.map(({question}) => question || 'No Question'),
@@ -60,6 +132,7 @@ export default sources => {
 
   const items = [
     ictrl,
+    list,
     // qctrl,
     // answer,
   ]
@@ -74,7 +147,7 @@ export default sources => {
 
   return {
     DOM,
-    // queue$,
+    queue$: list.queue$,
     // route$,
   }
 }
