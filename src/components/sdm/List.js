@@ -1,7 +1,9 @@
 import {div} from 'helpers'
-import {mergeOrFlatMapLatest, controlsFromRows} from 'util'
+import {requireSources, mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
 const List = sources => {
+  requireSources('List', sources, 'rows$', 'Control$')
+
   const controls$ = sources.rows$
     .flatMapLatest(rows =>
       sources.Control$.map(Control =>
@@ -22,14 +24,21 @@ const List = sources => {
     mergeOrFlatMapLatest('queue$', ...children)
   )
 
+  const edit$ = controls$.flatMapLatest(children =>
+    mergeOrFlatMapLatest('edit$', ...children)
+  )
+
   return {
     DOM,
     queue$,
     route$,
+    edit$,
   }
 }
 
 const ListWithHeader = sources => {
+  requireSources('ListWithHeader', sources, 'rows$', 'headerDOM')
+
   const list = List(sources)
 
   const DOM = sources.rows$.combineLatest(
@@ -42,6 +51,7 @@ const ListWithHeader = sources => {
   return {
     DOM,
     route$: list.route$,
+    queue$: list.queue$,
   }
 }
 

@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "eslint": "eslint js/",
-    "serve": "webpack-dev-server",
+    "serve": "webpack-dev-server --hot --inline",
     "start": "npm install && npm run serve",
     "build": "webpack",
     "test": "echo \"No tests, bad developer.\""

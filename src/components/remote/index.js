@@ -55,6 +55,16 @@ const actionCreator = (domain, action) => payload => ({
   payload,
 })
 
+export const Profiles = {
+  query: {
+    one: filterOne('Profiles'),
+  },
+  action: {
+    create: actionCreator('Profiles', 'create'),
+    update: actionCreator('Profiles', 'update'),
+  },
+}
+
 export const Projects = {
   query: {
     one: filterOne('Projects'),
@@ -94,6 +104,11 @@ export const Engagements = {
     all: filterAll('Engagements'),
     byUser: filterBy('Engagements','profileKey'),
   },
+  action: {
+    create: actionCreator('Engagements', 'create'),
+    update: actionCreator('Engagements', 'update'),
+    remove: actionCreator('Engagements', 'remove'),
+  },
 }
 
 export const Commitments = {
@@ -102,6 +117,7 @@ export const Commitments = {
   },
   action: {
     create: actionCreator('Commitments', 'create'),
+    update: actionCreator('Commitments', 'update'),
     remove: actionCreator('Commitments', 'remove'),
   },
 }
@@ -133,6 +149,7 @@ export const Organizers = {
   query: {
     one: filterOne('Organizers'),
     byProject: filterBy('Organizers','projectKey'),
+    byUser: filterBy('Organizers','profileKey'),
   },
   action: {
     create: actionCreator('Organizers', 'create'),
@@ -148,5 +165,18 @@ export const Fulfillers = {
   action: {
     create: actionCreator('Fulfillers', 'create'),
     remove: actionCreator('Fulfillers', 'delete'), // CHANGE
+  },
+}
+
+export const Memberships = {
+  query: {
+    byTeam: filterBy('Memberships','teamKey'),
+    byOpp: filterBy('Memberships','profileKey'),
+    byEngagement: filterBy('Memberships','engagementKey'),
+  },
+  action: {
+    create: actionCreator('Memberships', 'create'),
+    remove: actionCreator('Memberships', 'remove'), // CHANGE
+    update: actionCreator('Memberships', 'update'), // CHANGE
   },
 }

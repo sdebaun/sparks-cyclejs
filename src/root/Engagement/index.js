@@ -1,11 +1,9 @@
 import {Observable} from 'rx'
-// import combineLatestObj from 'rx-combine-latest-obj'
+const {combineLatest} = Observable
 // import isolate from '@cycle/isolate'
 
-import {div} from 'cycle-snabbdom'
-
 import AppFrame from 'components/AppFrame'
-import Title from 'components/Title'
+import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
 import {EngagementNav} from 'components/engagement'
 
@@ -29,7 +27,6 @@ export default sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(key => sources.firebase('Engagements',key))
 
-  // const oppKey$ = engagement$.pluck('oppKey')
   const opp$ = engagement$.pluck('opp')
 
   const projectKey$ = opp$.pluck('projectKey')
@@ -49,15 +46,18 @@ export default sources => {
   //   {...sources, engagement$, project$, projectKey$, opp$}
   // )
 
-  const labelText$ = opp$.pluck('name')
-  const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
+  const subtitleDOM$ = combineLatest(
+    sources.isMobile$,
+    page$.flatMapLatest(page => page.pageTitle),
+    (isMobile, pageTitle) => isMobile ? pageTitle : null,
+  )
 
-  const title = Title({...sources,
-    quickNavDOM$: project$.pluck('name').map(name => div({},[name])),
+  const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    labelText$,
-    subLabelText$,
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
+    topDOM$: project$.pluck('name'),
+    titleDOM$: opp$.pluck('name'),
+    subtitleDOM$,
+    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 
   const nav = EngagementNav({...sources,

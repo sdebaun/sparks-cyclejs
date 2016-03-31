@@ -1,7 +1,7 @@
 require('./styles.scss')
 
 import {Observable} from 'rx'
-const {just, empty, merge, combineLatest} = Observable
+const {just, empty, combineLatest} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 // import isolate from '@cycle/isolate'
 
@@ -187,7 +187,22 @@ const ListItemCollapsibleTextArea = sources => {
   const oac = OkAndCancel(sources)
   const li = ListItemCollapsible({...sources,
     contentDOM$: combineLatest(ta.DOM, oac.DOM, (...doms) => div({},doms)),
-    isOpen$: merge(oac.ok$, oac.cancel$).map(false),
+    isOpen$: (sources.isOpen$ || empty())
+      .merge(oac.ok$.map(false), oac.cancel$.map(false)),
+  })
+
+  return {
+    DOM: li.DOM,
+    value$: ta.value$.sample(oac.ok$),
+    ok$: oac.ok$,
+  }
+}
+
+const ListItemTextArea = sources => {
+  const ta = TextAreaControl(sources)
+  const oac = OkAndCancel(sources)
+  const li = ListItem({...sources,
+    title$: combineLatest(ta.DOM, oac.DOM, (...doms) => div({},doms)),
   })
 
   return {
@@ -195,6 +210,9 @@ const ListItemCollapsibleTextArea = sources => {
     value$: ta.value$.sample(oac.ok$),
   }
 }
+
+const ListItemHeader = sources =>
+  ListItem({...sources, classes$: just({header: true})})
 
 export {
   ListItem,
@@ -205,4 +223,6 @@ export {
   ListItemWithDialog,
   ListItemCollapsible,
   ListItemCollapsibleTextArea,
+  ListItemTextArea,
+  ListItemHeader,
 }
