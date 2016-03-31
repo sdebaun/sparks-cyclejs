@@ -28,7 +28,7 @@ import {
 
 const _redirectResponses = ({responses$}) => responses$
   .filter(({domain,event}) => domain === 'Engagements' && event === 'create')
-  .map(response => '/engaged/' + response.payload)
+  .map(response => '/engaged/' + response.payload + '/application/question')
 
 const CommitmentList = sources => ListWithHeader({...sources,
   headerDOM: ListItemHeader(sources).DOM,
