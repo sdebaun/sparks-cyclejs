@@ -18,6 +18,7 @@ import {
 import {
   Memberships,
   Fulfillers,
+  Teams,
 } from 'components/remote'
 
 import {TeamIcon} from 'components/team'
@@ -54,12 +55,16 @@ const TeamMemberLookup = sources => ({
 
 const FulfillerMemberListItem = sources => {
   const teamKey$ = sources.item$.pluck('teamKey')
+  const team$ = teamKey$
+    .flatMapLatest(Teams.query.one(sources))
+
   const membership$ = TeamMemberLookup({...sources, teamKey$}).found$
+
   const cb = CheckboxControl({...sources, value$: membership$})
 
   const li = ListItemClickable({...sources,
     leftDOM$: TeamIcon({...sources, teamKey$}).DOM,
-    title$: sources.item$.pluck('name'),
+    title$: team$.pluck('name'),
     rightDOM$: cb.DOM,
   })
 
@@ -75,8 +80,8 @@ const FulfillerMemberListItem = sources => {
       sources.engagementKey$,
       (membership, teamKey, oppKey, engagementKey) =>
         membership && membership.$key ?
-        Memberships.delete(membership.$key) :
-        Memberships.create({teamKey, oppKey, engagementKey}),
+        Memberships.action.remove(membership.$key) :
+        Memberships.action.create({teamKey, oppKey, engagementKey}),
     )
 
   return {
