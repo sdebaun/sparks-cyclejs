@@ -1,8 +1,10 @@
 import {Observable} from 'rx'
 import {div} from 'helpers'
-import {mergeOrFlatMapLatest, controlsFromRows} from 'util'
+import {requireSources, mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
 const List = sources => {
+  requireSources('List', sources, 'rows$', 'Control$')
+
   const controls$ = sources.rows$
     .flatMapLatest(rows =>
       sources.Control$.map(Control =>
@@ -36,6 +38,8 @@ const List = sources => {
 }
 
 const ListWithHeader = sources => {
+  requireSources('ListWithHeader', sources, 'rows$', 'headerDOM')
+
   const list = List(sources)
 
   const DOM = sources.rows$.combineLatest(

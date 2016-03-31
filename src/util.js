@@ -11,6 +11,11 @@ export const PROVIDERS = {
   logout: {type: 'logout'},
 }
 
+export const requireSources = (cname, sources, ...sourceNames) =>
+  sourceNames.forEach(n => {
+    if (!sources[n]) { throw new Error(cname + ' must specify ' + n)}
+  })
+
 export const combineLatestToDiv = domstreams =>
   combineLatest(...domstreams, (...doms) => div({},doms))
 

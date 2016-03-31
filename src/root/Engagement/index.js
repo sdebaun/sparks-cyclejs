@@ -1,11 +1,12 @@
 import {Observable} from 'rx'
+const {combineLatest} = Observable
 // import combineLatestObj from 'rx-combine-latest-obj'
 // import isolate from '@cycle/isolate'
 
 import {div} from 'cycle-snabbdom'
 
 import AppFrame from 'components/AppFrame'
-import Title from 'components/Title'
+import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
 import {EngagementNav} from 'components/engagement'
 
@@ -52,12 +53,28 @@ export default sources => {
   const labelText$ = opp$.pluck('name')
   const subLabelText$ = page$.flatMapLatest(page => page.pageTitle)
 
-  const title = Title({...sources,
-    quickNavDOM$: project$.pluck('name').map(name => div({},[name])),
+  // const title = Title({...sources,
+  //   quickNavDOM$: project$.pluck('name').map(name => div({},[name])),
+  //   tabsDOM$: tabsDOM,
+  //   labelText$,
+  //   subLabelText$,
+  //   backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
+  // })
+
+  const subtitleDOM$ = combineLatest(
+    sources.isMobile$,
+    page$.flatMapLatest(page => page.pageTitle),
+    (isMobile, pageTitle) => isMobile ? pageTitle : null,
+  )
+
+  const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    labelText$,
-    subLabelText$,
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
+    topDOM$: project$.pluck('name'),
+    // leftDOM$: teamImage$.map(i => i && i.dataUrl && iconSrc(i.dataUrl)),
+    titleDOM$: opp$.pluck('name'),
+    subtitleDOM$,
+    // subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
+    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 
   const nav = EngagementNav({...sources,

@@ -55,6 +55,16 @@ const actionCreator = (domain, action) => payload => ({
   payload,
 })
 
+export const Profiles = {
+  query: {
+    one: filterOne('Profiles'),
+  },
+  action: {
+    create: actionCreator('Profiles', 'create'),
+    update: actionCreator('Profiles', 'update'),
+  },
+}
+
 export const Projects = {
   query: {
     one: filterOne('Projects'),
@@ -96,6 +106,8 @@ export const Engagements = {
   },
   action: {
     create: actionCreator('Engagements', 'create'),
+    update: actionCreator('Engagements', 'update'),
+    remove: actionCreator('Engagements', 'remove'),
   },
 }
 

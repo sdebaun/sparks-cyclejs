@@ -1,1 +1,5 @@
-export {CommitmentItem, CommitmentList} from './CommitmentList'
+export {
+  CommitmentItem,
+  CommitmentList,
+  CommitmentItemPassive,
+} from './CommitmentList'

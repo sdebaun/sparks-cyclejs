@@ -6,7 +6,12 @@ import isolate from '@cycle/isolate'
 
 import {Commitments} from 'components/remote'
 
-import {List, ListItemWithMenu, MenuItem} from 'components/sdm'
+import {
+  List,
+  ListItem,
+  ListItemWithMenu,
+  MenuItem,
+} from 'components/sdm'
 
 import codeIcons from 'components/opp/codeIcons'
 import codeTitles from 'components/opp/codeTitles'
@@ -55,8 +60,17 @@ const CommitmentItem = sources => {
   }
 }
 
+const CommitmentItemPassive = sources => ListItem({...sources,
+  iconName$: sources.item$.map(({code}) => codeIcons[code]),
+  title$: sources.item$.map(({code, ...vals}) => codeTitles[code](vals)),
+})
+
 const CommitmentList = sources => List({...sources,
   Control$: just(CommitmentItem),
 })
 
-export {CommitmentItem, CommitmentList}
+export {
+  CommitmentItem,
+  CommitmentList,
+  CommitmentItemPassive,
+}
