@@ -2,7 +2,7 @@ import {h, ul} from 'cycle-snabbdom'
 import {Observable} from 'rx'
 const {combineLatest, of} = Observable
 import {div} from 'helpers'
-import {RaisedButton} from 'components/sdm'
+// import {RaisedButton} from 'components/sdm'
 import {LargeProfileAvatar} from 'components/profile'
 
 const ProfileInfo = sources => ({
