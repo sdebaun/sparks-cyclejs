@@ -96,6 +96,8 @@ export const Engagements = {
   },
   action: {
     create: actionCreator('Engagements', 'create'),
+    update: actionCreator('Engagements', 'update'),
+    remove: actionCreator('Engagements', 'remove'),
   },
 }
 

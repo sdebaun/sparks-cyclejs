@@ -3,46 +3,21 @@ const {just, merge, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 
-import {div} from 'helpers'
+import {div, icon} from 'helpers'
+
+import {
+  Engagements,
+} from 'components/remote'
 
 import {
   ListItem,
   ListItemNavigating,
-  TextAreaControl,
-  OkAndCancel,
+  ListItemCollapsibleTextArea,
+  // TextAreaControl,
+  // OkAndCancel,
 } from 'components/sdm'
 
-// const WhatItem = sources => ListItemNavigating({...sources,
-//   title$: just('What\'s this Team all about?'),
-//   iconName$: just('users'),
-//   path$: just('/manage'),
-// })
-
-// const InviteItem = sources => ListItemNavigating({...sources,
-//   title$: just('Invite some people to Lead this Team'),
-//   iconName$: just('person_add'),
-//   path$: just('/manage/leads'),
-// })
-
-// const HowItem = sources => ListItemNavigating({...sources,
-//   title$: just('How are volunteers joining this Team?'),
-//   iconName$: just('event_note'),
-//   path$: just('/manage/applying'),
-// })
-
-
-const ListItemTextArea = sources => {
-  const ta = TextAreaControl(sources)
-  const oac = OkAndCancel(sources)
-  const li = ListItem({...sources,
-    title$: combineLatest(ta.DOM, oac.DOM, (...doms) => div({},doms)),
-  })
-
-  return {
-    DOM: li.DOM,
-    value$: ta.value$.sample(oac.ok$),
-  }
-}
+import {log} from 'util'
 
 const Instruct = sources => ListItem({...sources,
   title$: just('The organizer would like to ask you a question:'),
@@ -51,28 +26,66 @@ const Instruct = sources => ListItem({...sources,
 // add formatting etc, ultimate QuoteItem that uses profile
 const Question = sources => ListItem({...sources})
 
+// const NextStepListItem = sources => ListItemNavigating({
+//   title$: sources.show$.flatMapLatest(needed =>
+//     needed ? sources.titleNeeded$ : sources.titleDone$
+//   ),
+//   leftDOM$: sources.isNeeded$.map(needed =>
+//     icon(...(needed ? ['check_box_outline','#F00'] : ['check_box']))
+//   ),
+// })
+
+const trimTo = (val, len) =>
+  val.length > len ? val.slice(0,len) + '...' : val
+
 export default sources => {
+  const answer$ = sources.engagement$.map(e => e && e.answer)
+
   const ictrl = Instruct(sources)
   const qctrl = Question({...sources,
     title$: sources.opp$.map(({question}) => question || 'No Question'),
   })
-  const answer = ListItemTextArea({...sources,
-    value$: sources.engagement$.map(e => e ? e.answer : ''),
+  const actrl = isolate(ListItemCollapsibleTextArea,'answer')({...sources,
+    title$: answer$.map(a => a ?
+      'You gave the answer:' :
+      'Give a good answer that will help the organizer get to know you.'
+    ),
+    subtitle$: answer$.map(a => a ? trimTo(a,60) : null),
+    isOpen$: answer$.map(a => !a),
+    iconName$: just('playlist_add'),
+    value$: answer$.map(a => a || ''),
+  })
+  const next = isolate(ListItemNavigating,'next')({...sources,
+    title$: just('Next, pick the teams you want to join.'),
+    leftDOM$: just(icon('chevron-circle-right', 'accent')),
+    path$:
+      sources.engagementKey$.map(k => '/engaged/' + k + '/application/teams'),
   })
 
-  const items = [ictrl, qctrl, answer]
+  const items = [
+    ictrl,
+    qctrl,
+    actrl,
+  ]
 
-  // const route$ = merge(...items.map(i => i.route$))
-  //   .map(sources.router.createHref)
+  const queue$ = actrl.value$
+    .withLatestFrom(sources.engagementKey$, (answer,key) => ({
+      key, values: {answer},
+    }))
+    .map(Engagements.action.update)
 
   const DOM = combineLatest(
+    answer$, next.DOM,
     ...items.map(i => i.DOM),
-    (...doms) => div({},doms)
+    (answer, nextDOM, ...doms) => div({},[
+      ...doms,
+      answer ? nextDOM : null,
+    ])
   )
 
   return {
     DOM,
-    // queue$,
-    // route$,
+    queue$,
+    route$: next.route$,
   }
 }
