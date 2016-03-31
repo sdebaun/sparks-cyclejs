@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just, empty, merge, combineLatest} = Observable
 
-// import isolate from '@cycle/isolate'
+import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
@@ -9,8 +9,11 @@ import {
   List,
   ListItem,
   ListItemClickable,
+  ListItemCollapsibleTextArea,
   ListItemHeader,
+  ListItemTextArea,
   CheckboxControl,
+  OkAndCancel,
 } from 'components/sdm'
 
 import {
@@ -35,27 +38,26 @@ const TeamMemberLookup = sources => ({
   ),
 })
 
-const FulfillerMemberListItem = sources => {
-  const teamKey$ = sources.item$.pluck('teamKey')
-  const team$ = teamKey$
-    .flatMapLatest(Teams.query.one(sources))
+const OpenTeamListItem = sources => {
+  const cb = CheckboxControl({...sources, value$: sources.membership$})
 
-  sources.memberships$.subscribe(log('memberships$'))
-  const membership$ = TeamMemberLookup({...sources, teamKey$}).found$
-  membership$.subscribe(log('membershipKey$'))
-
-  const cb = CheckboxControl({...sources, value$: membership$})
-
-  const li = ListItemClickable({...sources,
-    leftDOM$: TeamIcon({...sources, teamKey$}).DOM,
-    title$: team$.pluck('name'),
+  // const li = ListItemClickable({...sources,
+  //   leftDOM$: TeamIcon(sources).DOM,
+  //   title$: sources.team$.pluck('name'),
+  //   rightDOM$: cb.DOM,
+  // })
+  const li = ListItemCollapsibleTextArea({...sources,
+    leftDOM$: TeamIcon(sources).DOM,
+    title$: sources.team$.pluck('name'),
     rightDOM$: cb.DOM,
+    value$: sources.membership$.map(m => m && m.answer || ''),
   })
 
-  const queue$ = membership$
-    .sample(li.click$)
+  const queue$ = sources.membership$
+    .sample(li.ok$)
+    // .sample(li.click$)
     .combineLatest(
-      teamKey$,
+      sources.teamKey$,
       sources.oppKey$,
       sources.engagementKey$,
       (membership, teamKey, oppKey, engagementKey) =>
@@ -64,16 +66,145 @@ const FulfillerMemberListItem = sources => {
         Memberships.action.create({teamKey, oppKey, engagementKey}),
     )
 
+  queue$.subscribe(log('O.queue$'))
+
   return {
     DOM: li.DOM,
     queue$,
+    id: 'O',
+  }
+}
+
+const RestrictedTeamListItem = sources => {
+  const cb = CheckboxControl({...sources, value$: sources.membership$})
+
+  const li = ListItemCollapsibleTextArea({...sources,
+    leftDOM$: TeamIcon(sources).DOM,
+    title$: sources.team$.pluck('name'),
+    rightDOM$: cb.DOM,
+    value$: sources.membership$.map(m => m && m.answer || ''),
+  })
+
+  const queue$ = li.value$
+    .combineLatest(
+      sources.membership$,
+      sources.teamKey$,
+      sources.oppKey$,
+      sources.engagementKey$,
+      (answer, membership, teamKey, oppKey, engagementKey) =>
+        membership ?
+        Memberships.action.remove(membership.$key) :
+        Memberships.action.create({teamKey, oppKey, engagementKey, answer}),
+    )
+
+  queue$.subscribe(log('R.queue$'))
+
+  return {
+    DOM: li.DOM,
+    queue$,
+    id: 'R',
+  }
+}
+
+const FulfillerMemberListItem = sources => {
+  const teamKey$ = sources.item$.pluck('teamKey')
+  const team$ = teamKey$
+    .flatMapLatest(Teams.query.one(sources))
+  const membership$ = TeamMemberLookup({...sources, teamKey$}).found$
+  // sources.memberships$.subscribe(log('memberships$'))
+  // membership$.subscribe(log('membershipKey$'))
+
+  // const cb = CheckboxControl({...sources, value$: membership$})
+
+  // const liRestricted = ListItemCollapsibleTextArea({...sources,
+  //   leftDOM$: TeamIcon({...sources, teamKey$}).DOM,
+  //   title$: team$.pluck('name'),
+  //   rightDOM$: cb.DOM,
+  //   value$: membership$.map(m => m && m.answer || ''),
+  // })
+
+  // const liOpen = ListItemClickable({...sources,
+  //   leftDOM$: TeamIcon({...sources, teamKey$}).DOM,
+  //   title$: team$.pluck('name'),
+  //   rightDOM$: cb.DOM,
+  // })
+  const childSources = {...sources, teamKey$, team$, membership$}
+
+  const control = OpenTeamListItem(childSources)
+
+  // const control$ = team$
+  //   .map(({isPublic}) =>
+  //     // (isPublic ? OpenTeamListItem : RestrictedTeamListItem)(childSources)
+  //     (!isPublic ? RestrictedTeamListItem : OpenTeamListItem)(childSources)
+  //   )
+
+  // control$.subscribe(log('control$'))
+
+  // const switchOpen$ = membership$
+  //   .sample(liOpen.click$)
+  //   .combineLatest(
+  //     teamKey$,
+  //     sources.oppKey$,
+  //     sources.engagementKey$,
+  //     (membership, teamKey, oppKey, engagementKey) =>
+  //       membership ?
+  //       Memberships.action.remove(membership.$key) :
+  //       Memberships.action.create({teamKey, oppKey, engagementKey}),
+  //   )
+  // switchOpen$.subscribe(log('switchOpen$'))
+
+  // const switchRestricted$ = membership$
+  //   .sample(liRestricted.value$)
+  //   .combineLatest(
+  //     teamKey$,
+  //     sources.oppKey$,
+  //     sources.engagementKey$,
+  //     liRestricted.value$,
+  //     (membership, teamKey, oppKey, engagementKey, answer) =>
+  //       membership ?
+  //       Memberships.action.remove(membership.$key) :
+  //       Memberships.action.create({teamKey, oppKey, engagementKey, answer}),
+  //   )
+  // switchRestricted$.subscribe(log('switchRestricted$'))
+
+  // const queue$ = control$.flatMapLatest(ctrl =>
+  //   membership$
+  //   .sample(ctrl.value$ || ctrl.click$)
+  //   .combineLatest(
+  //     teamKey$,
+  //     sources.oppKey$,
+  //     sources.engagementKey$,
+  //     liRestricted.value$,
+  //     (membership, teamKey, oppKey, engagementKey, answer) =>
+  //       membership ?
+  //       Memberships.action.remove(membership.$key) :
+  //       Memberships.action.create({teamKey, oppKey, engagementKey, answer}),
+  //   )
+  // )
+
+  // const queue$ = control$.flatMapLatest(c => c.queue$)
+  // const DOM = control$.flatMapLatest(c => c.DOM)
+
+  const queue$ = control.queue$
+  const DOM = control.DOM
+
+  queue$.subscribe(log('LI.queue$'))
+
+  return {
+    DOM,
+    queue$,
+    // queue$: empty(),
   }
 }
 
 const TeamsMembersList = sources => {
   const header = ListItemHeader({...sources,
     title$: just('Available Teams'),
-    rightDOM$: just('x'),
+    rightDOM$: combineLatest(
+      sources.memberships$.map(m => m.length),
+      sources.rows$.map(r => r.length),
+      (m,t) => m + '/' + t
+    ),
   })
 
   const list = List({...sources,
