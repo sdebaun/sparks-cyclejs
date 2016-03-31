@@ -1,7 +1,8 @@
 import {h, ul} from 'cycle-snabbdom'
 import {Observable} from 'rx'
-const {combineLatest} = Observable
+const {combineLatest, of} = Observable
 import {div} from 'helpers'
+import {RaisedButton} from 'components/sdm'
 import {LargeProfileAvatar} from 'components/profile'
 
 const ProfileInfo = sources => ({
@@ -15,14 +16,29 @@ const ProfileInfo = sources => ({
   ),
 })
 
-export default sources => {
+const Profile = sources => {
   const portraitUrl$ = sources.userProfile$
     .map(up => up && up.portraitUrl)
-  const profileDOM = combineLatest(
-    LargeProfileAvatar({...sources, src$: portraitUrl$}).DOM,
-    ProfileInfo(sources).DOM,
-    (...doms) => div({},doms),
-  )
+  const largeProfileAvatar = LargeProfileAvatar({...sources,
+    src$: portraitUrl$})
+  const profileInfo = ProfileInfo(sources)
+  const editProfileButton = RaisedButton({...sources,
+      label$: of('Edit Profile'),
+    })
+
+  const DOM = combineLatest(
+      largeProfileAvatar.DOM,
+      profileInfo.DOM,
+      editProfileButton.DOM,
+      (...doms) => div({},doms),
+    )
+
+  return {DOM}
+}
+
+export default sources => {
+  const profileDOM = Profile(sources).DOM
+
   return {
     DOM: profileDOM,
   }
