@@ -93,8 +93,8 @@ const TeamFulfilledListItem = sources => {
     rightDOM$: cb.DOM,
   })
 
-  li.click$.subscribe(log('click$'))
-  fulfiller$.subscribe(log('fulfiller$'))
+  // li.click$.subscribe(log('click$'))
+  // fulfiller$.subscribe(log('fulfiller$'))
 
   const queue$ = fulfiller$
     .sample(li.click$)

@@ -194,6 +194,7 @@ const ListItemCollapsibleTextArea = sources => {
   return {
     DOM: li.DOM,
     value$: ta.value$.sample(oac.ok$),
+    ok$: oac.ok$,
   }
 }
 

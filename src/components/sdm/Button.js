@@ -2,9 +2,12 @@
 import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
+import isolate from '@cycle/isolate'
+
 import combineLatestObj from 'rx-combine-latest-obj'
 import {Button} from 'snabbdom-material'
 import {div} from 'helpers'
+import {span} from 'cycle-snabbdom'
 
 import newId from './id'
 
@@ -46,7 +49,7 @@ const RaisedButton = sources => {
   const click$ = sources.DOM.select('.' + id).events('click')
 
   const DOM = combineLatestObj(viewState)
-    .map(({label, classNames}) =>
+    .map(({label, classNames}) => span({},[
       Button({
         onClick: true,
         primary: true,
@@ -54,7 +57,7 @@ const RaisedButton = sources => {
       }, [
         label,
       ]),
-    )
+    ]))
 
   return {
     DOM,

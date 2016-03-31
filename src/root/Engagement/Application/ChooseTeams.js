@@ -1,14 +1,16 @@
 import {Observable} from 'rx'
 const {just, combineLatest} = Observable
+// const {merge} = Observable
 
 // import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
 import {
-  List,
+  ListWithHeader,
   ListItem,
   ListItemClickable,
+  // ListItemCollapsibleTextArea,
   ListItemHeader,
   CheckboxControl,
 } from 'components/sdm'
@@ -35,27 +37,19 @@ const TeamMemberLookup = sources => ({
   ),
 })
 
-const FulfillerMemberListItem = sources => {
-  const teamKey$ = sources.item$.pluck('teamKey')
-  const team$ = teamKey$
-    .flatMapLatest(Teams.query.one(sources))
-
-  sources.memberships$.subscribe(log('memberships$'))
-  const membership$ = TeamMemberLookup({...sources, teamKey$}).found$
-  membership$.subscribe(log('membershipKey$'))
-
-  const cb = CheckboxControl({...sources, value$: membership$})
+const OpenTeamListItem = sources => {
+  const cb = CheckboxControl({...sources, value$: sources.membership$})
 
   const li = ListItemClickable({...sources,
-    leftDOM$: TeamIcon({...sources, teamKey$}).DOM,
-    title$: team$.pluck('name'),
+    leftDOM$: TeamIcon(sources).DOM,
+    title$: sources.team$.pluck('name'),
     rightDOM$: cb.DOM,
   })
 
-  const queue$ = membership$
+  const queue$ = sources.membership$
     .sample(li.click$)
     .combineLatest(
-      teamKey$,
+      sources.teamKey$,
       sources.oppKey$,
       sources.engagementKey$,
       (membership, teamKey, oppKey, engagementKey) =>
@@ -64,8 +58,72 @@ const FulfillerMemberListItem = sources => {
         Memberships.action.create({teamKey, oppKey, engagementKey}),
     )
 
+  queue$.subscribe(log('O.queue$'))
+
   return {
     DOM: li.DOM,
+    queue$,
+  }
+}
+
+// const RestrictedTeamListItem = sources => {
+//   const cb = CheckboxControl({...sources, value$: sources.membership$})
+
+//   const li = ListItemCollapsibleTextArea({...sources,
+//     leftDOM$: TeamIcon(sources).DOM,
+//     title$: sources.team$.pluck('name'),
+//     rightDOM$: cb.DOM,
+//     value$: sources.membership$.map(m => m && m.answer || ''),
+//   })
+
+//   const queue$ = li.value$
+//     .combineLatest(
+//       sources.membership$,
+//       sources.teamKey$,
+//       sources.oppKey$,
+//       sources.engagementKey$,
+//       (answer, membership, teamKey, oppKey, engagementKey) =>
+//         membership ?
+//         Memberships.action.remove(membership.$key) :
+//         Memberships.action.create({teamKey, oppKey, engagementKey, answer}),
+//     ).share()
+
+//   queue$.subscribe(log('R.queue$'))
+
+//   return {
+//     DOM: li.DOM,
+//     queue$,
+//   }
+// }
+
+const FulfillerMemberListItem = sources => {
+  const teamKey$ = sources.item$.pluck('teamKey')
+  const team$ = teamKey$
+    .flatMapLatest(Teams.query.one(sources))
+  const membership$ = TeamMemberLookup({...sources, teamKey$}).found$
+
+  const childSources = {...sources, teamKey$, team$, membership$}
+
+  // works with OpenTeamListItem, but not RestrictedTeamListItem
+  // const control = RestrictedTeamListItem(childSources)
+  const control = OpenTeamListItem(childSources)
+
+  // this is what it should do
+  // const control$ = team$
+  //   .map(({isPublic}) =>
+  //     (isPublic ? OpenTeamListItem : RestrictedTeamListItem)(childSources)
+  //   )
+
+  const queue$ = control.queue$
+  const DOM = control.DOM
+
+  // const queue$ = control$.flatMapLatest(c => c.queue$)
+  // const DOM = control$.flatMapLatest(c => c.DOM)
+
+  queue$.subscribe(log('LI.queue$'))
+
+  return {
+    DOM,
     queue$,
   }
 }
@@ -73,24 +131,23 @@ const FulfillerMemberListItem = sources => {
 const TeamsMembersList = sources => {
   const header = ListItemHeader({...sources,
     title$: just('Available Teams'),
-    rightDOM$: just('x'),
+    rightDOM$: combineLatest(
+      sources.memberships$.map(m => m.length),
+      sources.rows$.map(r => r.length),
+      (m,t) => m + '/' + t
+    ),
   })
 
-  const list = List({...sources,
+  return ListWithHeader({...sources,
+    headerDOM: header.DOM,
     Control$: just(FulfillerMemberListItem),
+    // this doesnt work in the same way it doesnt work
+    // when routed via FulfillerMemberListItem
+    // Control$: just(RestrictedTeamListItem),
+    // membership$: just({$key: 1234}),
+    // team$: just({name: 'foo', $key: 'bar'}),
+    // teamKey$: just(1234),
   })
-
-  const DOM = sources.rows$.combineLatest(
-    header.DOM,
-    list.DOM,
-    (rows, ...restDOM) =>
-      div({}, rows.length > 0 ? restDOM : []),
-  )
-
-  return {
-    DOM,
-    queue$: list.queue$,
-  }
 }
 
 export default sources => {

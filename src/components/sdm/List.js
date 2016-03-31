@@ -51,6 +51,7 @@ const ListWithHeader = sources => {
   return {
     DOM,
     route$: list.route$,
+    queue$: list.queue$,
   }
 }
 
