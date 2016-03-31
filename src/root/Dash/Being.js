@@ -22,14 +22,14 @@ const Profile = sources => {
   const largeProfileAvatar = LargeProfileAvatar({...sources,
     src$: portraitUrl$})
   const profileInfo = ProfileInfo(sources)
-  const editProfileButton = RaisedButton({...sources,
-      label$: of('Edit Profile'),
-    })
+  // const editProfileButton = RaisedButton({...sources,
+  //     label$: of('Edit Profile'),
+  //   })
 
   const DOM = combineLatest(
       largeProfileAvatar.DOM,
       profileInfo.DOM,
-      editProfileButton.DOM,
+      // editProfileButton.DOM,
       (...doms) => div({},doms),
     )
 
