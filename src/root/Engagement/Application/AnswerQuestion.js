@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, merge, combineLatest} = Observable
+const {just, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 
@@ -13,18 +13,17 @@ import {
   ListItem,
   ListItemNavigating,
   ListItemCollapsibleTextArea,
-  // TextAreaControl,
-  // OkAndCancel,
 } from 'components/sdm'
+
+import {
+  QuotingListItem,
+} from 'components/ui'
 
 import {log} from 'util'
 
 const Instruct = sources => ListItem({...sources,
   title$: just('The organizer would like to ask you a question:'),
 })
-
-// add formatting etc, ultimate QuoteItem that uses profile
-const Question = sources => ListItem({...sources})
 
 // const NextStepListItem = sources => ListItemNavigating({
 //   title$: sources.show$.flatMapLatest(needed =>
@@ -42,8 +41,9 @@ export default sources => {
   const answer$ = sources.engagement$.map(e => e && e.answer)
 
   const ictrl = Instruct(sources)
-  const qctrl = Question({...sources,
+  const qctrl = QuotingListItem({...sources,
     title$: sources.opp$.map(({question}) => question || 'No Question'),
+    profileKey$: sources.opp$.map(({project}) => project.ownerProfileKey),
   })
   const actrl = isolate(ListItemCollapsibleTextArea,'answer')({...sources,
     title$: answer$.map(a => a ?
