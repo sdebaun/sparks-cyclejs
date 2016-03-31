@@ -23,6 +23,8 @@ import {
 
 import {TeamIcon} from 'components/team'
 
+import {log} from 'util'
+
 // const WhatItem = sources => ListItemNavigating({...sources,
 //   title$: just('What\'s this Team all about?'),
 //   iconName$: just('users'),
@@ -48,8 +50,8 @@ const Instruct = sources => ListItem({...sources,
 const TeamMemberLookup = sources => ({
   found$: sources.memberships$.combineLatest(
     sources.teamKey$,
-    (memberships, key) =>
-      memberships.find(({$key, teamKey}) => key === teamKey ? $key : false)
+    (memberships, findTeamKey) =>
+      memberships.find(({teamKey}) => findTeamKey === teamKey)
   ),
 })
 
@@ -58,7 +60,9 @@ const FulfillerMemberListItem = sources => {
   const team$ = teamKey$
     .flatMapLatest(Teams.query.one(sources))
 
+  sources.memberships$.subscribe(log('memberships$'))
   const membership$ = TeamMemberLookup({...sources, teamKey$}).found$
+  membership$.subscribe(log('membershipKey$'))
 
   const cb = CheckboxControl({...sources, value$: membership$})
 
@@ -76,10 +80,11 @@ const FulfillerMemberListItem = sources => {
     .combineLatest(
       teamKey$,
       // sources.teamKey$,
-      sources.userProfileKey$,
+      // sources.userProfileKey$,
+      sources.oppKey$,
       sources.engagementKey$,
       (membership, teamKey, oppKey, engagementKey) =>
-        membership && membership.$key ?
+        membership ?
         Memberships.action.remove(membership.$key) :
         Memberships.action.create({teamKey, oppKey, engagementKey}),
     )
@@ -116,13 +121,14 @@ const TeamsMembersList = sources => {
 export default sources => {
   const oppKey$ = sources.engagement$.pluck('oppKey')
 
-  const memberships$ = oppKey$
-    .flatMapLatest(Memberships.query.byOpp(sources))
+  const memberships$ = sources.engagementKey$
+    .flatMapLatest(Memberships.query.byEngagement(sources))
 
   const fulfillers$ = oppKey$
     .flatMapLatest(Fulfillers.query.byOpp(sources))
 
   const list = TeamsMembersList({...sources,
+    oppKey$,
     rows$: fulfillers$,
     memberships$,
   })
