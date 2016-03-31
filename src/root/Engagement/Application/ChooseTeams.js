@@ -1,71 +1,119 @@
 import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
 import {
+  List,
   ListItem,
-  TextAreaControl,
-  OkAndCancel,
+  ListItemClickable,
+  ListItemHeader,
+  CheckboxControl,
 } from 'components/sdm'
 
-// const WhatItem = sources => ListItemNavigating({...sources,
-//   title$: just('What\'s this Team all about?'),
-//   iconName$: just('users'),
-//   path$: just('/manage'),
-// })
+import {
+  Memberships,
+  Fulfillers,
+  Teams,
+} from 'components/remote'
 
-// const InviteItem = sources => ListItemNavigating({...sources,
-//   title$: just('Invite some people to Lead this Team'),
-//   iconName$: just('person_add'),
-//   path$: just('/manage/leads'),
-// })
+import {TeamIcon} from 'components/team'
 
-// const HowItem = sources => ListItemNavigating({...sources,
-//   title$: just('How are volunteers joining this Team?'),
-//   iconName$: just('event_note'),
-//   path$: just('/manage/applying'),
-// })
+import {log} from 'util'
 
-const ListItemTextArea = sources => {
-  const ta = TextAreaControl(sources)
-  const oac = OkAndCancel(sources)
-  const li = ListItem({...sources,
-    title$: combineLatest(ta.DOM, oac.DOM, (...doms) => div({},doms)),
+const Instruct = sources => ListItem({...sources,
+  title$: just('Choose one or more Teams that you want to join.'),
+})
+
+const TeamMemberLookup = sources => ({
+  found$: sources.memberships$.combineLatest(
+    sources.teamKey$,
+    (memberships, findTeamKey) =>
+      memberships.find(({teamKey}) => findTeamKey === teamKey)
+  ),
+})
+
+const FulfillerMemberListItem = sources => {
+  const teamKey$ = sources.item$.pluck('teamKey')
+  const team$ = teamKey$
+    .flatMapLatest(Teams.query.one(sources))
+
+  sources.memberships$.subscribe(log('memberships$'))
+  const membership$ = TeamMemberLookup({...sources, teamKey$}).found$
+  membership$.subscribe(log('membershipKey$'))
+
+  const cb = CheckboxControl({...sources, value$: membership$})
+
+  const li = ListItemClickable({...sources,
+    leftDOM$: TeamIcon({...sources, teamKey$}).DOM,
+    title$: team$.pluck('name'),
+    rightDOM$: cb.DOM,
   })
+
+  const queue$ = membership$
+    .sample(li.click$)
+    .combineLatest(
+      teamKey$,
+      sources.oppKey$,
+      sources.engagementKey$,
+      (membership, teamKey, oppKey, engagementKey) =>
+        membership ?
+        Memberships.action.remove(membership.$key) :
+        Memberships.action.create({teamKey, oppKey, engagementKey}),
+    )
 
   return {
     DOM: li.DOM,
-    value$: ta.value$.sample(oac.ok$),
+    queue$,
   }
 }
 
-const Instruct = sources => ListItem({...sources,
-  title$: just('Choose one or more Teams you want to join'),
-})
+const TeamsMembersList = sources => {
+  const header = ListItemHeader({...sources,
+    title$: just('Available Teams'),
+    rightDOM$: just('x'),
+  })
 
-// add formatting etc, ultimate QuoteItem that uses profile
-const Question = sources => ListItem({...sources})
+  const list = List({...sources,
+    Control$: just(FulfillerMemberListItem),
+  })
+
+  const DOM = sources.rows$.combineLatest(
+    header.DOM,
+    list.DOM,
+    (rows, ...restDOM) =>
+      div({}, rows.length > 0 ? restDOM : []),
+  )
+
+  return {
+    DOM,
+    queue$: list.queue$,
+  }
+}
 
 export default sources => {
+  const oppKey$ = sources.engagement$.pluck('oppKey')
+
+  const memberships$ = sources.engagementKey$
+    .flatMapLatest(Memberships.query.byEngagement(sources))
+
+  const fulfillers$ = oppKey$
+    .flatMapLatest(Fulfillers.query.byOpp(sources))
+
   const ictrl = Instruct(sources)
-  // const qctrl = Question({...sources,
-  //   title$: sources.opp$.map(({question}) => question || 'No Question'),
-  // })
-  // const answer = ListItemTextArea({...sources,
-  //   value$: sources.engagement$.map(e => e ? e.answer : ''),
-  // })
+
+  const list = TeamsMembersList({...sources,
+    oppKey$,
+    rows$: fulfillers$,
+    memberships$,
+  })
 
   const items = [
     ictrl,
-    // qctrl,
-    // answer,
+    list,
   ]
-
-  // const route$ = merge(...items.map(i => i.route$))
-  //   .map(sources.router.createHref)
 
   const DOM = combineLatest(
     ...items.map(i => i.DOM),
@@ -74,7 +122,7 @@ export default sources => {
 
   return {
     DOM,
-    // queue$,
+    queue$: list.queue$,
     // route$,
   }
 }

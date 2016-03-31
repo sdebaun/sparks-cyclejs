@@ -1,8 +1,7 @@
-import {Observable, Subject} from 'rx'
+import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
-import combineLatestObj from 'rx-combine-latest-obj'
 import {AddCommitmentGive, AddCommitmentGet} from 'components/opp'
 import codePopups from 'components/opp/codePopups'
 import {Commitments} from 'components/remote'

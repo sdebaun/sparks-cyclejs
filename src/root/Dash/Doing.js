@@ -4,11 +4,10 @@ const {just, combineLatest} = Observable
 import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
-import {log} from 'util'
+// import {log} from 'util'
 
 import {
   Projects,
-  ProjectImages,
   Engagements,
   Organizers,
 } from 'components/remote'
@@ -20,7 +19,6 @@ import {
   List,
   ListWithHeader,
   ListItem,
-  ListItemNavigating,
   ListItemCollapsible,
   RaisedButton,
   FlatButton,

@@ -17,11 +17,12 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 // import {rows, log} from 'util'
 
 import AnswerQuestion from './AnswerQuestion'
+import ChooseTeams from './ChooseTeams'
 
 const _routes = {
   '/': isolate(ComingSoon('Next Steps')),
   '/question': AnswerQuestion,
-  '/teams': isolate(ComingSoon('Choose Teams')),
+  '/teams': ChooseTeams,
 }
 
 const _tabs = [

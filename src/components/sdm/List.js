@@ -1,4 +1,3 @@
-import {Observable} from 'rx'
 import {div} from 'helpers'
 import {requireSources, mergeOrFlatMapLatest, controlsFromRows} from 'util'
 

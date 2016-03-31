@@ -167,3 +167,16 @@ export const Fulfillers = {
     remove: actionCreator('Fulfillers', 'delete'), // CHANGE
   },
 }
+
+export const Memberships = {
+  query: {
+    byTeam: filterBy('Memberships','teamKey'),
+    byOpp: filterBy('Memberships','profileKey'),
+    byEngagement: filterBy('Memberships','engagementKey'),
+  },
+  action: {
+    create: actionCreator('Memberships', 'create'),
+    remove: actionCreator('Memberships', 'remove'), // CHANGE
+    update: actionCreator('Memberships', 'update'), // CHANGE
+  },
+}

@@ -1,7 +1,7 @@
 require('./styles.scss')
 
 import {Observable} from 'rx'
-const {just, empty, merge, combineLatest} = Observable
+const {just, empty, combineLatest} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 // import isolate from '@cycle/isolate'
 
@@ -13,7 +13,7 @@ import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
 import {OkAndCancel} from 'components/sdm'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const liClasses = {'list-item': true}
 
