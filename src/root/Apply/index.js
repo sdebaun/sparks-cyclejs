@@ -12,15 +12,23 @@ import ApplyQuickNavMenu from 'components/ApplyQuickNavMenu'
 
 import {rows, nestedComponent, mergeOrFlatMapLatest} from 'util'
 
-import {div} from 'helpers'
+import {div, icon} from 'helpers'
 // import {textTweetSized} from 'helpers/text'
 
-const Glance = ComingSoon('Apply/Glance')
+// const Overview = ComingSoon('Apply/Overview')
 import Opp from './Opp'
+import Overview from './Overview'
 
 import {
+  List,
   ListItem,
+  ListItemNavigating,
 } from 'components/sdm'
+
+import {
+  QuotingListItem,
+  DescriptionListItem,
+} from 'components/ui'
 
 import {
   Opps,
@@ -30,13 +38,22 @@ import {
 
 const _routes = {
   // isolating breaks child tab navigation?
-  '/': Glance,
+  '/': Overview,
   '/opp/:key': key => sources =>
     isolate(Opp)({oppKey$: Observable.just(key), ...sources}),
 }
 
-const DescriptionListItem = sources => ListItem({...sources,
-  classes$: just('description'), // no styling yet but here's where
+const Title = sources => ResponsiveTitle({...sources,
+  titleDOM$: sources.project$.pluck('name'),
+  subtitleDOM$: sources.opps$.map(opps =>
+    opps.length + ' Opportunities Available'
+  ),
+  backgroundUrl$: sources.projectImage$.map(pi => pi && pi.dataUrl),
+  ...sources,
+})
+
+const Description = sources => DescriptionListItem({...sources,
+  item$: sources.project$,
 })
 
 export default sources => {
@@ -52,34 +69,20 @@ export default sources => {
     .flatMapLatest(Opps.query.byProject(sources))
     .map(opps => opps.filter(({isPublic}) => isPublic))
 
-  const oppRows$ = opps$.map(rows)
+  const _sources = {...sources, project$, opps$, projectImage$}
 
-  const title = ResponsiveTitle({
-    titleDOM$: project$.pluck('name'),
-    subtitleDOM$: oppRows$.map(opps =>
-      opps.length + ' Opportunities Available'
-    ),
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-    oppRows$,
-    ...sources,
-  })
+  const title = Title(_sources)
 
-  const desc = DescriptionListItem({...sources,
-    title$: project$.pluck('description'),
-  })
+  const desc = Description(_sources)
 
-  const applyQuickNavMenu = ApplyQuickNavMenu({opps$, project$, ...sources})
+  // const applyQuickNavMenu = ApplyQuickNavMenu({opps$, project$, ...sources})
 
-  const page$ = nestedComponent(sources.router.define(_routes), {
-    project$,
-    ...sources,
-  })
+  const page$ = nestedComponent(sources.router.define(_routes), _sources)
 
   const pageDOM = combineLatest(
     desc.DOM,
-    applyQuickNavMenu.DOM,
-    page$.flatMapLatest(({DOM}) => DOM),
-    project$.pluck('description'),
+    // applyQuickNavMenu.DOM,
+    page$.pluck('DOM').switch(),
     (...doms) => div({},doms),
   )
 
@@ -89,7 +92,7 @@ export default sources => {
     ...sources,
   })
 
-  const children = [frame, page$, applyQuickNavMenu]
+  const children = [frame, page$]
 
   const DOM = frame.DOM
 

@@ -20,7 +20,9 @@ import {
 } from 'components/remote'
 
 import {
+  QuotingListItem,
   DescriptionListItem,
+  TitleListItem,
   LoginButtons,
 } from 'components/ui'
 
@@ -30,10 +32,27 @@ const _redirectResponses = ({responses$}) => responses$
   .filter(({domain,event}) => domain === 'Engagements' && event === 'create')
   .map(response => '/engaged/' + response.payload + '/application/question')
 
+const Title = sources => TitleListItem({...sources,
+  title$: sources.opp$.pluck('name'),
+})
+
+const Chooser = sources => ({
+  DOM: just(div({},['look at another opportunity'])),
+})
+
+const Quote = sources => QuotingListItem({...sources,
+  title$: sources.opp$.map(({description}) => description || 'No Description'),
+  profileKey$: sources.opp$.map(({project}) => project.ownerProfileKey),
+})
+
 const CommitmentList = sources => ListWithHeader({...sources,
   headerDOM: ListItemHeader(sources).DOM,
   Control$: just(CommitmentItemPassive),
 })
+
+// const Description = sources => DescriptionListItem({...sources,
+//   item$: sources.opp$,
+// })
 
 export default sources => {
   // get the remote data we need
@@ -45,9 +64,12 @@ export default sources => {
   const commitments$ = oppKey$
     .flatMapLatest(Commitments.query.byOpp(sources))
 
-  // delegate to controls
-  const desc = DescriptionListItem({...sources, item$: opp$})
+  const _sources = {...sources, opp$, oppKey$, commitments$}
 
+  // delegate to controls
+  const title = Title(_sources)
+  const chooser = Chooser(_sources)
+  const desc = Quote(_sources)
   const logins = LoginButtons(sources)
 
   const applyNow = RaisedButton({...sources,
@@ -81,6 +103,8 @@ export default sources => {
     sources.auth$,
     applyNow.DOM,
     logins.DOM,
+    title.DOM,
+    chooser.DOM,
     desc.DOM,
     gives.DOM,
     gets.DOM,
