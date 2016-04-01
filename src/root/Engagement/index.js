@@ -72,9 +72,9 @@ export default sources => {
       commitments$,
     })
 
-  const quickNav = ProjectQuickNavMenu(
-    {...sources, project$, projectKey$, opp$, teams$, opps$}
-  )
+  // const quickNav = ProjectQuickNavMenu(
+  //   {...sources, project$, projectKey$, opp$, teams$, opps$}
+  // )
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
 
@@ -86,7 +86,7 @@ export default sources => {
 
   const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    topDOM$: quickNav.DOM,
+    // topDOM$: quickNav.DOM,
     titleDOM$: opp$.pluck('name'),
     subtitleDOM$,
     backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
