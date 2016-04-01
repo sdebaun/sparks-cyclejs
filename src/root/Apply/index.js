@@ -1,26 +1,24 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {combineLatest} = Observable
 
 // import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
-import ComingSoon from 'components/ComingSoon'
 import SoloFrame from 'components/SoloFrame'
 import {ResponsiveTitle} from 'components/Title'
 
-import ApplyQuickNavMenu from 'components/ApplyQuickNavMenu'
-
-import {rows, nestedComponent, mergeOrFlatMapLatest} from 'util'
+import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import {div} from 'helpers'
 // import {textTweetSized} from 'helpers/text'
 
-const Glance = ComingSoon('Apply/Glance')
+// const Overview = ComingSoon('Apply/Overview')
 import Opp from './Opp'
+import Overview from './Overview'
 
 import {
-  ListItem,
-} from 'components/sdm'
+  DescriptionListItem,
+} from 'components/ui'
 
 import {
   Opps,
@@ -30,77 +28,67 @@ import {
 
 const _routes = {
   // isolating breaks child tab navigation?
-  '/': Glance,
+  '/': Overview,
   '/opp/:key': key => sources =>
     isolate(Opp)({oppKey$: Observable.just(key), ...sources}),
 }
 
-const DescriptionListItem = sources => ListItem({...sources,
-  classes$: just('description'), // no styling yet but here's where
-})
-
-export default sources => {
-  const projectKey$ = sources.projectKey$
-
-  const project$ = projectKey$
+const _Fetch = sources => {
+  const project$ = sources.projectKey$
     .flatMapLatest(Projects.query.one(sources))
 
-  const projectImage$ = projectKey$
+  const projectImage$ = sources.projectKey$
     .flatMapLatest(ProjectImages.query.one(sources))
 
-  const opps$ = projectKey$
+  const opps$ = sources.projectKey$
     .flatMapLatest(Opps.query.byProject(sources))
     .map(opps => opps.filter(({isPublic}) => isPublic))
 
-  const oppRows$ = opps$.map(rows)
-
-  const title = ResponsiveTitle({
-    titleDOM$: project$.pluck('name'),
-    subtitleDOM$: oppRows$.map(opps =>
-      opps.length + ' Opportunities Available'
-    ),
-    backgroundUrl$: projectImage$.map(pi => pi && pi.dataUrl),
-    oppRows$,
-    ...sources,
-  })
-
-  const desc = DescriptionListItem({...sources,
-    title$: project$.pluck('description'),
-  })
-
-  const applyQuickNavMenu = ApplyQuickNavMenu({opps$, project$, ...sources})
-
-  const page$ = nestedComponent(sources.router.define(_routes), {
+  return {
     project$,
-    ...sources,
-  })
+    projectImage$,
+    opps$,
+  }
+}
+
+const _Title = sources => ResponsiveTitle({...sources,
+  titleDOM$: sources.project$.pluck('name'),
+  subtitleDOM$: sources.opps$.map(o => o.length + ' Opportunities Available'),
+  backgroundUrl$: sources.projectImage$.map(pi => pi && pi.dataUrl),
+})
+
+const _Description = sources => DescriptionListItem({...sources,
+  item$: sources.project$,
+})
+
+export default sources => {
+  const _sources = {...sources, ..._Fetch(sources)}
+
+  const title = _Title(_sources)
+
+  const desc = _Description(_sources)
+
+  const page$ = nestedComponent(sources.router.define(_routes), _sources)
 
   const pageDOM = combineLatest(
     desc.DOM,
-    applyQuickNavMenu.DOM,
-    page$.flatMapLatest(({DOM}) => DOM),
-    project$.pluck('description'),
+    page$.pluck('DOM').switch(),
     (...doms) => div({},doms),
   )
 
-  const frame = SoloFrame({
+  const frame = SoloFrame({...sources,
     pageDOM,
     headerDOM: title.DOM,
-    ...sources,
   })
 
-  const children = [frame, page$, applyQuickNavMenu]
-
-  const DOM = frame.DOM
+  const children = [frame, page$]
 
   const auth$ = mergeOrFlatMapLatest('auth$', ...children)
-
   const queue$ = mergeOrFlatMapLatest('queue$', ...children)
-
   const route$ = mergeOrFlatMapLatest('route$', ...children)
 
   return {
-    DOM,
+    DOM: frame.DOM,
     auth$,
     queue$,
     route$,

@@ -7,7 +7,7 @@ import {
 
 const DescriptionListItem = sources => ListItem({...sources,
   title$: sources.item$.pluck('description'),
-  classes$: just('description'), // no styling yet but here's where
+  classes$: just({description: true}), // no styling yet but here's where
 })
 
 export {DescriptionListItem}
