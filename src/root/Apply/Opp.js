@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just, merge, combineLatest} = Observable
 
 // import isolate from '@cycle/isolate'
 
@@ -8,9 +8,11 @@ import {div} from 'helpers'
 import {CommitmentItemPassive} from 'components/commitment'
 
 import {
+  ListItem,
   ListItemHeader,
   ListWithHeader,
   RaisedButton,
+  SelectControl,
 } from 'components/sdm'
 
 import {
@@ -26,7 +28,35 @@ import {
   LoginButtons,
 } from 'components/ui'
 
-// import {log} from 'util'
+import {log} from 'util'
+
+const _Select = sources => SelectControl({...sources,
+  label$: just('Choose another opportunity...'),
+  options$: sources.opps$.map(opps => [
+    // {value: 0, label: 'Choose another opportunity...'},
+    ...opps.map(({name,$key}) => ({value: $key, label: name})),
+  ]),
+  value$: just(false),
+})
+
+const Chooser = sources => {
+  const select = _Select(sources)
+  const li = ListItem({...sources,
+    title$: select.DOM,
+  })
+
+  const route$ = select.value$
+    .filter(v => !!v)
+    .combineLatest(
+      sources.projectKey$,
+      (ok, pk) => `/apply/${pk}/opp/${ok}`
+    )
+
+  return {
+    DOM: li.DOM,
+    route$,
+  }
+}
 
 const _redirectResponses = ({responses$}) => responses$
   .filter(({domain,event}) => domain === 'Engagements' && event === 'create')
@@ -34,10 +64,6 @@ const _redirectResponses = ({responses$}) => responses$
 
 const Title = sources => TitleListItem({...sources,
   title$: sources.opp$.pluck('name'),
-})
-
-const Chooser = sources => ({
-  DOM: just(div({},['look at another opportunity'])),
 })
 
 const Quote = sources => QuotingListItem({...sources,
@@ -97,7 +123,12 @@ export default sources => {
     .sample(applyNow.click$)
     .map(Engagements.action.create)
 
-  const route$ = _redirectResponses(sources)
+  const route$ = merge(
+    _redirectResponses(sources),
+    chooser.route$,
+  )
+
+  // route$.subscribe(log('route$'))
 
   const DOM = combineLatest(
     sources.auth$,

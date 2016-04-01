@@ -29,8 +29,6 @@ const _routes = {
   '/schedule': Schedule,
 }
 
-// import ProjectQuickNavMenu from 'components/ProjectQuickNavMenu'
-
 export default sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(key => sources.firebase('Engagements',key))
@@ -67,10 +65,6 @@ export default sources => {
     })
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
-
-  // const quickNav = ProjectQuickNavMenu(
-  //   {...sources, engagement$, project$, projectKey$, opp$}
-  // )
 
   const subtitleDOM$ = combineLatest(
     sources.isMobile$,
