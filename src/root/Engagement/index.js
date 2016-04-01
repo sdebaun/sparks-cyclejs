@@ -11,6 +11,10 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 // import {log} from 'util'
 
+import {
+  Memberships,
+} from 'components/remote'
+
 import Glance from './Glance'
 import Application from './Application'
 import Schedule from './Schedule'
@@ -35,10 +39,18 @@ export default sources => {
   const projectImage$ = projectKey$
     .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
 
+  const memberships$ = sources.engagementKey$
+    .flatMapLatest(Memberships.query.byEngagement(sources))
+
   const page$ = nestedComponent(
-    sources.router.define(_routes),
-    {engagement$, opp$, projectKey$, project$, ...sources}
-  )
+    sources.router.define(_routes), {
+      ...sources,
+      engagement$,
+      opp$,
+      projectKey$,
+      project$,
+      memberships$,
+    })
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
 

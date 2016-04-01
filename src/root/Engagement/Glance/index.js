@@ -16,11 +16,11 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 // import {rows, log} from 'util'
 
-// import Priority from './Priority'
+import Priority from './Priority'
 
 const _routes = {
-  '/': isolate(ComingSoon('Priority')),
-  '/commitments': isolate(ComingSoon('Commitments')),
+  '/': isolate(Priority),
+  '/commitments': isolate(ComingSoon('Commitments!')),
   '/more': isolate(ComingSoon('More Info')),
 }
 

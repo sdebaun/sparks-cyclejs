@@ -14,3 +14,5 @@ export {LoginButtons} from './LoginButtons'
 export {DescriptionListItem} from './DescriptionListItem'
 
 export {QuotingListItem} from './QuotingListItem'
+
+export {TitleListItem} from './TitleListItem'
