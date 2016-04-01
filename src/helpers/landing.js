@@ -120,7 +120,7 @@ const landing = (appMenu, buttons) =>
     div('#cta', {static: true}, [
       div('.container', {}, [
         h4({}, ['Sign Up For', br({}), 'The Sparks Network!']),
-        buttons,
+        div({style: {textAlign: 'center'}}, [buttons]),
         // signUp(buttons),
       ]),
     ]),
