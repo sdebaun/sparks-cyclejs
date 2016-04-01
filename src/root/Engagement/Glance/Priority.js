@@ -6,37 +6,15 @@ import isolate from '@cycle/isolate'
 import {div, icon} from 'helpers'
 
 import {
-  Engagements,
-} from 'components/remote'
-
-import {
-  ListItem,
   ListItemNavigating,
-  ListItemCollapsibleTextArea,
 } from 'components/sdm'
 
 import {
   TitleListItem,
-  // QuotingListItem,
+  QuotingListItem,
 } from 'components/ui'
 
 // import {log} from 'util'
-
-// const Instruct = sources => TitleListItem({...sources,
-//   title$: just('The organizer would like to ask you a question:'),
-// })
-
-// const NextStepListItem = sources => ListItemNavigating({
-//   title$: sources.show$.flatMapLatest(needed =>
-//     needed ? sources.titleNeeded$ : sources.titleDone$
-//   ),
-//   leftDOM$: sources.isNeeded$.map(needed =>
-//     icon(...(needed ? ['check_box_outline','#F00'] : ['check_box']))
-//   ),
-// })
-
-// const trimTo = (val, len) =>
-//   val.length > len ? val.slice(0,len) + '...' : val
 
 const ToDoListItem = sources => {
   const leftDOM$ = sources.isDone$.map(isDone =>
@@ -63,6 +41,11 @@ export default sources => {
     title$: sources.engagement$.map(_labelMapper),
   })
 
+  const info = QuotingListItem({...sources,
+    title$: sources.project$.pluck('description'),
+    profileKey$: sources.project$.pluck('ownerProfileKey'),
+  })
+
   const todos = [
     isolate(ToDoListItem,'answer')({...sources,
       title$: just('Answer the application question.'),
@@ -76,7 +59,7 @@ export default sources => {
     }),
   ]
 
-  const items = [title, ...todos]
+  const items = [title, info, ...todos]
   const route$ = merge(...todos.map(t => t.route$))
 
   const DOM = combineLatest(

@@ -13,6 +13,7 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import {
   Memberships,
+  Commitments,
 } from 'components/remote'
 
 import Glance from './Glance'
@@ -30,6 +31,9 @@ const _routes = {
 export default sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(key => sources.firebase('Engagements',key))
+
+  const commitments$ = engagement$.pluck('oppKey')
+    .flatMapLatest(Commitments.query.byOpp(sources))
 
   const opp$ = engagement$.pluck('opp')
 
@@ -50,6 +54,7 @@ export default sources => {
       projectKey$,
       project$,
       memberships$,
+      commitments$,
     })
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
