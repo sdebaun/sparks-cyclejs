@@ -12,9 +12,6 @@ import TabBar from 'components/TabBar'
 // import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-// import {icon} from 'helpers'
-
-// import {rows, log} from 'util'
 
 import AnswerQuestion from './AnswerQuestion'
 import ChooseTeams from './ChooseTeams'
