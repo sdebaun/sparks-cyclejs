@@ -1,6 +1,6 @@
 import {Observable} from 'rx'
 // import combineLatestObj from 'rx-combine-latest-obj'
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 // import {div, span} from 'cycle-snabbdom'
 
@@ -8,7 +8,7 @@ import isolate from '@cycle/isolate'
 // import Title from 'components/Title'
 // import Header from 'components/Header'
 import TabBar from 'components/TabBar'
-import ComingSoon from 'components/ComingSoon'
+// import ComingSoon from 'components/ComingSoon'
 // import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
@@ -18,9 +18,10 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import AnswerQuestion from './AnswerQuestion'
 import ChooseTeams from './ChooseTeams'
+import NextSteps from './NextSteps'
 
 const _routes = {
-  '/': isolate(ComingSoon('Next Steps')),
+  '/': NextSteps,
   '/question': AnswerQuestion,
   '/teams': ChooseTeams,
 }

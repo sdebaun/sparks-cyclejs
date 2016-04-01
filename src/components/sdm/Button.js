@@ -2,7 +2,7 @@
 import {Observable} from 'rx'
 const {just, combineLatest} = Observable
 
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import combineLatestObj from 'rx-combine-latest-obj'
 import {Button} from 'snabbdom-material'

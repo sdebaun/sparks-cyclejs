@@ -1,91 +1,64 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just, merge, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 
-import {div, icon} from 'helpers'
+import {div} from 'helpers'
 
 import {
-  Engagements,
-} from 'components/remote'
-
-import {
-  ListItem,
-  ListItemNavigating,
-  ListItemCollapsibleTextArea,
-} from 'components/sdm'
-
-import {
+  TitleListItem,
   QuotingListItem,
+  ToDoListItem,
 } from 'components/ui'
 
 // import {log} from 'util'
 
-const Instruct = sources => ListItem({...sources,
-  title$: just('The organizer would like to ask you a question:'),
+const Title = sources => TitleListItem({...sources,
+  title$: sources.engagement$.map(({isApplied, isAccepted, isConfirmed}) =>
+    isApplied && 'You are Waiting to be Accepted.' ||
+    isAccepted && 'Confirm Your Spot Now!' ||
+    isConfirmed && 'You are Confirmed!'
+  ),
 })
 
-// const NextStepListItem = sources => ListItemNavigating({
-//   title$: sources.show$.flatMapLatest(needed =>
-//     needed ? sources.titleNeeded$ : sources.titleDone$
-//   ),
-//   leftDOM$: sources.isNeeded$.map(needed =>
-//     icon(...(needed ? ['check_box_outline','#F00'] : ['check_box']))
-//   ),
-// })
+const Quote = sources => QuotingListItem({...sources,
+  title$: sources.project$.pluck('description'),
+  profileKey$: sources.project$.pluck('ownerProfileKey'),
+})
 
-const trimTo = (val, len) =>
-  val.length > len ? val.slice(0,len) + '...' : val
+const ToDoAnswer = sources => ToDoListItem({...sources,
+  title$: just('Answer the application question.'),
+  isDone$: sources.engagement$.map(({answer}) => !!answer),
+  path$: just(sources.router.createHref('/application/question')),
+})
+
+const ToDoTeams = sources => ToDoListItem({...sources,
+  title$: just('Choose the Teams you want to be in.'),
+  isDone$: sources.memberships$.map(m => m.length > 0),
+  path$: just(sources.router.createHref('/application/teams')),
+})
 
 export default sources => {
-  const answer$ = sources.engagement$.map(e => e && e.answer)
-
-  const ictrl = Instruct(sources)
-  const qctrl = QuotingListItem({...sources,
-    title$: sources.opp$.map(({question}) => question || 'No Question'),
-    profileKey$: sources.opp$.map(({project}) => project.ownerProfileKey),
-  })
-  const actrl = isolate(ListItemCollapsibleTextArea,'answer')({...sources,
-    title$: answer$.map(a => a ?
-      'You gave the answer:' :
-      'Give a good answer that will help the organizer get to know you.'
-    ),
-    subtitle$: answer$.map(a => a ? trimTo(a,60) : null),
-    isOpen$: answer$.map(a => !a),
-    iconName$: just('playlist_add'),
-    value$: answer$.map(a => a || ''),
-  })
-  const next = isolate(ListItemNavigating,'next')({...sources,
-    title$: just('Next, pick the teams you want to join.'),
-    leftDOM$: just(icon('chevron-circle-right', 'accent')),
-    path$:
-      sources.engagementKey$.map(k => '/engaged/' + k + '/application/teams'),
-  })
-
-  const items = [
-    ictrl,
-    qctrl,
-    actrl,
+  const todos = [
+    isolate(ToDoAnswer,'answer')(sources),
+    isolate(ToDoTeams,'teams')(sources),
   ]
 
-  const queue$ = actrl.value$
-    .withLatestFrom(sources.engagementKey$, (answer,key) => ({
-      key, values: {answer},
-    }))
-    .map(Engagements.action.update)
+  const children = [
+    Title(sources),
+    Quote(sources),
+    ...todos,
+  ]
+
+  const route$ = merge(...todos.map(t => t.route$))
 
   const DOM = combineLatest(
-    answer$, next.DOM,
-    ...items.map(i => i.DOM),
-    (answer, nextDOM, ...doms) => div({},[
-      ...doms,
-      answer ? nextDOM : null,
-    ])
+    children.map(i => i.DOM),
+    (...doms) => div({}, doms)
   )
 
   return {
     DOM,
-    queue$,
-    route$: next.route$,
+    route$,
   }
 }

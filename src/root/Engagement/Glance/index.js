@@ -7,10 +7,11 @@ import ComingSoon from 'components/ComingSoon'
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import Priority from './Priority'
+import Commitments from './Commitments'
 
 const _routes = {
   '/': isolate(Priority),
-  '/commitments': isolate(ComingSoon('Commitments')),
+  '/commitments': isolate(Commitments),
   '/more': isolate(ComingSoon('More Info')),
 }
 
