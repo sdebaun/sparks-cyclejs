@@ -13,6 +13,12 @@ import {
 
 // import {log} from 'util'
 
+const applicationComplete$$ = sources => combineLatest(
+  sources.engagement$.map(({answer}) => !!answer),
+  sources.memberships$.map(m => m.length > 0),
+  (ans, len) => ans && len,
+)
+
 const Title = sources => TitleListItem({...sources,
   title$: sources.engagement$.map(({isApplied, isAccepted, isConfirmed}) =>
     isApplied && 'You are Waiting to be Accepted.' ||
@@ -26,22 +32,15 @@ const Quote = sources => QuotingListItem({...sources,
   profileKey$: sources.project$.pluck('ownerProfileKey'),
 })
 
-const ToDoAnswer = sources => ToDoListItem({...sources,
-  title$: just('Answer the application question.'),
-  isDone$: sources.engagement$.map(({answer}) => !!answer),
-  path$: just(sources.router.createHref('/application/question')),
-})
-
-const ToDoTeams = sources => ToDoListItem({...sources,
-  title$: just('Choose the Teams you want to be in.'),
-  isDone$: sources.memberships$.map(m => m.length > 0),
-  path$: just(sources.router.createHref('/application/teams')),
+const ToDoApp = sources => ToDoListItem({...sources,
+  title$: just('Complete your Application.'),
+  isDone$: applicationComplete$$(sources),
+  path$: just(sources.router.createHref('/application')),
 })
 
 export default sources => {
   const todos = [
-    isolate(ToDoAnswer,'answer')(sources),
-    isolate(ToDoTeams,'teams')(sources),
+    isolate(ToDoApp,'app')(sources),
   ]
 
   const children = [
