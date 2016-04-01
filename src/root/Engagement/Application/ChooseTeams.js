@@ -10,7 +10,7 @@ import {
   ListWithHeader,
   ListItem,
   ListItemClickable,
-  // ListItemCollapsibleTextArea,
+  ListItemCollapsibleTextArea,
   ListItemHeader,
   CheckboxControl,
 } from 'components/sdm'
@@ -66,35 +66,33 @@ const OpenTeamListItem = sources => {
   }
 }
 
-// const RestrictedTeamListItem = sources => {
-//   const cb = CheckboxControl({...sources, value$: sources.membership$})
+const RestrictedTeamListItem = sources => {
+  const cb = CheckboxControl({...sources, value$: sources.membership$})
 
-//   const li = ListItemCollapsibleTextArea({...sources,
-//     leftDOM$: TeamIcon(sources).DOM,
-//     title$: sources.team$.pluck('name'),
-//     rightDOM$: cb.DOM,
-//     value$: sources.membership$.map(m => m && m.answer || ''),
-//   })
+  const li = ListItemCollapsibleTextArea({...sources,
+    leftDOM$: TeamIcon(sources).DOM,
+    title$: sources.team$.pluck('name'),
+    rightDOM$: cb.DOM,
+    value$: sources.membership$.map(m => m && m.answer || ''),
+  })
 
-//   const queue$ = li.value$
-//     .combineLatest(
-//       sources.membership$,
-//       sources.teamKey$,
-//       sources.oppKey$,
-//       sources.engagementKey$,
-//       (answer, membership, teamKey, oppKey, engagementKey) =>
-//         membership ?
-//         Memberships.action.remove(membership.$key) :
-//         Memberships.action.create({teamKey, oppKey, engagementKey, answer}),
-//     ).share()
+  const queue$ = li.value$
+    .combineLatest(
+      sources.membership$,
+      sources.teamKey$,
+      sources.oppKey$,
+      sources.engagementKey$,
+      (answer, membership, teamKey, oppKey, engagementKey) =>
+        membership ?
+        Memberships.action.remove(membership.$key) :
+        Memberships.action.create({teamKey, oppKey, engagementKey, answer}),
+    ).share()
 
-//   queue$.subscribe(log('R.queue$'))
-
-//   return {
-//     DOM: li.DOM,
-//     queue$,
-//   }
-// }
+  return {
+    DOM: li.DOM,
+    queue$,
+  }
+}
 
 const FulfillerMemberListItem = sources => {
   const teamKey$ = sources.item$.pluck('teamKey')
@@ -104,23 +102,13 @@ const FulfillerMemberListItem = sources => {
 
   const childSources = {...sources, teamKey$, team$, membership$}
 
-  // works with OpenTeamListItem, but not RestrictedTeamListItem
-  // const control = RestrictedTeamListItem(childSources)
-  const control = OpenTeamListItem(childSources)
+  const control$ = team$
+    .map(({isPublic}) =>
+      (isPublic ? OpenTeamListItem : RestrictedTeamListItem)(childSources)
+    ).share()
 
-  // this is what it should do
-  // const control$ = team$
-  //   .map(({isPublic}) =>
-  //     (isPublic ? OpenTeamListItem : RestrictedTeamListItem)(childSources)
-  //   )
-
-  const queue$ = control.queue$
-  const DOM = control.DOM
-
-  // const queue$ = control$.flatMapLatest(c => c.queue$)
-  // const DOM = control$.flatMapLatest(c => c.DOM)
-
-  queue$.subscribe(log('LI.queue$'))
+  const queue$ = control$.flatMapLatest(c => c.queue$)
+  const DOM = control$.flatMapLatest(c => c.DOM)
 
   return {
     DOM,
@@ -138,16 +126,14 @@ const TeamsMembersList = sources => {
     ),
   })
 
-  return ListWithHeader({...sources,
+  const sinks = ListWithHeader({...sources,
     headerDOM: header.DOM,
     Control$: just(FulfillerMemberListItem),
-    // this doesnt work in the same way it doesnt work
-    // when routed via FulfillerMemberListItem
-    // Control$: just(RestrictedTeamListItem),
-    // membership$: just({$key: 1234}),
-    // team$: just({name: 'foo', $key: 'bar'}),
-    // teamKey$: just(1234),
   })
+
+  const queue$ = sinks.queue$.share()
+
+  return {...sinks, queue$}
 }
 
 export default sources => {
@@ -180,6 +166,6 @@ export default sources => {
   return {
     DOM,
     queue$: list.queue$,
-    // route$,
+    route$: list.route$,
   }
 }
