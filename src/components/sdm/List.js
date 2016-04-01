@@ -9,7 +9,7 @@ const List = sources => {
       sources.Control$.map(Control =>
         controlsFromRows(sources, rows, Control)
       )
-    ).share()
+    ).shareReplay(1)
 
   const children$ = controls$
     .map(controls => controls.map(c => c.DOM))

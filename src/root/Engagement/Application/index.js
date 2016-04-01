@@ -8,7 +8,7 @@ import isolate from '@cycle/isolate'
 // import Title from 'components/Title'
 // import Header from 'components/Header'
 import TabBar from 'components/TabBar'
-import ComingSoon from 'components/ComingSoon'
+// import ComingSoon from 'components/ComingSoon'
 // import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
@@ -18,11 +18,12 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import AnswerQuestion from './AnswerQuestion'
 import ChooseTeams from './ChooseTeams'
+import NextSteps from './NextSteps'
 
 const _routes = {
-  '/': isolate(ComingSoon('Next Steps')),
-  '/question': AnswerQuestion,
-  '/teams': ChooseTeams,
+  '/': isolate(NextSteps),
+  '/question': isolate(AnswerQuestion),
+  '/teams': isolate(ChooseTeams),
 }
 
 const _tabs = [

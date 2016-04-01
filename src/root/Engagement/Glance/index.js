@@ -1,26 +1,17 @@
 import {Observable} from 'rx'
-// import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
-// import {div, span} from 'cycle-snabbdom'
-
-// import AppFrame from 'components/AppFrame'
-// import Title from 'components/Title'
-// import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
-// import ProjectNav from 'components/ProjectNav'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-// import {icon} from 'helpers'
 
-// import {rows, log} from 'util'
-
-// import Priority from './Priority'
+import Priority from './Priority'
+import Commitments from './Commitments'
 
 const _routes = {
-  '/': isolate(ComingSoon('Priority')),
-  '/commitments': isolate(ComingSoon('Commitments')),
+  '/': isolate(Priority),
+  '/commitments': isolate(Commitments),
   '/more': isolate(ComingSoon('More Info')),
 }
 
