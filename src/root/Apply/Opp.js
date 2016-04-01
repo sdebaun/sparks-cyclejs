@@ -68,7 +68,7 @@ const Title = sources => TitleListItem({...sources,
 
 const Quote = sources => QuotingListItem({...sources,
   title$: sources.opp$.map(({description}) => description || 'No Description'),
-  profileKey$: sources.opp$.map(({project}) => project.ownerProfileKey),
+  profileKey$: sources.project$.pluck('ownerProfileKey'),
 })
 
 const CommitmentList = sources => ListWithHeader({...sources,
