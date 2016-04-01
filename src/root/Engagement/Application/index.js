@@ -1,6 +1,6 @@
 import {Observable} from 'rx'
 // import combineLatestObj from 'rx-combine-latest-obj'
-// import isolate from '@cycle/isolate'
+import isolate from '@cycle/isolate'
 
 // import {div, span} from 'cycle-snabbdom'
 
@@ -21,9 +21,9 @@ import ChooseTeams from './ChooseTeams'
 import NextSteps from './NextSteps'
 
 const _routes = {
-  '/': NextSteps,
-  '/question': AnswerQuestion,
-  '/teams': ChooseTeams,
+  '/': isolate(NextSteps),
+  '/question': isolate(AnswerQuestion),
+  '/teams': isolate(ChooseTeams),
 }
 
 const _tabs = [
