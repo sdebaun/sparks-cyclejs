@@ -3,67 +3,57 @@ const {just, merge, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 
-import {div, icon} from 'helpers'
-
-import {
-  ListItemNavigating,
-} from 'components/sdm'
+import {div} from 'helpers'
 
 import {
   TitleListItem,
   QuotingListItem,
+  ToDoListItem,
 } from 'components/ui'
 
 // import {log} from 'util'
 
-const ToDoListItem = sources => {
-  const leftDOM$ = sources.isDone$.map(isDone =>
-      div({},[
-        isDone ?
-        icon('check_box','disabled') :
-        icon('chevron-circle-right', 'accent'),
-      ])
-    )
+const Title = sources => TitleListItem({...sources,
+  title$: sources.engagement$.map(({isApplied, isAccepted, isConfirmed}) =>
+    isApplied && 'You are Waiting to be Accepted.' ||
+    isAccepted && 'Confirm Your Spot Now!' ||
+    isConfirmed && 'You are Confirmed!'
+  ),
+})
 
-  return ListItemNavigating({...sources,
-    leftDOM$,
-    classes$: sources.isDone$.map(isDone => ({disabled: isDone})),
-  })
-}
+const Quote = sources => QuotingListItem({...sources,
+  title$: sources.project$.pluck('description'),
+  profileKey$: sources.project$.pluck('ownerProfileKey'),
+})
 
-const _labelMapper = ({isApplied, isAccepted, isConfirmed}) =>
-  isApplied && 'You are Waiting to be Accepted.' ||
-  isAccepted && 'Confirm Your Spot Now!' ||
-  isConfirmed && 'You are Confirmed!'
+const ToDoAnswer = sources => ToDoListItem({...sources,
+  title$: just('Answer the application question.'),
+  isDone$: sources.engagement$.map(({answer}) => !!answer),
+  path$: just(sources.router.createHref('/application/question')),
+})
+
+const ToDoTeams = sources => ToDoListItem({...sources,
+  title$: just('Choose the Teams you want to be in.'),
+  isDone$: sources.memberships$.map(m => m.length > 0),
+  path$: just(sources.router.createHref('/application/teams')),
+})
 
 export default sources => {
-  const title = TitleListItem({...sources,
-    title$: sources.engagement$.map(_labelMapper),
-  })
-
-  const info = QuotingListItem({...sources,
-    title$: sources.project$.pluck('description'),
-    profileKey$: sources.project$.pluck('ownerProfileKey'),
-  })
-
   const todos = [
-    isolate(ToDoListItem,'answer')({...sources,
-      title$: just('Answer the application question.'),
-      isDone$: sources.engagement$.map(({answer}) => !!answer),
-      path$: just(sources.router.createHref('/application/question')),
-    }),
-    isolate(ToDoListItem,'teams')({...sources,
-      title$: just('Choose the Teams you want to be in.'),
-      isDone$: sources.memberships$.map(m => m.length > 0),
-      path$: just(sources.router.createHref('/application/teams')),
-    }),
+    isolate(ToDoAnswer,'answer')(sources),
+    isolate(ToDoTeams,'teams')(sources),
   ]
 
-  const items = [title, info, ...todos]
+  const children = [
+    Title(sources),
+    Quote(sources),
+    ...todos,
+  ]
+
   const route$ = merge(...todos.map(t => t.route$))
 
   const DOM = combineLatest(
-    items.map(i => i.DOM),
+    children.map(i => i.DOM),
     (...doms) => div({}, doms)
   )
 
