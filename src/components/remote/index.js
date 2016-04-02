@@ -104,6 +104,7 @@ export const Engagements = {
     all: filterAll('Engagements'),
     one: filterOne('Engagements'),
     byUser: filterBy('Engagements','profileKey'),
+    byOpp: filterBy('Engagements','oppKey'),
   },
   action: {
     create: actionCreator('Engagements', 'create'),

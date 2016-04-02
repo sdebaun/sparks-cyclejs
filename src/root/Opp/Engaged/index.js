@@ -9,18 +9,18 @@ import Applied from './Applied'
 
 const Confirmed = ComingSoon('Manage/Glance/Confirmed')
 // const Applied = ComingSoon('Manage/Glance/Applied')
-const Approved = ComingSoon('Manage/Glance/Approved')
+const Accepted = ComingSoon('Manage/Glance/Accepted')
 
 const _routes = {
   '/': Confirmed,
   '/applied': Applied,
-  '/approved': Approved,
+  '/accepted': Accepted,
 }
 
 const _tabs = [
   {path: '/', label: 'Confirmed'},
   {path: '/applied', label: 'Applied'},
-  {path: '/approved', label: 'Approved'},
+  {path: '/accepted', label: 'Accepted'},
 ]
 
 export default sources => {
