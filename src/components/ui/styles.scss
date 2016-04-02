@@ -1,0 +1,50 @@
+.quote {
+  position:relative;
+  padding:8px;
+  margin:4px 4px 16px 4px;
+  border:1px solid black;
+  color:#333;
+  background:#fff;
+  /* css3 */
+  -webkit-border-radius:10px;
+  -moz-border-radius:10px;
+  border-radius:10px;
+}
+
+.quote:before {
+  content:"";
+  position:absolute;
+  bottom:-20px; /* value = - border-top-width - border-bottom-width */
+  left:10px; /* controls horizontal position */
+  border-width:20px 20px 0;
+  border-style:solid;
+  border-color:black transparent;
+  /* reduce the damage in FF3.0 */
+  display:block;
+  width:0;
+}
+
+/* creates the smaller  triangle */
+.quote:after {
+  content:"";
+  position:absolute;
+  bottom:-19px; /* value = - border-top-width - border-bottom-width */
+  left:11px; /* value = (:before left) + (:before border-left) - (:after border-left) */
+  border-width:19px 19px 0;
+  border-style:solid;
+  border-color:#fff transparent;
+  /* reduce the damage in FF3.0 */
+  display:block;
+  width:0;
+}
+
+.list-item-title .content .title {
+  font-size: 24px;
+  line-height: 42px;
+  font-weight: bold;
+  color: #666;
+}
+
+.description {
+  background-color: #DDD;
+}
