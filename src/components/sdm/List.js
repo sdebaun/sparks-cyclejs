@@ -9,7 +9,9 @@ const List = sources => {
       sources.Control$.map(Control =>
         controlsFromRows(sources, rows, Control)
       )
-    ).shareReplay(1)
+    ).share() // choose teams still broken with this
+    // ).shareReplay(1) // still broken with this
+    // ) // un-sharing fixes f83!??!?
 
   const children$ = controls$
     .map(controls => controls.map(c => c.DOM))

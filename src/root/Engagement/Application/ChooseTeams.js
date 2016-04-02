@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just, empty, merge, combineLatest} = Observable
 // const {merge} = Observable
 
 // import isolate from '@cycle/isolate'
@@ -10,9 +10,13 @@ import {
   ListWithHeader,
   ListItem,
   ListItemClickable,
-  ListItemCollapsibleTextArea,
+  // ListItemCollapsibleTextArea,
   ListItemHeader,
   CheckboxControl,
+  TextAreaControl,
+  ListItemCollapsible,
+  RaisedButton,
+  FlatButton,
 } from 'components/sdm'
 
 import {
@@ -66,27 +70,110 @@ const OpenTeamListItem = sources => {
   }
 }
 
+const OkAndCancelAndRemove = sources => {
+  const ok = RaisedButton({...sources,
+    label$: sources.okLabel$ || just('OK'),
+  })
+  const remove = RaisedButton({...sources,
+    label$: sources.removeLabel$ || just('Remove'),
+    classNames$: just(['accent']),
+  })
+  const cancel = FlatButton({...sources,
+    label$: sources.cancelLabel$ || just('Cancel'),
+  })
+
+  const doms = [ok, remove, cancel].map(c => c.DOM)
+
+  return {
+    DOM: combineLatest(
+      sources.value$, ...doms,
+      (val, okDOM, rDOM, cDOM) => div({},[
+        okDOM,
+        val && rDOM || null,
+        cDOM,
+      ])
+    ),
+    ok$: ok.click$,
+    remove$: remove.click$,
+    cancel$: cancel.click$,
+  }
+}
+
+const ListItemCollapsibleTextArea = sources => {
+  const ta = TextAreaControl(sources)
+  const li = ListItemCollapsible({...sources,
+    contentDOM$: combineLatest(
+      ta.DOM, sources.buttonsDOM$,
+      (...doms) => div({},doms)
+    ),
+  })
+
+  return {
+    DOM: li.DOM,
+    value$: ta.value$,
+  }
+}
+
+const ListItemCollapsibleTextAreaOKCancelRemove = sources => {
+  const buttons = OkAndCancelAndRemove(sources)
+  const close$ = merge(
+    buttons.cancel$,
+    buttons.ok$,
+    buttons.remove$,
+  ).map(false)
+
+  const li = ListItemCollapsibleTextArea({...sources,
+    isOpen$: (sources.isOpen$ || empty())
+      .merge(close$),
+    buttonsDOM$: buttons.DOM,
+  })
+
+  const value$ = merge(
+    li.value$.sample(buttons.ok$),
+    buttons.remove$.map(false),
+  )
+
+  return {
+    DOM: li.DOM,
+    value$,
+  }
+}
+
+const _determineAction =
+(answer, membership, teamKey, oppKey, engagementKey) => {
+  const {update, create, remove} = Memberships.action
+
+  if (answer && membership) {
+    return update({key: membership.$key, values: {answer}})
+  } else if (answer && !membership) {
+    return create({teamKey, oppKey, engagementKey, answer})
+  } else if (!answer && membership) {
+    return remove(membership.$key)
+  } else {
+    throw new Error('no answer, and no membership, wat?')
+  }
+}
+
 const RestrictedTeamListItem = sources => {
   const cb = CheckboxControl({...sources, value$: sources.membership$})
 
-  const li = ListItemCollapsibleTextArea({...sources,
+  const li = ListItemCollapsibleTextAreaOKCancelRemove({...sources,
     leftDOM$: TeamIcon(sources).DOM,
     title$: sources.team$.pluck('name'),
     rightDOM$: cb.DOM,
-    value$: sources.membership$.map(m => m && m.answer || ''),
+    value$: sources.membership$.map(m => m && m.answer || null), //.map(m => m && m.answer || ''),
   })
 
   const queue$ = li.value$
-    .combineLatest(
+    .withLatestFrom(
       sources.membership$,
       sources.teamKey$,
       sources.oppKey$,
       sources.engagementKey$,
-      (answer, membership, teamKey, oppKey, engagementKey) =>
-        membership ?
-        Memberships.action.remove(membership.$key) :
-        Memberships.action.create({teamKey, oppKey, engagementKey, answer}),
-    ).share()
+      _determineAction
+    )
+
+  queue$.subscribe(log('R.queue$'))
 
   return {
     DOM: li.DOM,
@@ -105,10 +192,12 @@ const FulfillerMemberListItem = sources => {
   const control$ = team$
     .map(({isPublic}) =>
       (isPublic ? OpenTeamListItem : RestrictedTeamListItem)(childSources)
-    ).share()
+    ).shareReplay(1)
 
   const queue$ = control$.flatMapLatest(c => c.queue$)
   const DOM = control$.flatMapLatest(c => c.DOM)
+
+  queue$.subscribe(log('LI.queue$'))
 
   return {
     DOM,
@@ -132,6 +221,8 @@ const TeamsMembersList = sources => {
   })
 
   const queue$ = sinks.queue$.share()
+
+  queue$.subscribe(log('L.queue$'))
 
   return {...sinks, queue$}
 }
