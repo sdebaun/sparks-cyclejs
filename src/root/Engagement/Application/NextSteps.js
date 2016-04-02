@@ -43,7 +43,10 @@ const ToDoTeams = sources => ToDoListItem({...sources,
 
 const Done = sources => ListItem({...sources,
   title$: just('All done!'),
-  subtitle$: just('Just wait for the project organizers to review your application and Approve you.'),
+  subtitle$: just(`
+    Just wait for the project organizers
+    to review your application and Approve you.
+  `),
   leftDOM$: just(icon('heart','accent')),
 })
 

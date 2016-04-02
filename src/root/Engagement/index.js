@@ -5,7 +5,7 @@ const {combineLatest} = Observable
 import AppFrame from 'components/AppFrame'
 import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
-import {ProjectQuickNavMenu} from 'components/project/ProjectQuickNavMenu'
+// import {ProjectQuickNavMenu} from 'components/project/ProjectQuickNavMenu'
 import {EngagementNav} from 'components/engagement'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
@@ -18,7 +18,6 @@ import {
   Opps,
   Projects,
   ProjectImages,
-  Teams,
 } from 'components/remote'
 
 import Glance from './Glance'
@@ -53,12 +52,6 @@ export default sources => {
 
   const memberships$ = sources.engagementKey$
     .flatMapLatest(Memberships.query.byEngagement(sources))
-
-  const teams$ = projectKey$
-    .flatMapLatest(Teams.query.byProject(sources))
-
-  const opps$ = projectKey$
-    .flatMapLatest(Opps.query.byProject(sources))
 
   const page$ = nestedComponent(
     sources.router.define(_routes), {

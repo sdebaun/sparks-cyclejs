@@ -173,7 +173,7 @@ const RestrictedTeamListItem = sources => {
     leftDOM$: TeamIcon(sources).DOM,
     title$: sources.team$.pluck('name'),
     rightDOM$: cb.DOM,
-    value$: sources.membership$.map(m => m && m.answer || null), //.map(m => m && m.answer || ''),
+    value$: sources.membership$.map(m => m && m.answer || null),
   })
 
   const queue$ = li.value$

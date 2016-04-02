@@ -23,12 +23,11 @@ import {
 
 import {
   QuotingListItem,
-  DescriptionListItem,
   TitleListItem,
   LoginButtons,
 } from 'components/ui'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const _Select = sources => SelectControl({...sources,
   label$: just('Choose another opportunity...'),
@@ -75,10 +74,6 @@ const CommitmentList = sources => ListWithHeader({...sources,
   headerDOM: ListItemHeader(sources).DOM,
   Control$: just(CommitmentItemPassive),
 })
-
-// const Description = sources => DescriptionListItem({...sources,
-//   item$: sources.opp$,
-// })
 
 export default sources => {
   // get the remote data we need

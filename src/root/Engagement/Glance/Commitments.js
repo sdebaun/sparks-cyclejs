@@ -1,13 +1,9 @@
 import {Observable} from 'rx'
-const {just, merge, combineLatest} = Observable
+const {just, combineLatest} = Observable
 
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
-import {div, icon} from 'helpers'
-
-import {
-  ListItemNavigating,
-} from 'components/sdm'
+import {div} from 'helpers'
 
 import {
   TitleListItem,
@@ -51,7 +47,6 @@ export default sources => {
   })
 
   const items = [title, info, gives, gets]
-  // const route$ = merge(...todos.map(t => t.route$))
 
   const DOM = combineLatest(
     items.map(i => i.DOM),
@@ -60,6 +55,5 @@ export default sources => {
 
   return {
     DOM,
-    // route$,
   }
 }
