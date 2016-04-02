@@ -190,6 +190,10 @@ const ListItemCollapsibleTextArea = sources => {
   const oac = OkAndCancel(sources)
   const li = ListItemCollapsible({...sources,
     contentDOM$: combineLatest(ta.DOM, oac.DOM, (...doms) => div({},doms)),
+    subtitle$: sources.value$.combineLatest(
+      sources.subtitle$ || just(null),
+      (v,st) => v ? v : st
+    ),
     isOpen$: (sources.isOpen$ || empty())
       .merge(oac.ok$.map(false), oac.cancel$.map(false)),
   })

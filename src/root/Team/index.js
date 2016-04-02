@@ -26,10 +26,12 @@ import {
 
 import Glance from './Glance'
 import Manage from './Manage'
+import Members from './Members'
 
 const _routes = {
   '/': Glance,
   '/manage': Manage,
+  '/members': Members,
 }
 
 import {ProjectQuickNavMenu} from 'components/project'
@@ -45,10 +47,17 @@ const TeamNav = sources => {
     iconName$: just('settings'),
     path$: just('/manage'),
   })
+  const members = isolate(ListItemNavigating,'members')({...sources,
+    title$: just('Members'),
+    iconName$: just('people'),
+    path$: just('/members'),
+  })
 
-  const listDOM$ = combineLatest(glance.DOM, manage.DOM, (...doms) => doms)
+  const childs = [glance, manage, members]
 
-  const route$ = merge(glance.route$, manage.route$)
+  const listDOM$ = combineLatest(childs.map(c => c.DOM), (...doms) => doms)
+
+  const route$ = merge(childs.map(c => c.route$))
     .map(sources.router.createHref)
 
   const DOM = combineLatest(
