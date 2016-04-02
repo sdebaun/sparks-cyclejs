@@ -87,6 +87,8 @@ const _Edit = sources => {
 
 const _About = sources => {
   const hd = ListItemHeader({...sources, title$: of('About You')})
+  const int = isolate(_Intro,'intro')(sources)
+  const sk = isolate(_Skills,'skills')(sources)
 
   const updateIntro$ = int.value$
     .withLatestFrom(sources.userProfileKey$, (intro,key) =>
