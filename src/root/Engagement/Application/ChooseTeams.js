@@ -20,6 +20,10 @@ import {
 } from 'components/sdm'
 
 import {
+  QuotingListItem,
+} from 'components/ui'
+
+import {
   Memberships,
   Fulfillers,
   Teams,
@@ -103,7 +107,9 @@ const ListItemCollapsibleTextArea = sources => {
   const ta = TextAreaControl(sources)
   const li = ListItemCollapsible({...sources,
     contentDOM$: combineLatest(
-      ta.DOM, sources.buttonsDOM$,
+      sources.topDOM$ || just(null),
+      ta.DOM,
+      sources.buttonsDOM$,
       (...doms) => div({},doms)
     ),
   })
@@ -157,7 +163,13 @@ const _determineAction =
 const RestrictedTeamListItem = sources => {
   const cb = CheckboxControl({...sources, value$: sources.membership$})
 
+  const q = QuotingListItem({...sources,
+    title$: sources.team$.pluck('question'),
+    profileKey$: sources.project$.pluck('ownerProfileKey'),
+  })
+
   const li = ListItemCollapsibleTextAreaOKCancelRemove({...sources,
+    topDOM$: q.DOM,
     leftDOM$: TeamIcon(sources).DOM,
     title$: sources.team$.pluck('name'),
     rightDOM$: cb.DOM,
