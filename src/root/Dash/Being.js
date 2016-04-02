@@ -113,9 +113,13 @@ const _About = sources => {
 }
 
 export default sources => {
-  const pr = _Profile(sources)
-  const ed = _Edit(sources)
-  const ab = _About(sources)
+  const _sources = {...sources,
+    userProfile$: sources.userProfile$.map(u => u || {}),
+  }
+
+  const pr = _Profile(_sources)
+  const ed = _Edit(_sources)
+  const ab = _About(_sources)
 
   const DOM = combineLatest(
     of(false),
