@@ -9,7 +9,8 @@ const List = sources => {
       sources.Control$.map(Control =>
         controlsFromRows(sources, rows, Control)
       )
-    ).share() // choose teams still broken with this
+    ).shareReplay(1)
+    // ).share() // lots of repeat nav breaks with this
 
     // .share == .publish.refCount
     // .publish == .multiCast(=>new subject)
