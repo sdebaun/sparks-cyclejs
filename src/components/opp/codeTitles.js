@@ -2,11 +2,11 @@
 
 export default {
   help: ({who}) => 'To help ' + who,
-  ticket: ({ticketType}) => 'A ' + ticketType + ' ticket.',
+  ticket: ({ticketType}) => 'A ' + ticketType + ' ticket',
   tracked: ({count, description}) => count + ' ' + description,
   schwag: ({what}) => what,
   waiver: ({who}) => 'A waiver for ' + who,
-  deposit: ({amount}) => 'A refundable deposit of ' + amount,
-  payment: ({amount}) => 'A payment of ' + amount,
-  shifts: ({count}) => count + ' shifts',
+  deposit: ({amount}) => 'Make a refundable deposit of ' + amount,
+  payment: ({amount}) => 'A nonrefundable payment of ' + amount,
+  shifts: ({count}) => 'Work ' + count + ' shifts',
 }
