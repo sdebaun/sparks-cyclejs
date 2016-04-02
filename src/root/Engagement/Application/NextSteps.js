@@ -41,6 +41,12 @@ const ToDoTeams = sources => ToDoListItem({...sources,
   path$: just(sources.router.createHref('/teams')),
 })
 
+const ToDoProfile = sources => ToDoListItem({...sources,
+  title$: just('Put some more details in your profile.'),
+  isDone$: sources.userProfile$.map(u => u && u.intro && u.skills),
+  path$: just('/dash/being'),
+})
+
 const Done = sources => ListItem({...sources,
   title$: just('All done!'),
   subtitle$: just(`
@@ -56,6 +62,7 @@ export default sources => {
   const todos = [
     isolate(ToDoAnswer,'answer')({...sources, complete$}),
     isolate(ToDoTeams,'teams')({...sources, complete$}),
+    isolate(ToDoProfile,'profile')({...sources, complete$}),
   ]
 
   const children = [

@@ -263,7 +263,7 @@ const Next = sources => ListItemNavigating({...sources,
     just('You can choose as many teams as you want, but you only need one.'),
   leftDOM$: just(icon('chevron-circle-right', 'accent')),
   path$:
-    sources.engagementKey$.map(k => '/engaged/' + k + '/application/teams'),
+    sources.engagementKey$.map(k => '/engaged/' + k + '/application'),
 })
 
 // const combineToDiv = (...DOMs) => combineLatest(
@@ -295,6 +295,6 @@ export default sources => {
   return {
     DOM,
     queue$: list.queue$,
-    route$: list.route$,
+    route$: next.route$,
   }
 }
