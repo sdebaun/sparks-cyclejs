@@ -5,10 +5,10 @@ import ComingSoon from 'components/ComingSoon'
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 // import Describe from './Describe'
-// import Applying from './Applying'
+import Applied from './Applied'
 
 const Confirmed = ComingSoon('Manage/Glance/Confirmed')
-const Applied = ComingSoon('Manage/Glance/Applied')
+// const Applied = ComingSoon('Manage/Glance/Applied')
 const Approved = ComingSoon('Manage/Glance/Approved')
 
 const _routes = {
