@@ -12,6 +12,7 @@ import {GiveWaiver, GiveShifts, GivePayment, GiveDeposit} from './GiveItems'
 const SelectingItem = sources => ListItemClickable({...sources,
   title$: just('What do Volunteers GIVE?'),
   iconName$: just('plus'),
+  classes$: just({header: true}),
 })
 
 export const AddCommitmentGive = sources => {
