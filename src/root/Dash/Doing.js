@@ -203,7 +203,7 @@ export default sources => {
   )
 
   const DOM = combineLatest(
-    sources.userProfile$.pluck('isEAP'),
+    sources.userProfile$.map(up => up && up.isEAP),
     create.DOM,
     welcome.DOM,
     managed.DOM,
