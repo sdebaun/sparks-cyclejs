@@ -4,7 +4,7 @@ const {just, empty, merge, combineLatest} = Observable
 
 // import isolate from '@cycle/isolate'
 
-import {div} from 'helpers'
+import {div, icon} from 'helpers'
 
 import {
   ListWithHeader,
@@ -12,6 +12,7 @@ import {
   ListItemClickable,
   // ListItemCollapsibleTextArea,
   ListItemHeader,
+  ListItemNavigating,
   CheckboxControl,
   TextAreaControl,
   ListItemCollapsible,
@@ -21,6 +22,7 @@ import {
 
 import {
   QuotingListItem,
+  DescriptionListItem,
 } from 'components/ui'
 
 import {
@@ -51,6 +53,7 @@ const OpenTeamListItem = sources => {
   const li = ListItemClickable({...sources,
     leftDOM$: TeamIcon(sources).DOM,
     title$: sources.team$.pluck('name'),
+    subtitle$: sources.team$.pluck('description'),
     rightDOM$: cb.DOM,
   })
 
@@ -168,10 +171,15 @@ const RestrictedTeamListItem = sources => {
     profileKey$: sources.project$.pluck('ownerProfileKey'),
   })
 
+  // const desc = DescriptionListItem({...sources,
+  //   item$: sources.team$.pluck('description'),
+  // })
+
   const li = ListItemCollapsibleTextAreaOKCancelRemove({...sources,
-    topDOM$: q.DOM,
+    topDOM$: combineLatest(q.DOM, (...doms) => div({},doms)),
     leftDOM$: TeamIcon(sources).DOM,
     title$: sources.team$.pluck('name'),
+    subtitle$: sources.team$.pluck('description'),
     rightDOM$: cb.DOM,
     value$: sources.membership$.map(m => m && m.answer || null),
   })
@@ -222,7 +230,7 @@ const TeamsMembersList = sources => {
     title$: just('Available Teams'),
     rightDOM$: combineLatest(
       sources.memberships$.map(m => m.length),
-      sources.rows$.map(r => r.length),
+      sources.fulfillers$.map(r => r.length),
       (m,t) => m + '/' + t
     ),
   })
@@ -230,6 +238,7 @@ const TeamsMembersList = sources => {
   const sinks = ListWithHeader({...sources,
     headerDOM: header.DOM,
     Control$: just(FulfillerMemberListItem),
+    rows$: sources.fulfillers$,
   })
 
   const queue$ = sinks.queue$.share()
@@ -239,7 +248,7 @@ const TeamsMembersList = sources => {
   return {...sinks, queue$}
 }
 
-export default sources => {
+const Fetch = sources => {
   const oppKey$ = sources.engagement$.pluck('oppKey')
 
   const memberships$ = sources.engagementKey$
@@ -248,27 +257,51 @@ export default sources => {
   const fulfillers$ = oppKey$
     .flatMapLatest(Fulfillers.query.byOpp(sources))
 
-  const ictrl = Instruct(sources)
-
-  const list = TeamsMembersList({...sources,
+  return {
     oppKey$,
-    rows$: fulfillers$,
     memberships$,
-  })
+    fulfillers$,
+  }
+}
+
+const Next = sources => ListItemNavigating({...sources,
+  title$: just('That\'s enough, carry on!'),
+  subtitle$:
+    just('You can choose as many teams as you want, but you only need one.'),
+  leftDOM$: just(icon('chevron-circle-right', 'accent')),
+  path$:
+    sources.engagementKey$.map(k => '/engaged/' + k + '/application'),
+})
+
+// const combineToDiv = (...DOMs) => combineLatest(
+//   ...DOMs, (...doms) => div({},doms)
+// )
+
+export default sources => {
+  const _sources = {...sources, ...Fetch(sources)}
+
+  const inst = Instruct(_sources)
+  const list = TeamsMembersList(_sources)
+  const next = Next(_sources)
 
   const items = [
-    ictrl,
+    inst,
+    next,
     list,
   ]
 
   const DOM = combineLatest(
+    _sources.memberships$.map(m => m.length > 0),
     ...items.map(i => i.DOM),
-    (...doms) => div({},doms)
+    (hasTeams, i, n, l) => div({},[
+      hasTeams ? n : i,
+      l,
+    ])
   )
 
   return {
     DOM,
     queue$: list.queue$,
-    route$: list.route$,
+    route$: next.route$,
   }
 }

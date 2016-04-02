@@ -12,10 +12,12 @@ import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import Glance from './Glance'
 import Manage from './Manage'
+import Engaged from './Engaged'
 
 const _routes = {
   '/': Glance,
   '/manage': Manage,
+  '/engaged': Engaged,
 }
 
 import {

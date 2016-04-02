@@ -25,6 +25,7 @@ const DescriptionTextarea = sources => ListItemCollapsibleTextArea({
     This is shown to all the people involved in your project,
     so make it general.
   `),
+  value$: sources.project$.pluck('description'),
   iconName$: just('playlist_add'),
   okLabel$: just('yes do it'),
   cancelLabel$: just('wait a sec'),
@@ -36,9 +37,7 @@ export default sources => {
 
   const setImage = SetImage({...sources, inputDataUrl$})
 
-  const descriptionTextarea = isolate(DescriptionTextarea)({...sources,
-    value$: sources.project$.pluck('description'),
-  })
+  const descriptionTextarea = isolate(DescriptionTextarea)(sources)
 
   const updateDescription$ = descriptionTextarea.value$
     .withLatestFrom(sources.projectKey$, (description,key) => ({

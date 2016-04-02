@@ -102,7 +102,9 @@ export const TeamImages = {
 export const Engagements = {
   query: {
     all: filterAll('Engagements'),
+    one: filterOne('Engagements'),
     byUser: filterBy('Engagements','profileKey'),
+    byOpp: filterBy('Engagements','oppKey'),
   },
   action: {
     create: actionCreator('Engagements', 'create'),
