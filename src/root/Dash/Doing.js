@@ -203,12 +203,13 @@ export default sources => {
   )
 
   const DOM = combineLatest(
+    sources.userProfile$.pluck('isEAP'),
+    create.DOM,
     welcome.DOM,
     managed.DOM,
     organizing.DOM,
     engaged.DOM,
-    create.DOM,
-    (...doms) => div({},doms)
+    (isEAP, cr, ...doms) => div({},[...doms, isEAP ? cr : null])
   )
 
   return {

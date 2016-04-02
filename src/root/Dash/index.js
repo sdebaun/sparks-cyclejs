@@ -15,11 +15,12 @@ import {ResponsiveTitle} from 'components/Title'
 import {MediumProfileAvatar} from 'components/profile'
 
 import Doing from './Doing'
+import Being from './Being'
 
 const _routes = {
   '/': Doing,
   '/finding': ComingSoon('Dash/Finding'),
-  '/being': ComingSoon('Dash/Being'),
+  '/being': Being,
 }
 
 const _tabs = [
