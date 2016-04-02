@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just, merge, combineLatest} = Observable
 
 // import isolate from '@cycle/isolate'
 
@@ -8,9 +8,11 @@ import {div} from 'helpers'
 import {CommitmentItemPassive} from 'components/commitment'
 
 import {
+  ListItem,
   ListItemHeader,
   ListWithHeader,
   RaisedButton,
+  SelectControl,
 } from 'components/sdm'
 
 import {
@@ -20,15 +22,53 @@ import {
 } from 'components/remote'
 
 import {
-  DescriptionListItem,
+  QuotingListItem,
+  TitleListItem,
   LoginButtons,
 } from 'components/ui'
 
 // import {log} from 'util'
 
+const _Select = sources => SelectControl({...sources,
+  label$: just('Choose another opportunity...'),
+  options$: sources.opps$.map(opps => [
+    // {value: 0, label: 'Choose another opportunity...'},
+    ...opps.map(({name,$key}) => ({value: $key, label: name})),
+  ]),
+  value$: just(false),
+})
+
+const Chooser = sources => {
+  const select = _Select(sources)
+  const li = ListItem({...sources,
+    title$: select.DOM,
+  })
+
+  const route$ = select.value$
+    .filter(v => !!v)
+    .combineLatest(
+      sources.projectKey$,
+      (ok, pk) => `/apply/${pk}/opp/${ok}`
+    )
+
+  return {
+    DOM: li.DOM,
+    route$,
+  }
+}
+
 const _redirectResponses = ({responses$}) => responses$
   .filter(({domain,event}) => domain === 'Engagements' && event === 'create')
   .map(response => '/engaged/' + response.payload + '/application/question')
+
+const Title = sources => TitleListItem({...sources,
+  title$: sources.opp$.pluck('name'),
+})
+
+const Quote = sources => QuotingListItem({...sources,
+  title$: sources.opp$.map(({description}) => description || 'No Description'),
+  profileKey$: sources.project$.pluck('ownerProfileKey'),
+})
 
 const CommitmentList = sources => ListWithHeader({...sources,
   headerDOM: ListItemHeader(sources).DOM,
@@ -45,9 +85,12 @@ export default sources => {
   const commitments$ = oppKey$
     .flatMapLatest(Commitments.query.byOpp(sources))
 
-  // delegate to controls
-  const desc = DescriptionListItem({...sources, item$: opp$})
+  const _sources = {...sources, opp$, oppKey$, commitments$}
 
+  // delegate to controls
+  const title = Title(_sources)
+  const chooser = Chooser(_sources)
+  const desc = Quote(_sources)
   const logins = LoginButtons(sources)
 
   const applyNow = RaisedButton({...sources,
@@ -75,12 +118,19 @@ export default sources => {
     .sample(applyNow.click$)
     .map(Engagements.action.create)
 
-  const route$ = _redirectResponses(sources)
+  const route$ = merge(
+    _redirectResponses(sources),
+    chooser.route$,
+  )
+
+  // route$.subscribe(log('route$'))
 
   const DOM = combineLatest(
     sources.auth$,
     applyNow.DOM,
     logins.DOM,
+    title.DOM,
+    chooser.DOM,
     desc.DOM,
     gives.DOM,
     gets.DOM,

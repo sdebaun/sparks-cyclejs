@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just, empty, merge, combineLatest} = Observable
 // const {merge} = Observable
 
 // import isolate from '@cycle/isolate'
@@ -13,7 +13,15 @@ import {
   // ListItemCollapsibleTextArea,
   ListItemHeader,
   CheckboxControl,
+  TextAreaControl,
+  ListItemCollapsible,
+  RaisedButton,
+  FlatButton,
 } from 'components/sdm'
+
+import {
+  QuotingListItem,
+} from 'components/ui'
 
 import {
   Memberships,
@@ -66,35 +74,124 @@ const OpenTeamListItem = sources => {
   }
 }
 
-// const RestrictedTeamListItem = sources => {
-//   const cb = CheckboxControl({...sources, value$: sources.membership$})
+const OkAndCancelAndRemove = sources => {
+  const ok = RaisedButton({...sources,
+    label$: sources.okLabel$ || just('OK'),
+  })
+  const remove = RaisedButton({...sources,
+    label$: sources.removeLabel$ || just('Remove'),
+    classNames$: just(['accent']),
+  })
+  const cancel = FlatButton({...sources,
+    label$: sources.cancelLabel$ || just('Cancel'),
+  })
 
-//   const li = ListItemCollapsibleTextArea({...sources,
-//     leftDOM$: TeamIcon(sources).DOM,
-//     title$: sources.team$.pluck('name'),
-//     rightDOM$: cb.DOM,
-//     value$: sources.membership$.map(m => m && m.answer || ''),
-//   })
+  const doms = [ok, remove, cancel].map(c => c.DOM)
 
-//   const queue$ = li.value$
-//     .combineLatest(
-//       sources.membership$,
-//       sources.teamKey$,
-//       sources.oppKey$,
-//       sources.engagementKey$,
-//       (answer, membership, teamKey, oppKey, engagementKey) =>
-//         membership ?
-//         Memberships.action.remove(membership.$key) :
-//         Memberships.action.create({teamKey, oppKey, engagementKey, answer}),
-//     ).share()
+  return {
+    DOM: combineLatest(
+      sources.value$, ...doms,
+      (val, okDOM, rDOM, cDOM) => div({},[
+        okDOM,
+        val && rDOM || null,
+        cDOM,
+      ])
+    ),
+    ok$: ok.click$,
+    remove$: remove.click$,
+    cancel$: cancel.click$,
+  }
+}
 
-//   queue$.subscribe(log('R.queue$'))
+const ListItemCollapsibleTextArea = sources => {
+  const ta = TextAreaControl(sources)
+  const li = ListItemCollapsible({...sources,
+    contentDOM$: combineLatest(
+      sources.topDOM$ || just(null),
+      ta.DOM,
+      sources.buttonsDOM$,
+      (...doms) => div({},doms)
+    ),
+  })
 
-//   return {
-//     DOM: li.DOM,
-//     queue$,
-//   }
-// }
+  return {
+    DOM: li.DOM,
+    value$: ta.value$,
+  }
+}
+
+const ListItemCollapsibleTextAreaOKCancelRemove = sources => {
+  const buttons = OkAndCancelAndRemove(sources)
+  const close$ = merge(
+    buttons.cancel$,
+    buttons.ok$,
+    buttons.remove$,
+  ).map(false)
+
+  const li = ListItemCollapsibleTextArea({...sources,
+    isOpen$: (sources.isOpen$ || empty())
+      .merge(close$),
+    buttonsDOM$: buttons.DOM,
+  })
+
+  const value$ = merge(
+    li.value$.sample(buttons.ok$),
+    buttons.remove$.map(false),
+  )
+
+  return {
+    DOM: li.DOM,
+    value$,
+  }
+}
+
+const _determineAction =
+(answer, membership, teamKey, oppKey, engagementKey) => {
+  const {update, create, remove} = Memberships.action
+
+  if (answer && membership) {
+    return update({key: membership.$key, values: {answer}})
+  } else if (answer && !membership) {
+    return create({teamKey, oppKey, engagementKey, answer})
+  } else if (!answer && membership) {
+    return remove(membership.$key)
+  } else {
+    throw new Error('no answer, and no membership, wat?')
+  }
+}
+
+const RestrictedTeamListItem = sources => {
+  const cb = CheckboxControl({...sources, value$: sources.membership$})
+
+  const q = QuotingListItem({...sources,
+    title$: sources.team$.pluck('question'),
+    profileKey$: sources.project$.pluck('ownerProfileKey'),
+  })
+
+  const li = ListItemCollapsibleTextAreaOKCancelRemove({...sources,
+    topDOM$: q.DOM,
+    leftDOM$: TeamIcon(sources).DOM,
+    title$: sources.team$.pluck('name'),
+    rightDOM$: cb.DOM,
+    value$: sources.membership$.map(m => m && m.answer || null),
+  })
+
+  const queue$ = li.value$
+    .withLatestFrom(
+      sources.membership$,
+      sources.teamKey$,
+      sources.oppKey$,
+      sources.engagementKey$,
+      _determineAction
+    )
+
+  queue$.subscribe(log('R.queue$'))
+
+  return {
+    DOM: li.DOM,
+    queue$,
+  }
+}
 
 const FulfillerMemberListItem = sources => {
   const teamKey$ = sources.item$.pluck('teamKey')
@@ -104,21 +201,13 @@ const FulfillerMemberListItem = sources => {
 
   const childSources = {...sources, teamKey$, team$, membership$}
 
-  // works with OpenTeamListItem, but not RestrictedTeamListItem
-  // const control = RestrictedTeamListItem(childSources)
-  const control = OpenTeamListItem(childSources)
+  const control$ = team$
+    .map(({isPublic}) =>
+      (isPublic ? OpenTeamListItem : RestrictedTeamListItem)(childSources)
+    ).shareReplay(1)
 
-  // this is what it should do
-  // const control$ = team$
-  //   .map(({isPublic}) =>
-  //     (isPublic ? OpenTeamListItem : RestrictedTeamListItem)(childSources)
-  //   )
-
-  const queue$ = control.queue$
-  const DOM = control.DOM
-
-  // const queue$ = control$.flatMapLatest(c => c.queue$)
-  // const DOM = control$.flatMapLatest(c => c.DOM)
+  const queue$ = control$.flatMapLatest(c => c.queue$)
+  const DOM = control$.flatMapLatest(c => c.DOM)
 
   queue$.subscribe(log('LI.queue$'))
 
@@ -138,16 +227,16 @@ const TeamsMembersList = sources => {
     ),
   })
 
-  return ListWithHeader({...sources,
+  const sinks = ListWithHeader({...sources,
     headerDOM: header.DOM,
     Control$: just(FulfillerMemberListItem),
-    // this doesnt work in the same way it doesnt work
-    // when routed via FulfillerMemberListItem
-    // Control$: just(RestrictedTeamListItem),
-    // membership$: just({$key: 1234}),
-    // team$: just({name: 'foo', $key: 'bar'}),
-    // teamKey$: just(1234),
   })
+
+  const queue$ = sinks.queue$.share()
+
+  queue$.subscribe(log('L.queue$'))
+
+  return {...sinks, queue$}
 }
 
 export default sources => {
@@ -180,6 +269,6 @@ export default sources => {
   return {
     DOM,
     queue$: list.queue$,
-    // route$,
+    route$: list.route$,
   }
 }

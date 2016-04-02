@@ -6,7 +6,9 @@ const {just, merge, combineLatest} = Observable
 import {div} from 'helpers'
 import {Menu} from 'components/sdm'
 
-import {ListItemClickable} from 'components/sdm'
+import {
+  ListItemClickable,
+} from 'components/sdm'
 
 import {
   GetHelp,
@@ -18,6 +20,7 @@ import {
 const SelectingItem = sources => ListItemClickable({...sources,
   title$: just('What do Volunteers GET?'),
   iconName$: just('plus'),
+  classes$: just({header: true}),
 })
 
 export const AddCommitmentGet = sources => {

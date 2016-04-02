@@ -5,11 +5,20 @@ const {combineLatest} = Observable
 import AppFrame from 'components/AppFrame'
 import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
+// import {ProjectQuickNavMenu} from 'components/project/ProjectQuickNavMenu'
 import {EngagementNav} from 'components/engagement'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 // import {log} from 'util'
+
+import {
+  Memberships,
+  Commitments,
+  Opps,
+  Projects,
+  ProjectImages,
+} from 'components/remote'
 
 import Glance from './Glance'
 import Application from './Application'
@@ -21,30 +30,46 @@ const _routes = {
   '/schedule': Schedule,
 }
 
-// import ProjectQuickNavMenu from 'components/ProjectQuickNavMenu'
-
 export default sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(key => sources.firebase('Engagements',key))
 
-  const opp$ = engagement$.pluck('opp')
+  const oppKey$ = engagement$.pluck('oppKey')
+
+  const commitments$ = oppKey$
+    .flatMapLatest(Commitments.query.byOpp(sources))
+
+  const opp$ = oppKey$
+    .flatMapLatest(Opps.query.one(sources))
 
   const projectKey$ = opp$.pluck('projectKey')
-  const project$ = opp$.pluck('project')
+
+  const project$ = projectKey$
+    .flatMapLatest(Projects.query.one(sources))
 
   const projectImage$ = projectKey$
-    .flatMapLatest(projectKey => sources.firebase('ProjectImages',projectKey))
+    .flatMapLatest(ProjectImages.query.one(sources))
+
+  const memberships$ = sources.engagementKey$
+    .flatMapLatest(Memberships.query.byEngagement(sources))
 
   const page$ = nestedComponent(
-    sources.router.define(_routes),
-    {engagement$, opp$, projectKey$, project$, ...sources}
-  )
-
-  const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
+    sources.router.define(_routes), {
+      ...sources,
+      engagement$,
+      oppKey$,
+      opp$,
+      projectKey$,
+      project$,
+      memberships$,
+      commitments$,
+    })
 
   // const quickNav = ProjectQuickNavMenu(
-  //   {...sources, engagement$, project$, projectKey$, opp$}
+  //   {...sources, project$, projectKey$, opp$, teams$, opps$}
   // )
+
+  const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
 
   const subtitleDOM$ = combineLatest(
     sources.isMobile$,
@@ -54,7 +79,7 @@ export default sources => {
 
   const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    topDOM$: project$.pluck('name'),
+    // topDOM$: quickNav.DOM,
     titleDOM$: opp$.pluck('name'),
     subtitleDOM$,
     backgroundUrl$: projectImage$.map(i => i && i.dataUrl),

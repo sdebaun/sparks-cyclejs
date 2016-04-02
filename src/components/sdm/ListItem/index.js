@@ -174,7 +174,10 @@ const ListItemCollapsible = sources => {
 
   const DOM = combineLatestObj(viewState)
     .map(({isOpen, listItemDOM, contentDOM}) =>
-      div({},[listItemDOM, isOpen && contentDOM].filter(i => !!i))
+      div({},[
+        listItemDOM,
+        isOpen && div('.collapsible',[contentDOM]),
+      ].filter(i => !!i))
     )
 
   return {

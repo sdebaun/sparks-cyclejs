@@ -29,7 +29,7 @@ const ProjectQuickNavMenu = sources => {
     rows$: sources.opps$,
   })
 
-  const nav = isolate(QuickNav,'quicknav')({...sources,
+  const nav = QuickNav({...sources,
     label$: sources.project$.pluck('name'),
     menuItems$: just([project.DOM, teams.DOM, opps.DOM]),
   })
