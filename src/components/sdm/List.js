@@ -10,8 +10,12 @@ const List = sources => {
         controlsFromRows(sources, rows, Control)
       )
     ).share() // choose teams still broken with this
-    // ).shareReplay(1) // still broken with this
-    // ) // un-sharing fixes f83!??!?
+
+    // .share == .publish.refCount
+    // .publish == .multiCast(=>new subject)
+    // .refcount: tracks # of observers
+    // .shareReplay == multicasts to a replaysubject
+    // .publishBehavior? multicasts to a behavior
 
   const children$ = controls$
     .map(controls => controls.map(c => c.DOM))
