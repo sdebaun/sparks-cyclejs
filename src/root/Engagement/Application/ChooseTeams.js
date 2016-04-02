@@ -22,6 +22,7 @@ import {
 
 import {
   QuotingListItem,
+  DescriptionListItem,
 } from 'components/ui'
 
 import {
@@ -52,6 +53,7 @@ const OpenTeamListItem = sources => {
   const li = ListItemClickable({...sources,
     leftDOM$: TeamIcon(sources).DOM,
     title$: sources.team$.pluck('name'),
+    subtitle$: sources.team$.pluck('description'),
     rightDOM$: cb.DOM,
   })
 
@@ -169,10 +171,15 @@ const RestrictedTeamListItem = sources => {
     profileKey$: sources.project$.pluck('ownerProfileKey'),
   })
 
+  // const desc = DescriptionListItem({...sources,
+  //   item$: sources.team$.pluck('description'),
+  // })
+
   const li = ListItemCollapsibleTextAreaOKCancelRemove({...sources,
-    topDOM$: q.DOM,
+    topDOM$: combineLatest(q.DOM, (...doms) => div({},doms)),
     leftDOM$: TeamIcon(sources).DOM,
     title$: sources.team$.pluck('name'),
+    subtitle$: sources.team$.pluck('description'),
     rightDOM$: cb.DOM,
     value$: sources.membership$.map(m => m && m.answer || null),
   })
