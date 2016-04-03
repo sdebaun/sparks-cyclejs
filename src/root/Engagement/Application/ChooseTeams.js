@@ -22,7 +22,6 @@ import {
 
 import {
   QuotingListItem,
-  DescriptionListItem,
 } from 'components/ui'
 
 import {

@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
 
-import isolate from '@cycle/isolate'
+// import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 

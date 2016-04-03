@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, merge, combineLatest} = Observable
+const {just} = Observable
 
 import {
   List,
@@ -45,11 +45,11 @@ export default sources => {
   const list = AppList(_sources)
   // const next = Next(_sources)
 
-  const items = [
+  // const items = [
     // inst,
     // next,
-    list,
-  ]
+    // list,
+  // ]
 
   // const DOM = combineLatest(
   //   _sources.memberships$.map(m => m.length > 0),
