@@ -1,11 +1,10 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {combineLatest} = Observable
 
 // import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import SoloFrame from 'components/SoloFrame'
-import {ProjectQuickNavMenu} from 'components/project/ProjectQuickNavMenu'
 import {ResponsiveTitle} from 'components/Title'
 
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
@@ -25,7 +24,6 @@ import {
   Opps,
   ProjectImages,
   Projects,
-  Teams,
 } from 'components/remote'
 
 const _routes = {
@@ -36,32 +34,25 @@ const _routes = {
 }
 
 const _Fetch = sources => {
-  const projectKey$ = sources.projectKey$.shareReplay(1)
-
-  const project$ = projectKey$
+  const project$ = sources.projectKey$
     .flatMapLatest(Projects.query.one(sources))
 
-  const projectImage$ = projectKey$
+  const projectImage$ = sources.projectKey$
     .flatMapLatest(ProjectImages.query.one(sources))
 
-  const opps$ = projectKey$
+  const opps$ = sources.projectKey$
     .flatMapLatest(Opps.query.byProject(sources))
     .map(opps => opps.filter(({isPublic}) => isPublic))
-
-  const teams$ = projectKey$
-    .flatMapLatest(Teams.query.byProject(sources))
 
   return {
     project$,
     projectImage$,
     opps$,
-    teams$,
   }
 }
 
 const _Title = sources => ResponsiveTitle({...sources,
-  titleDOM$: just(''),
-  topDOM$: sources.topDOM$,
+  titleDOM$: sources.project$.pluck('name'),
   subtitleDOM$: sources.opps$.map(o => o.length + ' Opportunities Available'),
   backgroundUrl$: sources.projectImage$.map(pi => pi && pi.dataUrl),
 })
@@ -73,9 +64,7 @@ const _Description = sources => DescriptionListItem({...sources,
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
-  const quickNav = ProjectQuickNavMenu(_sources)
-
-  const title = _Title({..._sources, topDOM$: quickNav.DOM})
+  const title = _Title(_sources)
 
   const desc = _Description(_sources)
 
@@ -92,7 +81,7 @@ export default sources => {
     headerDOM: title.DOM,
   })
 
-  const children = [frame, page$, quickNav]
+  const children = [frame, page$]
 
   const auth$ = mergeOrFlatMapLatest('auth$', ...children)
   const queue$ = mergeOrFlatMapLatest('queue$', ...children)
