@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
 
-// import isolate from '@cycle/isolate'
+import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
@@ -46,7 +46,7 @@ const Chooser = sources => {
 
   const route$ = select.value$
     .filter(v => !!v)
-    .combineLatest(
+    .withLatestFrom(
       sources.projectKey$,
       (ok, pk) => `/apply/${pk}/opp/${ok}`
     )
