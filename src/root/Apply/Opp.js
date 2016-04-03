@@ -46,7 +46,7 @@ const Chooser = sources => {
 
   const route$ = select.value$
     .filter(v => !!v)
-    .combineLatest(
+    .withLatestFrom(
       sources.projectKey$,
       (ok, pk) => `/apply/${pk}/opp/${ok}`
     )

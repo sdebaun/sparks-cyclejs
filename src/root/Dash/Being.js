@@ -1,8 +1,9 @@
-import {h, ul} from 'cycle-snabbdom'
+import {h} from 'cycle-snabbdom'
 import {Observable} from 'rx'
-const {combineLatest, of, merge} = Observable
+
+const {combineLatest, just, of, merge} = Observable
 import isolate from '@cycle/isolate'
-import {div} from 'helpers'
+import {div, icon} from 'helpers'
 
 import {LargeProfileAvatar} from 'components/profile'
 
@@ -13,8 +14,8 @@ import {
 import {
   ListItemHeader,
   ListItemCollapsibleTextArea,
+  ListItemNavigating,
   RaisedButton,
-  TextAreaControl,
 } from 'components/sdm'
 
 const ProfileInfo = sources => ({
@@ -79,7 +80,7 @@ const _Skills = sources => ListItemCollapsibleTextArea({...sources,
   cancelLabel$: of('nope'),
 })
 
-const _Edit = sources => {
+const _Edit = () => {
   return {
     DOM: of(div({},['edit'])),
   }
@@ -112,30 +113,47 @@ const _About = sources => {
   }
 }
 
+const _Next = sources => ListItemNavigating({...sources,
+  title$: just('Your profile is complete!'),
+  subtitle$:
+    just('Check out the opportunities you\'re involved with.'),
+  leftDOM$: just(icon('chevron-circle-right', 'accent')),
+  path$: just('/dash'),
+})
+
 export default sources => {
   const _sources = {...sources,
     userProfile$: sources.userProfile$.map(u => u || {}),
   }
 
+  const isDone$ = sources.userProfile$.map(up =>
+    up && up.intro && up.skills
+  )
+
   const pr = _Profile(_sources)
   const ed = _Edit(_sources)
   const ab = _About(_sources)
+  const nx = _Next(_sources)
 
   const DOM = combineLatest(
     of(false),
+    isDone$,
     // pr.openEdit$.scan(a => !a, false).startWith(false),
     pr.DOM,
     ed.DOM,
     ab.DOM,
-    (openEdit, profile, edit, about) => div({},[
+    nx.DOM,
+    (openEdit, isDone, profile, edit, about, next) => div({},[
       profile,
       openEdit ? edit : null,
       about,
+      isDone ? next : null,
     ])
   )
 
   return {
     DOM,
     queue$: ab.queue$,
+    route$: nx.route$,
   }
 }
