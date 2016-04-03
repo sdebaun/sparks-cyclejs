@@ -27,7 +27,7 @@ import {
   LoginButtons,
 } from 'components/ui'
 
-// import {log} from 'util'
+import {log} from 'util'
 
 const _Select = sources => SelectControl({...sources,
   label$: just('Choose another opportunity...'),
@@ -43,6 +43,8 @@ const Chooser = sources => {
   const li = ListItem({...sources,
     title$: select.DOM,
   })
+
+  sources.projectKey$.subscribe(log('s.projectKey$'))
 
   const route$ = select.value$
     .filter(v => !!v)
