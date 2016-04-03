@@ -37,15 +37,19 @@ const _Select = sources => SelectControl({...sources,
 })
 
 const Chooser = sources => {
-  const select = _Select(sources)
+  const projectKey$ = sources.projectKey$.share()
+  const opps$ = sources.opps$.shareReplay(1)
+  const select = _Select({...sources, opps$})
   const li = ListItem({...sources,
+    projectKey$,
+    opps$,
     title$: select.DOM,
   })
 
   const route$ = select.value$
     .filter(v => !!v)
     .withLatestFrom(
-      sources.projectKey$,
+      projectKey$,
       (ok, pk) => `/apply/${pk}/opp/${ok}`
     ).share()
 

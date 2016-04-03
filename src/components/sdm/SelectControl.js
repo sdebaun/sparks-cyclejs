@@ -10,13 +10,15 @@ import {Select} from 'snabbdom-material'
 // import {log} from 'util'
 
 const optionIndex = e => // because children is not a real js array
-  [...e.target.parentNode.children].indexOf(e.target)
+  [...e.target.parentNode.children]
+    .indexOf(e.ownerTarget || e.target)
 
 const SelectControl = sources => {
-  const options$ = sources.options$
+  const options$ = sources.options$.shareReplay(1)
 
   const selection$ = sources.DOM.select('.menu-item').events('click')
-    .flatMapLatest(e => options$.map(options => options[optionIndex(e)].value))
+    .flatMapLatest(e => options$.map(options => options[optionIndex(e)]))
+    .pluck('value')
 
   const value$ = (sources.value$ || just(null))
     .merge(selection$)
@@ -43,7 +45,7 @@ const SelectControl = sources => {
       div({},[
         Select({
           isOpen, label, value, options,
-          className: ['input', ...classNames].join('.'),
+          className: ['input', ...classNames].join(' '),
         }),
       ])
     )

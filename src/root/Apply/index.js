@@ -26,6 +26,8 @@ import {
   Projects,
 } from 'components/remote'
 
+import {log} from 'util'
+
 const _routes = {
   // isolating breaks child tab navigation?
   '/': Overview,
@@ -69,6 +71,7 @@ export default sources => {
   const desc = _Description(_sources)
 
   const page$ = nestedComponent(sources.router.define(_routes), _sources)
+    .shareReplay(1)
 
   const pageDOM = combineLatest(
     desc.DOM,
