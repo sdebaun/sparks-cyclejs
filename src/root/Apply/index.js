@@ -85,7 +85,7 @@ export default sources => {
 
   const auth$ = mergeOrFlatMapLatest('auth$', ...children)
   const queue$ = mergeOrFlatMapLatest('queue$', ...children)
-  const route$ = mergeOrFlatMapLatest('route$', ...children)
+  const route$ = mergeOrFlatMapLatest('route$', ...children).shareReplay(1)
 
   return {
     DOM: frame.DOM,

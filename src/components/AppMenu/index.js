@@ -80,7 +80,7 @@ const AppMenu = sources => {
   const route$ = merge(
     dash.click$.map('/dash'),
     admin.click$.map('/admin'),
-  )
+  ).share()
 
   return {
     DOM,

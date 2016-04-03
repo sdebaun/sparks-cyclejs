@@ -37,6 +37,6 @@ export default sources => {
 
   return {
     DOM: combineLatest(childs.map(c => c.DOM), (...doms) => div({},doms)),
-    route$: l.route$,
+    route$: l.route$.share(),
   }
 }
