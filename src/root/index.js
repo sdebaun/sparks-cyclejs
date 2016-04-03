@@ -19,7 +19,7 @@ import '!style!css!snabbdom-material/lib/index.css'
 
 import {nestedComponent} from 'util'
 
-// import {log} from 'util'
+import {log} from 'util'
 
 import './styles.scss'
 
@@ -109,6 +109,9 @@ export default sources => {
     .filter(([_, curr]) => curr !== '/confirm')
     .map(arr => arr[1])
     .shareReplay(1)
+
+  // confirm redirect doesnt work without this log line!!!  wtf??
+  previousRoute$.subscribe(log('index.previousRoute$'))
 
   const page$ = nestedComponent(sources.router.define(routes), {
     ...sources,
