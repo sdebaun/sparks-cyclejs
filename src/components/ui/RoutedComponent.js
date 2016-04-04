@@ -1,6 +1,11 @@
 import {Observable} from 'rx'
 const {never} = Observable
 
+import {div} from 'helpers'
+
+const pluckLatestOrNever = (k,s$) =>
+  s$.map(c => c[k] || never()).switch().share()
+
 export const RoutedComponent = sources => {
   const comp$ = sources.routes$
     .map(routes => sources.router.define(routes))
@@ -10,8 +15,11 @@ export const RoutedComponent = sources => {
     )
     .shareReplay(1)
 
-  return ['DOM', 'auth$', 'queue$', 'route$']
-    .reduce((a,k) =>
-      (a[k] = comp$.map(c => c[k] || never()).switch().share()) && a
-    , {})
+  return {
+    DOM: pluckLatestOrNever('DOM', comp$),
+      // .startWith(div('.loading',['Loading...'])), // add this
+    ...['auth$', 'queue$', 'route$'].reduce((a,k) =>
+      (a[k] = pluckLatestOrNever(k,comp$)) && a, {}
+    ),
+  }
 }

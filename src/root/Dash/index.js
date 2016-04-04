@@ -65,7 +65,7 @@ export default sources => {
   const frame = AppFrame({..._sources,
     navDOM: nav.DOM,
     headerDOM: header.DOM,
-    pageDOM: page.DOM.startWith(div({},['Loading...'])),
+    pageDOM: page.DOM,
   })
 
   const redirect = LogoutRedirector(_sources)
