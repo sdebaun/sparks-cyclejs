@@ -13,7 +13,7 @@ import {ProfileAvatar} from 'components/profile'
 
 import {div} from 'helpers'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 const QuotingListItem = sources => {
   const fromProfile$ = sources.profileKey$
