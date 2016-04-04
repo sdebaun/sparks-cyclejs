@@ -43,7 +43,7 @@ export default sources => {
   const ictrl = Instruct(sources)
   const qctrl = QuotingListItem({...sources,
     title$: sources.opp$.map(({question}) => question || 'No Question'),
-    profileKey$: sources.opp$.map(({project}) => project.ownerProfileKey),
+    profileKey$: sources.project$.pluck('ownerProfileKey'),
   })
   const actrl = isolate(ListItemCollapsibleTextArea,'answer')({...sources,
     title$: answer$.map(a => a ?
