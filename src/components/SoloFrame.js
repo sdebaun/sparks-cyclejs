@@ -6,7 +6,7 @@ export default sources => {
   const appBar = AppBar(sources)
 
   const auth$ = appBar.auth$
-  const route$ = appBar.route$
+  const route$ = appBar.route$.share()
 
   const layoutParams = {
     appBar: appBar.DOM,
