@@ -31,13 +31,16 @@ const listItem = ({leftDOM, title, subtitle, rightDOM, classes}) =>
     rightDOM && div('.right.xcol-sm-1',[rightDOM]),
   ].filter(i => !!i))
 
+const Icon = sources => ({
+  DOM: sources.iconName$ && sources.iconName$.map(n => icon(n)) ||
+    sources.iconSrc$ && sources.iconSrc$.map(url => iconSrc(url)) ||
+    null,
+})
+
 const ListItem = sources => {
   const viewState = {
     classes$: sources.classes$ || just({}),
-    leftDOM$: sources.leftDOM$ ||
-      sources.iconName$ && sources.iconName$.map(n => icon(n)) ||
-      sources.iconSrc$ && sources.iconSrc$.map(url => iconSrc(url)) ||
-      just(null),
+    leftDOM$: sources.leftDOM$ || Icon(sources).DOM || just(null),
     title$: sources.title$ || just('no title$'),
     subtitle$: sources.subtitle$ || just(null),
     rightDOM$: sources.rightDOM$ || just(null),
