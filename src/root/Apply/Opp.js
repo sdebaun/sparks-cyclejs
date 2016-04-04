@@ -27,8 +27,6 @@ import {
   LoginButtons,
 } from 'components/ui'
 
-import {log} from 'util'
-
 const _Select = sources => SelectControl({...sources,
   label$: just('Choose another opportunity...'),
   options$: sources.opps$.map(opps => [
@@ -39,19 +37,21 @@ const _Select = sources => SelectControl({...sources,
 })
 
 const Chooser = sources => {
-  const select = _Select(sources)
+  const projectKey$ = sources.projectKey$.share()
+  const opps$ = sources.opps$.shareReplay(1)
+  const select = _Select({...sources, opps$})
   const li = ListItem({...sources,
+    projectKey$,
+    opps$,
     title$: select.DOM,
   })
-
-  sources.projectKey$.subscribe(log('s.projectKey$'))
 
   const route$ = select.value$
     .filter(v => !!v)
     .withLatestFrom(
-      sources.projectKey$,
+      projectKey$,
       (ok, pk) => `/apply/${pk}/opp/${ok}`
-    )
+    ).share()
 
   return {
     DOM: li.DOM,
@@ -123,9 +123,7 @@ export default sources => {
   const route$ = merge(
     _redirectResponses(sources),
     chooser.route$,
-  )
-
-  // route$.subscribe(log('route$'))
+  ).share()
 
   const DOM = combineLatest(
     sources.auth$,
