@@ -26,7 +26,10 @@ const OppNav = sources => {
     path$: just('/engaged'),
   })
 
-  const listDOM$ = combineLatest(glance.DOM, manage.DOM, engaged.DOM, (...doms) => doms)
+  const listDOM$ = combineLatest(
+    glance.DOM, manage.DOM, engaged.DOM,
+    (...doms) => doms
+  )
 
   const route$ = merge(glance.route$, manage.route$, engaged.route$)
     .map(sources.router.createHref)

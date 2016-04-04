@@ -6,7 +6,6 @@ import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 
 import {mergeSinks} from 'util'
-import {div} from 'helpers'
 
 import ComingSoon from 'components/ComingSoon'
 

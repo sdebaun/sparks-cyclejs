@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 const {never} = Observable
 
-import {div} from 'helpers'
+// import {div} from 'helpers'
 
 const pluckLatestOrNever = (k,s$) =>
   s$.map(c => c[k] || never()).switch().share()
