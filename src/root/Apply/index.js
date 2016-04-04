@@ -1,23 +1,17 @@
 import {Observable} from 'rx'
-const {combineLatest} = Observable
+const {of} = Observable
 
-// import combineLatestObj from 'rx-combine-latest-obj'
 import isolate from '@cycle/isolate'
 
 import SoloFrame from 'components/SoloFrame'
 import {ResponsiveTitle} from 'components/Title'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'util'
-
-import {div} from 'helpers'
-// import {textTweetSized} from 'helpers/text'
-
-// const Overview = ComingSoon('Apply/Overview')
 import Opp from './Opp'
 import Overview from './Overview'
 
 import {
   DescriptionListItem,
+  RoutedComponent,
 } from 'components/ui'
 
 import {
@@ -26,14 +20,8 @@ import {
   Projects,
 } from 'components/remote'
 
-import {log} from 'util'
-
-const _routes = {
-  // isolating breaks child tab navigation?
-  '/': Overview,
-  '/opp/:key': key => sources =>
-    isolate(Opp)({oppKey$: Observable.just(key), ...sources}),
-}
+// import {log} from 'util'
+import {combineLatestToDiv, mergeSinks} from 'util'
 
 const _Fetch = sources => {
   const project$ = sources.projectKey$
@@ -63,37 +51,26 @@ const _Description = sources => DescriptionListItem({...sources,
   item$: sources.project$,
 })
 
+const _Page = sources => RoutedComponent({...sources, routes$: of({
+  '/': Overview,
+  '/opp/:key': key => _sources =>
+    isolate(Opp)({oppKey$: Observable.just(key), ..._sources}),
+})})
+
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
   const title = _Title(_sources)
-
   const desc = _Description(_sources)
-
-  const page$ = nestedComponent(sources.router.define(_routes), _sources)
-    .shareReplay(1)
-
-  const pageDOM = combineLatest(
-    desc.DOM,
-    page$.pluck('DOM').switch(),
-    (...doms) => div({},doms),
-  )
+  const page = _Page(_sources)
 
   const frame = SoloFrame({...sources,
-    pageDOM,
     headerDOM: title.DOM,
+    pageDOM: combineLatestToDiv(desc.DOM, page.DOM),
   })
-
-  const children = [frame, page$]
-
-  const auth$ = mergeOrFlatMapLatest('auth$', ...children)
-  const queue$ = mergeOrFlatMapLatest('queue$', ...children)
-  const route$ = mergeOrFlatMapLatest('route$', ...children).shareReplay(1)
 
   return {
     DOM: frame.DOM,
-    auth$,
-    queue$,
-    route$,
+    ...mergeSinks(frame, page),
   }
 }
