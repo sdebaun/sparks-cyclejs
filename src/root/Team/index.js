@@ -9,8 +9,6 @@ import {ResponsiveTitle} from 'components/Title'
 
 import {div, iconSrc} from 'helpers'
 
-// import ComingSoon from 'components/ComingSoon'
-
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import {ListItemNavigating} from 'components/sdm'
@@ -138,9 +136,14 @@ export default sources => {
     pageTitle$: page$.flatMapLatest(page => page.pageTitle),
   })
 
-  const nav = TeamNav({..._sources, titleDOM: title.DOM})
+  const nav = TeamNav({..._sources,
+    titleDOM: title.DOM,
+  })
 
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabsDOM, ...sources})
+  const header = Header({...sources,
+    titleDOM: title.DOM,
+    tabsDOM: tabsDOM,
+  })
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
@@ -151,9 +154,7 @@ export default sources => {
 
   const children = [appFrame, page$, quickNav, title, nav, header]
 
-  // const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
-
-  const route$ = Observable.merge(
+  const route$ = merge(
     mergeOrFlatMapLatest('route$', ...children),
     sources.redirectLogout$,
   )
