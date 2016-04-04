@@ -17,6 +17,10 @@ import {
   RoutedComponent,
 } from 'components/ui'
 
+import {
+  LogoutRedirector,
+} from 'components/redirects'
+
 import Doing from './Doing'
 import Being from './Being'
 
@@ -43,10 +47,6 @@ const _Title = sources => ResponsiveTitle({...sources,
   subtitleDOM$: of('Welcome'),
   leftDOM$: MediumProfileAvatar({...sources, src$: sources.portraitUrl$}).DOM,
   classes$: of(['profile']),
-})
-
-const LogoutRedirector = sources => ({
-  route$: sources.redirectLogout$,
 })
 
 export default sources => {

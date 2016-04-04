@@ -6,9 +6,13 @@ import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
 import {OppNav} from 'components/opp'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+import {nestedComponent, mergeSinks, mergeOrFlatMapLatest} from 'util'
 
 // import {log} from 'util'
+
+import {
+  LogoutRedirector,
+} from 'components/redirects'
 
 import Glance from './Glance'
 import Manage from './Manage'
@@ -89,19 +93,12 @@ export default sources => {
     ...sources,
   })
 
-  const children = [appFrame, page$, quickNav, title, nav, header]
+  const redirect = LogoutRedirector(sources)
 
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
-
-  const route$ = Observable.merge(
-    mergeOrFlatMapLatest('route$', ...children),
-    redirectOnLogout$,
-  )
+  const children = [appFrame, page$, quickNav, title, nav, header, redirect]
 
   return {
     DOM: appFrame.DOM,
-    auth$: mergeOrFlatMapLatest('auth$', ...children),
-    queue$: mergeOrFlatMapLatest('queue$', ...children),
-    route$,
+    ...mergeSinks(...children),
   }
 }
