@@ -60,6 +60,12 @@ export const mergeOrFlatMapLatest = (prop, ...sourceArray) =>
     )
   )
 
+export const mergeSinks = (...childs) => ({
+  auth$: mergeOrFlatMapLatest('auth$', ...childs),
+  queue$: mergeOrFlatMapLatest('queue$', ...childs),
+  route$: mergeOrFlatMapLatest('route$', ...childs),
+})
+
 // app-wide material styles
 export const material = {
   primaryColor: '#666',
