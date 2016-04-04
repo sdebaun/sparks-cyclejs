@@ -7,6 +7,6 @@ export default {
   schwag: ({what}) => what,
   waiver: ({who}) => 'A waiver for ' + who,
   deposit: ({amount}) => 'Make a refundable deposit of ' + amount,
-  payment: ({amount}) => 'A nonrefundable payment of ' + amount,
+  payment: ({amount}) => 'A nonrefundable ' + amount,
   shifts: ({count}) => 'Work ' + count + ' shifts',
 }
