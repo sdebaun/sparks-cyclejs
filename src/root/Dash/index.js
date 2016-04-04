@@ -21,6 +21,14 @@ import {
 import Doing from './Doing'
 import Being from './Being'
 
+const _Tabs = sources => TabBar({...sources,
+  tabs: of([
+    {path: '/', label: 'Doing'},
+    {path: '/finding', label: 'Finding'},
+    {path: '/being', label: 'Being'},
+  ]),
+})
+
 const _Nav = sources => ({
   DOM: sources.isMobile$.map(m => m ? null : sources.titleDOM),
 })
@@ -48,14 +56,7 @@ export default sources => {
     portraitUrl$: sources.userProfile$.map(up => up && up.portraitUrl),
   }
 
-  const tabs = TabBar({..._sources,
-    tabs: of([
-      {path: '/', label: 'Doing'},
-      {path: '/finding', label: 'Finding'},
-      {path: '/being', label: 'Being'},
-    ]),
-  })
-
+  const tabs = _Tabs(_sources)
   const title = _Title({..._sources, tabsDOM$: tabs.DOM})
   const nav = _Nav({..._sources, titleDOM: title.DOM})
   const header = Header({..._sources, titleDOM: title.DOM, tabsDOM: tabs.DOM})
