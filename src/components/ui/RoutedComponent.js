@@ -16,6 +16,7 @@ export const RoutedComponent = sources => {
     .shareReplay(1)
 
   return {
+    pluck: key => pluckLatestOrNever(key, comp$),
     DOM: pluckLatestOrNever('DOM', comp$),
       // .startWith(div('.loading',['Loading...'])), // add this
     ...['auth$', 'queue$', 'route$'].reduce((a,k) =>

@@ -1,28 +1,14 @@
 import {Observable} from 'rx'
-const {combineLatest} = Observable
+const {of, combineLatest} = Observable
 
 import AppFrame from 'components/AppFrame'
 import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
 import {OppNav} from 'components/opp'
 
-import {nestedComponent, mergeSinks, mergeOrFlatMapLatest} from 'util'
+import {mergeSinks} from 'util'
 
 // import {log} from 'util'
-
-import {
-  LogoutRedirector,
-} from 'components/redirects'
-
-import Glance from './Glance'
-import Manage from './Manage'
-import Engaged from './Engaged'
-
-const _routes = {
-  '/': Glance,
-  '/manage': Manage,
-  '/engaged': Engaged,
-}
 
 import {
   Opps,
@@ -30,9 +16,21 @@ import {
   Teams,
 } from 'components/remote'
 
+import {
+  LogoutRedirector,
+} from 'components/redirects'
+
+import {
+  RoutedComponent,
+} from 'components/ui'
+
 import {ProjectQuickNavMenu} from 'components/project'
 
-export default sources => {
+import Glance from './Glance'
+import Manage from './Manage'
+import Engaged from './Engaged'
+
+const _Fetch = sources => {
   const opp$ = sources.oppKey$
     .flatMapLatest(Opps.query.one(sources))
 
@@ -49,56 +47,55 @@ export default sources => {
   const opps$ = projectKey$
     .flatMapLatest(Opps.query.byProject(sources))
 
-  const page$ = nestedComponent(
-    sources.router.define(_routes),
-    {opp$, projectKey$, project$, teams$, opps$, ...sources}
-  )
-
-  const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
-
-  const quickNav = ProjectQuickNavMenu(
-    {...sources, project$, projectKey$, opp$, teams$, opps$}
-  )
-
-  const subtitleDOM$ = combineLatest(
-    sources.isMobile$,
-    page$.flatMapLatest(page => page.pageTitle),
-    (isMobile, pageTitle) => isMobile ? pageTitle : null,
-  )
-
-  const title = ResponsiveTitle({...sources,
-    tabsDOM$: tabsDOM,
-    topDOM$: quickNav.DOM,
-    titleDOM$: opp$.pluck('name'),
-    subtitleDOM$,
-    // subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
-    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
-  })
-
-  const nav = OppNav({
-    titleDOM: title.DOM,
+  return {
+    opp$,
+    projectKey$,
     project$,
+    projectImage$,
     teams$,
     opps$,
-    projectKey$,
-    ...sources,
+  }
+}
+
+const _Title = sources => ResponsiveTitle({...sources,
+  titleDOM$: sources.opp$.pluck('name'),
+  subtitleDOM$: combineLatest(
+    sources.isMobile$, sources.pageTitle$,
+    (isMobile, pageTitle) => isMobile ? pageTitle : null,
+  ),
+  backgroundUrl$: sources.projectImage$.map(i => i && i.dataUrl),
+})
+
+const _Page = sources => RoutedComponent({...sources, routes$: of({
+  '/': Glance,
+  '/manage': Manage,
+  '/engaged': Engaged,
+})})
+
+export default sources => {
+  const _sources = {...sources, ..._Fetch(sources)}
+
+  const page = _Page(_sources)
+  const qn = ProjectQuickNavMenu(_sources)
+  const title = _Title({..._sources,
+    pageTitle$: page.pluck('pageTitle'),
+    tabsDOM$: page.pluck('tabBarDOM'),
+    topDOM$: qn.DOM,
   })
-
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabsDOM, ...sources})
-
-  const appFrame = AppFrame({
+  const nav = OppNav({..._sources, titleDOM: title.DOM})
+  const header = Header({..._sources,
+    titleDOM: title.DOM,
+    tabsDOM: page.pluck('tabBarDOM'),
+  })
+  const frame = AppFrame({..._sources,
     navDOM: nav.DOM,
     headerDOM: header.DOM,
-    pageDOM: page$.pluck('DOM'),
-    ...sources,
+    pageDOM: page.DOM,
   })
-
-  const redirect = LogoutRedirector(sources)
-
-  const children = [appFrame, page$, quickNav, title, nav, header, redirect]
+  const redirect = LogoutRedirector(_sources)
 
   return {
-    DOM: appFrame.DOM,
-    ...mergeSinks(...children),
+    DOM: frame.DOM,
+    ...mergeSinks(frame, page, qn, title, nav, header, redirect),
   }
 }
