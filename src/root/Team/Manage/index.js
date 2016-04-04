@@ -9,7 +9,7 @@ const Leads = ComingSoon('Manage/Glance/Leads')
 import Applying from './Applying'
 
 export default sources => ({
-  pageTitle: of('At a Glance'),
+  pageTitle: of('Manage Team'),
 
   ...TabbedPage({...sources,
     tabs$: of([

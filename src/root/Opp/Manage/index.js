@@ -8,7 +8,7 @@ import Exchange from './Exchange'
 import Applying from './Applying'
 
 export default sources => ({
-  pageTitle: of('At a Glance'),
+  pageTitle: of('Manage Opportunity'),
 
   ...TabbedPage({...sources,
     tabs$: of([

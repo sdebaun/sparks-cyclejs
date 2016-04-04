@@ -1,53 +1,26 @@
 import {Observable} from 'rx'
-import isolate from '@cycle/isolate'
+const {of} = Observable
 
-import TabBar from 'components/TabBar'
 import ComingSoon from 'components/ComingSoon'
-
-import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+import {TabbedPage} from 'components/ui'
 
 import Priority from './Priority'
 import Commitments from './Commitments'
+const More = ComingSoon('More Info')
 
-const _routes = {
-  '/': isolate(Priority),
-  '/commitments': isolate(Commitments),
-  '/more': isolate(ComingSoon('More Info')),
-}
+export default sources => ({
+  pageTitle: of('At a Glance'),
 
-const _tabs = [
-  {path: '/', label: 'Priority'},
-  {path: '/commitments', label: 'Commitments'},
-  {path: '/more', label: 'More Info'},
-]
-
-export default sources => {
-  const page$ = nestedComponent(
-    sources.router.define(_routes), sources,
-  )
-
-  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-
-  const children = [page$, tabBar]
-
-  const DOM = page$.flatMapLatest(page => page.DOM)
-
-  const tabBarDOM = tabBar.DOM
-
-  const pageTitle = Observable.just('At a Glance')
-
-  const auth$ = mergeOrFlatMapLatest('auth$', ...children)
-
-  const queue$ = mergeOrFlatMapLatest('queue$', ...children)
-
-  const route$ = mergeOrFlatMapLatest('route$', ...children)
-
-  return {
-    DOM,
-    tabBarDOM,
-    pageTitle,
-    auth$,
-    queue$,
-    route$,
-  }
-}
+  ...TabbedPage({...sources,
+    tabs$: of([
+      {path: '/', label: 'Priority'},
+      {path: '/commitments', label: 'Commitments'},
+      {path: '/more', label: 'More'},
+    ]),
+    routes$: of({
+      '/': Priority,
+      '/commitments': Commitments,
+      '/more': More,
+    }),
+  }),
+})

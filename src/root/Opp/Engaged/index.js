@@ -9,7 +9,7 @@ import Applied from './Applied'
 const Accepted = ComingSoon('Manage/Glance/Accepted')
 
 export default sources => ({
-  pageTitle: of('At a Glance'),
+  pageTitle: of('Engaged Volunteers'),
 
   ...TabbedPage({...sources,
     tabs$: of([

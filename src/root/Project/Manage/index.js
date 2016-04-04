@@ -9,7 +9,7 @@ import Staff from './Staff'
 const Connect = ComingSoon('Manage/Connect')
 
 export default sources => ({
-  pageTitle: of('At a Glance'),
+  pageTitle: of('Manage Project'),
 
   ...TabbedPage({...sources,
     tabs$: of([
