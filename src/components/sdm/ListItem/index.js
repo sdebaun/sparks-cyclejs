@@ -41,17 +41,18 @@ const ListItem = sources => {
     title$: sources.title$ || just('no title$'),
     subtitle$: sources.subtitle$ || just(null),
     rightDOM$: sources.rightDOM$ || just(null),
+    isVisible$: sources.isVisible$ || just(true),
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({leftDOM, title, subtitle, rightDOM, classes}) =>
-      div({},[listItem({ //need extra div for isolate
+    .map(({isVisible, leftDOM, title, subtitle, rightDOM, classes}) =>
+      div({},[isVisible && listItem({ //need extra div for isolate
         title,
         subtitle,
         rightDOM,
         leftDOM,
         classes,
-      })])
+      }) || null])
     )
 
   return {

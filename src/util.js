@@ -16,7 +16,10 @@ export const requireSources = (cname, sources, ...sourceNames) =>
     if (!sources[n]) { throw new Error(cname + ' must specify ' + n)}
   })
 
-export const combineLatestToDiv = domstreams =>
+export const trimTo = (val, len) =>
+  val.length > len ? val.slice(0,len) + '...' : val
+
+export const combineLatestToDiv = (...domstreams) =>
   combineLatest(...domstreams, (...doms) => div({},doms))
 
 export const controlsFromRows = (sources, rows, Control) =>
