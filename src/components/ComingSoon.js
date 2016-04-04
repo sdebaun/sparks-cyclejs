@@ -1,6 +1,6 @@
 import {Observable} from 'rx'
-import {h} from 'cycle-snabbdom'
+import {TitleListItem} from 'components/ui'
 
-export default name => () => ({
-  DOM: Observable.just(h('h4', {},'Coming Soon: ' + name)),
+export default name => sources => TitleListItem({...sources,
+  title$: Observable.of('Coming Soon: ' + name),
 })
