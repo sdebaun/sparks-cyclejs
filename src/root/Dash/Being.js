@@ -18,6 +18,8 @@ import {
   RaisedButton,
 } from 'components/sdm'
 
+import {mergeSinks, combineLatestToDiv} from 'util'
+
 const ProfileInfo = sources => ({
   DOM: sources.userProfile$
     .map(profile =>
@@ -80,12 +82,6 @@ const _Skills = sources => ListItemCollapsibleTextArea({...sources,
   cancelLabel$: of('nope'),
 })
 
-const _Edit = () => {
-  return {
-    DOM: of(div({},['edit'])),
-  }
-}
-
 const _About = sources => {
   const hd = ListItemHeader({...sources, title$: of('About You')})
   const int = isolate(_Intro,'intro')(sources)
@@ -102,10 +98,7 @@ const _About = sources => {
     )
 
   return {
-    DOM: combineLatest(
-      [hd,int,sk].map(c => c.DOM),
-      (...doms) => div({},doms)
-    ),
+    DOM: combineLatestToDiv(...[hd, int, sk].map(c => c.DOM)),
     queue$: merge(
       updateIntro$,
       updateSkills$,
@@ -119,6 +112,9 @@ const _Next = sources => ListItemNavigating({...sources,
     just('Check out the opportunities you\'re involved with.'),
   leftDOM$: just(icon('chevron-circle-right', 'accent')),
   path$: just('/dash'),
+  isVisible$: sources.userProfile$.map(up =>
+    up && up.intro && up.skills
+  ),
 })
 
 export default sources => {
@@ -126,34 +122,14 @@ export default sources => {
     userProfile$: sources.userProfile$.map(u => u || {}),
   }
 
-  const isDone$ = sources.userProfile$.map(up =>
-    up && up.intro && up.skills
-  )
-
-  const pr = _Profile(_sources)
-  const ed = _Edit(_sources)
-  const ab = _About(_sources)
-  const nx = _Next(_sources)
-
-  const DOM = combineLatest(
-    of(false),
-    isDone$,
-    // pr.openEdit$.scan(a => !a, false).startWith(false),
-    pr.DOM,
-    ed.DOM,
-    ab.DOM,
-    nx.DOM,
-    (openEdit, isDone, profile, edit, about, next) => div({},[
-      profile,
-      openEdit ? edit : null,
-      about,
-      isDone ? next : null,
-    ])
-  )
+  const childs = [
+    _Profile(_sources),
+    _About(_sources),
+    _Next(_sources),
+  ]
 
   return {
-    DOM,
-    queue$: ab.queue$,
-    route$: nx.route$,
+    DOM: combineLatestToDiv(...childs.map(c => c.DOM)),
+    ...mergeSinks(...childs),
   }
 }

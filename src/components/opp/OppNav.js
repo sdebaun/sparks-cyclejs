@@ -9,42 +9,52 @@ import {div} from 'cycle-snabbdom'
 
 import {ListItemNavigating} from 'components/sdm'
 
+import {mergeSinks, combineLatestToDiv} from 'util'
+
+const _Glance = sources => ListItemNavigating({...sources,
+  title$: just('At a Glance'),
+  iconName$: just('home'),
+  path$: just('/'),
+})
+
+const _Manage = sources => ListItemNavigating({...sources,
+  title$: just('Manage'),
+  iconName$: just('settings'),
+  path$: just('/manage'),
+})
+
+const _Engaged = sources => ListItemNavigating({...sources,
+  title$: just('Engaged'),
+  iconName$: just('people'),
+  path$: just('/engaged'),
+})
+
+const _List = sources => {
+  const childs = [
+    isolate(_Glance,'glance')(sources),
+    isolate(_Manage,'manage')(sources),
+    isolate(_Engaged,'enaged')(sources),
+  ]
+
+  return {
+    DOM: combineLatestToDiv(...childs.map(c => c.DOM)),
+    route$: merge(...childs.map(c => c.route$))
+      .map(sources.router.createHref),
+  }
+}
+
 const OppNav = sources => {
-  const glance = isolate(ListItemNavigating,'glance')({...sources,
-    title$: just('At a Glance'),
-    iconName$: just('home'),
-    path$: just('/'),
-  })
-  const manage = isolate(ListItemNavigating,'manage')({...sources,
-    title$: just('Manage'),
-    iconName$: just('settings'),
-    path$: just('/manage'),
-  })
-  const engaged = isolate(ListItemNavigating,'engaged')({...sources,
-    title$: just('Engaged'),
-    iconName$: just('people'),
-    path$: just('/engaged'),
-  })
-
-  const listDOM$ = combineLatest(glance.DOM, manage.DOM, engaged.DOM, (...doms) => doms)
-
-  const route$ = merge(glance.route$, manage.route$, engaged.route$)
-    .map(sources.router.createHref)
+  const l = _List(sources)
 
   const DOM = combineLatest(
-    sources.isMobile$,
-    sources.titleDOM,
-    listDOM$,
-    (isMobile, titleDOM, listDOM) =>
-      div({}, [
-        isMobile ? null : titleDOM,
-        div('.rowwrap', listDOM),
-      ])
+    sources.isMobile$, sources.titleDOM, l.DOM,
+    (isMobile, title, list) =>
+      div({}, [isMobile ? null : title, div('.rowwrap', [list])])
   )
 
   return {
     DOM,
-    route$,
+    ...mergeSinks(l),
   }
 }
 

@@ -13,18 +13,20 @@ import {ProfileAvatar} from 'components/profile'
 
 import {div} from 'helpers'
 
+// import {log} from 'util'
+
 const QuotingListItem = sources => {
   const fromProfile$ = sources.profileKey$
     .flatMapLatest(Profiles.query.one(sources))
 
-  const src$ = fromProfile$.pluck('portraitUrl')
+  const src$ = fromProfile$.map(p => p && p.portraitUrl)
 
   const li = ListItem({...sources,
     classes$: just({quote: true}),
   }) // uses title$
   const liq = ListItem({...sources,
     leftDOM$: ProfileAvatar({...sources, src$}).DOM,
-    title$: fromProfile$.pluck('fullName'),
+    title$: fromProfile$.map(p => p && p.fullName),
     subtitle$: just('Organizer'),
   })
 

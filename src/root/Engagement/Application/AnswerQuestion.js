@@ -1,9 +1,9 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {of} = Observable
 
 import isolate from '@cycle/isolate'
 
-import {div, icon} from 'helpers'
+import {icon} from 'helpers'
 
 import {
   Engagements,
@@ -19,69 +19,58 @@ import {
   QuotingListItem,
 } from 'components/ui'
 
+import {combineLatestToDiv, trimTo} from 'util'
 // import {log} from 'util'
 
 const Instruct = sources => ListItem({...sources,
-  title$: just('The organizer would like to ask you a question:'),
+  title$: of('The organizer would like to ask you a question:'),
 })
 
-// const NextStepListItem = sources => ListItemNavigating({
-//   title$: sources.show$.flatMapLatest(needed =>
-//     needed ? sources.titleNeeded$ : sources.titleDone$
-//   ),
-//   leftDOM$: sources.isNeeded$.map(needed =>
-//     icon(...(needed ? ['check_box_outline','#F00'] : ['check_box']))
-//   ),
-// })
+const Question = sources => QuotingListItem({...sources,
+  title$: sources.opp$.map(({question}) => question || 'No Question'),
+  profileKey$: sources.project$.pluck('ownerProfileKey'),
+})
 
-const trimTo = (val, len) =>
-  val.length > len ? val.slice(0,len) + '...' : val
+const Answer = sources => ListItemCollapsibleTextArea({...sources,
+  title$: sources.answer$.map(a => a ?
+    'You gave the answer:' :
+    'Give a good answer that will help the organizer get to know you.'
+  ),
+  subtitle$: sources.answer$.map(a => a ? trimTo(a,60) : null),
+  isOpen$: sources.answer$.map(a => !a),
+  iconName$: of('playlist_add'),
+  value$: sources.answer$.map(a => a || ''),
+})
+
+const Next = sources => ListItemNavigating({...sources,
+  title$: of('Next, pick the teams you want to join.'),
+  leftDOM$: of(icon('chevron-circle-right', 'accent')),
+  path$:
+    sources.engagementKey$.map(k => '/engaged/' + k + '/application/teams'),
+  isVisible$: sources.answer$.map(a => !!a),
+})
+
+const buildUpdate = (key$, values$) =>
+  values$.withLatestFrom(key$, (values, key) => ({key, values}))
 
 export default sources => {
-  const answer$ = sources.engagement$.map(e => e && e.answer)
+  const _sources = {...sources,
+    answer$: sources.engagement$.map(e => e && e.answer),
+  }
 
-  const ictrl = Instruct(sources)
-  const qctrl = QuotingListItem({...sources,
-    title$: sources.opp$.map(({question}) => question || 'No Question'),
-    profileKey$: sources.project$.pluck('ownerProfileKey'),
-  })
-  const actrl = isolate(ListItemCollapsibleTextArea,'answer')({...sources,
-    title$: answer$.map(a => a ?
-      'You gave the answer:' :
-      'Give a good answer that will help the organizer get to know you.'
-    ),
-    subtitle$: answer$.map(a => a ? trimTo(a,60) : null),
-    isOpen$: answer$.map(a => !a),
-    iconName$: just('playlist_add'),
-    value$: answer$.map(a => a || ''),
-  })
-  const next = isolate(ListItemNavigating,'next')({...sources,
-    title$: just('Next, pick the teams you want to join.'),
-    leftDOM$: just(icon('chevron-circle-right', 'accent')),
-    path$:
-      sources.engagementKey$.map(k => '/engaged/' + k + '/application/teams'),
-  })
+  const inst = Instruct(_sources)
+  const quest = Question(_sources)
+  const ans = isolate(Answer,'answer')(_sources)
+  const next = isolate(Next, 'next')(_sources)
 
-  const items = [
-    ictrl,
-    qctrl,
-    actrl,
-  ]
+  const childs = [inst, quest, ans, next]
 
-  const queue$ = actrl.value$
-    .withLatestFrom(sources.engagementKey$, (answer,key) => ({
-      key, values: {answer},
-    }))
-    .map(Engagements.action.update)
+  const queue$ = buildUpdate(
+    sources.engagementKey$,
+    ans.value$.map(answer => ({answer})),
+  ).map(Engagements.action.update)
 
-  const DOM = combineLatest(
-    answer$, next.DOM,
-    ...items.map(i => i.DOM),
-    (answer, nextDOM, ...doms) => div({},[
-      ...doms,
-      answer ? nextDOM : null,
-    ])
-  )
+  const DOM = combineLatestToDiv(...childs.map(i => i.DOM))
 
   return {
     DOM,

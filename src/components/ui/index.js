@@ -1,5 +1,8 @@
 require('./styles.scss')
 
+export {RoutedComponent} from './RoutedComponent'
+export {TabbedPage} from './TabbedPage'
+
 export {makeModal} from './Modal'
 
 export {

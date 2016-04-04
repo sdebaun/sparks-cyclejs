@@ -1,82 +1,76 @@
 import {Observable} from 'rx'
-const {just} = Observable
-
-import {div} from 'cycle-snabbdom'
+const {of} = Observable
 
 import AppFrame from 'components/AppFrame'
 import Header from 'components/Header'
 import TabBar from 'components/TabBar'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+import {mergeSinks} from 'util'
 
 import ComingSoon from 'components/ComingSoon'
 
 import {ResponsiveTitle} from 'components/Title'
 import {MediumProfileAvatar} from 'components/profile'
 
+import {
+  // DescriptionListItem,
+  RoutedComponent,
+} from 'components/ui'
+
+import {
+  LogoutRedirector,
+} from 'components/redirects'
+
 import Doing from './Doing'
 import Being from './Being'
 
-const _routes = {
+const _Tabs = sources => TabBar({...sources,
+  tabs: of([
+    {path: '/', label: 'Doing'},
+    {path: '/finding', label: 'Finding'},
+    {path: '/being', label: 'Being'},
+  ]),
+})
+
+const _Nav = sources => ({
+  DOM: sources.isMobile$.map(m => m ? null : sources.titleDOM),
+})
+
+const _Page = sources => RoutedComponent({...sources, routes$: of({
   '/': Doing,
   '/finding': ComingSoon('Dash/Finding'),
   '/being': Being,
-}
+})})
 
-const _tabs = [
-  {path: '/', label: 'Doing'},
-  {path: '/finding', label: 'Finding'},
-  {path: '/being', label: 'Being'},
-]
-
-const Nav = sources => ({
-  DOM: sources.isMobile$
-    .map(isMobile =>
-      div(
-        {},
-        [isMobile ? null : sources.titleDOM, '']
-      )
-    ),
+const _Title = sources => ResponsiveTitle({...sources,
+  titleDOM$: sources.userName$,
+  subtitleDOM$: of('Welcome'),
+  leftDOM$: MediumProfileAvatar({...sources, src$: sources.portraitUrl$}).DOM,
+  classes$: of(['profile']),
 })
 
 export default sources => {
-  const page$ = nestedComponent(sources.router.define(_routes),sources)
+  const _sources = {...sources,
+    userName$: sources.userProfile$.map(up => up && up.fullName || 'None'),
+    portraitUrl$: sources.userProfile$.map(up => up && up.portraitUrl),
+  }
 
-  const userName$ = sources.userProfile$.map(up => up && up.fullName || 'None')
-  const portraitUrl$ = sources.userProfile$.map(up => up && up.portraitUrl)
+  const tabs = _Tabs(_sources)
+  const title = _Title({..._sources, tabsDOM$: tabs.DOM})
+  const nav = _Nav({..._sources, titleDOM: title.DOM})
+  const header = Header({..._sources, titleDOM: title.DOM, tabsDOM: tabs.DOM})
+  const page = _Page(_sources)
 
-  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-
-  const title = ResponsiveTitle({...sources,
-    tabsDOM$: tabBar.DOM,
-    titleDOM$: userName$,
-    subtitleDOM$: just('Welcome'),
-    leftDOM$: MediumProfileAvatar({...sources, src$: portraitUrl$}).DOM,
-    classes$: just(['profile']),
-  })
-
-  const nav = Nav({titleDOM: title.DOM, ...sources})
-
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
-
-  const appFrame = AppFrame({
+  const frame = AppFrame({..._sources,
     navDOM: nav.DOM,
     headerDOM: header.DOM,
-    pageDOM: page$.pluck('DOM'),
-    ...sources,
+    pageDOM: page.DOM,
   })
 
-  const children = [appFrame, page$, tabBar, title, nav, header]
-
-  const route$ = Observable.merge(
-    mergeOrFlatMapLatest('route$', ...children),
-    sources.redirectLogout$,
-  )
+  const redirect = LogoutRedirector(_sources)
 
   return {
-    DOM: appFrame.DOM,
-    auth$: mergeOrFlatMapLatest('auth$', ...children),
-    queue$: mergeOrFlatMapLatest('queue$', ...children),
-    route$,
+    DOM: frame.DOM,
+    ...mergeSinks(frame, page, tabs, title, nav, header, redirect),
   }
 }

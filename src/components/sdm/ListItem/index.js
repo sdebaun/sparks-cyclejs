@@ -31,27 +31,31 @@ const listItem = ({leftDOM, title, subtitle, rightDOM, classes}) =>
     rightDOM && div('.right.xcol-sm-1',[rightDOM]),
   ].filter(i => !!i))
 
+const Icon = sources => ({
+  DOM: sources.iconName$ && sources.iconName$.map(n => icon(n)) ||
+    sources.iconSrc$ && sources.iconSrc$.map(url => iconSrc(url)) ||
+    null,
+})
+
 const ListItem = sources => {
   const viewState = {
     classes$: sources.classes$ || just({}),
-    leftDOM$: sources.leftDOM$ ||
-      sources.iconName$ && sources.iconName$.map(n => icon(n)) ||
-      sources.iconSrc$ && sources.iconSrc$.map(url => iconSrc(url)) ||
-      just(null),
+    leftDOM$: sources.leftDOM$ || Icon(sources).DOM || just(null),
     title$: sources.title$ || just('no title$'),
     subtitle$: sources.subtitle$ || just(null),
     rightDOM$: sources.rightDOM$ || just(null),
+    isVisible$: sources.isVisible$ || just(true),
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({leftDOM, title, subtitle, rightDOM, classes}) =>
-      div({},[listItem({ //need extra div for isolate
+    .map(({isVisible, leftDOM, title, subtitle, rightDOM, classes}) =>
+      div({},[isVisible && listItem({ //need extra div for isolate
         title,
         subtitle,
         rightDOM,
         leftDOM,
         classes,
-      })])
+      }) || null])
     )
 
   return {

@@ -9,12 +9,11 @@ import {ResponsiveTitle} from 'components/Title'
 
 import {div, iconSrc} from 'helpers'
 
-// import ComingSoon from 'components/ComingSoon'
-
 import {nestedComponent, mergeOrFlatMapLatest} from 'util'
 
 import {ListItemNavigating} from 'components/sdm'
 
+import {combineLatestToDiv} from 'util'
 // import {log} from 'util'
 
 import {
@@ -36,26 +35,32 @@ const _routes = {
 
 import {ProjectQuickNavMenu} from 'components/project'
 
+const GlanceNav = sources => ListItemNavigating({...sources,
+  title$: just('At a Glance'),
+  iconName$: just('home'),
+  path$: just('/'),
+})
+
+const ManageNav = sources => ListItemNavigating({...sources,
+  title$: just('Manage'),
+  iconName$: just('settings'),
+  path$: just('/manage'),
+})
+
+const MembersNav = sources => ListItemNavigating({...sources,
+  title$: just('Members'),
+  iconName$: just('people'),
+  path$: just('/members'),
+})
+
 const TeamNav = sources => {
-  const glance = isolate(ListItemNavigating,'glance')({...sources,
-    title$: just('At a Glance'),
-    iconName$: just('home'),
-    path$: just('/'),
-  })
-  const manage = isolate(ListItemNavigating,'manage')({...sources,
-    title$: just('Manage'),
-    iconName$: just('settings'),
-    path$: just('/manage'),
-  })
-  const members = isolate(ListItemNavigating,'members')({...sources,
-    title$: just('Members'),
-    iconName$: just('people'),
-    path$: just('/members'),
-  })
+  const childs = [
+    isolate(GlanceNav,'glance')(sources),
+    isolate(ManageNav,'manage')(sources),
+    isolate(MembersNav,'members')(sources),
+  ]
 
-  const childs = [glance, manage, members]
-
-  const listDOM$ = combineLatest(childs.map(c => c.DOM), (...doms) => doms)
+  const listDOM$ = combineLatestToDiv(...childs.map(c => c.DOM))
 
   const route$ = merge(childs.map(c => c.route$))
     .map(sources.router.createHref)
@@ -67,7 +72,7 @@ const TeamNav = sources => {
     (isMobile, titleDOM, listDOM) =>
       div({}, [
         isMobile ? null : titleDOM,
-        div('.rowwrap', {style: {padding: '0px 15px'}}, listDOM),
+        div('.rowwrap', {style: {padding: '0px 15px'}}, [listDOM]),
       ])
   )
 
@@ -77,9 +82,8 @@ const TeamNav = sources => {
   }
 }
 
-export default sources => {
-  const teamKey$ = sources.teamKey$
-  const team$ = teamKey$
+const _Fetch = sources => {
+  const team$ = sources.teamKey$
     .flatMapLatest(key => sources.firebase('Teams',key))
 
   const projectKey$ = team$.pluck('projectKey')
@@ -90,7 +94,7 @@ export default sources => {
   const projectImage$ = projectKey$
     .flatMapLatest(ProjectImages.query.one(sources))
 
-  const teamImage$ = teamKey$
+  const teamImage$ = sources.teamKey$
     .flatMapLatest(TeamImages.query.one(sources))
 
   const teams$ = projectKey$
@@ -99,43 +103,47 @@ export default sources => {
   const opps$ = projectKey$
     .flatMapLatest(Opps.query.byProject(sources))
 
-  const page$ = nestedComponent(
-    sources.router.define(_routes),
-    {team$, teamImage$, projectKey$, project$, teams$, opps$, ...sources}
-  )
+  return {
+    team$, projectKey$, project$, projectImage$, teamImage$, teams$, opps$,
+  }
+}
+
+const TeamTitle = sources => ResponsiveTitle({...sources,
+  tabsDOM$: sources.tabsDOM,
+  topDOM$: sources.quickNavDOM,
+  leftDOM$: sources.teamImage$.map(i => i && i.dataUrl && iconSrc(i.dataUrl)),
+  titleDOM$: sources.team$.pluck('name'),
+  subtitleDOM$: combineLatest(
+    sources.isMobile$,
+    sources.pageTitle$,
+    (isMobile, pageTitle) => isMobile ? pageTitle : null,
+  ),
+  backgroundUrl$: sources.projectImage$.map(i => i && i.dataUrl),
+})
+
+export default sources => {
+  const _sources = {...sources, ..._Fetch(sources)}
+
+  const page$ = nestedComponent(sources.router.define(_routes), _sources)
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
 
-  const quickNav = ProjectQuickNavMenu(
-    {...sources, project$, projectKey$, team$, teams$, opps$}
-  )
+  const quickNav = ProjectQuickNavMenu(_sources)
 
-  const subtitleDOM$ = combineLatest(
-    sources.isMobile$,
-    page$.flatMapLatest(page => page.pageTitle),
-    (isMobile, pageTitle) => isMobile ? pageTitle : null,
-  )
-
-  const title = ResponsiveTitle({...sources,
-    tabsDOM$: tabsDOM,
-    topDOM$: quickNav.DOM,
-    leftDOM$: teamImage$.map(i => i && i.dataUrl && iconSrc(i.dataUrl)),
-    titleDOM$: team$.pluck('name'),
-    subtitleDOM$,
-    // subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
-    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
+  const title = TeamTitle({..._sources,
+    tabsDOM,
+    quickNavDOM: quickNav.DOM,
+    pageTitle$: page$.flatMapLatest(page => page.pageTitle),
   })
 
-  const nav = TeamNav({
+  const nav = TeamNav({..._sources,
     titleDOM: title.DOM,
-    project$,
-    teams$,
-    opps$,
-    projectKey$,
-    ...sources,
   })
 
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabsDOM, ...sources})
+  const header = Header({...sources,
+    titleDOM: title.DOM,
+    tabsDOM: tabsDOM,
+  })
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
@@ -146,11 +154,9 @@ export default sources => {
 
   const children = [appFrame, page$, quickNav, title, nav, header]
 
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
-
-  const route$ = Observable.merge(
+  const route$ = merge(
     mergeOrFlatMapLatest('route$', ...children),
-    redirectOnLogout$,
+    sources.redirectLogout$,
   )
 
   return {
