@@ -20,7 +20,8 @@
     "serve": "webpack-dev-server --hot --inline",
     "start": "npm install && npm run serve",
     "build": "webpack",
-    "test": "echo \"No tests, bad developer.\""
+    "test": "echo \"No tests, bad developer.\"",
+    "e2e": "nightwatch"
   },
   "author": "Sparks.Network",
   "license": "MIT",
@@ -44,6 +45,7 @@
     "html-webpack-plugin": "^2.14.0",
     "image-webpack-loader": "^1.6.3",
     "minimist": "^1.2.0",
+    "nightwatch": "^0.8.18",
     "node-sass": "^3.4.2",
     "postcss-loader": "^0.8.1",
     "run-sequence": "^1.1.5",
