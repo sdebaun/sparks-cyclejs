@@ -18,6 +18,8 @@
     }
   },
 
+  "test_runner": "mocha",
+
   "test_settings" : {
     "default" : {
       "launch_url" : "http://localhost",
