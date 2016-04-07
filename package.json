@@ -20,8 +20,7 @@
     "serve": "webpack-dev-server --hot --inline",
     "start": "npm install && npm run serve",
     "build": "webpack",
-    "test": "echo \"No tests, bad developer.\"",
-    "e2e": "nightwatch"
+    "test": "nightwatch"
   },
   "author": "Sparks.Network",
   "license": "MIT",
