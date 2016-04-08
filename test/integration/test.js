@@ -1,19 +1,10 @@
 describe('Nightwatch integration testing', function() {
-  before(function(client, done) {
-    done()
-  })
   after(function(client, done) {
     client.end(function() {
       done()
     })
   })
-  afterEach(function(client, done) {
-    done()
-  })
   beforeEach(function(client, done) {
-    done()
-  })
-  it('shows dash after login', function(client) {
     client
       .url('http://localhost:8080')
       .click('i.icon-more_vert')
@@ -29,7 +20,10 @@ describe('Nightwatch integration testing', function() {
       .window_handles(function(result) {
         client.switchWindow(result.value[0])
           .pause(2500)
-          .assert.containsText('.title', 'Test User')
         })
-      })
+    done()
+  })
+  it('shows dash after login', function(client) {
+    client.assert.containsText('.title', 'Test User')
+  })
 })
