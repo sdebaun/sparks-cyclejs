@@ -1,10 +1,10 @@
-describe('Nightwatch integration testing', function() {
-  after(function(client, done) {
-    client.end(function() {
+describe('Nightwatch integration testing', () => {
+  after((client, done) => {
+    client.end(() => {
       done()
     })
   })
-  beforeEach(function(client, done) {
+  beforeEach((client, done) => {
     client
       .url('http://localhost:8080')
       .click('i.icon-more_vert')
@@ -13,17 +13,17 @@ describe('Nightwatch integration testing', function() {
         client.switchWindow(result.value[1])
           .setValue('#Email', 'test@sparks.network')
           .click('#next')
-          .pause(500)
+          .waitForElementVisible('#Passwd', 1000)
           .setValue('#Passwd', 'sparks4life')
           .click('#signIn')
-        })
-      .window_handles(function(result) {
+      })
+      .window_handles((result) => {
         client.switchWindow(result.value[0])
           .pause(2500)
-        })
+      })
     done()
   })
-  it('shows dash after login', function(client) {
+  it('shows dash after login', (client) => {
     client.assert.containsText('.title', 'Test User')
   })
 })
