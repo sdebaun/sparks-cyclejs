@@ -27,12 +27,25 @@ const HowItem = sources => ListItemNavigating({...sources,
   path$: just('/manage/applying'),
 })
 
+const applicantsTitle = (applicants) =>
+  `Aprrove some of your ${applicants.length} open applications`
+
+const ApplicantItem = sources =>
+  ListItemNavigating({
+    ...sources,
+    title$: sources.applicants$ && sources.applicants$.map(applicantsTitle) ||
+      just('Approve applications'),
+    path$: just('/engaged/applied'),
+    iconName$: just('calendar-check-o'), // TODO: decide on a better icon
+  })
+
 export default sources => {
   const what = isolate(WhatItem,'what')(sources)
   const exchange = isolate(ExchangeItem,'invite')(sources)
   const how = isolate(HowItem,'how')(sources)
+  const applicants = isolate(ApplicantItem, 'applicants')(sources)
 
-  const items = [what, exchange, how]
+  const items = [what, exchange, how, applicants]
 
   const route$ = merge(...items.map(i => i.route$))
     .map(sources.router.createHref)
