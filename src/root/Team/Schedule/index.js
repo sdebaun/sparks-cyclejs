@@ -1,10 +1,8 @@
 import {Observable} from 'rx'
 const {of} = Observable
 
-import ComingSoon from 'components/ComingSoon'
 import {TabbedPage} from 'components/ui'
-
-const Overview = ComingSoon('Overview')
+import Overview from './Overview'
 
 export default sources => ({
   pageTitle: of('Schedule'),
