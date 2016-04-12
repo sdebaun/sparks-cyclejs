@@ -137,7 +137,9 @@ const ListItemNavigating = sources => {
 const ListItemWithDialog = sources => {
   const _listItem = ListItemClickable(sources)
 
-  const iconName$ = sources.dialogIconName$ || sources.iconName$
+  const iconName$ = sources.iconUrl$ ||
+    sources.dialogIconName$ ||
+    sources.iconName$
 
   const dialog = Dialog({...sources,
     isOpen$: _listItem.click$.map(true),

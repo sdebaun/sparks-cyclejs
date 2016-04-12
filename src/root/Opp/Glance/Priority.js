@@ -5,6 +5,8 @@ import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
+import {Engagements} from 'components/remote'
+
 import {
   ListItemNavigating,
 } from 'components/sdm'
@@ -27,23 +29,39 @@ const HowItem = sources => ListItemNavigating({...sources,
   path$: just('/manage/applying'),
 })
 
-const applicantsTitle = (applicants) =>
-  `Aprrove some of your ${applicants.length} open applications`
+const applicantsTitle = (engagements) => {
+  switch (engagements.length) {
+  case 0: return `You currently have no applications awaiting approval.`
+  case 1: return `You have 1 application awaiting approval!`
+  default: return `Approve some of the ${engagements.length} applications awaiting approval!` //eslint-disable-line max-len
+  }
+}
+
+const applicantsPath = (engagements) =>
+  engagements.length === 0 ? `/` : `/engaged/applied/`
+
+const applicantsIcon = (engagements) => // TODO: better icons?
+  engagements.length === 0 ? `event_busy` : `event_available`
 
 const ApplicantItem = sources =>
   ListItemNavigating({
     ...sources,
-    title$: sources.applicants$ && sources.applicants$.map(applicantsTitle) ||
-      just('Approve applications'),
-    path$: just('/engaged/applied'),
-    iconName$: just('calendar-check-o'), // TODO: decide on a better icon
+    title$: sources.engagements$.map(applicantsTitle),
+    iconName$: sources.engagements$.map(applicantsIcon),
+    path$: sources.engagements$.map(applicantsPath),
   })
 
 export default sources => {
+  const engagements$ = sources.oppKey$
+    .map(Engagements.query.byOpp(sources)).switch()
+    .shareReplay(1)
+
   const what = isolate(WhatItem,'what')(sources)
   const exchange = isolate(ExchangeItem,'invite')(sources)
   const how = isolate(HowItem,'how')(sources)
-  const applicants = isolate(ApplicantItem, 'applicants')(sources)
+  const applicants = isolate(ApplicantItem, 'applicants')({...sources,
+    engagements$,
+  })
 
   const items = [what, exchange, how, applicants]
 
