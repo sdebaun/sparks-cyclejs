@@ -1,4 +1,4 @@
-import {Observable} from 'rx'
+import {Observable, ReplaySubject} from 'rx'
 const {just, combineLatest} = Observable
 
 import {div, h5, p, hr} from 'cycle-snabbdom'
@@ -139,21 +139,41 @@ const Item = sources => {
 
   const actionsComponent$ = just(EngagementButtons(sources))
 
-  const {DOM, value$} = ListItemWithDialog({...sources,
+  const isOpen$ = sources.lastIndex$
+    .combineLatest(sources.index$,
+      (lastIndex, index) => index === lastIndex.index && lastIndex.isOpen
+    )
+    .replay(null, 1)
+
+  isOpen$.connect()
+
+  const {DOM, value$, submit$, close$} = ListItemWithDialog({...sources,
     title$: profile$.pluck('fullName'),
     iconUrl$: profile$.pluck('portraitUrl'),
     dialogTitleDOM$: profile$.pluck('fullName')
       .map(fullName => `${fullName}'s Application`),
     dialogContentDOM$,
     actionsComponent$,
+    isOpen$,
   })
 
-  const queue$ = value$.map(toValues).withLatestFrom(
-    item$.pluck('$key'),
-    (values, key) => ({key, values})
-  ).map(Engagements.action.update)
+  const queue$ = value$.map(toValues)
+    .withLatestFrom(item$.pluck('$key'),
+      (values, key) => ({key, values})
+    )
+    .map(Engagements.action.update)
 
-  return {DOM, queue$}
+  const lastIndex$ = Observable
+    .merge(
+      submit$.map(true),
+      close$.map(false)
+    )
+    .withLatestFrom(sources.index$,
+      (isOpen, index) => ({isOpen, index})
+    )
+    .shareReplay(1)
+
+  return {DOM, queue$, lastIndex$}
 }
 
 const AppList = sources => List({...sources,
@@ -161,22 +181,34 @@ const AppList = sources => List({...sources,
   rows$: sources.engagements$,
 })
 
+const isNotAccepted = ({isAccepted}) => isAccepted === false
+const isDeclined = ({declined}) => declined === true
+
 const Fetch = sources => ({
   engagements$: sources.oppKey$
     .flatMapLatest(Engagements.query.byOpp(sources))
+    .map(engagements =>
+      engagements.filter(x => !isDeclined(x) && isNotAccepted(x))
+    )
     .shareReplay(1),
 })
 
 export default sources => {
   const _sources = {...sources, ...Fetch(sources)}
 
-  const {DOM: listDOM, edit$, queue$, route$} = AppList(_sources)
+  // TODO: Is there a way to properly acheive this without a subject?
+  const lastIndexProxy$ = new ReplaySubject(1)
+  const lastIndex$ = lastIndexProxy$.finally(() => { // to clean up after
+    lastIndexSub.dispose() // eslint-disable-line no-use-before-define
+  })
+  const list = AppList({..._sources, lastIndex$})
+  const lastIndexSub = list.lastIndex$.subscribe(lastIndexProxy$.asObserver())
 
   const DOM = _sources.engagements$.map(
     engagements => engagements.length === 0 ?
       just(h5('No applications awaiting approval')) :
-      listDOM
+      list.DOM
   ).switch()
 
-  return {DOM, queue$, route$, edit$}
+  return {DOM, queue$: list.queue$}
 }
