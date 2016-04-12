@@ -28,6 +28,15 @@ const RightQuoteListItem = sources =>
   ListItem({...sources,
     classes$: just({quote: true, rotate: true, blue: true})}).DOM
 
+const toValues = value => {
+  switch (value) {
+  case 'priority': return {isAccepted: true, priority: true}
+  case 'accept': return {isAccepted: true, priority: false}
+  case 'decline': return {isAccepted: false, priority: false}
+  default: return {isAccepted: 'false'}
+  }
+}
+
 const defaultIntro =
   'This applicant has not completed the intro section of their profile'
 const defaultSkills =
@@ -121,7 +130,7 @@ const Item = sources => {
 
   const actionsComponent$ = just(EngagementButtons(sources))
 
-  return ListItemWithDialog({...sources,
+  const {DOM, value$} = ListItemWithDialog({...sources,
     title$: profile$.pluck('fullName'),
     iconUrl$: profile$.pluck('portraitUrl'),
     dialogTitleDOM$: profile$.pluck('fullName')
@@ -129,6 +138,13 @@ const Item = sources => {
     dialogContentDOM$,
     actionsComponent$,
   })
+
+  const queue$ = value$.map(toValues).withLatestFrom(
+    item$.pluck('$key'),
+    (values, key) => ({key, values})
+  ).map(Engagements.action.update)
+
+  return {DOM, queue$}
 }
 
 const AppList = sources => List({...sources,
@@ -138,19 +154,20 @@ const AppList = sources => List({...sources,
 
 const Fetch = sources => ({
   engagements$: sources.oppKey$
-    .flatMapLatest(Engagements.query.byOpp(sources)),
+    .flatMapLatest(Engagements.query.byOpp(sources))
+    .shareReplay(1),
 })
 
 export default sources => {
   const _sources = {...sources, ...Fetch(sources)}
 
-  const list = AppList(_sources)
+  const {DOM: listDOM, edit$, queue$, route$} = AppList(_sources)
 
   const DOM = _sources.engagements$.map(
     engagements => engagements.length === 0 ?
       just(h5('No applications awaiting approval')) :
-      list.DOM
+      listDOM
   ).switch()
 
-  return {DOM}
+  return {DOM, queue$, route$, edit$}
 }

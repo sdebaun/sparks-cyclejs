@@ -160,7 +160,9 @@ const ListItemWithDialog = sources => {
 
   return {
     DOM,
+    value$: dialog.value$,
     submit$: dialog.submit$,
+    close$: dialog.close$,
   }
 }
 

@@ -13,7 +13,7 @@ import {AccentToolbar} from 'components/sdm/Toolbar'
 import {icon, iconSrc} from 'helpers'
 
 const dialogStyle = {
-  marginTop: '-20em',
+  marginTop: '-15em',
   minWidth: '400px',
   width: 'auto',
 }
@@ -72,9 +72,9 @@ const Dialog = sources => {
 
   return {
     DOM,
-    value$: actionsComponent$.map(a => a.value$ || empty()),
-    submit$: actionsComponent$.map(a => a.ok$ || empty()),
-    close$: actionsComponent$.map(a => a.cancel$ || empty()),
+    value$: actionsComponent$.map(a => a.value$ || empty()).switch(),
+    submit$: actionsComponent$.map(a => a.ok$ || empty()).switch(),
+    close$: actionsComponent$.map(a => a.cancel$ || empty()).switch(),
   }
 }
 
