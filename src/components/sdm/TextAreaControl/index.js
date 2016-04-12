@@ -40,7 +40,7 @@ const labelStyle = (height) => ({
 })
 
 const TextAreaControl = sources => {
-  const input = sources.DOM.select('#textarea')
+  const input = sources.DOM.select('.textarea')
 
   const height$ = input.observable
     .map(elements => elements[0])
@@ -53,7 +53,7 @@ const TextAreaControl = sources => {
     .share()
 
   const enter$ = sources.DOM
-    .select('#textarea').events('keydown')
+    .select('.textarea').events('keydown')
     .filter(e => e.keyCode === 13)
     .do(e => e.preventDefault())
     .share()
@@ -73,7 +73,7 @@ const TextAreaControl = sources => {
   const DOM = combineLatestObj(viewState)
     .map(({value, length, maxLength, height}) =>
       div({style: divStyle}, [
-        textarea('#textarea', {
+        textarea('.textarea', {
           props: {maxLength},
           class: {input: true},
           style: textAreaStyle(height),
