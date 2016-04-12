@@ -142,7 +142,7 @@ const ListItemWithDialog = sources => {
     sources.iconName$
 
   const dialog = Dialog({...sources,
-    isOpen$: _listItem.click$.map(true),
+    isOpen$: _listItem.click$.map(true).merge(sources.isOpen$ || never()),
     titleDOM$: sources.dialogTitleDOM$,
     iconName$,
     contentDOM$: sources.dialogContentDOM$,
