@@ -29,6 +29,9 @@ const HowItem = sources => ListItemNavigating({...sources,
   path$: just('/manage/applying'),
 })
 
+const isNotAccepted = ({isAccepted}) => isAccepted === false
+const isDeclined = ({declined}) => declined === true
+
 const applicantsTitle = (engagements) => {
   switch (engagements.length) {
   case 0: return `You currently have no applications awaiting approval.`
@@ -46,7 +49,9 @@ const applicantsIcon = (engagements) => // TODO: better icons?
 const ApplicantItem = sources =>
   ListItemNavigating({
     ...sources,
-    title$: sources.engagements$.map(applicantsTitle),
+    title$: sources.engagements$
+      .map(e => e.filter(x => !isDeclined(x) && isNotAccepted(x)))
+      .map(applicantsTitle),
     iconName$: sources.engagements$.map(applicantsIcon),
     path$: sources.engagements$.map(applicantsPath),
   })
