@@ -33,10 +33,10 @@ const RightQuoteListItem = sources =>
 
 const toValues = value => {
   switch (value) {
-  case 'priority': return {isAccepted: true, priority: true}
-  case 'accept': return {isAccepted: true, priority: false}
-  case 'decline': return {isAccepted: false, priority: false}
-  default: return {isAccepted: 'false'}
+  case 'priority': return {isAccepted: true, priority: true, declined: false}
+  case 'accept': return {isAccepted: true, priority: false, declined: false}
+  case 'decline': return {isAccepted: false, priority: false, declined: true}
+  default: return {isAccepted: 'false', declined: false}
   }
 }
 
