@@ -67,28 +67,39 @@ const footer =
         Col({type: 'xs-4'},[
           h5({}, 'Contact'),
           ul({}, [
-            li({}, [basicLink('Support')]),
-            li({}, [basicLink('Business')]),
-            li({}, [basicLink('Press')]),
-            li({}, [
-              basicLink('Info', 'mailto:info@sparks.network'),
-            ]),
+            li({}, [basicLink('Help', 'mailto:help@sparks.network')]),
+            li({}, [basicLink('Other', 'mailto:sdebaun@sparks.network')]),
           ]),
         ]),
         Col({type: 'xs-4'},[
           h5({}, 'About'),
           ul({}, [
-            li({}, [basicLink('Mission')]),
-            li({}, [basicLink('Now Hiring')]),
-            li({}, [basicLink('Our Team')]),
+            li({}, [basicLink(
+              'Pricing',
+              'http://blog.sparks.network/p/pricing.html'
+            )]),
+            li({}, [basicLink(
+              'Terms of Service',
+              'http://blog.sparks.network/p/terms-of-service.html'
+            )]),
+            li({}, [basicLink(
+              'Privacy Policy',
+              'http://blog.sparks.network/p/privacy-policy.html'
+            )]),
+            li({}, [basicLink(
+              'Refund Policy',
+              'http://blog.sparks.network/p/refunds-and-deposit-returns.html'
+            )]),
           ]),
         ]),
         Col({type: 'xs-4'},[
           h5({}, 'News'),
           ul({}, [
-            li({}, [basicLink('Blog')]),
-            li({}, [basicLink('Facebook')]),
-            li({}, [basicLink('Twitter')]),
+            li({}, [basicLink('Blog', 'http://blog.sparks.network')]),
+            li({}, [basicLink(
+              'Facebook',
+              'https://www.facebook.com/sparksvolunteers',
+            )]),
           ]),
         ]),
       ]),

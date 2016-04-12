@@ -26,11 +26,13 @@ import {
 import Glance from './Glance'
 import Manage from './Manage'
 import Members from './Members'
+import Schedule from './Schedule'
 
 const _routes = {
   '/': Glance,
   '/manage': Manage,
   '/members': Members,
+  '/schedule': Schedule,
 }
 
 import {ProjectQuickNavMenu} from 'components/project'
@@ -53,11 +55,18 @@ const MembersNav = sources => ListItemNavigating({...sources,
   path$: just('/members'),
 })
 
+const ScheduleNav = sources => ListItemNavigating({...sources,
+  title$: just('Schedule'),
+  iconName$: just('calendar2'),
+  path$: just('/schedule'),
+})
+
 const TeamNav = sources => {
   const childs = [
     isolate(GlanceNav,'glance')(sources),
     isolate(ManageNav,'manage')(sources),
     isolate(MembersNav,'members')(sources),
+    isolate(ScheduleNav,'schedule')(sources),
   ]
 
   const listDOM$ = combineLatestToDiv(...childs.map(c => c.DOM))
