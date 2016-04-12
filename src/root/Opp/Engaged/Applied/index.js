@@ -49,7 +49,7 @@ const defaultOppAnswer =
 const defaultTeamAnswer =
   'This applicant did not answer the team question'
 
-const dialogStyle = {
+const dialogStyle = { // TODO: move into scss
   maxWidth: '31rem',
   margin: '0 auto',
   maxHeight: '37rem',
@@ -59,56 +59,56 @@ const dialogStyle = {
 }
 
 const dialogView = (
-  {intro = defaultIntro, skills = defaultSkills, portraitUrl},
-  {opp: {question: oppQuestion}, answer: oppAnswer = defaultOppAnswer},
-  {answer: teamAnswer = defaultTeamAnswer},
-  {question: teamQuestion},
-  {portraitUrl: ownerPicUrl},
+  {intro = defaultIntro, skills = defaultSkills, portraitUrl}, // user profile
+  {opp: {question: oppQuestion}, answer: oppAnswer = defaultOppAnswer}, //item
+  {answer: teamAnswer = defaultTeamAnswer}, // membership
+  {question: teamQuestion}, // team
+  {portraitUrl: ownerPicUrl}, // project Owner Profile
 ) =>
-    div({style: dialogStyle}, [
-      div({}, [
-        h5({style: {textDecoration: 'underline'}}, ['Introduction']),
-        p({style: {fontWeight: 'bold'}}, intro),
-      ]),
-      hr({}, []),
-      div({}, [
-        RightQuoteListItem({
-          title$: just(oppQuestion),
-          subtitle$: just('Project Owner'),
+  div({style: dialogStyle}, [
+    div({}, [
+      h5({style: {textDecoration: 'underline'}}, ['Introduction']),
+      p({style: {fontWeight: 'bold'}}, intro),
+    ]),
+    hr({}, []),
+    div({}, [
+      RightQuoteListItem({
+        title$: just(oppQuestion),
+        subtitle$: just('Project Owner'),
+      }),
+    ]),
+    div({style: {display: 'flex', flexDirection: 'row'}}, [
+      div({style: {flexGrow: '1'}}, [
+        QuoteListItem({
+          title$: just(oppAnswer),
+          subtitle$: just('Applicant'),
         }),
       ]),
-      div({style: {display: 'flex', flexDirection: 'row'}}, [
-        div({style: {flexGrow: '1'}}, [
-          QuoteListItem({
-            title$: just(oppAnswer),
-            subtitle$: just('Applicant'),
-          }),
-        ]),
-        div({style: {margin: '0.4em'}} , [iconSrc(ownerPicUrl)]),
+      div({style: {margin: '0.4em'}} , [iconSrc(ownerPicUrl)]),
+    ]),
+    div({style: {display: 'flex', flexDirection: 'row'}}, [
+      div({style: {marginTop: '-0.6em'}}, [iconSrc(portraitUrl)]),
+      div({style: {flexGrow: '1'}}, [
+        RightQuoteListItem({title$: just(teamQuestion)}),
       ]),
-      div({style: {display: 'flex', flexDirection: 'row'}}, [
-        div({style: {marginTop: '-0.6em'}}, [iconSrc(portraitUrl)]),
-        div({style: {flexGrow: '1'}}, [
-          RightQuoteListItem({title$: just(teamQuestion)}),
-        ]),
+    ]),
+    div({style: {display: 'flex', flexDirection: 'row'}}, [
+      div({style: {flexGrow: '1'}}, [
+        QuoteListItem({title$: just(teamAnswer)}),
       ]),
-      div({style: {display: 'flex', flexDirection: 'row'}}, [
-        div({style: {flexGrow: '1'}}, [
-          QuoteListItem({title$: just(teamAnswer)}),
-        ]),
-        div({style: {margin: '0.4em'}}, [iconSrc(ownerPicUrl)]),
+      div({style: {margin: '0.4em'}}, [iconSrc(ownerPicUrl)]),
+    ]),
+    div({style: {display: 'flex', flexDirection: 'row'}}, [
+      div({style: {marginTop: '-0.6em'}}, [
+        iconSrc(portraitUrl),
       ]),
-      div({style: {display: 'flex', flexDirection: 'row'}}, [
-        div({style: {marginTop: '-0.6em'}}, [
-          iconSrc(portraitUrl),
-        ]),
-        h5({style: {textAlign: 'center', flexGrow: '1'}}, 'Other Skills'),
-      ]),
-      hr({}, []),
-      div({}, [
-        p({}, skills),
-      ]),
-    ])
+      h5({style: {textAlign: 'center', flexGrow: '1'}}, 'Other Skills'),
+    ]),
+    hr({}, []),
+    div({}, [
+      p({}, skills),
+    ]),
+  ])
 
 const Item = sources => {
   const item$ = sources.item$.shareReplay(1)
