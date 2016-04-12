@@ -106,7 +106,7 @@ export default sources => {
   const previousRoute$ = sources.router.observable
     .pluck('pathname')
     .scan((acc,val) => [val, acc[0]], [null,null])
-    .filter(([_, curr]) => curr !== '/confirm') // eslint-disable-line
+    .filter(arr => arr[1] !== '/confirm')
     .map(arr => arr[1])
     .shareReplay(1)
 
