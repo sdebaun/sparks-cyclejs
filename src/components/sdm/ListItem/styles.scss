@@ -35,6 +35,10 @@
     .content {
       transform: rotateY(180deg);
     }
+
+    .subtitle {
+      float: right;
+    }
   }
 
   &.header {

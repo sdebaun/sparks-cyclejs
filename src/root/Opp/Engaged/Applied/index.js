@@ -22,10 +22,13 @@ import {
 } from 'components/remote'
 
 const QuoteListItem = sources =>
-  ListItem({...sources, classes$: just({quote: true, yellow: true})}).DOM
+  ListItem({...sources,
+    subtitle$: just('Applicant'),
+    classes$: just({quote: true, yellow: true})}).DOM
 
 const RightQuoteListItem = sources =>
   ListItem({...sources,
+    subtitle$: just('Project Owner'),
     classes$: just({quote: true, rotate: true, blue: true})}).DOM
 
 const toValues = value => {
@@ -69,11 +72,17 @@ const dialogView = (
       ]),
       hr({}, []),
       div({}, [
-        RightQuoteListItem({title$: just(oppQuestion)}),
+        RightQuoteListItem({
+          title$: just(oppQuestion),
+          subtitle$: just('Project Owner'),
+        }),
       ]),
       div({style: {display: 'flex', flexDirection: 'row'}}, [
         div({style: {flexGrow: '1'}}, [
-          QuoteListItem({title$: just(oppAnswer)}),
+          QuoteListItem({
+            title$: just(oppAnswer),
+            subtitle$: just('Applicant'),
+          }),
         ]),
         div({style: {margin: '0.4em'}} , [iconSrc(ownerPicUrl)]),
       ]),
