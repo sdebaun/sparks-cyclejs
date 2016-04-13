@@ -22,7 +22,10 @@ export {
   ListWithHeader,
 } from './List'
 
-export {Dialog} from './Dialog'
+export {
+  Dialog,
+  BaseDialog,
+} from './Dialog'
 
 export {
   ListItem,

@@ -1,21 +1,23 @@
-import {Observable, ReplaySubject} from 'rx'
-const {just, never, combineLatest} = Observable
+import {Observable} from 'rx'
+const {just, merge, combineLatest} = Observable
 
 import {div, h5, p, hr} from 'cycle-snabbdom'
 import {iconSrc} from 'helpers'
 
 import {log} from 'util'
+import {combineLatestToDiv} from 'util'
 
 import {
   List,
   ListItem,
   ListItemWithDialog,
-  Dialog,
+  ListItemNavigating,
 } from 'components/sdm'
 
 import {
   EngagementButtons,
 } from 'components/engagement'
+// import {OkAndCancel} from 'components/sdm/Button'
 
 import {
   Profiles,
@@ -179,9 +181,32 @@ const Item = sources => {
   return {DOM, queue$, lastIndex$}
 }
 
+import Detail from './Detail'
+
+const Item2 = sources => {
+  const profile$ = sources.item$
+    .pluck('profileKey')
+    .flatMapLatest(Profiles.query.one(sources))
+    .shareReplay(1)
+
+  return ListItemNavigating({...sources,
+    title$: profile$.pluck('fullName'),
+    iconSrc$: profile$.pluck('portraitUrl'),
+    path$: sources.item$.map(({$key}) =>
+      sources.router.createHref(`/show/${$key}`)
+    ),
+  })
+}
+
 const AppList = sources => List({...sources,
-  Control$: just(Item),
+  Control$: just(Item2),
   rows$: sources.engagements$,
+})
+
+const EmptyNotice = sources => ({
+  DOM: sources.items$.map(i =>
+    i.length > 0 ? null : div({},['Empty notice'])
+  ),
 })
 
 const isNotAccepted = ({isAccepted}) => isAccepted === false
@@ -196,50 +221,15 @@ const Fetch = sources => ({
     .shareReplay(1),
 })
 
-const Blank = () => ({
-  DOM: just(div({},[])),
-})
-
-import {RoutedComponent} from 'components/ui'
-
-const ApprovalDialog = sources => Dialog({...sources,
-  iconName$: just('people'),
-  isOpen$: just(true),
-  contentDOM$: just(div({},['wat'])),
-})
-
-const DetailView = sources => {
-  const rd = RoutedComponent({...sources,
-    routes$: just({
-      '/show/:key': key =>
-        _sources => ApprovalDialog({..._sources, $key: just(key)}),
-      '*': Blank,
-    }),
-  })
-
-  return rd
-}
-
 export default sources => {
   const _sources = {...sources, ...Fetch(sources)}
 
-  const dialog = DetailView(_sources)
+  const detail = Detail(_sources)
+  const list = AppList(_sources)
+  const mt = EmptyNotice({..._sources, items$: _sources.engagements$})
 
-  // TODO: Is there a way to properly acheive this without a subject?
-  const lastIndexProxy$ = new ReplaySubject(1)
-  const lastIndex$ = lastIndexProxy$.finally(() => { // to clean up after
-    lastIndexSub.dispose() // eslint-disable-line no-use-before-define
-  })
-  const list = AppList({..._sources, lastIndex$})
-  const lastIndexSub = list.lastIndex$.subscribe(lastIndexProxy$.asObserver())
-
-  const DOM = combineLatest(
-    _sources.engagements$, list.DOM, dialog.DOM,
-    (engagements, ...doms) =>
-      engagements.length === 0 ?
-        just(h5('No applications awaiting approval')) :
-        div({}, doms)
-  )
-
-  return {DOM, queue$: list.queue$}
+  return {
+    DOM: combineLatestToDiv(mt.DOM, list.DOM, detail.DOM),
+    route$: merge(list.route$, detail.route$),
+  }
 }
