@@ -3,6 +3,7 @@ const {of} = Observable
 
 import {TabbedPage} from 'components/ui'
 import Overview from './Overview'
+import ComingSoon from 'components/ComingSoon'
 
 function getPathParts(pathname) {
   return pathname.split('/').filter(Boolean)
@@ -34,6 +35,7 @@ export default sources => {
 
   const routes$ = of({
     '/': Overview,
+    '/shifts/:date': date => _sources => ComingSoon('Shifts')(_sources),
   })
 
   return {
