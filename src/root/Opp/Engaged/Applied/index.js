@@ -1,13 +1,16 @@
 import {Observable, ReplaySubject} from 'rx'
-const {just, combineLatest} = Observable
+const {just, never, combineLatest} = Observable
 
 import {div, h5, p, hr} from 'cycle-snabbdom'
 import {iconSrc} from 'helpers'
+
+import {log} from 'util'
 
 import {
   List,
   ListItem,
   ListItemWithDialog,
+  Dialog,
 } from 'components/sdm'
 
 import {
@@ -193,8 +196,34 @@ const Fetch = sources => ({
     .shareReplay(1),
 })
 
+const Blank = () => ({
+  DOM: just(div({},[])),
+})
+
+import {RoutedComponent} from 'components/ui'
+
+const ApprovalDialog = sources => Dialog({...sources,
+  iconName$: just('people'),
+  isOpen$: just(true),
+  contentDOM$: just(div({},['wat'])),
+})
+
+const DetailView = sources => {
+  const rd = RoutedComponent({...sources,
+    routes$: just({
+      '/show/:key': key =>
+        _sources => ApprovalDialog({..._sources, $key: just(key)}),
+      '*': Blank,
+    }),
+  })
+
+  return rd
+}
+
 export default sources => {
   const _sources = {...sources, ...Fetch(sources)}
+
+  const dialog = DetailView(_sources)
 
   // TODO: Is there a way to properly acheive this without a subject?
   const lastIndexProxy$ = new ReplaySubject(1)
@@ -204,11 +233,13 @@ export default sources => {
   const list = AppList({..._sources, lastIndex$})
   const lastIndexSub = list.lastIndex$.subscribe(lastIndexProxy$.asObserver())
 
-  const DOM = _sources.engagements$.map(
-    engagements => engagements.length === 0 ?
-      just(h5('No applications awaiting approval')) :
-      list.DOM
-  ).switch()
+  const DOM = combineLatest(
+    _sources.engagements$, list.DOM, dialog.DOM,
+    (engagements, ...doms) =>
+      engagements.length === 0 ?
+        just(h5('No applications awaiting approval')) :
+        div({}, doms)
+  )
 
   return {DOM, queue$: list.queue$}
 }
