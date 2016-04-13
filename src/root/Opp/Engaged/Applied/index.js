@@ -231,5 +231,6 @@ export default sources => {
   return {
     DOM: combineLatestToDiv(mt.DOM, list.DOM, detail.DOM),
     route$: merge(list.route$, detail.route$),
+    queue$: detail.queue$,
   }
 }

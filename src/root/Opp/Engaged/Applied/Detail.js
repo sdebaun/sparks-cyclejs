@@ -22,30 +22,48 @@ const Blank = () => ({
   DOM: just(div({},[])),
 })
 
-const _Fetch = sources => ({
-  engagement$: sources.engagementKey$
+const _Fetch = sources => {
+  const engagement$ = sources.engagementKey$
     .flatMapLatest(Engagements.query.one(sources))
-    .shareReplay(1),
-  memberships$: sources.engagementKey$
+    .shareReplay(1)
+  const profile$ = engagement$.pluck('profileKey')
+    .flatMapLatest(Profiles.query.one(sources))
+    .shareReplay(1)
+  const memberships$ = sources.engagementKey$
     .flatMapLatest(Memberships.query.byEngagement(sources))
-    .shareReplay(1),
-})
+    .shareReplay(1)
+
+  // const engagement$ = just({})
+  // const profile$ = just({})
+  // const memberships$ = just({})
+
+  return {
+    profile$,
+    engagement$,
+    memberships$,
+  }
+}
+
+const _Content = sources => {
+  return {
+    DOM: sources.engagementKey$.map(k => just(div({},['key', k]))),
+  }
+}
 
 const ApprovalDialog = sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
   const oac = OkAndCancel(_sources)
+  const c = _Content(_sources)
   const d = BaseDialog({..._sources,
-    iconName$: just('people'),
+    titleDOM$: _sources.profile$.pluck('fullName'),
     isOpen$: just(true),
-    contentDOM$: _sources.engagementKey$.map(k => just(div({},['key', k]))),
+    contentDOM$: c.DOM,
     actionsDOM$: oac.DOM,
   })
 
   const route$ = _sources.oppKey$.map(k => `/opp/${k}/engaged/applied`)
     .sample(merge(oac.ok$, oac.cancel$))
-
-  route$.subscribe(log('route$'))
 
   return {
     ...d,
@@ -55,8 +73,7 @@ const ApprovalDialog = sources => {
 
 export default sources => RoutedComponent({...sources,
   routes$: just({
-    '/show/:key': key =>
-      _sources => ApprovalDialog({..._sources, engagementKey$: just(key)}),
+    '/show/:key': k => s => ApprovalDialog({...s, engagementKey$: just(k)}),
     '*': Blank,
   }),
 })
