@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {merge} = Observable
+const {just, merge, empty} = Observable
 
 import combineLatestObj from 'rx-combine-latest-obj'
 
@@ -10,10 +10,12 @@ import {OkAndCancel} from 'components/sdm/Button'
 
 import {AccentToolbar} from 'components/sdm/Toolbar'
 
-import {icon} from 'helpers'
+import {icon, iconSrc} from 'helpers'
 
 const dialogStyle = {
+  marginTop: '-15em',
   minWidth: '400px',
+  width: 'auto',
 }
 
 const contentStyle = {
@@ -35,16 +37,19 @@ const Dialog = sources => {
   // hax to capture close click from SmDialog
   const maskClose$ = sources.DOM.select('.close').events('click')
 
-  const oac = OkAndCancel(sources)
+  const actionsComponent$ =
+    sources.actionsComponent$ || just(OkAndCancel(sources))
 
   const toolbar = AccentToolbar({...sources,
-    leftItemDOM$: sources.iconName$ && sources.iconName$.map(icon),
+    leftItemDOM$: sources.iconUrl$ && sources.iconUrl$
+      .map(src => src && iconSrc(src) || '') ||
+      sources.iconName$ && sources.iconName$.map(icon),
   })
 
   const isOpen$ = merge(
     sources.isOpen$,
-    oac.ok$.map(false),
-    oac.cancel$.map(false),
+    actionsComponent$.pluck('ok$').switch().map(false),
+    actionsComponent$.pluck('cancel$').switch().map(false),
     maskClose$.map(false),
   ).startWith(false)
 
@@ -52,7 +57,7 @@ const Dialog = sources => {
     isOpen$,
     toolbarDOM$: toolbar.DOM,
     contentDOM$: sources.contentDOM$,
-    actionsDOM$: oac.DOM,
+    actionsDOM$: actionsComponent$.pluck('DOM').switch(),
   }
 
   const DOM = combineLatestObj(viewState)
@@ -67,8 +72,9 @@ const Dialog = sources => {
 
   return {
     DOM,
-    submit$: oac.ok$,
-    close$: oac.cancel$,
+    value$: actionsComponent$.map(a => a.value$ || empty()).switch(),
+    submit$: actionsComponent$.map(a => a.ok$ || empty()).switch(),
+    close$: actionsComponent$.map(a => a.cancel$ || empty()).switch(),
   }
 }
 

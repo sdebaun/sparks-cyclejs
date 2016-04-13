@@ -8,6 +8,39 @@
   justify-content: space-between;
   align-items: center;
 
+  &.blue {
+    background-color: rgba(7, 193, 255, 1) !important;
+    &::after {
+      border-color: rgba(7, 193, 255, 1) transparent !important;
+    }
+  }
+
+  &.green {
+    background-color: #07FF33 !important;
+    &::after {
+      border-color: #07FF33 transparent !important;
+    }
+  }
+
+  &.yellow {
+    background-color: #FFC107 !important;
+    &::after {
+      border-color: #FFC107 transparent !important;
+    }
+  }
+
+  &.rotate {
+    transform: rotateY(180deg);
+
+    .content {
+      transform: rotateY(180deg);
+    }
+
+    .subtitle {
+      float: right;
+    }
+  }
+
   &.header {
     background-color: #666;
     color: #FFF;

@@ -35,11 +35,16 @@ const List = sources => {
     mergeOrFlatMapLatest('edit$', ...children)
   )
 
+  const lastIndex$ = controls$.flatMapLatest(children =>
+    mergeOrFlatMapLatest('lastIndex$', ...children)
+  )
+
   return {
     DOM,
     queue$,
     route$,
     edit$,
+    lastIndex$,
   }
 }
 
