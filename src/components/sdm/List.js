@@ -4,8 +4,6 @@ const {combineLatest} = Observable
 import {div} from 'helpers'
 import {requireSources, mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
-import {log} from 'util'
-
 const List = sources => {
   requireSources('List', sources, 'rows$', 'Control$')
 
@@ -34,7 +32,7 @@ const List = sources => {
 
   const children$ = controls$
     .map(controls => controls.map(c => c.DOM))
-    .map(children => combineLatest(...children, (...doms)=> doms))
+    .map(children => combineLatest(...children, (...doms) => doms))
     .switch()
 
   const DOM = children$.map(children => div({}, children))
