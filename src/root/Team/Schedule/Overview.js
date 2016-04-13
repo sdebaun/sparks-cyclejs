@@ -14,7 +14,7 @@ export default (sources) => {
     .sample(rb.click$)
     .combineLatest(
       sources.teamKey$,
-      (date, team) => `/team/${team}/date/${date}`
+      (date, team) => `/team/${team}/schedule/${date}`
     )
   return {
     DOM: combineLatestToDiv(ic.DOM, rb.DOM),
