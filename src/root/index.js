@@ -17,7 +17,7 @@ import Organize from './Organize'
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
 
-import {nestedComponent} from 'util'
+// import {nestedComponent} from 'util'
 
 import {RoutedComponent} from 'components/ui'
 

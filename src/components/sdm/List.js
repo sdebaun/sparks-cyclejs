@@ -8,11 +8,7 @@ const List = sources => {
   requireSources('List', sources, 'rows$', 'Control$')
 
   const controls$ = sources.rows$
-    // .share()
-    // .shareReplay(1)
-    // .distinctUntilChanged()
     .tap(x => console.count(x))
-    // .tap(r => r.length === 10 && log('new controls$')(r))
     .flatMapLatest(rows =>
       sources.Control$.map(Control =>
         controlsFromRows(sources, rows, Control)

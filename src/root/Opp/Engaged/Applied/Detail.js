@@ -2,7 +2,7 @@ import {Observable} from 'rx'
 const {just, merge} = Observable
 import {div} from 'helpers'
 
-import {log} from 'util'
+// import {log} from 'util'
 
 import {
   BaseDialog,
@@ -15,7 +15,7 @@ import {
   Profiles,
   Engagements,
   Memberships,
-  Teams,
+  // Teams,
 } from 'components/remote'
 
 const Blank = () => ({

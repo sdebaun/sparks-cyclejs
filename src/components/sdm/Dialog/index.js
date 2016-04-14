@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, merge, empty} = Observable
+const {just, merge} = Observable
 
 import combineLatestObj from 'rx-combine-latest-obj'
 
