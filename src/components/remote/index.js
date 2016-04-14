@@ -182,3 +182,9 @@ export const Memberships = {
     update: actionCreator('Memberships', 'update'), // CHANGE
   },
 }
+
+export const Shifts = {
+  action: {
+    create: actionCreator('Shifts', 'create'),
+  },
+}

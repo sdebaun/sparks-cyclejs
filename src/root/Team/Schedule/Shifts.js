@@ -3,6 +3,7 @@ const {of} = Observable
 import {ListItemWithDialog} from 'components/sdm'
 import {Form} from 'components/ui/Form'
 import {InputControl} from 'components/sdm'
+import {Shifts} from 'components/remote'
 
 const StartsInput = sources => InputControl({...sources,
   label$: of('Starts At Hour (24 hour)'),
@@ -34,8 +35,14 @@ const AddShift = sources => {
     dialogContentDOM$: form.DOM,
   })
 
+  const queue$ = form.item$
+    .sample(liwd.submit$)
+    .zip(sources.teamKey$, (shift,teamKey) => ({teamKey, ...shift}))
+    .map(Shifts.action.create)
+
   return {
     DOM: liwd.DOM,
+    queue$,
   }
 }
 
@@ -43,5 +50,6 @@ export default sources => {
   const ss = AddShift(sources)
   return {
     DOM: ss.DOM,
+    queue$: ss.queue$,
   }
 }
