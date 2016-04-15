@@ -185,24 +185,12 @@ const switchRoute = ([eKey, relative], oppKey, engs) => {
     return `/opp/${oppKey}/engaged/applied`
   }
   let idx = engs.findIndex(e => e.$key === eKey) + relative
-  console.log('looking for', idx)
-  idx = idx < 0 && engs.length - 1 ||
-    idx > engs.length && 0 ||
-    idx
+  console.log('looking for', idx, engs.length)
+  if (idx < 0) { idx = engs.length - 1 }
+  if (idx >= engs.length) { idx = 0 }
   console.log('changed to', idx)
   const newKey = engs[idx].$key
   return `/opp/${oppKey}/engaged/applied/show/${newKey}`
-
-  // if (relative === 1) {
-  //   console.log('found', engs.findIndex(e => e.$key === eKey))
-  //   const newKey = engs[engs.findIndex(e => e.$key === eKey) + 1].$key
-  //   return `/opp/${oppKey}/engaged/applied/show/${newKey}`
-  // }
-  // if (relative === -1) {
-  //   console.log('found', engs.findIndex(e => e.$key === eKey))
-  //   const newKey = engs[engs.findIndex(e => e.$key === eKey) - 1].$key
-  //   return `/opp/${oppKey}/engaged/applied/show/${newKey}`
-  // }
 }
 
 const ApprovalDialog = sources => {
@@ -219,7 +207,7 @@ const ApprovalDialog = sources => {
 
   const route$ = merge(
     navs.route$,
-    c.action$.map(1),
+    sources.engagementKey$.map(k => [k, 1]).sample(c.action$),
   )
   .combineLatest(
     sources.oppKey$,
