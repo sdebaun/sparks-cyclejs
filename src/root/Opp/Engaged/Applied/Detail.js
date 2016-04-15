@@ -1,7 +1,5 @@
 import {Observable} from 'rx'
 const {just, merge} = Observable
-// import {div} from 'helpers'
-import {h} from 'cycle-snabbdom'
 
 // import {log} from 'util'
 import {combineDOMsToDiv} from 'util'
@@ -19,7 +17,6 @@ import {
   BaseDialog,
   FlatButton,
   List,
-  // RaisedButton,
 } from 'components/sdm'
 
 import {LargeProfileAvatar} from 'components/profile'
@@ -116,25 +113,25 @@ const _TeamsInfo = sources => {
   }
 }
 
-const Priority = sources => ActionButton({...sources,
+const _Priority = sources => ActionButton({...sources,
   label$: just('#1'),
   params$: just({isAccepted: true, priority: true, declined: false}),
 })
 
-const Accept = sources => ActionButton({...sources,
+const _Accept = sources => ActionButton({...sources,
   label$: just('OK'),
   params$: just({isAccepted: true, priority: false, declined: false}),
 })
 
-const Decline = sources => ActionButton({...sources,
+const _Decline = sources => ActionButton({...sources,
   label$: just('NO'),
   params$: just({isAccepted: false, priority: false, declined: true}),
 })
 
 const _Actions = (sources) => {
-  const pr = Priority(sources)
-  const ac = Accept(sources)
-  const dec = Decline(sources)
+  const pr = _Priority(sources)
+  const ac = _Accept(sources)
+  const dec = _Decline(sources)
 
   return {
     DOM: combineDOMsToDiv('.center', pr, ac, dec),

@@ -1,8 +1,7 @@
 import {Observable} from 'rx'
-const {never, empty} = Observable
-
+const {empty} = Observable
 import {div} from 'helpers'
-import {log} from 'util'
+// import {log} from 'util'
 
 const pluckLatest = (k,s$) => s$.pluck(k).switch()
 
@@ -14,7 +13,6 @@ export const RoutedComponent = sources => {
     .map(routes => sources.router.define(routes))
     .switch()
     .distinctUntilChanged(({path}) => path)
-    .tap(log('new comp$'))
     .map(({path, value}) =>
       value({...sources, router: sources.router.path(path)})
     )
@@ -22,9 +20,8 @@ export const RoutedComponent = sources => {
 
   return {
     pluck: key => pluckLatestOrNever(key, comp$),
-    // DOM: comp$.pluck('DOM').switch(),
-    DOM: pluckLatest('DOM', comp$),
-      // .startWith(div('.loading',['Loading...'])), // add this
+    DOM: pluckLatest('DOM', comp$) //,
+      .startWith(div('.loading',['Loading...'])),
     ...['auth$', 'queue$', 'route$'].reduce((a,k) =>
       (a[k] = pluckLatestOrNever(k,comp$)) && a, {}
     ),
