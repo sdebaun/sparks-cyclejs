@@ -184,6 +184,9 @@ export const Memberships = {
 }
 
 export const Shifts = {
+  query: {
+    byTeam: filterBy('Shifts','teamKey'),
+  },
   action: {
     create: actionCreator('Shifts', 'create'),
   },
