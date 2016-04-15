@@ -3,6 +3,7 @@ import {Observable as $} from 'rx'
 
 import {
   List,
+  ListWithHeader,
   ListItemCollapsible,
   ListItemClickable,
 } from 'components/sdm'
@@ -10,6 +11,8 @@ import {
 import {
   TeamImages,
 } from 'components/remote'
+
+import {h4} from 'cycle-snabbdom'
 
 import {div, iconSrc, icon} from 'helpers'
 
@@ -91,11 +94,24 @@ const ListItemToggle = (sources) => {
 }
 
 const ShiftItem = sources =>
+  console.log(sources) ||
   ListItemToggle({
     ...sources,
     value$: $.just(false),
-    titleTrue$: $.just('Shift selected'),
-    titleFalse$: $.just('Select this shift'),
+    titleTrue$: sources.item$,
+    titleFalse$: $.just('Would you like this shift?'),
+  })
+
+const DaysListItem = sources =>
+  ListItemCollapsible({
+    ...sources,
+    isOpen$: $.just(false),
+    title$: sources.item$.pluck('date').map(d => h4({}, [d])),
+    contentDOM$: List({
+      ...sources,
+      rows$: sources.item$.pluck('shifts'),
+      Control$: $.just(ShiftItem),
+    }).DOM,
   })
 
 const MembershipItem = (sources) => {
@@ -114,7 +130,7 @@ const MembershipItem = (sources) => {
   const li = List({
     ...sources,
     rows$: shifts$,
-    Control$: $.just(ShiftItem),
+    Control$: $.just(DaysListItem),
   })
 
   return ListItemCollapsible({
