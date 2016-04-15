@@ -185,7 +185,7 @@ import {
 
 import Detail from './Detail'
 
-const Item2 = sources => {
+const Item = sources => {
   const profile$ = sources.item$
     // .tap(i => !i.profileKey && console.log('item$',i))
     .pluck('profileKey')
@@ -202,7 +202,7 @@ const Item2 = sources => {
 }
 
 const AppList = sources => List({...sources,
-  Control$: just(Item2),
+  Control$: just(Item),
   rows$: sources.engagements$,
 })
 

@@ -48,7 +48,7 @@ const _Title = sources => ResponsiveTitle({...sources,
 })
 
 const _Description = sources => DescriptionListItem({...sources,
-  item$: sources.project$,
+  title$: sources.project$.pluck('description'),
 })
 
 const _Page = sources => RoutedComponent({...sources, routes$: of({

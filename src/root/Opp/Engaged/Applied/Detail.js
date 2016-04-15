@@ -1,6 +1,6 @@
 import {Observable} from 'rx'
 const {just, merge} = Observable
-import {div} from 'helpers'
+// import {div} from 'helpers'
 import {h} from 'cycle-snabbdom'
 
 // import {log} from 'util'
@@ -9,12 +9,15 @@ import {combineDOMsToDiv} from 'util'
 import {
   QuotingListItem,
   RoutedComponent,
+  ActionButton,
+  DescriptionListItem,
 } from 'components/ui'
 
 import {
   ListItem,
   BaseDialog,
   FlatButton,
+  // RaisedButton,
 } from 'components/sdm'
 
 import {LargeProfileAvatar} from 'components/profile'
@@ -50,15 +53,13 @@ const _ProfileInfo = sources => {
   const av = LargeProfileAvatar({...sources,
     profileKey$: sources.engagement$.pluck('profileKey'),
   })
-  const nfo = ListItem({...sources,
-    title$: sources.profile$.pluck('intro')
-      .map(a => a || h('span.secondary',['No intro written.'])),
-    classes$: just({description: true}),
+  const nfo = DescriptionListItem({...sources,
+    title$: sources.profile$.pluck('intro'),
+    default$: just('No intro written.'),
+      // .map(a => a || h('span.secondary',['No intro written.'])),
   })
 
-  return {
-    DOM: combineDOMsToDiv('', av, nfo),
-  }
+  return {DOM: combineDOMsToDiv('', av, nfo)}
 }
 
 const _EngageInfo = sources => {
@@ -66,61 +67,54 @@ const _EngageInfo = sources => {
     profileKey$: sources.project$.pluck('ownerProfileKey'),
     title$: sources.opp$.pluck('question'),
   })
-  const ans = ListItem({...sources,
-    title$: sources.engagement$.pluck('answer')
-      .map(a => a || h('span.secondary',['This person did not answer.'])),
-    classes$: just({description: true}),
+  const ans = DescriptionListItem({...sources,
+    title$: sources.engagement$.pluck('answer'),
+    default$: just('This person did not answer'),
+      // .map(a => a || h('span.secondary',['This person did not answer.'])),
   })
 
-  return {
-    DOM: combineDOMsToDiv('', q, ans),
-  }
+  return {DOM: combineDOMsToDiv('', q, ans)}
 }
 
-export const _Actions = (sources) => {
-  const priority = FlatButton({
-    ...sources,
-    label$: just('Priority'),
-    classNames$: just(['green']),
-  })
-  const accept = FlatButton({
-    ...sources,
-    label$: just('Accept'),
-    classNames$: just(['blue']),
-  })
-  const decline = FlatButton({
-    ...sources,
-    label$: just('Decline'),
-    classNames$: just(['red']),
-  })
+const Priority = sources => ActionButton({...sources,
+  label$: just('Priority'),
+  params$: just({isAccepted: true, priority: true, declined: false}),
+})
+
+const Accept = sources => ActionButton({...sources,
+  label$: just('Accept'),
+  params$: just({isAccepted: true, priority: false, declined: false}),
+})
+
+const Decline = sources => ActionButton({...sources,
+  label$: just('Decline'),
+  params$: just({isAccepted: false, priority: false, declined: true}),
+})
+
+const _Actions = (sources) => {
+  const pr = Priority(sources)
+  const ac = Accept(sources)
+  const dec = Decline(sources)
+
   const close = FlatButton({
     ...sources,
     label$: just('Cancel'),
     classNames$: just(['accent']),
   })
 
-  const value$ = merge(
-    priority.click$.map(() => 'priority'),
-    accept.click$.map(() => 'accept'),
-    decline.click$.map(() => 'decline')
-  ).shareReplay(1)
-
   return {
-    DOM: combineDOMsToDiv('.center',priority, accept, decline, close),
-    value$,
-    ok$: value$,
-    cancel$: close.click$.share(),
+    DOM: combineDOMsToDiv('.center', pr, ac, dec, close),
+    action$: merge(pr.action$, ac.action$, dec.action$),
+    cancel$: close.click$,
   }
 }
 
-const _Content = sources => {
-  const pi = _ProfileInfo(sources)
-  const ei = _EngageInfo(sources)
-
-  return {
-    DOM: combineDOMsToDiv('', pi, ei),
-  }
-}
+const _Content = sources => ({
+  DOM: combineDOMsToDiv('',
+    _ProfileInfo(sources),
+    _EngageInfo(sources),
+  ),
+})
 
 const ApprovalDialog = sources => {
   const _sources = {...sources, ..._Fetch(sources)}
@@ -128,15 +122,14 @@ const ApprovalDialog = sources => {
   const ac = _Actions(_sources)
   const c = _Content(_sources)
   const d = BaseDialog({..._sources,
-    titleDOM$: _sources.profile$.pluck('fullName')
-      .map(fn => div('.center',[fn])),
+    titleDOM$: _sources.profile$.pluck('fullName'),
     isOpen$: just(true),
     contentDOM$: c.DOM,
     actionsDOM$: ac.DOM,
   })
 
   const route$ = _sources.oppKey$.map(k => `/opp/${k}/engaged/applied`)
-    .sample(merge(ac.ok$, ac.cancel$))
+    .sample(merge(ac.action$, ac.cancel$))
 
   return {
     ...d,
