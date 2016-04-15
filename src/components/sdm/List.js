@@ -39,12 +39,17 @@ const List = sources => {
     mergeOrFlatMapLatest('lastIndex$', ...children)
   )
 
+  const assignment$ = controls$.flatMapLatest(c =>
+    mergeOrFlatMapLatest('assignment$', ...c)
+  )
+
   return {
     DOM,
     queue$,
     route$,
     edit$,
     lastIndex$,
+    assignment$,
   }
 }
 

@@ -185,6 +185,7 @@ export const Memberships = {
 
 export const Shifts = {
   query: {
+    one: filterOne('Shifts'),
     byTeam: filterBy('Shifts', 'teamKey'),
   },
   action: {
@@ -196,7 +197,9 @@ export const Shifts = {
 
 export const Assignments = {
   query: {
-    byEngagement: filterBy('Assignments', 'engagementKey'),
+    one: filterOne('Assignments'),
+    byOwner: filterBy('Assignments', 'profileKey'),
+    byTeam: filterBy('Assignments', 'teamKey'),
     byShift: filterBy('Assignments', 'shiftKey'),
   },
   action: {

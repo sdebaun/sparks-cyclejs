@@ -9,8 +9,10 @@ import {
 } from 'components/sdm'
 
 import {
+  Teams,
   TeamImages,
   Shifts,
+  Assignments,
 } from 'components/remote'
 
 import {h4} from 'cycle-snabbdom'
@@ -21,15 +23,12 @@ const ToggleControl = sources => {
   const click$ = sources.DOM.select('.toggle').events('click')
     .map(true)
     .scan((a) => !a, false)
-    .startWith(false)
-    .withLatestFrom(sources.item$,
-      (bool, {reserved, people}) => reserved === people ? false : bool
-    )
+    //.startWith(false)
     .shareReplay(1)
 
   return {
     click$,
-    DOM: click$.map(v =>
+    DOM: sources.value$.merge(click$).map(v =>
       div({class: {toggle: true}},[
         v ?
         icon('toggle-on','accent') :
@@ -42,9 +41,12 @@ const ToggleControl = sources => {
 const ListItemToggle = (sources) => {
   const toggle = ToggleControl(sources)
   const click$ = toggle.click$.shareReplay(1)
+
+  const titleValue$ = sources.value$ || click$
+
   const item = ListItemClickable({...sources,
     leftDOM$: toggle.DOM,
-    title$: click$.flatMapLatest(v =>
+    title$: titleValue$.flatMapLatest(v =>
       v ? sources.titleTrue$ : sources.titleFalse$
     ),
   })
@@ -80,7 +82,7 @@ const sharedStyle = {
   textAlign: 'center',
 }
 
-function shiftView({hours, starts, reserved, people}) {
+function shiftView({hours, starts, people}, reserved) {
   return div({style: {display: 'flex', flexDirection: 'row'}}, [
     div({style: sharedStyle}, [convertHours(starts)]),
     div({style: sharedStyle}, [getEndTime(starts, hours)]),
@@ -88,32 +90,52 @@ function shiftView({hours, starts, reserved, people}) {
   ])
 }
 
-function handleReserved(value, {$key: key, reserved, people}) {
-  if (value && value + 1 <= people) {
-    return {key, values: {reserved: reserved + 1}}
-  }
-  if (!value && reserved > 0) {
-    return {key, values: {reserved: reserved - 1}}
-  }
-  return null
-}
-
 const ShiftItem = sources => {
+  const shiftKey$ = sources.item$.pluck('$key')
+
+  const reservations$ = shiftKey$
+    .flatMapLatest(Assignments.query.byShift(sources))
+    .map(a => a.length)
+    .shareReplay(1)
+    .startWith(0)
+
+//  reservations$.subscribe(x => console.log('', x))
+
+  const assignment$ = sources.assignments$
+    .withLatestFrom(shiftKey$,
+      (assignments, shiftKey) => {
+        return assignments.filter(a => a.shiftKey === shiftKey)
+      }
+    )
+    .map(a => a[0])
+    .filter(Boolean)
+    .shareReplay(1)
+
+  const assignmentKey$ = assignment$.pluck('$key')
+    .startWith(null)
+    .shareReplay(1)
+
   const li = ListItemToggle({
     ...sources,
-    value$: $.just(false),
-    titleTrue$: sources.item$.map(shiftView),
-    titleFalse$: sources.item$.map(shiftView),
+    value$: assignmentKey$.map(k => k ? true : false),
+    titleTrue$: sources.item$.combineLatest(reservations$, shiftView),
+    titleFalse$: sources.item$.combineLatest(reservations$, shiftView),
   })
 
-  const queue$ = li.value$.skip(1)
-    .withLatestFrom(sources.item$, handleReserved)
-    .filter(x => x !== null)
-    .map(Shifts.action.update)
+  const queue$ = li.value$
+    .withLatestFrom(sources.item$, assignmentKey$,
+      (val, {$key: shiftKey, teamKey}, assignmentKey) => {
+        if (val) {
+          return Assignments.action.create({teamKey, shiftKey})
+        }
+        return assignmentKey && Assignments.action.remove(assignmentKey)
+      }
+    )
     .shareReplay(1)
 
   return {
     DOM: li.DOM,
+    assignment$,
     queue$,
   }
 }
@@ -123,6 +145,7 @@ const filterShifts = shifts =>
 
 const DaysListItem = sources => {
   const date$ = sources.item$.pluck('date')
+
   const li = List({
     ...sources,
     rows$: sources.item$.pluck('shifts').map(filterShifts),
@@ -141,6 +164,7 @@ const DaysListItem = sources => {
   return {
     DOM: lic.DOM,
     queue$: li.queue$,
+    assignment$: li.assignment$,
   }
 }
 
@@ -180,12 +204,14 @@ const MembershipItem = (sources) => {
   const li = List({
     ...sources,
     shifts$,
+    team$,
     rows$: shiftsByDate$,
     Control$: $.just(DaysListItem),
   })
 
   const lic = ListItemCollapsible({
     ...sources,
+    team$,
     isOpen$: $.just(false),
     title$: team$.pluck('name'),
     leftDOM$: teamImage$.map(iconSrc),
@@ -205,6 +231,53 @@ const MembershipList = sources =>
     Control$: $.of(MembershipItem),
   })
 
+const AssignmentShiftListItem = sources => {
+  const shift$ = sources.item$.pluck('shiftKey')
+    .flatMapLatest(Shifts.query.one(sources))
+
+  const reservations$ = sources.item$.pluck('shiftKey')
+    .flatMapLatest(Assignments.query.byShift(sources))
+    .map(a => a.length)
+    .shareReplay(1)
+    .startWith(0)
+
+  return {
+    DOM: shift$.combineLatest(reservations$, shiftView)
+      .withLatestFrom(shift$, (dom, shift) =>
+      div({}, [
+        div({}, [moment(shift.date).format('dddd, Do MMMM YYYY')]),
+        dom,
+      ])
+    ),
+  }
+}
+
+const AssignmentList = sources =>
+  List({
+    ...sources,
+    rows$: sources.assignments$,
+    Control$: $.of(AssignmentShiftListItem),
+  })
+
 export function Priority(sources) {
-  return MembershipList(sources)
+  const assignments$ = sources.userProfileKey$
+    .flatMapLatest(Assignments.query.byOwner(sources))
+
+  const al = AssignmentList({...sources, assignments$})
+  const ml = MembershipList({...sources, assignments$})
+
+  return {
+    ...ml,
+    DOM: al.DOM.combineLatest(ml.DOM, (alDOM, mlDOM) =>
+      div({}, [
+        div({}, [
+          h4({}, 'Shifts you have reserved'),
+          alDOM,
+        ]),
+        div({}, [
+          h4({}, 'Other shifts available'),
+          mlDOM,
+        ]),
+      ])),
+  }
 }
