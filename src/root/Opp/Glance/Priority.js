@@ -1,14 +1,15 @@
 import {Observable} from 'rx'
-const {just, merge, combineLatest} = Observable
+const {just, merge, combineLatest, empty} = Observable
 
 import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
-import {Engagements} from 'components/remote'
+import {Engagements, Opps} from 'components/remote'
 
 import {
   ListItemNavigating,
+  ListItemToggle,
 } from 'components/sdm'
 
 const WhatItem = sources => ListItemNavigating({...sources,
@@ -56,6 +57,16 @@ const ApplicantItem = sources =>
     path$: sources.engagements$.map(applicantsPath),
   })
 
+const ConfirmationToggle = (sources) =>
+  ListItemToggle({
+    ...sources,
+    value$: sources.opp$.map(opp => opp.confirmationsOn),
+    titleTrue$: just('Confirmations are off and no confirmation emails are ' +
+      'being sent to applicants.'),
+    titleFalse$: just('Confirmations are now on, and acceptance emails are ' +
+      'being sent as applications are approved.'),
+  })
+
 export default sources => {
   const engagements$ = sources.oppKey$
     .map(Engagements.query.byOpp(sources)).switch()
@@ -67,20 +78,27 @@ export default sources => {
   const applicants = isolate(ApplicantItem, 'applicants')({...sources,
     engagements$,
   })
+  const confirmations = isolate(ConfirmationToggle, 'confirmations')(sources)
 
   const items = [what, exchange, how, applicants]
 
-  const route$ = merge(...items.map(i => i.route$))
+  const queue$ = confirmations.value$
+    .withLatestFrom(sources.oppKey$,
+      (confirmationsOn, key) => ({key, values: {confirmationsOn}})
+    )
+    .map(Opps.action.update)
+
+  const route$ = merge(...items.map(i => i.route$ || empty()))
     .map(sources.router.createHref)
 
   const DOM = combineLatest(
     ...items.map(i => i.DOM),
-    (...doms) => div({},doms)
+    (...doms) => div({}, [confirmations.DOM, ...doms])
   )
 
   return {
     DOM,
-    // queue$,
+    queue$,
     route$,
   }
 }

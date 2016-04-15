@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, merge, empty} = Observable
+const {just, merge} = Observable
 
 import combineLatestObj from 'rx-combine-latest-obj'
 
@@ -14,8 +14,9 @@ import {icon, iconSrc} from 'helpers'
 
 const dialogStyle = {
   marginTop: '-15em',
-  minWidth: '400px',
-  width: 'auto',
+  // minWidth: '400px',
+  // width: 'auto',
+  width: '400px',
 }
 
 const contentStyle = {
@@ -33,12 +34,9 @@ const modal = ({isOpen, toolbarDOM, contentDOM, actionsDOM}) =>
     div({style: contentStyle}, [contentDOM]),
   ])
 
-const Dialog = sources => {
+const BaseDialog = sources => {
   // hax to capture close click from SmDialog
   const maskClose$ = sources.DOM.select('.close').events('click')
-
-  const actionsComponent$ =
-    sources.actionsComponent$ || just(OkAndCancel(sources))
 
   const toolbar = AccentToolbar({...sources,
     leftItemDOM$: sources.iconUrl$ && sources.iconUrl$
@@ -48,8 +46,6 @@ const Dialog = sources => {
 
   const isOpen$ = merge(
     sources.isOpen$,
-    actionsComponent$.pluck('ok$').switch().map(false),
-    actionsComponent$.pluck('cancel$').switch().map(false),
     maskClose$.map(false),
   ).startWith(false)
 
@@ -57,25 +53,39 @@ const Dialog = sources => {
     isOpen$,
     toolbarDOM$: toolbar.DOM,
     contentDOM$: sources.contentDOM$,
-    actionsDOM$: actionsComponent$.pluck('DOM').switch(),
+    actionsDOM$: sources.actionsDOM$,
   }
 
-  const DOM = combineLatestObj(viewState)
-    .map(({isOpen, toolbarDOM, contentDOM, actionsDOM}) =>
-      modal({
-        isOpen,
-        toolbarDOM,
-        contentDOM,
-        actionsDOM,
-      })
-    )
+  const DOM = combineLatestObj(viewState).map(modal)
 
   return {
     DOM,
-    value$: actionsComponent$.map(a => a.value$ || empty()).switch(),
-    submit$: actionsComponent$.map(a => a.ok$ || empty()).switch(),
-    close$: actionsComponent$.map(a => a.cancel$ || empty()).switch(),
   }
 }
 
-export {Dialog}
+// this should be called 'SimpleDialog'
+const Dialog = sources => {
+  const oac = OkAndCancel(sources)
+
+  const isOpen$ = merge(
+    sources.isOpen$ || just(false),
+    oac.ok$.map(false),
+    oac.cancel$.map(false),
+  ).startWith(false)
+
+  const bd = BaseDialog({...sources,
+    actionsDOM$: oac.DOM,
+    isOpen$,
+  })
+
+  return {
+    DOM: bd.DOM,
+    submit$: oac.ok$,
+    close$: oac.cancel$,
+  }
+}
+
+export {
+  Dialog,
+  BaseDialog,
+}

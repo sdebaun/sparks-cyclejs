@@ -126,7 +126,10 @@ const ListItemNavigating = sources => {
   const item = ListItemClickable(sources)
 
   const route$ = item.click$
-    .flatMapLatest(sources.path$ || just('/'))
+    .withLatestFrom(
+      sources.path$ || just('/'),
+      (cl,p) => p,
+    )
 
   return {
     DOM: item.DOM,

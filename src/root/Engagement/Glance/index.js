@@ -15,7 +15,7 @@ export default sources => ({
     tabs$: of([
       {path: '/', label: 'Priority'},
       {path: '/commitments', label: 'Commitments'},
-      {path: '/more', label: 'More'},
+      // {path: '/more', label: 'More'},
     ]),
     routes$: of({
       '/': Priority,
