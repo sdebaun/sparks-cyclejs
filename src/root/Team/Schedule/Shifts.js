@@ -141,12 +141,70 @@ const _Remove = sources => ListItemClickable({...sources,
   title$: of('Remove'),
 })
 
+const _IncHours = sources => ListItemClickable({...sources,
+  iconName$: of('plus-square'),
+  title$: of('Lengthen'),
+})
+
+const _DecHours = sources => ListItemClickable({...sources,
+  iconName$: of('minus-square'),
+  title$: of('Shrink'),
+})
+
+const _IncPeople = sources => ListItemClickable({...sources,
+  iconName$: of('user-plus'),
+  title$: of('Increase'),
+})
+
+const _DecPeople = sources => ListItemClickable({...sources,
+  iconName$: of('user-minus'),
+  title$: of('Decrease'),
+})
+
 const _Item = sources => {
   const rm = isolate(_Remove,'remove')(sources)
+  const inc = isolate(_IncHours,'inc')(sources)
+  const dec = isolate(_DecHours,'dec')(sources)
+  const incp = isolate(_IncPeople)(sources)
+  const decp = isolate(_DecPeople)(sources)
+
+  const key$ = sources.item$.pluck('$key').shareReplay(1)
+  const hours$ = sources.item$.pluck('hours').shareReplay(1)
+  const people$ = sources.item$.pluck('people').shareReplay(1)
+  const start$ = sources.item$.pluck('start').shareReplay(1)
+
+  const hrChange$ = merge(
+    hours$.sample(inc.click$).map(h => parseInt(h) + 1),
+    hours$.sample(dec.click$).map(h => parseInt(h) - 1),
+  ).withLatestFrom(
+    start$,
+    (hours,start) => ({
+      hours,
+      end: moment(start).add(hours,'hours').format(),
+    })
+  ).withLatestFrom(
+    key$,
+    (values, key) => ({key: `${key}`, values})
+  )
+
+  const peopleChange$ = merge(
+    people$.sample(incp.click$).map(p => parseInt(p) + 1),
+    people$.sample(decp.click$).map(p => parseInt(p) - 1),
+  )
+  .map(people => ({people}))
+  .withLatestFrom(
+    key$,
+    (values, key) => ({key: `${key}`, values})
+  )
+
+  const queue$ = merge(
+    key$.sample(rm.click$).map(ShiftsRemote.action.remove),
+    hrChange$.map(ShiftsRemote.action.update),
+    peopleChange$.map(ShiftsRemote.action.update),
+  )
 
   return {
-    queue$: sources.item$.pluck('$key')
-      .sample(rm.click$).map(ShiftsRemote.action.remove),
+    queue$,
 
     ...ListItemWithMenu({...sources,
       iconSrc$: sources.item$.pluck('start')
@@ -162,27 +220,10 @@ const _Item = sources => {
       ),
       subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
       rightDOM$: of(icon('menu')),
-      menuItems$: of([rm.DOM]),
+      menuItems$: of([rm.DOM, inc.DOM, dec.DOM, incp.DOM, decp.DOM]),
     }),
   }
 }
-
-// const x_Item = sources => ListItemWithMenu({...sources,
-//   iconSrc$: sources.item$.pluck('start')
-//     .map(start => todIcons[daySegment(moment(start).hours())]),
-//   title$: combineLatest(
-//     sources.item$.pluck('start'),
-//     sources.item$.pluck('end'),
-//     sources.item$.pluck('people'),
-//     (s,e,p) => row({},
-//       timeCell(s), timeCell(e),
-//       cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
-//     )
-//   ),
-//   subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
-//   rightDOM$: of(icon('menu')),
-//   menuItems$: of([deleteItem.DOM, editItem.DOM]),
-// })
 
 const _List = sources => List({...sources,
   Control$: of(_Item),
