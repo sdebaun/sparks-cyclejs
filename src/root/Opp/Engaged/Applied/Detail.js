@@ -11,12 +11,14 @@ import {
   RoutedComponent,
   ActionButton,
   DescriptionListItem,
+  TitleListItem,
 } from 'components/ui'
 
 import {
-  ListItem,
+  ListItemCollapsible,
   BaseDialog,
   FlatButton,
+  List,
   // RaisedButton,
 } from 'components/sdm'
 
@@ -26,7 +28,7 @@ import {
   Profiles,
   Engagements,
   Memberships,
-  // Teams,
+  Teams,
 } from 'components/remote'
 
 const Blank = () => ({DOM: just('')})
@@ -49,45 +51,83 @@ const _Fetch = sources => {
   }
 }
 
-const _ProfileInfo = sources => {
-  const av = LargeProfileAvatar({...sources,
-    profileKey$: sources.engagement$.pluck('profileKey'),
-  })
-  const nfo = DescriptionListItem({...sources,
-    title$: sources.profile$.pluck('intro'),
-    default$: just('No intro written.'),
-      // .map(a => a || h('span.secondary',['No intro written.'])),
+const _Avatar = sources => LargeProfileAvatar({...sources,
+  profileKey$: sources.engagement$.pluck('profileKey'),
+})
+
+const _Intro = sources => DescriptionListItem({...sources,
+  title$: sources.profile$.pluck('intro'),
+  default$: just('No intro written.'),
+})
+
+const _ProfileInfo = sources => ({
+  DOM: combineDOMsToDiv('.row', _Avatar(sources), _Intro(sources)),
+})
+
+const _OppQ = sources => QuotingListItem({...sources,
+  profileKey$: sources.project$.pluck('ownerProfileKey'),
+  title$: sources.opp$.pluck('question'),
+})
+
+const _OppAnswer = sources => DescriptionListItem({...sources,
+  title$: sources.engagement$.pluck('answer'),
+  default$: just('This person did not answer'),
+})
+
+const _EngageInfo = sources => ({
+  DOM: combineDOMsToDiv('', _OppQ(sources), _OppAnswer(sources)),
+})
+
+const _TeamQ = sources => QuotingListItem({...sources,
+  profileKey$: sources.project$.pluck('ownerProfileKey'),
+  title$: sources.team$.pluck('question'),
+})
+
+const _TeamAnswer = sources => DescriptionListItem({...sources,
+  title$: sources.item$.pluck('answer'),
+  default$: just('This person did not answer'),
+})
+
+const _TeamQandA = sources => ({
+  DOM: combineDOMsToDiv('', _TeamQ(sources), _TeamAnswer(sources)),
+})
+
+const _TeamItem = sources => {
+  const team$ = sources.item$.pluck('teamKey')
+    .flatMapLatest(Teams.query.one(sources))
+
+  const li = ListItemCollapsible({...sources,
+    title$: team$.pluck('name'),
+    contentDOM$: _TeamQandA({...sources, team$}).DOM,
   })
 
-  return {DOM: combineDOMsToDiv('', av, nfo)}
+  return li
 }
 
-const _EngageInfo = sources => {
-  const q = QuotingListItem({...sources,
-    profileKey$: sources.project$.pluck('ownerProfileKey'),
-    title$: sources.opp$.pluck('question'),
-  })
-  const ans = DescriptionListItem({...sources,
-    title$: sources.engagement$.pluck('answer'),
-    default$: just('This person did not answer'),
-      // .map(a => a || h('span.secondary',['This person did not answer.'])),
+const _TeamsInfo = sources => {
+  const title = TitleListItem({...sources, title$: just('Applied to Teams')})
+  const list = List({...sources,
+    Control$: just(_TeamItem),
+    rows$: sources.memberships$,
   })
 
-  return {DOM: combineDOMsToDiv('', q, ans)}
+  return {
+    DOM: combineDOMsToDiv('', title, list),
+  }
 }
 
 const Priority = sources => ActionButton({...sources,
-  label$: just('Priority'),
+  label$: just('#1'),
   params$: just({isAccepted: true, priority: true, declined: false}),
 })
 
 const Accept = sources => ActionButton({...sources,
-  label$: just('Accept'),
+  label$: just('OK'),
   params$: just({isAccepted: true, priority: false, declined: false}),
 })
 
 const Decline = sources => ActionButton({...sources,
-  label$: just('Decline'),
+  label$: just('NO'),
   params$: just({isAccepted: false, priority: false, declined: true}),
 })
 
@@ -96,11 +136,7 @@ const _Actions = (sources) => {
   const ac = Accept(sources)
   const dec = Decline(sources)
 
-  const close = FlatButton({
-    ...sources,
-    label$: just('Cancel'),
-    classNames$: just(['accent']),
-  })
+  const close = FlatButton({...sources, label$: just('X')})
 
   return {
     DOM: combineDOMsToDiv('.center', pr, ac, dec, close),
@@ -110,9 +146,10 @@ const _Actions = (sources) => {
 }
 
 const _Content = sources => ({
-  DOM: combineDOMsToDiv('',
+  DOM: combineDOMsToDiv('.scrollable',
     _ProfileInfo(sources),
     _EngageInfo(sources),
+    _TeamsInfo(sources),
   ),
 })
 

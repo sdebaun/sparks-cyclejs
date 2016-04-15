@@ -26,3 +26,13 @@ body {
 .secondary {
   color: #999;
 }
+
+.scrollable {
+  overflow: auto;
+  max-height: 400px;
+}
+
+.row {
+  margin: 0;
+  display: flex;
+}
