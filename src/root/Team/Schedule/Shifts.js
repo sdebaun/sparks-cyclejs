@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {of, merge, combineLatest} = Observable
+const {of, never, merge, combineLatest} = Observable
 import {Form} from 'components/ui/Form'
 import {Shifts as ShiftsRemote} from 'components/remote'
 import {div} from 'cycle-snabbdom'
@@ -16,6 +16,7 @@ import {
   ListItemClickable,
   ListItemWithDialog,
   InputControl,
+  Dialog,
 } from 'components/sdm'
 
 const StartsInput = sources => InputControl({...sources,
@@ -161,12 +162,18 @@ const _DecPeople = sources => ListItemClickable({...sources,
   title$: of('Decrease'),
 })
 
+const _Edit = sources => ListItemClickable({...sources,
+  iconName$: of('pencil'),
+  title$: of('Edit'),
+})
+
 const _Item = sources => {
-  const rm = isolate(_Remove,'remove')(sources)
+  const ed = isolate(_Edit, 'edit')(sources)
   const inc = isolate(_IncHours,'inc')(sources)
   const dec = isolate(_DecHours,'dec')(sources)
   const incp = isolate(_IncPeople)(sources)
   const decp = isolate(_DecPeople)(sources)
+  const rm = isolate(_Remove,'remove')(sources)
 
   const key$ = sources.item$.pluck('$key').shareReplay(1)
   const hours$ = sources.item$.pluck('hours').shareReplay(1)
@@ -197,6 +204,9 @@ const _Item = sources => {
     (values, key) => ({key: `${key}`, values})
   )
 
+  const edit$ = ed.click$.withLatestFrom(key$, (c,k) => k)
+    .tap(x => console.log('edit!',x))
+
   const queue$ = merge(
     key$.sample(rm.click$).map(ShiftsRemote.action.remove),
     hrChange$.map(ShiftsRemote.action.update),
@@ -205,6 +215,7 @@ const _Item = sources => {
 
   return {
     queue$,
+    edit$,
 
     ...ListItemWithMenu({...sources,
       iconSrc$: sources.item$.pluck('start')
@@ -220,7 +231,7 @@ const _Item = sources => {
       ),
       subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
       rightDOM$: of(icon('menu')),
-      menuItems$: of([rm.DOM, inc.DOM, dec.DOM, incp.DOM, decp.DOM]),
+      menuItems$: of([ed.DOM, inc.DOM, dec.DOM, incp.DOM, decp.DOM, rm.DOM]),
     }),
   }
 }
@@ -230,13 +241,68 @@ const _List = sources => List({...sources,
   rows$: sources.shiftsForDate$,
 })
 
+const _EditDialog = sources => {
+  const shift$ = sources.edit$.withLatestFrom(
+      sources.shifts$,
+      (key,shifts) => shifts.find(s => key === s.$key)
+    )
+    .map(({start, date, hours, ...s}) => ({...s,
+      // start: moment(date).add(start, 'hours'),
+      start: moment(start).hours() + moment(start).minutes() / 60,
+      hours,
+      date,
+    }))
+    .tap(x => console.log('shift',x))
+    .shareReplay(1)
+  // Y U NO
+  // const shift$ = sources.edit$
+  //   .tap(k => console.log('edit',k))
+  //   .flatMapLatest(ShiftsRemote.query.one)
+  //   .tap(s => console.log('shift',s))
+  //   // .shareReplay(1)
+
+  const form = ShiftForm({...sources, value$: shift$})
+  const dialog = Dialog({...sources,
+    isOpen$: shift$.map(true),
+    title$: of('foo'),
+    contentDOM$: form.DOM,
+  })
+
+  form.item$.subscribe(x => console.log('item to submit', x))
+
+  return {
+    DOM: dialog.DOM,
+    queue$: dialog.submit$.withLatestFrom(form.item$, (s,i) => i)
+    // queue$: form.item$.sample(dialog.submit$)
+    .tap(n => console.log('new item', n))
+    .withLatestFrom(
+      sources.date$,
+      sources.edit$,
+      ({start, hours, ...values}, date, key) => ({
+        key, values: {
+          ...values,
+          start: moment(date).add(start,'hours').format(),
+          // start: moment(date).add(start,'hours').format(),
+          end: moment(date).add(start,'hours').add(hours,'hours').format(),
+        //   start: moment(date)
+        //     .add(start, 'seconds').format(),
+        //   end: moment(date)
+        //     .add(parseInt(start) + parseInt(hours),'hours').format(),
+        },
+      })
+    )
+    .map(ShiftsRemote.action.update),
+  }
+}
+
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
   const list = _List(_sources)
   const add = AddShift(_sources)
+  const ed = _EditDialog({..._sources, edit$: list.edit$})
   return {
-    DOM: combineLatestToDiv(list.DOM, add.DOM),
-    queue$: merge(add.queue$, list.queue$),
+    DOM: combineLatestToDiv(list.DOM, add.DOM, ed.DOM),
+    queue$: merge(add.queue$, list.queue$, ed.queue$),
   }
 }

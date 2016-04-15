@@ -186,6 +186,7 @@ export const Memberships = {
 
 export const Shifts = {
   query: {
+    one: filterOne('Shifts'),
     byTeam: filterBy('Shifts','teamKey'),
   },
   action: {
