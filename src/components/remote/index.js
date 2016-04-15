@@ -197,6 +197,7 @@ export const Shifts = {
 export const Assignments = {
   query: {
     byEngagement: filterBy('Assignments', 'engagementKey'),
+    byShift: filterBy('Assignments', 'shiftKey'),
   },
   action: {
     create: actionCreator('Assignments', 'create'),
