@@ -47,12 +47,13 @@ const isNotAccepted = ({isAccepted}) => isAccepted === false
 const isDeclined = ({declined}) => declined === true
 
 const Fetch = sources => ({
-  engagements$: sources.oppKey$
-    .flatMapLatest(Engagements.query.byOpp(sources))
-    .map(engagements =>
-      engagements.filter(x => !isDeclined(x) && isNotAccepted(x))
-    )
-    .shareReplay(1),
+  engagements$: sources.applied$.shareReplay(1),
+  // engagements$: sources.oppKey$
+  //   .flatMapLatest(Engagements.query.byOpp(sources))
+  //   .map(engagements =>
+  //     engagements.filter(x => !isDeclined(x) && isNotAccepted(x))
+  //   )
+  //   .shareReplay(1),
 })
 
 export default sources => {
