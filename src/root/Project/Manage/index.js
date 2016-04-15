@@ -15,7 +15,7 @@ export default sources => ({
     tabs$: of([
       {path: '/', label: 'Describe'},
       {path: '/staff', label: 'Staff'},
-      {path: '/connect', label: 'Connect'},
+      // {path: '/connect', label: 'Connect'},
     ]),
     routes$: of({
       '/': Describe,
