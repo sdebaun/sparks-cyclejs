@@ -89,6 +89,7 @@ const AddShift = sources => {
       (shift, teamKey, date) => ({
         teamKey,
         date,
+        reserved: 0,
         ...shift,
       }))
     .sample(submit$)
