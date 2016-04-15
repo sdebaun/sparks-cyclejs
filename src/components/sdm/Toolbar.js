@@ -18,11 +18,11 @@ const AccentToolbar = sources => ({
     rightItemDOM,
   }) =>
     // div({},[leftItemDOM,titleDOM,rightItemDOM])
-    Appbar({material}, [
-      leftItemDOM && div({style: {float: 'left'}}, [leftItemDOM]),
-      Appbar.Title({style: {float: 'left'}}, [titleDOM]),
-      rightItemDOM && div({style: {float: 'right'}}, [rightItemDOM]),
-    ].filter(e => !!e))
+    Appbar({material}, [div({style: {display: 'flex'}}, [
+      leftItemDOM && div({style: {display: 'block', width: '32px', float: 'none'}}, [leftItemDOM]),
+      Appbar.Title({style: {display: 'block', flex: '100% 100%', float: 'none'}}, [titleDOM]),
+      rightItemDOM && div({style: {flex: '25% 25%'}}, [rightItemDOM]),
+    ].filter(e => !!e))])
   ),
 })
 

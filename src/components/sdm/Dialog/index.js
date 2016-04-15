@@ -14,8 +14,9 @@ import {icon, iconSrc} from 'helpers'
 
 const dialogStyle = {
   marginTop: '-15em',
-  minWidth: '400px',
-  width: 'auto',
+  // minWidth: '400px',
+  // width: 'auto',
+  width: '400px',
 }
 
 const contentStyle = {
