@@ -3,27 +3,11 @@ const {of, combineLatest} = Observable
 
 import {TabbedPage} from 'components/ui'
 
-import Applied from './Applied'
-
 import {
-  Profiles,
   Engagements,
 } from 'components/remote'
 
-const _TabMaker = sources => ({
-  tabs$: combineLatest(
-    sources.applied$,
-    sources.priority$,
-    sources.ok$,
-    sources.never$,
-    (ap,pr,ok,nv) => [
-      {path: '/', label: `${ap.length} Applied`},
-      {path: '/priority', label: `${pr.length} Priority`},
-      {path: '/ok', label: `${ok.length} OK`},
-      {path: '/never', label: `${nv.length} Never`},
-    ]
-  ),
-})
+import {FilteredView} from './FilteredView'
 
 const filterApplied = e => e.filter(x => !x.isAccepted && !x.declined)
 const filterPriority = e => e.filter(x => x.isAccepted && x.priority)
@@ -43,6 +27,34 @@ const _Fetch = sources => {
   }
 }
 
+const _TabMaker = sources => ({
+  tabs$: combineLatest(
+    sources.applied$,
+    sources.priority$,
+    sources.ok$,
+    sources.never$,
+    (ap,pr,ok,nv) => [
+      {path: '/', label: `${ap.length} Applied`},
+      {path: '/priority', label: `${pr.length} Priority`},
+      {path: '/ok', label: `${ok.length} OK`},
+      {path: '/never', label: `${nv.length} Never`},
+    ]
+  ),
+})
+
+const Applied = sources => FilteredView({...sources,
+  engagements$: sources.applied$,
+})
+const Priority = sources => FilteredView({...sources,
+  engagements$: sources.priority$,
+})
+const OK = sources => FilteredView({...sources,
+  engagements$: sources.ok$,
+})
+const Never = sources => FilteredView({...sources,
+  engagements$: sources.never$,
+})
+
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
@@ -53,9 +65,9 @@ export default sources => {
       tabs$: _TabMaker(_sources).tabs$,
       routes$: of({
         '/': Applied,
-        // '/priority': Priority,
-        // '/ok': OK,
-        // '/never': Never,
+        '/priority': Priority,
+        '/ok': OK,
+        '/never': Never,
       }),
     }),
   }
