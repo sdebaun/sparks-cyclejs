@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just} = Observable
+const {of} = Observable
 // import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
@@ -17,42 +17,42 @@ import Projects from './Projects.js'
 
 import {TabbedPage} from 'components/ui'
 
-const _routes = {
-  '/': Projects,
-  '/profiles': ComingSoon('Admin/Dash'),
-  '/previously': ComingSoon('Admin/Previously'),
-}
+// const _Nav = sources => ({
+//   DOM: sources.isMobile$
+//     .map(isMobile =>
+//       div(
+//         {},
+//         [isMobile ? null : sources.titleDOM, 'Nav Items']
+//       )
+//     ),
+// })
 
-const _tabs = [
-  {path: '/', label: 'Projects'},
-  {path: '/profiles', label: 'Profiles'},
-  {path: '/previously', label: 'Previously'},
-]
+const _Nav = sources => ({
+  DOM: sources.isMobile$.map(m => m ? null : sources.titleDOM),
+})
 
-const Nav = sources => ({
-  DOM: sources.isMobile$
-    .map(isMobile =>
-      div(
-        {},
-        [isMobile ? null : sources.titleDOM, 'Nav Items']
-      )
-    ),
+const _Title = sources => Title({...sources,
+  labelText$: of('Administration'),
+  subLabelText$: of('At a Glance'), // eventually page$.something
+})
+
+const _Page = sources => TabbedPage({...sources,
+  tabs$: of([
+    {path: '/', label: 'Projects'},
+    {path: '/profiles', label: 'Profiles'},
+    {path: '/previously', label: 'Previously'},
+  ]),
+  routes$: of({
+    '/': Projects,
+    '/profiles': ComingSoon('Admin/Dash'),
+    '/previously': ComingSoon('Admin/Previously'),
+  }),
 })
 
 export default sources => {
-  const page = TabbedPage({...sources,
-    tabs$: just(_tabs),
-    routes$: just(_routes),
-  })
-
-  const title = Title({...sources,
-    tabsDOM$: page.tabBarDOM,
-    labelText$: Observable.just('Administration'),
-    subLabelText$: Observable.just('At a Glance'), // eventually page$.something
-  })
-
-  const nav = Nav({titleDOM: title.DOM, ...sources})
-
+  const page = _Page(sources)
+  const title = _Title({...sources, tabsDOM$: page.tabBarDOM})
+  const nav = _Nav({...sources, titleDOM: title.DOM})
   const header = Header({...sources,
     titleDOM: title.DOM,
     tabsDOM: page.tabBarDOM,
