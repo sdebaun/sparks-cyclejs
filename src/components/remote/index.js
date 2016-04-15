@@ -183,3 +183,12 @@ export const Memberships = {
     update: actionCreator('Memberships', 'update'), // CHANGE
   },
 }
+
+export const Shifts = {
+  query: {
+    byTeam: filterBy('Shifts','teamKey'),
+  },
+  action: {
+    create: actionCreator('Shifts', 'create'),
+  },
+}
