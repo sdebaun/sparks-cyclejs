@@ -82,7 +82,14 @@ const AddShift = sources => {
 
   const submit$ = liwd.submit$
   const queue$ = form.item$
-    .withLatestFrom(sources.teamKey$, (shift, teamKey) => ({teamKey, ...shift}))
+    .withLatestFrom(
+      sources.teamKey$,
+      sources.date$,
+      (shift, teamKey, date) => ({
+        teamKey,
+        date,
+        ...shift,
+      }))
     .sample(submit$)
     .map(Shifts.action.create)
 
