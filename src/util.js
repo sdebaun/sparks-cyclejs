@@ -22,6 +22,9 @@ export const trimTo = (val, len) =>
 export const combineLatestToDiv = (...domstreams) =>
   combineLatest(...domstreams, (...doms) => div({},doms))
 
+export const combineDOMsToDiv = (d, ...comps) =>
+  combineLatest(...comps.map(c => c.DOM), (...doms) => div(d, doms))
+
 export const controlsFromRows = (sources, rows, Control) =>
   rows.map((row, i) =>
     isolate(Control,row.$key)({

@@ -1,4 +1,8 @@
 export {
+  Avatar,
+  MediumAvatar,
+  LargeAvatar,
+
   LargeProfileAvatar,
   MediumProfileAvatar,
   ProfileAvatar,

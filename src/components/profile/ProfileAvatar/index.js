@@ -1,23 +1,38 @@
-require('./styles.scss')
+import {
+  Avatar,
+  MediumAvatar,
+  LargeAvatar,
+} from 'components/sdm'
 
-import {img} from 'cycle-snabbdom'
+import {
+  Profiles,
+} from 'components/remote'
 
-const ProfileAvatar = sources => ({
-  DOM: sources.src$.map(src =>
-    img({class: {avatar: true}, attrs: {src}})
-  ),
+// hmmm???
+const ProfileFetcher = sources => ({
+  profile$: sources.profileKey$
+    .flatMapLatest(Profiles.query.one(sources)),
 })
 
-const MediumProfileAvatar = sources => ({
-  DOM: sources.src$.map(src =>
-    img({class: {avatar: true, medium: true}, attrs: {src}})
-  ),
+const PortraitFetcher = sources => ({
+  portraitUrl$: ProfileFetcher(sources).profile$
+    .map(p => p ? p.portraitUrl : null),
 })
 
-const LargeProfileAvatar = sources => ({
-  DOM: sources.src$.map(src =>
-    img({class: {avatar: true, large: true}, attrs: {src}})
-  ),
+const ProfileAvatar = sources => Avatar({...sources,
+  src$: PortraitFetcher(sources).portraitUrl$,
 })
 
-export {LargeProfileAvatar, MediumProfileAvatar, ProfileAvatar}
+const MediumProfileAvatar = sources => MediumAvatar({...sources,
+  src$: PortraitFetcher(sources).portraitUrl$,
+})
+
+const LargeProfileAvatar = sources => LargeAvatar({...sources,
+  src$: PortraitFetcher(sources).portraitUrl$,
+})
+
+export {
+  ProfileAvatar,
+  MediumProfileAvatar,
+  LargeProfileAvatar,
+}
