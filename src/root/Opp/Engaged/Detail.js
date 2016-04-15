@@ -114,8 +114,9 @@ const _TeamsInfo = sources => {
 }
 
 const _Priority = sources => ActionButton({...sources,
-  label$: just('#1'),
+  label$: just('priority'),
   params$: just({isAccepted: true, priority: true, declined: false}),
+  classNames$: just(['accent']),
 })
 
 const _Accept = sources => ActionButton({...sources,
@@ -124,8 +125,9 @@ const _Accept = sources => ActionButton({...sources,
 })
 
 const _Decline = sources => ActionButton({...sources,
-  label$: just('NO'),
+  label$: just('never'),
   params$: just({isAccepted: false, priority: false, declined: true}),
+  classNames$: just(['red']),
 })
 
 const _Actions = (sources) => {
@@ -179,7 +181,7 @@ const _Content = sources => {
 
 const switchRoute = ([eKey, relative], oppKey, engs) => {
   if (relative === 0 || engs.length <= 1) {
-    return `/opp/${oppKey}/engaged/applied`
+    return ``
   }
   let idx = engs.findIndex(e => e.$key === eKey) + relative
   console.log('looking for', idx, engs.length)
@@ -187,7 +189,7 @@ const switchRoute = ([eKey, relative], oppKey, engs) => {
   if (idx >= engs.length) { idx = 0 }
   console.log('changed to', idx)
   const newKey = engs[idx].$key
-  return `/opp/${oppKey}/engaged/applied/show/${newKey}`
+  return `/show/${newKey}`
 }
 
 const ApprovalDialog = sources => {
@@ -225,9 +227,11 @@ const ApprovalDialog = sources => {
   }
 }
 
-export default sources => RoutedComponent({...sources,
+const Detail = sources => RoutedComponent({...sources,
   routes$: just({
     '/show/:key': k => s => ApprovalDialog({...s, engagementKey$: just(k)}),
     '*': Blank,
   }),
 })
+
+export {Detail}

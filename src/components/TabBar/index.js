@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {of, never, combineLatest} = Observable
+const {combineLatest} = Observable
 
 import {div,h} from 'cycle-snabbdom'
 
@@ -8,52 +8,7 @@ import {material} from 'util'
 import './styles.scss'
 
 import {controlsFromRows, combineDOMsToDiv, mergeOrFlatMapLatest} from 'util'
-import {log} from 'util'
-
-// const tabs = (props,children) =>
-//   children && div({class: {'tab-wrap': true}, style: {
-//     // 'background-color': material.primaryColor,
-//   }},
-//     children.reduce((a,b) => a.concat(b))
-//       .concat([div({class: {slide: true}},'')])
-//   )
-
-const tab = ({id, link},children) => [
-  h('input',{attrs: {type: 'radio', name: 'tabs', id}}),
-  div({class: {'tab-label-content': true}, attrs: {'data-link': link}},[
-    h('label',{attrs: {for: id}, style: {
-      color: material.primaryFontColor},
-    },children),
-  ]),
-]
-
-// const _DOM = createHref => _tabs =>
-//   tabs({}, _tabs.map(({path,label}) =>
-//     tab({id: label, link: createHref(path)},label)
-//   ))
-
-// const xTabBar = sources => {
-//   const navigate$ = sources.DOM.select('.tab-label-content').events('click')
-//     .map(event => event.ownerTarget.dataset.link)
-//     .distinctUntilChanged()
-
-//   const DOM = sources.tabs.map(_DOM(sources.router.createHref))
-
-//   navigate$.subscribe(log('tabs.navigate$'))
-
-//   return {
-//     DOM,
-//     route$: navigate$,
-//   }
-// }
-
-// export const controlsFromRows = (sources, rows, Control) =>
-//   rows.map((row, i) =>
-//     isolate(Control,row.$key)({
-//       ...sources,
-//       item$: just(row),
-//       index$: just(i),
-//     }))
+// import {log} from 'util'
 
 const _view = ({label}) =>
   div({class: {'tab-label-content': true}},[
@@ -61,21 +16,6 @@ const _view = ({label}) =>
       color: material.primaryFontColor},
     },[label]),
   ])
-// const _view = ({label}) => div('',[
-//   h('input',{attrs: {type: 'radio', name: 'tabs', id: label}}),
-//   div({class: {'tab-label-content': true}},[
-//     h('label',{attrs: {for: label}, style: {
-//       color: material.primaryFontColor},
-//     },[label]),
-//   ]),
-// ])
-
-// const Tab = sources => ({
-//   // DOM: sources.item$.map(i => div('',[i.label])),
-//   DOM: sources.item$.map(_view),
-//   route$: sources.item$.pluck('path')
-//     .sample(sources.DOM.select('div').events('click')),
-// })
 
 const Tab = sources => {
   const click$ = sources.DOM.select('div').events('click')
@@ -88,12 +28,17 @@ const Tab = sources => {
   }
 }
 
-const dist = (pathname, tabs, createHref) => {
-  console.log('pathname',pathname)
-  const idx = tabs.findIndex(t => createHref(t.path) === pathname)
-  const interval = 100 / tabs.length
-  return (idx >= 0 ? idx : 0) * interval
-}
+const isBetter = (cur, next, best) =>
+  cur.includes(next) && next.length > best.length
+
+const bestMatchIdx = (curPath, paths) =>
+  paths.reduce((bestIdx,nextPath,i) =>
+    isBetter(curPath,nextPath,paths[bestIdx]) ? i : bestIdx,
+    0
+  )
+
+const dist = (curPath, tabs, createHref) =>
+  bestMatchIdx(curPath, tabs.map(t => createHref(t.path))) * 100 / tabs.length
 
 const Slide = sources => {
   const DOM = combineLatest(

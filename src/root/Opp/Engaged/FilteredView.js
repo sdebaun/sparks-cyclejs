@@ -1,21 +1,19 @@
 import {Observable} from 'rx'
-const {just, merge} = Observable
+const {of, merge} = Observable
 import {div} from 'helpers'
 
-// import {log} from 'util'
 import {combineLatestToDiv} from 'util'
+
+import {
+  Profiles,
+} from 'components/remote'
 
 import {
   List,
   ListItemNavigating,
 } from 'components/sdm'
 
-import {
-  Profiles,
-  Engagements,
-} from 'components/remote'
-
-import Detail from './Detail'
+import {Detail} from './Detail'
 
 const Item = sources => {
   const profile$ = sources.item$
@@ -33,7 +31,7 @@ const Item = sources => {
 }
 
 const AppList = sources => List({...sources,
-  Control$: just(Item),
+  Control$: of(Item),
   rows$: sources.engagements$,
 })
 
@@ -43,28 +41,16 @@ const EmptyNotice = sources => ({
   ),
 })
 
-const isNotAccepted = ({isAccepted}) => isAccepted === false
-const isDeclined = ({declined}) => declined === true
-
-const Fetch = sources => ({
-  engagements$: sources.oppKey$
-    .flatMapLatest(Engagements.query.byOpp(sources))
-    .map(engagements =>
-      engagements.filter(x => !isDeclined(x) && isNotAccepted(x))
-    )
-    .shareReplay(1),
-})
-
-export default sources => {
-  const _sources = {...sources, ...Fetch(sources)}
-
-  const detail = Detail(_sources)
-  const list = AppList(_sources)
-  const mt = EmptyNotice({..._sources, items$: _sources.engagements$})
+const FilteredView = sources => {
+  const detail = Detail(sources)
+  const list = AppList(sources)
+  const mt = EmptyNotice({...sources, items$: sources.engagements$})
 
   return {
     DOM: combineLatestToDiv(mt.DOM, list.DOM, detail.DOM),
-    route$: merge(list.route$, detail.route$),
+    route$: merge(list.route$, detail.route$.map(sources.router.createHref)),
     queue$: detail.queue$,
   }
 }
+
+export {FilteredView}
