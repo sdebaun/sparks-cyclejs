@@ -92,6 +92,7 @@ function shiftView({hours, starts, people}, reserved) {
 
 const ShiftItem = sources => {
   const shiftKey$ = sources.item$.pluck('$key')
+  const date$ = sources.item$.pluck('date')
 
   const reservations$ = shiftKey$
     .flatMapLatest(Assignments.query.byShift(sources))
@@ -137,6 +138,7 @@ const ShiftItem = sources => {
     DOM: li.DOM,
     assignment$,
     queue$,
+    date$,
   }
 }
 
@@ -144,8 +146,6 @@ const filterShifts = shifts =>
   shifts.filter(({reserved, people}) => reserved !== people)
 
 const DaysListItem = sources => {
-  const date$ = sources.item$.pluck('date')
-
   const li = List({
     ...sources,
     rows$: sources.item$.pluck('shifts').map(filterShifts),
@@ -154,10 +154,10 @@ const DaysListItem = sources => {
 
   const lic = ListItemCollapsible({
     ...sources,
-    date$,
     isOpen$: $.just(false),
-    title$: date$.map(d => moment(d).format('dddd, Do MMMM YYYY'))
-      .map(d => h4({}, [d])),
+    title$: li.date$.map(d => h4({}, [
+      moment(d).format('dddd, MM Do, YYYY'),
+    ])),
     contentDOM$: li.DOM,
   })
 
@@ -245,7 +245,7 @@ const AssignmentShiftListItem = sources => {
     DOM: shift$.combineLatest(reservations$, shiftView)
       .withLatestFrom(shift$, (dom, shift) =>
       div({}, [
-        div({}, [moment(shift.date).format('dddd, Do MMMM YYYY')]),
+        div({}, shift.date),
         dom,
       ])
     ),
