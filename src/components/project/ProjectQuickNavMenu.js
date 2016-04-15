@@ -13,11 +13,14 @@ import {OppItemNavigating} from 'components/opp'
 
 import {QuickNav} from 'components/QuickNav'
 
+const TEAMREGEX = /(team)\/(.+)\//
+const OPPREGEX = /(opp)\/(.+)\//
+
 const _TeamNav = sources => TeamItemNavigating({...sources,
   path$: sources.item$.combineLatest(
     sources.router.observable.pluck('pathname'),
-    ({$key},path) => path.includes('team/') ?
-      path.replace(/(team)\/(.+)\//, `team/${$key}/`) :
+    ({$key},path) => path.match(TEAMREGEX) ?
+      path.replace(TEAMREGEX, `team/${$key}/`) :
       `/team/${$key}`
   ),
 })
@@ -25,8 +28,8 @@ const _TeamNav = sources => TeamItemNavigating({...sources,
 const _OppNav = sources => OppItemNavigating({...sources,
   path$: sources.item$.combineLatest(
     sources.router.observable.pluck('pathname'),
-    ({$key},path) => path.includes('opp/') ?
-      path.replace(/(opp)\/(.+)\//, `opp/${$key}/`) :
+    ({$key},path) => path.match(OPPREGEX) ?
+      path.replace(OPPREGEX, `opp/${$key}/`) :
       `/opp/${$key}`
   ),
 })
