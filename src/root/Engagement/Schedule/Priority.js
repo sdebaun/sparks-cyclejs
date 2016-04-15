@@ -118,7 +118,7 @@ const ShiftItem = sources => {
 
   const li = ListItemToggle({
     ...sources,
-    value$: assignmentKey$.map(k => k ? true : false),
+    value$: assignmentKey$.map(k => k ? true : false).startWith(false),
     titleTrue$: sources.item$.combineLatest(reservations$, shiftView),
     titleFalse$: sources.item$.combineLatest(reservations$, shiftView),
   })
@@ -142,13 +142,10 @@ const ShiftItem = sources => {
   }
 }
 
-const filterShifts = shifts =>
-  shifts.filter(({reserved, people}) => reserved !== people)
-
 const DaysListItem = sources => {
   const li = List({
     ...sources,
-    rows$: sources.item$.pluck('shifts').map(filterShifts),
+    rows$: sources.item$.pluck('shifts'),
     Control$: $.just(ShiftItem),
   })
 
