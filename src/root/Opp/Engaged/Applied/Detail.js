@@ -136,16 +136,33 @@ const _Actions = (sources) => {
   const ac = Accept(sources)
   const dec = Decline(sources)
 
-  const close = FlatButton({...sources, label$: just('X')})
-
   return {
-    DOM: combineDOMsToDiv('.center', pr, ac, dec, close),
+    DOM: combineDOMsToDiv('.center', pr, ac, dec),
     action$: merge(pr.action$, ac.action$, dec.action$),
-    cancel$: close.click$,
   }
 }
 
-const _Content = sources => ({
+const _Navs = sources => {
+  const prev = FlatButton({...sources, label$: just('<')})
+  const close = FlatButton({...sources, label$: just('CLOSE')})
+  const next = FlatButton({...sources, label$: just('>')})
+
+  const route$ = merge(
+    sources.engagementKey$.map(k => [k, -1])
+      .sample(prev.click$),
+    sources.engagementKey$.map(k => [k, 0])
+      .sample(close.click$),
+    sources.engagementKey$.map(k => [k, 1])
+      .sample(next.click$),
+  )
+
+  return {
+    DOM: combineDOMsToDiv('.center', prev, close, next),
+    route$,
+  }
+}
+
+const _Scrolled = sources => ({
   DOM: combineDOMsToDiv('.scrollable',
     _ProfileInfo(sources),
     _EngageInfo(sources),
@@ -153,20 +170,62 @@ const _Content = sources => ({
   ),
 })
 
+const _Content = sources => {
+  const acts = _Actions(sources)
+  const scr = _Scrolled(sources)
+
+  return {
+    DOM: combineDOMsToDiv('', acts, scr),
+    action$: acts.action$,
+  }
+}
+
+const switchRoute = ([eKey, relative], oppKey, engs) => {
+  if (relative === 0 || engs.length <= 1) {
+    return `/opp/${oppKey}/engaged/applied`
+  }
+  let idx = engs.findIndex(e => e.$key === eKey) + relative
+  console.log('looking for', idx)
+  idx = idx < 0 && engs.length - 1 ||
+    idx > engs.length && 0 ||
+    idx
+  console.log('changed to', idx)
+  const newKey = engs[idx].$key
+  return `/opp/${oppKey}/engaged/applied/show/${newKey}`
+
+  // if (relative === 1) {
+  //   console.log('found', engs.findIndex(e => e.$key === eKey))
+  //   const newKey = engs[engs.findIndex(e => e.$key === eKey) + 1].$key
+  //   return `/opp/${oppKey}/engaged/applied/show/${newKey}`
+  // }
+  // if (relative === -1) {
+  //   console.log('found', engs.findIndex(e => e.$key === eKey))
+  //   const newKey = engs[engs.findIndex(e => e.$key === eKey) - 1].$key
+  //   return `/opp/${oppKey}/engaged/applied/show/${newKey}`
+  // }
+}
+
 const ApprovalDialog = sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
-  const ac = _Actions(_sources)
+  const navs = _Navs(_sources)
   const c = _Content(_sources)
   const d = BaseDialog({..._sources,
     titleDOM$: _sources.profile$.pluck('fullName'),
     isOpen$: just(true),
     contentDOM$: c.DOM,
-    actionsDOM$: ac.DOM,
+    actionsDOM$: navs.DOM,
   })
 
-  const route$ = _sources.oppKey$.map(k => `/opp/${k}/engaged/applied`)
-    .sample(merge(ac.action$, ac.cancel$))
+  const route$ = merge(
+    navs.route$,
+    c.action$.map(1),
+  )
+  .combineLatest(
+    sources.oppKey$,
+    sources.engagements$,
+    (r, key, engs) => switchRoute(r, key, engs)
+  )
 
   return {
     ...d,
