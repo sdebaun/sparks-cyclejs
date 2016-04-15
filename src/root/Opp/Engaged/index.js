@@ -36,10 +36,10 @@ const _Fetch = sources => {
 
   return {
     engagements$: e$,
-    applied$: e$.map(filterApplied),
-    priority$: e$.map(filterPriority),
-    ok$: e$.map(filterOK),
-    never$: e$.map(filterNever),
+    applied$: e$.map(filterApplied).shareReplay(1),
+    priority$: e$.map(filterPriority).shareReplay(1),
+    ok$: e$.map(filterOK).shareReplay(1),
+    never$: e$.map(filterNever).shareReplay(1),
   }
 }
 
