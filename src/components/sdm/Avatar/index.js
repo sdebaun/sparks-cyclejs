@@ -22,7 +22,7 @@ const MediumAvatar = ({classes$, ...sources}) => Avatar({...sources,
 })
 
 const LargeAvatar = ({classes$, ...sources}) => Avatar({...sources,
-  classes$: classes$ ? classes$.map(c => ({...LARGE, ...c})) : just(MEDIUM),
+  classes$: classes$ ? classes$.map(c => ({...LARGE, ...c})) : just(LARGE),
 })
 
 export {
