@@ -10,7 +10,7 @@ import moment from 'moment'
 
 import {
   List,
-  ListItem,
+  ListItemWithMenu,
   ListItemClickable,
   ListItemWithDialog,
   InputControl,
@@ -112,39 +112,6 @@ const AddShift = sources => {
   }
 }
 
-function convertHours(hours) {
-  const _hours = parseInt(hours)
-  if (_hours === 24) {
-    return `12 AM`
-  }
-  if (_hours === 12) {
-    return `12 PM`
-  }
-  if (_hours > 24) {
-    return convertHours(hours - 24)
-  }
-  return _hours > 12 ?
-    `${_hours - 12} PM` :
-    `${_hours} AM`
-}
-
-function getEndTime(starts, hours) {
-  return convertHours(parseInt(starts) + parseInt(hours))
-}
-
-const sharedStyle = {
-  flexGrow: '1',
-  textAlign: 'center',
-}
-
-function shiftView({hours, starts, reserved, people}) {
-  return div({style: {display: 'flex', flexDirection: 'row'}}, [
-    div({style: sharedStyle}, [convertHours(starts)]),
-    div({style: sharedStyle}, [getEndTime(starts, hours)]),
-    div({style: sharedStyle}, [`${reserved} / ${people}`, icon('people')]),
-  ])
-}
-
 const _Fetch = sources => {
   const shifts$ = sources.teamKey$
     .flatMapLatest(ShiftsRemote.query.byTeam(sources))
@@ -164,7 +131,10 @@ const daySegment = hr => Math.floor((parseInt(hr) + 2) / 4)
 const row = (style, ...els) => div({style: {display: 'flex', ...style}}, els)
 const cell = (style, ...els) => div({style: {flex: '1', ...style}}, els)
 
-const _Item = sources => ListItem({
+const timeCell = t =>
+  cell({minWidth: '90px', textAlign: 'left'}, moment(t).format('h:mm a'))
+
+const _Item = sources => ListItemWithMenu({...sources,
   iconSrc$: sources.item$.pluck('start')
     .map(start => todIcons[daySegment(moment(start).hours())]),
   title$: combineLatest(
@@ -172,8 +142,7 @@ const _Item = sources => ListItem({
     sources.item$.pluck('end'),
     sources.item$.pluck('people'),
     (s,e,p) => row({},
-      cell({minWidth: '90px', textAlign: 'left'}, moment(s).format('h:mm a')),
-      cell({minWidth: '90px', textAlign: 'left'}, moment(e).format('h:mm a')),
+      timeCell(s), timeCell(e),
       cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
     )
   ),
