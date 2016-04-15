@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {of} = Observable
+const {of, combineLatest} = Observable
 
 import {TabbedPage} from 'components/ui'
 import Overview from './Overview'
@@ -14,29 +14,16 @@ function hasShifts(pathname) {
   return getPathParts(pathname).indexOf('shifts') !== -1
 }
 
-function makeTabTitle(pathname) {
+function dateFromPath(pathname) {
+  if (!hasShifts(pathname)) { return null }
   const pathParts = getPathParts(pathname)
   const date = pathParts[pathParts.length - 1]
   return date
 }
 
 function makeTabs(dates) {
-  return [
-    {path: '/', label: 'Overview'},
-    ...dates.map(d => ({path: '/shifts/' + d, label: d})),
-  ]
+  return dates.map(d => ({path: '/shifts/' + d, label: d}))
 }
-/*
-function compareDates(a, b) {
-  const aParts = a.split('-').filter(Boolean)
-  const bParts = b.split('-').filter(Boolean)
-  for (let i = 0; i < aParts.length; ++i) {
-    if (aParts[i] !== bParts[i]) {
-      return false
-    }
-  }
-  return true
-}*/
 
 function removeDuplicates(arr) {
   const newArray = []
@@ -49,34 +36,32 @@ function removeDuplicates(arr) {
 }
 
 export default sources => {
-  const teamShifts$ = sources.teamKey$
+  const shifts$ = sources.teamKey$
     .flatMapLatest(ShiftsRemote.query.byTeam(sources))
+
+  const shiftDates$ = shifts$
     .map(arr => arr.map(a => a.date))
+
+  const selectedDate$ = sources.router.observable.pluck('pathname')
+    .map(dateFromPath)
+
+  const datesInTabs$ = combineLatest(
+    shiftDates$, selectedDate$,
+    (shiftDates, selectedDate) => selectedDate ?
+      [selectedDate, ...shiftDates] :
+      shiftDates
+    )
     .map(removeDuplicates)
-    .do(x => console.log(x, 'teamShifts'))
+    .map(arr => arr.sort())
 
-  const pathname$ = sources.router.observable.pluck('pathname')
-    //.distinctUntilChanged()
-    .filter(hasShifts)
-    .map(makeTabTitle)
-    .do(x => console.log(x, 'pathname'))
-    .startWith('')
-    .shareReplay(1)
-
-    //.map(makeTabs)
-
-  const tabs$ = pathname$
-    .map(x => [x])
-    .combineLatest(
-      teamShifts$,
-      (tabs, dates) => dates.length > 0 ? tabs.concat(dates).filter(Boolean) : tabs
-    ).map(removeDuplicates)
-    .do(x => console.log('combined dates', x))
+  const dateTabs$ = datesInTabs$
     .map(makeTabs)
-    .do(x => console.log(x, 'tabs'))
-    .startWith([{path: '/', label: 'Overview'}])
-    .shareReplay(1)
 
+  const tabs$ = combineLatest(
+    of({path: '/', label: 'Overview'}),
+    dateTabs$,
+    (ov,dt) => [ov, ...dt]
+  ).shareReplay(1)
 
   const routes$ = of({
     '/': Overview,
