@@ -62,6 +62,7 @@
     "cyclic-router": "^1.0.0",
     "firebase": "^2.4.1",
     "history": "^2.0.1",
+    "moment": "^2.12.0",
     "normalize-css": "^2.3.1",
     "react": "^0.14.7",
     "react-cropper": "^0.6.0",

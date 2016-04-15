@@ -6,6 +6,8 @@ import Overview from './Overview'
 import Shifts from './Shifts'
 import {Shifts as ShiftsRemote} from 'components/remote'
 
+import moment from 'moment'
+
 function getPathParts(pathname) {
   return pathname.split('/').filter(Boolean)
 }
@@ -40,7 +42,7 @@ export default sources => {
     .flatMapLatest(ShiftsRemote.query.byTeam(sources))
 
   const shiftDates$ = shifts$
-    .map(arr => arr.map(a => a.date))
+    .map(arr => arr.map(a => moment(a.date).format('YYYY-MM-DD')))
 
   const selectedDate$ = sources.router.observable.pluck('pathname')
     .map(dateFromPath)

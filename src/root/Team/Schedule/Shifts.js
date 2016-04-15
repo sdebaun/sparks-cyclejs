@@ -1,13 +1,12 @@
 import {Observable} from 'rx'
-const {of} = Observable
-// import {ListItemWithDialog} from 'components/sdm'
+const {of, combineLatest} = Observable
 import {Form} from 'components/ui/Form'
-// import {InputControl} from 'components/sdm'
-// import {ListItemClickable} from 'components/sdm'
 import {Shifts as ShiftsRemote} from 'components/remote'
 import {div} from 'cycle-snabbdom'
 import {icon} from 'helpers'
 import {combineLatestToDiv} from 'util'
+
+import moment from 'moment'
 
 import {
   List,
@@ -72,7 +71,7 @@ const ToggleBonus = sources => ListItemBonusToggle({...sources,
 
 const ShiftForm = sources => Form({...sources,
   Controls$: of([
-    {field: 'starts', Control: StartsInput},
+    {field: 'start', Control: StartsInput},
     {field: 'hours', Control: HoursInput},
     {field: 'people', Control: PeopleInput},
     {field: 'bonus', Control: ToggleBonus},
@@ -94,11 +93,15 @@ const AddShift = sources => {
     .withLatestFrom(
       sources.teamKey$,
       sources.date$,
-      (shift, teamKey, date) => ({
+      ({start, hours, people, bonus}, teamKey, date) => ({
         teamKey,
-        date,
+        date: moment(date).format(),
         reserved: 0,
-        ...shift,
+        hours,
+        people,
+        bonus,
+        start: moment(date).add(start,'hours').format(),
+        end: moment(date).add(start,'hours').add(hours,'hours').format(),
       }))
     .sample(submit$)
     .map(ShiftsRemote.action.create)
@@ -142,25 +145,13 @@ function shiftView({hours, starts, reserved, people}) {
   ])
 }
 
-const Shifts = sources => {
-  const shifts$ = sources.teamKey$
-    .flatMapLatest(ShiftsRemote.query.byTeam(sources))
-  const shiftsForDate$ = shifts$
-    .combineLatest(sources.date$, (shifts, date) => {
-      return shifts.filter(shift => shift.date === date)
-    })
-  const DOM = shiftsForDate$
-    .map(shifts => div(shifts.map(shiftView)))
-  return {DOM}
-}
-
 const _Fetch = sources => {
   const shifts$ = sources.teamKey$
     .flatMapLatest(ShiftsRemote.query.byTeam(sources))
   const shiftsForDate$ = shifts$
     .combineLatest(sources.date$, (shifts, date) =>
-      shifts.filter(shift => shift.date === date)
-        .sort((a,b) => parseInt(a.starts) - parseInt(b.starts))
+      shifts.filter(shift => shift.date === moment(date).format())
+        .sort((a,b) => moment(a.start).valueOf() - moment(b.start).valueOf())
     )
   return {shifts$, shiftsForDate$}
 }
@@ -170,11 +161,24 @@ const todIcons = [0,1,2,3,4,5,6]
 
 const daySegment = hr => Math.floor((parseInt(hr) + 2) / 4)
 
+const row = (style, ...els) => div({style: {display: 'flex', ...style}}, els)
+const cell = (style, ...els) => div({style: {flex: '1', ...style}}, els)
+
 const _Item = sources => ListItem({
-  iconSrc$: sources.item$.pluck('starts')
-    .map(starts => todIcons[daySegment(starts)]),
-  // iconSrc$: of(todIcons[daySegment(sources.item$.pluck('starts'))/4]),
-  title$: sources.item$.pluck('starts'),
+  iconSrc$: sources.item$.pluck('start')
+    .map(start => todIcons[daySegment(moment(start).hours())]),
+  title$: combineLatest(
+    sources.item$.pluck('start'),
+    sources.item$.pluck('end'),
+    sources.item$.pluck('people'),
+    (s,e,p) => row({},
+      cell({minWidth: '90px', textAlign: 'left'}, moment(s).format('h:mm a')),
+      cell({minWidth: '90px', textAlign: 'left'}, moment(e).format('h:mm a')),
+      cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
+    )
+  ),
+  subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
+  rightDOM$: of(icon('menu')),
 })
 
 const _List = sources => List({...sources,
@@ -186,10 +190,9 @@ export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
   const list = _List(_sources)
-  // const s = Shifts(sources)
-  const as = AddShift(_sources)
+  const add = AddShift(_sources)
   return {
-    DOM: combineLatestToDiv(list.DOM, as.DOM),
-    queue$: as.queue$,
+    DOM: combineLatestToDiv(list.DOM, add.DOM),
+    queue$: add.queue$,
   }
 }
