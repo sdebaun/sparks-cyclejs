@@ -144,6 +144,7 @@ export const Opps = {
   action: {
     create: actionCreator('Opps', 'create'),
     remove: actionCreator('Opps', 'remove'),
+    update: actionCreator('Opps', 'update'),
   },
 }
 
