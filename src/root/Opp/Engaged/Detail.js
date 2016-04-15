@@ -114,8 +114,9 @@ const _TeamsInfo = sources => {
 }
 
 const _Priority = sources => ActionButton({...sources,
-  label$: just('#1'),
+  label$: just('priority'),
   params$: just({isAccepted: true, priority: true, declined: false}),
+  classNames$: just(['accent']),
 })
 
 const _Accept = sources => ActionButton({...sources,
@@ -124,8 +125,9 @@ const _Accept = sources => ActionButton({...sources,
 })
 
 const _Decline = sources => ActionButton({...sources,
-  label$: just('NO'),
+  label$: just('never'),
   params$: just({isAccepted: false, priority: false, declined: true}),
+  classNames$: just(['red']),
 })
 
 const _Actions = (sources) => {
