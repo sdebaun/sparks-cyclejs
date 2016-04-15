@@ -13,8 +13,8 @@ import {OppItemNavigating} from 'components/opp'
 
 import {QuickNav} from 'components/QuickNav'
 
-const TEAMREGEX = /(team)\/(.+)\//
-const OPPREGEX = /(opp)\/(.+)\//
+const TEAMREGEX = /(team)\/(.+?)\//
+const OPPREGEX = /(opp)\/(.+?)\//
 
 const _TeamNav = sources => TeamItemNavigating({...sources,
   path$: sources.item$.combineLatest(
