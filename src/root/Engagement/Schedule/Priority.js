@@ -3,13 +3,13 @@ import moment from 'moment'
 //import {div} from 'cycle-snabbdom'
 
 import {
+  RaisedButton,
   List,
   ListItemCollapsible,
   ListItemClickable,
 } from 'components/sdm'
 
 import {
-  Teams,
   TeamImages,
   Shifts,
   Assignments,
@@ -20,10 +20,14 @@ import {h4} from 'cycle-snabbdom'
 import {div, iconSrc, icon} from 'helpers'
 
 const ToggleControl = sources => {
-  const click$ = sources.DOM.select('.toggle').events('click')
-    .map(true)
-    .scan((a) => !a, false)
-    //.startWith(false)
+  const toggle$ = sources.DOM.select('.toggle').observable.map(e => e[0])
+    .filter(e => e && e.children)
+    .map(e => e.children[0].classList)
+    .map(e => Array.prototype.slice.call(e))
+    .map(e => e.indexOf('icon-toggle-on') !== -1 ? false : true)
+    .distinctUntilChanged()
+
+  const click$ = toggle$.sample(sources.DOM.select('.toggle').events('click'))
     .shareReplay(1)
 
   return {
@@ -119,8 +123,8 @@ const ShiftItem = sources => {
   const li = ListItemToggle({
     ...sources,
     value$: assignmentKey$.map(k => k ? true : false).startWith(false),
-    titleTrue$: sources.item$.combineLatest(reservations$, shiftView),
-    titleFalse$: sources.item$.combineLatest(reservations$, shiftView),
+    titleTrue$: sources.item$.withLatestFrom(reservations$, shiftView),
+    titleFalse$: sources.item$.withLatestFrom(reservations$, shiftView),
   })
 
   const queue$ = li.value$
@@ -263,11 +267,29 @@ export function Priority(sources) {
   const al = AssignmentList({...sources, assignments$})
   const ml = MembershipList({...sources, assignments$})
 
+  const button = RaisedButton({
+    ...sources,
+    label$: $.of('Confirm your shifts now!'),
+  })
+
+  const requiredShiftNumber$ = sources.commitments$
+    .map(c => c.filter(x => x.code === 'shifts'))
+    .map(a => a[0].count)
+
+  const reservedShiftsNumber$ = al.DOM.map(v => v.children.length)
+    .distinctUntilChanged()
+
+  const shiftsNeeded$ = reservedShiftsNumber$
+    .withLatestFrom(requiredShiftNumber$,
+      (reserved, required) => required - reserved
+    )
+
   return {
     ...ml,
-    DOM: al.DOM.combineLatest(ml.DOM, (alDOM, mlDOM) =>
+    DOM: al.DOM.combineLatest(ml.DOM, shiftsNeeded$, (alDOM, mlDOM, needed) =>
       div({}, [
         div({}, [
+          needed === 0 ? button.DOM : h4({}, `You need ${needed} more shifts!`),
           h4({}, 'Shifts you have reserved'),
           alDOM,
         ]),
