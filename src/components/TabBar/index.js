@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {of, never} = Observable
+const {of, never, combineLatest} = Observable
 
 import {div,h} from 'cycle-snabbdom'
 
@@ -88,14 +88,39 @@ const Tab = sources => {
   }
 }
 
+const dist = (pathname, tabs, createHref) => {
+  console.log('pathname',pathname)
+  const idx = tabs.findIndex(t => createHref(t.path) === pathname)
+  const interval = 100 / tabs.length
+  return (idx >= 0 ? idx : 0) * interval
+}
+
+const Slide = sources => {
+  const DOM = combineLatest(
+    sources.tabs$,
+    sources.router.observable.pluck('pathname'),
+    (t,p) =>
+      div({
+        class: {slide: true},
+        style: {
+          width: `${100 / t.length}%`,
+          left: `${dist(p,t,sources.router.createHref)}%`,
+        },
+      },['']),
+  )
+  return {
+    DOM,
+  }
+}
+
 const TabBar = sources => {
-  sources.tabs$.subscribe(t => console.log('tabs$',t))
+  const sl = Slide(sources)
   const tctrls$ = sources.tabs$.map(tabs =>
     controlsFromRows(sources, tabs.map((t,i) => ({$key: `${i}`, ...t})), Tab)
   ).shareReplay(1)
 
   return {
-    DOM: tctrls$.map(c => combineDOMsToDiv('.tab-wrap',...c)).switch(),
+    DOM: tctrls$.map(c => combineDOMsToDiv('.tab-wrap', ...c, sl)).switch(),
     route$: tctrls$.map(c => mergeOrFlatMapLatest('route$', ...c)).switch(),
   }
 }
