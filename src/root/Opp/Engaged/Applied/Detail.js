@@ -207,17 +207,24 @@ const ApprovalDialog = sources => {
 
   const route$ = merge(
     navs.route$,
-    sources.engagementKey$.map(k => [k, 1]).sample(c.action$),
+    _sources.engagementKey$.map(k => [k, 1]).sample(c.action$),
   )
   .combineLatest(
-    sources.oppKey$,
-    sources.engagements$,
+    _sources.oppKey$,
+    _sources.engagements$,
     (r, key, engs) => switchRoute(r, key, engs)
   )
+
+  const queue$ = c.action$
+    .withLatestFrom(_sources.engagementKey$,
+      (values, key) => ({key, values})
+    )
+    .map(Engagements.action.update)
 
   return {
     ...d,
     route$,
+    queue$,
   }
 }
 
