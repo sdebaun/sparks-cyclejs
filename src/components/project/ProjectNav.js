@@ -129,7 +129,7 @@ const ProjectNav = sources => {
     rows$: sources.opps$,
   })
 
-  const childs = [glance, manage, teams, opps]
+  const childs = [glance, manage, opps, teams]
 
   const route$ = merge(...childs.map(c => c.route$))
 
