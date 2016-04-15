@@ -22,3 +22,17 @@ body {
   padding: 0em 1em;
   max-width: 1024px;
 }
+
+.secondary {
+  color: #999;
+}
+
+.scrollable {
+  overflow: auto;
+  max-height: 400px;
+}
+
+.row {
+  margin: 0;
+  display: flex;
+}

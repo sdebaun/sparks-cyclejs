@@ -33,7 +33,7 @@ const ProfileInfo = sources => ({
 
 const _Profile = sources => {
   const av = LargeProfileAvatar({...sources,
-    src$: sources.userProfile$.map(up => up && up.portraitUrl),
+    profileKey$: sources.userProfileKey$,
   })
   const pi = ProfileInfo(sources)
   const ed = RaisedButton({...sources,

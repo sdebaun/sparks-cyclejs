@@ -45,7 +45,9 @@ const _Page = sources => RoutedComponent({...sources, routes$: of({
 const _Title = sources => ResponsiveTitle({...sources,
   titleDOM$: sources.userName$,
   subtitleDOM$: of('Welcome'),
-  leftDOM$: MediumProfileAvatar({...sources, src$: sources.portraitUrl$}).DOM,
+  leftDOM$: MediumProfileAvatar({...sources,
+    profileKey$: sources.userProfileKey$,
+  }).DOM,
   classes$: of(['profile']),
 })
 
