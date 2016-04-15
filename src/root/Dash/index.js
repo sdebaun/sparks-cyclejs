@@ -3,7 +3,6 @@ const {of} = Observable
 
 import AppFrame from 'components/AppFrame'
 import Header from 'components/Header'
-import TabBar from 'components/TabBar'
 
 import {mergeSinks} from 'util'
 
@@ -13,8 +12,7 @@ import {ResponsiveTitle} from 'components/Title'
 import {MediumProfileAvatar} from 'components/profile'
 
 import {
-  // DescriptionListItem,
-  RoutedComponent,
+  TabbedPage,
 } from 'components/ui'
 
 import {
@@ -24,23 +22,20 @@ import {
 import Doing from './Doing'
 import Being from './Being'
 
-const _Tabs = sources => TabBar({...sources,
-  tabs: of([
-    {path: '/', label: 'Doing'},
-    {path: '/finding', label: 'Finding'},
-    {path: '/being', label: 'Being'},
-  ]),
-})
-
 const _Nav = sources => ({
   DOM: sources.isMobile$.map(m => m ? null : sources.titleDOM),
 })
 
-const _Page = sources => RoutedComponent({...sources, routes$: of({
-  '/': Doing,
-  '/finding': ComingSoon('Dash/Finding'),
-  '/being': Being,
-})})
+const _Page = sources => TabbedPage({...sources,
+  tabs$: of([
+    {path: '/', label: 'Doing'},
+    {path: '/being', label: 'Being'},
+  ]),
+  routes$: of({
+    '/': Doing,
+    '/being': Being,
+  }),
+})
 
 const _Title = sources => ResponsiveTitle({...sources,
   titleDOM$: sources.userName$,
@@ -57,11 +52,12 @@ export default sources => {
     portraitUrl$: sources.userProfile$.map(up => up && up.portraitUrl),
   }
 
-  const tabs = _Tabs(_sources)
-  const title = _Title({..._sources, tabsDOM$: tabs.DOM})
-  const nav = _Nav({..._sources, titleDOM: title.DOM})
-  const header = Header({..._sources, titleDOM: title.DOM, tabsDOM: tabs.DOM})
   const page = _Page(_sources)
+  const title = _Title({..._sources, tabsDOM$: page.tabBarDOM})
+  const nav = _Nav({..._sources, titleDOM: title.DOM})
+  const header = Header({..._sources,
+    titleDOM: title.DOM, tabsDOM: page.tabBarDOM,
+  })
 
   const frame = AppFrame({..._sources,
     navDOM: nav.DOM,
@@ -73,6 +69,6 @@ export default sources => {
 
   return {
     DOM: frame.DOM,
-    ...mergeSinks(frame, page, tabs, title, nav, header, redirect),
+    ...mergeSinks(frame, page, title, nav, header, redirect),
   }
 }

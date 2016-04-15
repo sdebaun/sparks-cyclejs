@@ -14,8 +14,8 @@ export default sources => ({
   ...TabbedPage({...sources,
     tabs$: of([
       {path: '/', label: 'Priority'},
-      {path: '/find', label: 'Find'},
-      {path: '/recently', label: 'Recently'},
+      // {path: '/find', label: 'Find'},
+      // {path: '/recently', label: 'Recently'},
     ]),
     routes$: of({
       '/': Priority,

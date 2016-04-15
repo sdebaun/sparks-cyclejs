@@ -13,15 +13,18 @@ export const RoutedComponent = sources => {
     .map(routes => sources.router.define(routes))
     .switch()
     .distinctUntilChanged(({path}) => path)
-    .map(({path, value}) =>
-      value({...sources, router: sources.router.path(path)})
-    )
+    .map(({path, value}) => {
+      const c = value({...sources, router: sources.router.path(path)})
+      return {
+        ...c,
+        DOM: c.DOM && c.DOM.startWith(div('.loading',['Loading...'])),
+      }
+    })
     .shareReplay(1)
 
   return {
     pluck: key => pluckLatestOrNever(key, comp$),
-    DOM: pluckLatest('DOM', comp$) //,
-      .startWith(div('.loading',['Loading...'])),
+    DOM: pluckLatest('DOM', comp$),
     ...['auth$', 'queue$', 'route$'].reduce((a,k) =>
       (a[k] = pluckLatestOrNever(k,comp$)) && a, {}
     ),

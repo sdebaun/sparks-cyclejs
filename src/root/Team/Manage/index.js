@@ -14,7 +14,7 @@ export default sources => ({
   ...TabbedPage({...sources,
     tabs$: of([
       {path: '/', label: 'Describe'},
-      {path: '/leads', label: 'Leads'},
+      // {path: '/leads', label: 'Leads'},
       {path: '/applying', label: 'Applying'},
     ]),
     routes$: of({
