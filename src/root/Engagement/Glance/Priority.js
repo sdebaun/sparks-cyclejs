@@ -3,13 +3,17 @@ const {just, merge, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 
-import {div} from 'helpers'
+import {div, icon} from 'helpers'
 
 import {
   TitleListItem,
   QuotingListItem,
   ToDoListItem,
 } from 'components/ui'
+
+import {
+  ListItemNavigating,
+} from 'components/sdm'
 
 // import {log} from 'util'
 
@@ -21,8 +25,8 @@ const applicationComplete$$ = sources => combineLatest(
 
 const Title = sources => TitleListItem({...sources,
   title$: sources.engagement$.map(({isApplied, isAccepted, isConfirmed}) =>
-    isApplied && 'You are Waiting to be Accepted.' ||
-    isAccepted && 'Confirm Your Spot Now!' ||
+    isApplied && !isAccepted && 'You are Waiting to be Accepted.' ||
+    isAccepted && !isConfirmed && 'Confirm Your Spot Now!' ||
     isConfirmed && 'You are Confirmed!'
   ),
 })
@@ -38,6 +42,12 @@ const ToDoApp = sources => ToDoListItem({...sources,
   path$: just(sources.router.createHref('/application')),
 })
 
+const Confirm = sources => ListItemNavigating({...sources,
+  path$: sources.engagementKey$.map(e => '/engaged/' + e + '/schedule'),
+  leftDOM$: just(icon('heart', 'yellow')),
+  title$: just('Click here to confirm your spot!'),
+})
+
 export default sources => {
   const todos = [
     isolate(ToDoApp,'app')(sources),
@@ -49,11 +59,15 @@ export default sources => {
     ...todos,
   ]
 
-  const route$ = merge(...todos.map(t => t.route$))
+  const confirm = Confirm(sources)
+
+  const route$ = merge(confirm.route$, ...todos.map(t => t.route$))
 
   const DOM = combineLatest(
-    children.map(i => i.DOM),
-    (...doms) => div({}, doms)
+    sources.engagement$, ...children.map(i => i.DOM),
+    ({isAccepted}, ...doms) => isAccepted ?
+      div({}, [doms[0], confirm.DOM]) :
+      div({}, doms)
   )
 
   return {
