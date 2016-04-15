@@ -29,12 +29,10 @@ const _Nav = sources => ({
 const _Page = sources => TabbedPage({...sources,
   tabs$: of([
     {path: '/', label: 'Doing'},
-    {path: '/finding', label: 'Finding'},
     {path: '/being', label: 'Being'},
   ]),
   routes$: of({
     '/': Doing,
-    '/finding': ComingSoon('Dash/Finding'),
     '/being': Being,
   }),
 })
