@@ -1,5 +1,5 @@
 import {RoutedComponent} from './RoutedComponent'
-import TabBar from 'components/TabBar'
+import {TabBar} from 'components/TabBar'
 import {mergeSinks} from 'util'
 
 export const TabbedPage = sources => {

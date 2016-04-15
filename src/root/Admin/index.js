@@ -41,11 +41,13 @@ const _Page = sources => TabbedPage({...sources,
     {path: '/', label: 'Projects'},
     {path: '/profiles', label: 'Profiles'},
     {path: '/previously', label: 'Previously'},
+    {path: '/test', label: 'Test'},
   ]),
   routes$: of({
     '/': Projects,
     '/profiles': ComingSoon('Admin/Dash'),
     '/previously': ComingSoon('Admin/Previously'),
+    '/test': ComingSoon('Admin/Test'),
   }),
 })
 
