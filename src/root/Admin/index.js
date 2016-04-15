@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+const {just} = Observable
 // import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
@@ -6,14 +7,15 @@ import {div} from 'cycle-snabbdom'
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
-import TabBar from 'components/TabBar'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+import {mergeOrFlatMapLatest} from 'util'
 // import {icon} from 'helpers'
 
 import ComingSoon from 'components/ComingSoon'
 
 import Projects from './Projects.js'
+
+import {TabbedPage} from 'components/ui'
 
 const _routes = {
   '/': Projects,
@@ -38,35 +40,36 @@ const Nav = sources => ({
 })
 
 export default sources => {
-  const page$ = nestedComponent(sources.router.define(_routes),sources)
+  const page = TabbedPage({...sources,
+    tabs$: just(_tabs),
+    routes$: just(_routes),
+  })
 
-  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-
-  const title = Title({
-    tabsDOM$: tabBar.DOM,
+  const title = Title({...sources,
+    tabsDOM$: page.tabBarDOM,
     labelText$: Observable.just('Administration'),
     subLabelText$: Observable.just('At a Glance'), // eventually page$.something
-    ...sources,
   })
 
   const nav = Nav({titleDOM: title.DOM, ...sources})
 
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
+  const header = Header({...sources,
+    titleDOM: title.DOM,
+    tabsDOM: page.tabBarDOM,
+  })
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
     headerDOM: header.DOM,
-    pageDOM: page$.pluck('DOM'),
+    pageDOM: page.DOM,
     ...sources,
   })
 
-  const children = [appFrame, page$, tabBar, title, nav, header]
-
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
+  const children = [appFrame, page, title, nav, header]
 
   const route$ = Observable.merge(
     mergeOrFlatMapLatest('route$', ...children),
-    redirectOnLogout$,
+    sources.redirectLogout$,
   )
 
   return {
