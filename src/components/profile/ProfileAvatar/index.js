@@ -1,23 +1,62 @@
 require('./styles.scss')
 
+import {Observable} from 'rx'
+const {just, combineLatest} = Observable
+
 import {img} from 'cycle-snabbdom'
 
-const ProfileAvatar = sources => ({
-  DOM: sources.src$.map(src =>
-    img({class: {avatar: true}, attrs: {src}})
+const CLASSES = {avatar: true}
+const MEDIUM = {medium: true}
+const LARGE = {large: true}
+
+const Avatar = sources => ({
+  DOM: combineLatest(
+    sources.classes$ || just({}),
+    sources.src$,
+    (classes, src) => img({class: {...CLASSES, ...classes}, attrs: {src}})
   ),
 })
 
-const MediumProfileAvatar = sources => ({
-  DOM: sources.src$.map(src =>
-    img({class: {avatar: true, medium: true}, attrs: {src}})
-  ),
+const MediumAvatar = ({classes$, ...sources}) => Avatar({...sources,
+  classes$: classes$ ? classes$.map(c => ({...MEDIUM, ...c})) : just(MEDIUM),
 })
 
-const LargeProfileAvatar = sources => ({
-  DOM: sources.src$.map(src =>
-    img({class: {avatar: true, large: true}, attrs: {src}})
-  ),
+const LargeAvatar = ({classes$, ...sources}) => Avatar({...sources,
+  classes$: classes$ ? classes$.map(c => ({...LARGE, ...c})) : just(MEDIUM),
 })
 
-export {LargeProfileAvatar, MediumProfileAvatar, ProfileAvatar}
+import {
+  Profiles,
+} from 'components/remote'
+
+const ProfileFetcher = sources => ({
+  profile$: sources.profileKey$
+    .flatMapLatest(Profiles.query.one(sources)),
+})
+
+const PortraitFetcher = sources => ({
+  portraitUrl$: ProfileFetcher(sources).profile$
+    .map(p => p ? p.portraitUrl : null),
+})
+
+const ProfileAvatar = sources => Avatar({...sources,
+  src$: PortraitFetcher(sources).portraitUrl$,
+})
+
+const MediumProfileAvatar = sources => MediumAvatar({...sources,
+  src$: PortraitFetcher(sources).portraitUrl$,
+})
+
+const LargeProfileAvatar = sources => LargeAvatar({...sources,
+  src$: PortraitFetcher(sources).portraitUrl$,
+})
+
+export {
+  Avatar,
+  MediumAvatar,
+  LargeAvatar,
+
+  LargeProfileAvatar,
+  MediumProfileAvatar,
+  ProfileAvatar,
+}

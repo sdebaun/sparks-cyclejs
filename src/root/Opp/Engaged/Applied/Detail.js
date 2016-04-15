@@ -3,21 +3,19 @@ const {just, merge} = Observable
 import {div} from 'helpers'
 import {h} from 'cycle-snabbdom'
 
+// import {log} from 'util'
 import {combineDOMsToDiv} from 'util'
 
 import {
   QuotingListItem,
+  RoutedComponent,
 } from 'components/ui'
-
-// import {log} from 'util'
 
 import {
   ListItem,
   BaseDialog,
   FlatButton,
 } from 'components/sdm'
-
-import {RoutedComponent} from 'components/ui'
 
 import {LargeProfileAvatar} from 'components/profile'
 
@@ -28,9 +26,7 @@ import {
   // Teams,
 } from 'components/remote'
 
-const Blank = () => ({
-  DOM: just(div({},[])),
-})
+const Blank = () => ({DOM: just('')})
 
 const _Fetch = sources => {
   const engagement$ = sources.engagementKey$
@@ -52,7 +48,7 @@ const _Fetch = sources => {
 
 const _ProfileInfo = sources => {
   const av = LargeProfileAvatar({...sources,
-    src$: sources.profile$.pluck('portraitUrl'),
+    profileKey$: sources.engagement$.pluck('profileKey'),
   })
   const nfo = ListItem({...sources,
     title$: sources.profile$.pluck('intro')
