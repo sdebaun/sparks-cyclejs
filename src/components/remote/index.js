@@ -193,3 +193,14 @@ export const Shifts = {
     remove: actionCreator('Shifts', 'remove'),
   },
 }
+
+export const Assignments = {
+  query: {
+    byEngagement: filterBy('Assignments', 'engagementKey'),
+  },
+  action: {
+    create: actionCreator('Assignments', 'create'),
+    update: actionCreator('Assignments', 'update'),
+    remove: actionCreator('Assignments', 'remove'),
+  },
+}
