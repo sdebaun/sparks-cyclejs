@@ -1,13 +1,21 @@
 import {Observable} from 'rx'
 const {of} = Observable
-import {ListItemWithDialog} from 'components/sdm'
+// import {ListItemWithDialog} from 'components/sdm'
 import {Form} from 'components/ui/Form'
-import {InputControl} from 'components/sdm'
-import {ListItemClickable} from 'components/sdm'
+// import {InputControl} from 'components/sdm'
+// import {ListItemClickable} from 'components/sdm'
 import {Shifts as ShiftsRemote} from 'components/remote'
 import {div} from 'cycle-snabbdom'
 import {icon} from 'helpers'
 import {combineLatestToDiv} from 'util'
+
+import {
+  List,
+  ListItem,
+  ListItemClickable,
+  ListItemWithDialog,
+  InputControl,
+} from 'components/sdm'
 
 const StartsInput = sources => InputControl({...sources,
   label$: of('Starts At Hour (24 hour)'),
@@ -146,11 +154,42 @@ const Shifts = sources => {
   return {DOM}
 }
 
+const _Fetch = sources => {
+  const shifts$ = sources.teamKey$
+    .flatMapLatest(ShiftsRemote.query.byTeam(sources))
+  const shiftsForDate$ = shifts$
+    .combineLatest(sources.date$, (shifts, date) =>
+      shifts.filter(shift => shift.date === date)
+        .sort((a,b) => parseInt(a.starts) - parseInt(b.starts))
+    )
+  return {shifts$, shiftsForDate$}
+}
+
+const todIcons = [0,1,2,3,4,5,6]
+  .map(i => '/' + require(`images/daytimeicon_${i}.png`))
+
+const daySegment = hr => Math.floor((parseInt(hr) + 2) / 4)
+
+const _Item = sources => ListItem({
+  iconSrc$: sources.item$.pluck('starts')
+    .map(starts => todIcons[daySegment(starts)]),
+  // iconSrc$: of(todIcons[daySegment(sources.item$.pluck('starts'))/4]),
+  title$: sources.item$.pluck('starts'),
+})
+
+const _List = sources => List({...sources,
+  Control$: of(_Item),
+  rows$: sources.shiftsForDate$,
+})
+
 export default sources => {
-  const s = Shifts(sources)
-  const as = AddShift(sources)
+  const _sources = {...sources, ..._Fetch(sources)}
+
+  const list = _List(_sources)
+  // const s = Shifts(sources)
+  const as = AddShift(_sources)
   return {
-    DOM: combineLatestToDiv(s.DOM, as.DOM),
+    DOM: combineLatestToDiv(list.DOM, as.DOM),
     queue$: as.queue$,
   }
 }
