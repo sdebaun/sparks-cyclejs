@@ -1,10 +1,12 @@
 import {Observable} from 'rx'
-const {of, combineLatest} = Observable
+const {of, merge, combineLatest} = Observable
 import {Form} from 'components/ui/Form'
 import {Shifts as ShiftsRemote} from 'components/remote'
 import {div} from 'cycle-snabbdom'
 import {icon} from 'helpers'
 import {combineLatestToDiv} from 'util'
+
+import isolate from '@cycle/isolate'
 
 import moment from 'moment'
 
@@ -134,21 +136,53 @@ const cell = (style, ...els) => div({style: {flex: '1', ...style}}, els)
 const timeCell = t =>
   cell({minWidth: '90px', textAlign: 'left'}, moment(t).format('h:mm a'))
 
-const _Item = sources => ListItemWithMenu({...sources,
-  iconSrc$: sources.item$.pluck('start')
-    .map(start => todIcons[daySegment(moment(start).hours())]),
-  title$: combineLatest(
-    sources.item$.pluck('start'),
-    sources.item$.pluck('end'),
-    sources.item$.pluck('people'),
-    (s,e,p) => row({},
-      timeCell(s), timeCell(e),
-      cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
-    )
-  ),
-  subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
-  rightDOM$: of(icon('menu')),
+const _Remove = sources => ListItemClickable({...sources,
+  iconName$: of('remove'),
+  title$: of('Remove'),
 })
+
+const _Item = sources => {
+  const rm = isolate(_Remove,'remove')(sources)
+
+  return {
+    queue$: sources.item$.pluck('$key')
+      .sample(rm.click$).map(ShiftsRemote.action.remove),
+
+    ...ListItemWithMenu({...sources,
+      iconSrc$: sources.item$.pluck('start')
+        .map(start => todIcons[daySegment(moment(start).hours())]),
+      title$: combineLatest(
+        sources.item$.pluck('start'),
+        sources.item$.pluck('end'),
+        sources.item$.pluck('people'),
+        (s,e,p) => row({},
+          timeCell(s), timeCell(e),
+          cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
+        )
+      ),
+      subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
+      rightDOM$: of(icon('menu')),
+      menuItems$: of([rm.DOM]),
+    }),
+  }
+}
+
+// const x_Item = sources => ListItemWithMenu({...sources,
+//   iconSrc$: sources.item$.pluck('start')
+//     .map(start => todIcons[daySegment(moment(start).hours())]),
+//   title$: combineLatest(
+//     sources.item$.pluck('start'),
+//     sources.item$.pluck('end'),
+//     sources.item$.pluck('people'),
+//     (s,e,p) => row({},
+//       timeCell(s), timeCell(e),
+//       cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
+//     )
+//   ),
+//   subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
+//   rightDOM$: of(icon('menu')),
+//   menuItems$: of([deleteItem.DOM, editItem.DOM]),
+// })
 
 const _List = sources => List({...sources,
   Control$: of(_Item),
@@ -162,6 +196,6 @@ export default sources => {
   const add = AddShift(_sources)
   return {
     DOM: combineLatestToDiv(list.DOM, add.DOM),
-    queue$: add.queue$,
+    queue$: merge(add.queue$, list.queue$),
   }
 }
