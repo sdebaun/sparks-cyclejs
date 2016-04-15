@@ -10,70 +10,14 @@ import {
 
 import {
   TeamImages,
+  Shifts,
 } from 'components/remote'
 
 import {h4} from 'cycle-snabbdom'
 
 import {div, iconSrc, icon} from 'helpers'
 
-const shifts$ = $.just([
-  {$key: '1', date: '2016-04-14', shifts: [
-    {
-      bonus: false,
-      hours: 6,
-      reserved: 0,
-      people: 4,
-      starts: 10,
-    },
-    {
-      bonus: false,
-      hours: 6,
-      reserved: 2,
-      people: 5,
-      starts: 12,
-    },
-    {
-      bonus: true,
-      hours: 4,
-      reserved: 6,
-      people: 6,
-      starts: 14,
-    },
-    {
-      bonus: false,
-      hours: 5,
-      reserved: 2,
-      people: 8,
-      starts: 24,
-    },
-  ]},
-  {$key: '2', date: '2016-04-15', shifts: [
-    {
-      bonus: false,
-      hours: 6,
-      reserved: 4,
-      people: 4,
-      starts: 10,
-    },
-    {
-      bonus: false,
-      hours: 6,
-      reserved: 1,
-      people: 5,
-      starts: 12,
-    },
-    {
-      bonus: true,
-      hours: 4,
-      reserved: 5,
-      people: 6,
-      starts: 14,
-    },
-  ]},
-])
-
 const ToggleControl = sources => {
-  sources.item$.subscribe(x => console.log('', x))
   const click$ = sources.DOM.select('.toggle').events('click')
     .map(true)
     .scan((a) => !a, false)
@@ -97,16 +41,17 @@ const ToggleControl = sources => {
 
 const ListItemToggle = (sources) => {
   const toggle = ToggleControl(sources)
+  const click$ = toggle.click$.shareReplay(1)
   const item = ListItemClickable({...sources,
     leftDOM$: toggle.DOM,
-    title$: toggle.click$.flatMapLatest(v =>
+    title$: click$.flatMapLatest(v =>
       v ? sources.titleTrue$ : sources.titleFalse$
     ),
   })
 
   return {
     DOM: item.DOM,
-    value$: toggle.click$,
+    value$: click$.shareReplay(1),
   }
 }
 
@@ -143,42 +88,90 @@ function shiftView({hours, starts, reserved, people}) {
   ])
 }
 
-const ShiftItem = sources =>
-  ListItemToggle({
+function handleReserved(value, {$key: key, reserved, people}) {
+  if (value && value + 1 <= people) {
+    return {key, values: {reserved: reserved + 1}}
+  }
+  if (!value && reserved > 0) {
+    return {key, values: {reserved: reserved - 1}}
+  }
+  return null
+}
+
+const ShiftItem = sources => {
+  const li = ListItemToggle({
     ...sources,
     value$: $.just(false),
     titleTrue$: sources.item$.map(shiftView),
     titleFalse$: sources.item$.map(shiftView),
   })
 
+  const queue$ = li.value$.skip(1)
+    .withLatestFrom(sources.item$, handleReserved)
+    .filter(x => x !== null)
+    .map(Shifts.action.update)
+    .shareReplay(1)
+
+  return {
+    DOM: li.DOM,
+    queue$,
+  }
+}
+
 const filterShifts = shifts =>
   shifts.filter(({reserved, people}) => reserved !== people)
 
 const DaysListItem = sources => {
   const date$ = sources.item$.pluck('date')
+  const li = List({
+    ...sources,
+    rows$: sources.item$.pluck('shifts').map(filterShifts),
+    Control$: $.just(ShiftItem),
+  })
 
-  return ListItemCollapsible({
+  const lic = ListItemCollapsible({
     ...sources,
     date$,
     isOpen$: $.just(false),
     title$: date$.map(d => moment(d).format('dddd, Do MMMM YYYY'))
       .map(d => h4({}, [d])),
-    contentDOM$: List({
-      ...sources,
-      rows$: sources.item$.pluck('shifts').map(filterShifts),
-      Control$: $.just(ShiftItem),
-    }).DOM,
+    contentDOM$: li.DOM,
   })
+
+  return {
+    DOM: lic.DOM,
+    queue$: li.queue$,
+  }
+}
+
+function groupByDate(arrayOfShifts) {
+  const obj = {}
+  for (let i = 0; i < arrayOfShifts.length; ++i) {
+    const date = arrayOfShifts[i].date
+    if (!Array.isArray(obj[date])) {
+      obj[date] = [arrayOfShifts[i]]
+    } else {
+      obj[date].push(arrayOfShifts[i])
+    }
+  }
+  const keys = Object.keys(obj)
+  const arr = Array(keys.length)
+
+  for (let j = 0; j < keys.length; ++j) {
+    arr[j] = {$key: keys[j], shifts: obj[keys[j]]}
+  }
+  return arr
 }
 
 const MembershipItem = (sources) => {
   const team$ = sources.item$.pluck('teamKey')
     .flatMapLatest(key => sources.firebase('Teams', key))
 
-  /*
   const shifts$ = sources.item$.pluck('teamKey')
-    .flatMapLatest(Shifts.query.byTeam(sources)) // when ready
-  */
+    .flatMapLatest(Shifts.query.byTeam(sources))
+
+  const shiftsByDate$ = shifts$
+    .map(groupByDate)
 
   const teamImage$ = sources.item$.pluck('teamKey')
     .flatMapLatest(TeamImages.query.one(sources))
@@ -187,17 +180,22 @@ const MembershipItem = (sources) => {
   const li = List({
     ...sources,
     shifts$,
-    rows$: shifts$,
+    rows$: shiftsByDate$,
     Control$: $.just(DaysListItem),
   })
 
-  return ListItemCollapsible({
+  const lic = ListItemCollapsible({
     ...sources,
     isOpen$: $.just(false),
     title$: team$.pluck('name'),
     leftDOM$: teamImage$.map(iconSrc),
     contentDOM$: li.DOM,
   })
+
+  return {
+    DOM: lic.DOM,
+    queue$: li.queue$,
+  }
 }
 
 const MembershipList = sources =>
@@ -208,9 +206,5 @@ const MembershipList = sources =>
   })
 
 export function Priority(sources) {
-  sources.memberships$.subscribe(x => console.log('member', x))
-
-  return {
-    DOM: MembershipList(sources).DOM,
-  }
+  return MembershipList(sources)
 }
