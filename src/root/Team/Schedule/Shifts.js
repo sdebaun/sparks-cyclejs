@@ -4,9 +4,10 @@ import {ListItemWithDialog} from 'components/sdm'
 import {Form} from 'components/ui/Form'
 import {InputControl} from 'components/sdm'
 import {ListItemClickable} from 'components/sdm'
-import {Shifts} from 'components/remote'
+import {Shifts as ShiftsRemote} from 'components/remote'
 import {div} from 'cycle-snabbdom'
 import {icon} from 'helpers'
+import {combineLatestToDiv} from 'util'
 
 const StartsInput = sources => InputControl({...sources,
   label$: of('Starts At Hour (24 hour)'),
@@ -91,7 +92,7 @@ const AddShift = sources => {
         ...shift,
       }))
     .sample(submit$)
-    .map(Shifts.action.create)
+    .map(ShiftsRemote.action.create)
 
   return {
     DOM: liwd.DOM,
@@ -99,10 +100,56 @@ const AddShift = sources => {
   }
 }
 
+function convertHours(hours) {
+  const _hours = parseInt(hours)
+  if (_hours === 24) {
+    return `12 AM`
+  }
+  if (_hours === 12) {
+    return `12 PM`
+  }
+  if (_hours > 24) {
+    return convertHours(hours - 24)
+  }
+  return _hours > 12 ?
+    `${_hours - 12} PM` :
+    `${_hours} AM`
+}
+
+function getEndTime(starts, hours) {
+  return convertHours(parseInt(starts) + parseInt(hours))
+}
+
+const sharedStyle = {
+  flexGrow: '1',
+  textAlign: 'center',
+}
+
+function shiftView({hours, starts, reserved, people}) {
+  return div({style: {display: 'flex', flexDirection: 'row'}}, [
+    div({style: sharedStyle}, [convertHours(starts)]),
+    div({style: sharedStyle}, [getEndTime(starts, hours)]),
+    div({style: sharedStyle}, [`${reserved} / ${people}`, icon('people')]),
+  ])
+}
+
+const Shifts = sources => {
+  const shifts$ = sources.teamKey$
+    .flatMapLatest(ShiftsRemote.query.byTeam(sources))
+  const shiftsForDate$ = shifts$
+    .combineLatest(sources.date$, (shifts, date) => {
+      return shifts.filter(shift => shift.date === date)
+    })
+  const DOM = shiftsForDate$
+    .map(shifts => div(shifts.map(shiftView)))
+  return {DOM}
+}
+
 export default sources => {
-  const ss = AddShift(sources)
+  const s = Shifts(sources)
+  const as = AddShift(sources)
   return {
-    DOM: ss.DOM,
-    queue$: ss.queue$,
+    DOM: combineLatestToDiv(s.DOM, as.DOM),
+    queue$: as.queue$,
   }
 }
