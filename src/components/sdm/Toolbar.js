@@ -7,6 +7,10 @@ import {Appbar} from 'snabbdom-material'
 
 import {material} from 'util'
 
+const LEFTSTYLE = {style: {display: 'block', width: '32px', float: 'none'}}
+const MIDSTYLE = {style: {display: 'block', flex: '100% 100%', float: 'none'}}
+const RIGHTSTYLE = {style: {flex: '25% 25%'}}
+
 const AccentToolbar = sources => ({
   DOM: combineLatestObj({
     leftItemDOM$: sources.leftItemDOM$ || just(null),
@@ -17,12 +21,11 @@ const AccentToolbar = sources => ({
     titleDOM,
     rightItemDOM,
   }) =>
-    // div({},[leftItemDOM,titleDOM,rightItemDOM])
-    Appbar({material}, [
-      leftItemDOM && div({style: {float: 'left'}}, [leftItemDOM]),
-      Appbar.Title({style: {float: 'left'}}, [titleDOM]),
-      rightItemDOM && div({style: {float: 'right'}}, [rightItemDOM]),
-    ].filter(e => !!e))
+    Appbar({material}, [div({style: {display: 'flex'}}, [
+      leftItemDOM && div(LEFTSTYLE, [leftItemDOM]),
+      Appbar.Title(MIDSTYLE, [titleDOM]),
+      rightItemDOM && div(RIGHTSTYLE, [rightItemDOM]),
+    ].filter(e => !!e))])
   ),
 })
 
@@ -36,7 +39,6 @@ const Toolbar = sources => ({
     titleDOM,
     rightItemDOM,
   }) =>
-    // div({},[leftItemDOM,titleDOM,rightItemDOM])
     Appbar({fixed: true, material}, [
       leftItemDOM && div({style: {float: 'left'}}, [leftItemDOM]),
       Appbar.Title({style: {float: 'left'}}, [titleDOM]),

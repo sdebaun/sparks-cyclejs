@@ -1,7 +1,7 @@
 require('./styles.scss')
 
 import {Observable} from 'rx'
-const {just, empty, combineLatest} = Observable
+const {just, never, combineLatest, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 // import isolate from '@cycle/isolate'
 
@@ -31,27 +31,31 @@ const listItem = ({leftDOM, title, subtitle, rightDOM, classes}) =>
     rightDOM && div('.right.xcol-sm-1',[rightDOM]),
   ].filter(i => !!i))
 
+const Icon = sources => ({
+  DOM: sources.iconName$ && sources.iconName$.map(n => icon(n)) ||
+    sources.iconSrc$ && sources.iconSrc$.map(url => iconSrc(url)) ||
+    null,
+})
+
 const ListItem = sources => {
   const viewState = {
     classes$: sources.classes$ || just({}),
-    leftDOM$: sources.leftDOM$ ||
-      sources.iconName$ && sources.iconName$.map(n => icon(n)) ||
-      sources.iconSrc$ && sources.iconSrc$.map(url => iconSrc(url)) ||
-      just(null),
+    leftDOM$: sources.leftDOM$ || Icon(sources).DOM || just(null),
     title$: sources.title$ || just('no title$'),
     subtitle$: sources.subtitle$ || just(null),
     rightDOM$: sources.rightDOM$ || just(null),
+    isVisible$: sources.isVisible$ || just(true),
   }
 
   const DOM = combineLatestObj(viewState)
-    .map(({leftDOM, title, subtitle, rightDOM, classes}) =>
-      div({},[listItem({ //need extra div for isolate
+    .map(({isVisible, leftDOM, title, subtitle, rightDOM, classes}) =>
+      div({},[isVisible && listItem({ //need extra div for isolate
         title,
         subtitle,
         rightDOM,
         leftDOM,
         classes,
-      })])
+      }) || null])
     )
 
   return {
@@ -122,7 +126,10 @@ const ListItemNavigating = sources => {
   const item = ListItemClickable(sources)
 
   const route$ = item.click$
-    .flatMapLatest(sources.path$ || just('/'))
+    .withLatestFrom(
+      sources.path$ || just('/'),
+      (cl,p) => p,
+    )
 
   return {
     DOM: item.DOM,
@@ -133,10 +140,12 @@ const ListItemNavigating = sources => {
 const ListItemWithDialog = sources => {
   const _listItem = ListItemClickable(sources)
 
-  const iconName$ = sources.dialogIconName$ || sources.iconName$
+  const iconName$ = sources.iconUrl$ ||
+    sources.dialogIconName$ ||
+    sources.iconName$
 
   const dialog = Dialog({...sources,
-    isOpen$: _listItem.click$.map(true),
+    isOpen$: _listItem.click$.map(true).merge(sources.isOpen$ || never()),
     titleDOM$: sources.dialogTitleDOM$,
     iconName$,
     contentDOM$: sources.dialogContentDOM$,
@@ -154,20 +163,23 @@ const ListItemWithDialog = sources => {
 
   return {
     DOM,
+    value$: dialog.value$,
     submit$: dialog.submit$,
+    close$: dialog.close$,
   }
 }
 
 const ListItemCollapsible = sources => {
   const li = ListItemClickable(sources)
 
-  const isOpen$ = (sources.isOpen$ || empty())
-    .merge(li.click$.map(-1))
-    .scan((a,x) => x === -1 ? !a : x)
+  const isOpen$ = merge(
+      sources.isOpen$,
+      li.click$.map(true).scan((x, a) => !x ? a : !x),
+    )
     .startWith(false)
 
   const viewState = {
-    isOpen$,
+    isOpen$: isOpen$,
     listItemDOM$: li.DOM,
     contentDOM$: sources.contentDOM$ || just(div({},['no contentDOM$'])),
   }
@@ -194,14 +206,20 @@ const ListItemCollapsibleTextArea = sources => {
       sources.subtitle$ || just(null),
       (v,st) => v ? v : st
     ),
-    isOpen$: (sources.isOpen$ || empty())
-      .merge(oac.ok$.map(false), oac.cancel$.map(false)),
+    isOpen$: merge(
+      sources.isOpen$ || never(),
+      ta.enter$.map(false),
+      oac.ok$.map(false),
+      oac.cancel$.map(false)
+    ).share(),
   })
+
+  const value$ = ta.value$.sample(oac.ok$).merge(ta.value$.sample(ta.enter$))
 
   return {
     DOM: li.DOM,
-    value$: ta.value$.sample(oac.ok$),
     ok$: oac.ok$,
+    value$,
   }
 }
 
@@ -214,7 +232,7 @@ const ListItemTextArea = sources => {
 
   return {
     DOM: li.DOM,
-    value$: ta.value$.sample(oac.ok$),
+    value$: ta.value$.sample(oac.ok$).merge(ta.value$.sample(ta.enter$)),
   }
 }
 

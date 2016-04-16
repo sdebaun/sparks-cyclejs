@@ -13,6 +13,27 @@ import {OppItemNavigating} from 'components/opp'
 
 import {QuickNav} from 'components/QuickNav'
 
+const TEAMREGEX = /(team)\/(.+?)\//
+const OPPREGEX = /(opp)\/(.+?)\//
+
+const _TeamNav = sources => TeamItemNavigating({...sources,
+  path$: sources.item$.combineLatest(
+    sources.router.observable.pluck('pathname'),
+    ({$key},path) => path.match(TEAMREGEX) ?
+      path.replace(TEAMREGEX, `team/${$key}/`) :
+      `/team/${$key}`
+  ),
+})
+
+const _OppNav = sources => OppItemNavigating({...sources,
+  path$: sources.item$.combineLatest(
+    sources.router.observable.pluck('pathname'),
+    ({$key},path) => path.match(OPPREGEX) ?
+      path.replace(OPPREGEX, `opp/${$key}/`) :
+      `/opp/${$key}`
+  ),
+})
+
 const ProjectQuickNavMenu = sources => {
   const project = isolate(ListItemNavigating,'project')({...sources,
     title$: sources.project$.pluck('name'),
@@ -20,18 +41,18 @@ const ProjectQuickNavMenu = sources => {
   })
 
   const teams = isolate(List,'teams')({...sources,
-    Control$: just(TeamItemNavigating),
+    Control$: just(_TeamNav),
     rows$: sources.teams$,
   })
 
   const opps = isolate(List,'opps')({...sources,
-    Control$: just(OppItemNavigating),
+    Control$: just(_OppNav),
     rows$: sources.opps$,
   })
 
   const nav = QuickNav({...sources,
     label$: sources.project$.pluck('name'),
-    menuItems$: just([project.DOM, teams.DOM, opps.DOM]),
+    menuItems$: just([project.DOM, opps.DOM, teams.DOM]),
   })
 
   return {

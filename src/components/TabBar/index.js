@@ -1,25 +1,73 @@
-// TODO: should be primitive ui element in sdm or cyclic-material-surface
+import {Observable} from 'rx'
+const {combineLatest} = Observable
 
-// import {Observable} from 'rx'
-import tabs, {tab} from 'helpers/tabs'
-import {log} from 'util'
+import {div,h} from 'cycle-snabbdom'
 
-const _DOM = createHref => _tabs =>
-  tabs({}, _tabs.map(({path,label}) =>
-    tab({id: label, link: createHref(path)},label)
-  ))
+import {material} from 'util'
 
-export default sources => {
-  const navigate$ = sources.DOM.select('.tab-label-content').events('click')
-    .map(event => event.ownerTarget.dataset.link)
-    .distinctUntilChanged()
+import './styles.scss'
 
-  const DOM = sources.tabs.map(_DOM(sources.router.createHref))
+import {controlsFromRows, combineDOMsToDiv, mergeOrFlatMapLatest} from 'util'
+// import {log} from 'util'
 
-  navigate$.subscribe(log('tabs.navigate$'))
+const _view = ({label}) =>
+  div({class: {'tab-label-content': true}},[
+    h('label',{attrs: {for: label}, style: {
+      color: material.primaryFontColor},
+    },[label]),
+  ])
+
+const Tab = sources => {
+  const click$ = sources.DOM.select('div').events('click')
+  const path$ = sources.item$.pluck('path')
+    .map(p => sources.router.createHref(p))
 
   return {
-    DOM,
-    route$: navigate$,
+    DOM: sources.item$.map(_view),
+    route$: click$.withLatestFrom(path$, (c,p) => p),
   }
 }
+
+const isBetter = (cur, next, best) =>
+  cur.includes(next) && next.length > best.length
+
+const bestMatchIdx = (curPath, paths) =>
+  paths.reduce((bestIdx,nextPath,i) =>
+    isBetter(curPath,nextPath,paths[bestIdx]) ? i : bestIdx,
+    0
+  )
+
+const dist = (curPath, tabs, createHref) =>
+  bestMatchIdx(curPath, tabs.map(t => createHref(t.path))) * 100 / tabs.length
+
+const Slide = sources => {
+  const DOM = combineLatest(
+    sources.tabs$,
+    sources.router.observable.pluck('pathname'),
+    (t,p) =>
+      div({
+        class: {slide: true},
+        style: {
+          width: `${100 / t.length}%`,
+          left: `${dist(p,t,sources.router.createHref)}%`,
+        },
+      },['']),
+  )
+  return {
+    DOM,
+  }
+}
+
+const TabBar = sources => {
+  const sl = Slide(sources)
+  const tctrls$ = sources.tabs$.map(tabs =>
+    controlsFromRows(sources, tabs.map((t,i) => ({$key: `${i}`, ...t})), Tab)
+  ).shareReplay(1)
+
+  return {
+    DOM: tctrls$.map(c => combineDOMsToDiv('.tab-wrap', ...c, sl)).switch(),
+    route$: tctrls$.map(c => mergeOrFlatMapLatest('route$', ...c)).switch(),
+  }
+}
+
+export {TabBar}

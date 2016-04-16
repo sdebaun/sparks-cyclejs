@@ -40,16 +40,23 @@ const labelStyle = (height) => ({
 })
 
 const TextAreaControl = sources => {
-  const input = sources.DOM.select('.input')
-  const input$ = input.observable
-  const height$ = input$
+  const input = sources.DOM.select('.textarea')
+
+  const height$ = input.observable
     .map(elements => elements[0])
     .map(elm => elm ? elm.scrollHeight + 'px' : 'auto')
     .distinctUntilChanged()
     .startWith('auto')
 
   const value$ = input.events('input')
-    .pluck('target','value')
+    .pluck('ownerTarget','value')
+    .share()
+
+  const enter$ = sources.DOM
+    .select('.textarea').events('keydown')
+    .filter(e => e.keyCode === 13)
+    .do(e => e.preventDefault())
+    .share()
 
   const length$ = merge(
     value$,
@@ -66,20 +73,25 @@ const TextAreaControl = sources => {
   const DOM = combineLatestObj(viewState)
     .map(({value, length, maxLength, height}) =>
       div({style: divStyle}, [
-        textarea({
+        textarea('.textarea', {
           props: {maxLength},
           class: {input: true},
           style: textAreaStyle(height),
         }, [
           value,
         ]),
-        h6({style: labelStyle(height)}, [`${length}/${maxLength}`]),
+        h6({
+          style: labelStyle(height),
+        }, [
+          `${length}/${maxLength}`,
+        ]),
       ])
     )
 
   return {
     DOM,
     value$,
+    enter$,
   }
 }
 

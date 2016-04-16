@@ -17,14 +17,16 @@ import Organize from './Organize'
 import 'normalize-css'
 import '!style!css!snabbdom-material/lib/index.css'
 
-import {nestedComponent} from 'util'
+// import {nestedComponent} from 'util'
+
+import {RoutedComponent} from 'components/ui'
 
 import {log} from 'util'
 
 import './styles.scss'
 
 // Route definitions at this level
-const routes = {
+const _routes = {
   '/': Landing,
   '/confirm': isolate(Confirm),
   '/dash': isolate(Dash),
@@ -106,30 +108,29 @@ export default sources => {
   const previousRoute$ = sources.router.observable
     .pluck('pathname')
     .scan((acc,val) => [val, acc[0]], [null,null])
-    .filter(([_, curr]) => curr !== '/confirm')
+    .filter(arr => arr[1] !== '/confirm')
     .map(arr => arr[1])
     .shareReplay(1)
 
   // confirm redirect doesnt work without this log line!!!  wtf??
   previousRoute$.subscribe(log('index.previousRoute$'))
 
-  const page$ = nestedComponent(sources.router.define(routes), {
-    ...sources,
+  const page = RoutedComponent({...sources,
     ...user,
     ...redirects,
     responses$,
     previousRoute$,
+    routes$: just(_routes),
   })
 
-  const DOM = page$.pluckFlat('DOM')
+  const DOM = page.DOM
 
-  const auth$ = page$.pluckFlat('auth$')
+  const auth$ = page.auth$
 
-  const {queue$} =
-    AuthedActionManager({...sources, queue$: page$.pluckFlat('queue$')})
+  const {queue$} = AuthedActionManager({...sources, queue$: page.queue$})
 
   const router = merge(
-    page$.pluckFlat('route$'),
+    page.route$,
     redirects.redirectUnconfirmed$,
   )
 
