@@ -18,13 +18,14 @@ describe('Nightwatch integration testing', () => {
     client
       .url('http://localhost:8080')
       .click('i.icon-more_vert')
-      .click('div.title')
+      .click('.cycle-scope-facebook .title')
+      .pause(3000)
       .window_handles((result) => {
         client.switchWindow(result.value[1])
-          .waitForElementVisible('#Email', 3000)
+          .waitForElementVisible('#Email', 10000)
           .setValue('#Email', ACCOUNT.EMAIL)
           .click('#next')
-          .waitForElementVisible('#Passwd', 3000)
+          .waitForElementVisible('#Passwd', 10000)
           .setValue('#Passwd', ACCOUNT.PASSWD)
           .click('#signIn')
       })
