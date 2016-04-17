@@ -37,7 +37,7 @@
       }
     },
     "circle-ci": {
-      "output_folder": "${CIRCLE_TEST_REPORTS}"
+      "output_folder": "${CIRCLE_TEST_REPORTS}",
       "screenshots": {
         "enabled": true,
         "path": "${CIRCLE_ARTIFACTS}"

@@ -1,3 +1,13 @@
+const ACCOUNT = {
+  EMAIL: process.env.TEST_ACCOUNT_EMAIL.trim(),
+  PASSWD: process.env.TEST_ACCOUNT_PASSWD.trim(),
+}
+
+if (!process.env.TEST_ACCOUNT_EMAIL || !process.env.TEST_ACCOUNT_PASSWD) {
+  console.log('Need TEST_ACCOUNT_EMAIL and TEST_ACCOUNT_PASSWD env var')
+  process.exit()
+}
+
 describe('Nightwatch integration testing', () => {
   after((client, done) => {
     client.end(() => {
@@ -12,10 +22,10 @@ describe('Nightwatch integration testing', () => {
       .window_handles((result) => {
         client.switchWindow(result.value[1])
           .waitForElementVisible('#Email', 3000)
-          .setValue('#Email', 'test@sparks.network')
+          .setValue('#Email', ACCOUNT.EMAIL)
           .click('#next')
           .waitForElementVisible('#Passwd', 3000)
-          .setValue('#Passwd', 'sparks4life')
+          .setValue('#Passwd', ACCOUNT.PASSWD)
           .click('#signIn')
       })
       .window_handles((result) => {
@@ -24,7 +34,8 @@ describe('Nightwatch integration testing', () => {
       })
     done()
   })
-  it('shows dash after login', (client) => {
-    client.assert.containsText('.title', 'Test User')
+  it('shows confirm page on first login', (client) => {
+    client.assert.value('.cycle-scope-fullName input', 'Test User')
+    client.assert.value('.cycle-scope-email input', ACCOUNT.EMAIL)
   })
 })

@@ -7,6 +7,8 @@ test:
     - npm run serve-static:
         background: true
     - sleep 3
+  override:
+    - npm test -- --env circle-ci
 
 notify:
   webhooks:
