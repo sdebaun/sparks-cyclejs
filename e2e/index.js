@@ -18,7 +18,7 @@ describe('Nightwatch integration testing', () => {
     client
       .url('http://localhost:8080')
       .click('i.icon-more_vert')
-      .click('.cycle-scope-facebook .title')
+      .click('.cycle-scope-google .title')
       .pause(3000)
       .window_handles((result) => {
         client.switchWindow(result.value[1])
