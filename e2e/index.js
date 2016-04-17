@@ -30,7 +30,7 @@ describe('Nightwatch integration testing', () => {
       })
       .window_handles((result) => {
         client.switchWindow(result.value[0])
-          .pause(5000)
+          .pause(15000)
       })
     done()
   })
