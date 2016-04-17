@@ -8,7 +8,7 @@ test:
         background: true
     - sleep 3
   override:
-    - npm test -- --env circleci
+    - MOCHA_FILE=$CIRCLE_TEST_REPORTS/test-results.xml npm test -- --env circleci
 
 notify:
   webhooks:
