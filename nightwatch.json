@@ -40,7 +40,9 @@
       "output_folder": "${CIRCLE_TEST_REPORTS}",
       "screenshots": {
         "enabled": true,
-        "path": "${CIRCLE_ARTIFACTS}"
+        "path": "${CIRCLE_ARTIFACTS}",
+        "on_failure": true,
+        "on_error": true,
       }
     }
   }
