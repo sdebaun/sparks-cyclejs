@@ -2,6 +2,10 @@ machine:
   node:
     version: 4.2.2
 
+test:
+  pre:
+    - sudo apt-get update && sudo apt-get install --only-upgrade google-chrome-stable
+
 notify:
   webhooks:
     - url: https://hooks.slack.com/services/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
