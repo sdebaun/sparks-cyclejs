@@ -11,9 +11,10 @@ describe('Nightwatch integration testing', () => {
       .click('div.title')
       .window_handles((result) => {
         client.switchWindow(result.value[1])
+          .waitForElementVisible('#Email', 3000)
           .setValue('#Email', 'test@sparks.network')
           .click('#next')
-          .waitForElementVisible('#Passwd', 1000)
+          .waitForElementVisible('#Passwd', 3000)
           .setValue('#Passwd', 'sparks4life')
           .click('#signIn')
       })
