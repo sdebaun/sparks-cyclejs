@@ -1,7 +1,10 @@
 machine:
   node:
     version: 4.2.2
-
+  post:
+    - BUILD_FIREBASE_HOST=http://sparks-circleci.firebaseio.com webpack-dev-server:
+      background: true
+    - sleep 3
 # test:
 #   pre:
 #     - sudo apt-get update && sudo apt-get install --only-upgrade google-chrome-stable
