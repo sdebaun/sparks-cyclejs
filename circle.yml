@@ -8,7 +8,7 @@ test:
         background: true
     - sleep 3
   override:
-    - npm test -- --env circle-ci
+    - npm test -- --env circleci
 
 notify:
   webhooks:

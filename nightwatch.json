@@ -36,13 +36,13 @@
         "acceptSslCerts": true
       }
     },
-    "circle-ci": {
+    "circleci": {
       "output_folder": "${CIRCLE_TEST_REPORTS}",
       "screenshots": {
         "enabled": true,
         "path": "${CIRCLE_ARTIFACTS}",
         "on_failure": true,
-        "on_error": true,
+        "on_error": true
       }
     }
   }
