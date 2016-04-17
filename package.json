@@ -49,6 +49,7 @@
     "nightwatch": "^0.8.18",
     "node-sass": "^3.4.2",
     "postcss-loader": "^0.8.1",
+    "pushstate-server": "^1.8.1",
     "run-sequence": "^1.1.5",
     "sass-loader": "^3.1.2",
     "selenium-server": "^2.53.0",

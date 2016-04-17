@@ -3,7 +3,8 @@ machine:
     version: 4.2.2
 test:
   pre:
-    - BUILD_FIREBASE_HOST=http://sparks-circleci.firebaseio.com npm run serve-test:
+    - BUILD_FIREBASE_HOST=http://sparks-circleci.firebaseio.com npm run build
+    - ./node_modules/.bin/pushstate-server dist/ 8080 /200.html:
         background: true
     - sleep 3
 
