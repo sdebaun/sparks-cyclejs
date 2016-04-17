@@ -18,6 +18,7 @@
   "scripts": {
     "eslint": "eslint js/",
     "serve": "webpack-dev-server --hot --inline --host 0.0.0.0",
+    "serve-test": "webpack-dev-server",
     "start": "npm install && npm run serve",
     "build": "webpack",
     "test": "nightwatch"

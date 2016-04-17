@@ -3,7 +3,7 @@ machine:
     version: 4.2.2
 test:
   pre:
-    - BUILD_FIREBASE_HOST=http://sparks-circleci.firebaseio.com webpack-dev-server:
+    - BUILD_FIREBASE_HOST=http://sparks-circleci.firebaseio.com npm run serve-test:
         background: true
     - sleep 3
 
@@ -12,7 +12,7 @@ notify:
     - url: https://hooks.slack.com/services/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
 
 dependencies:
-  override:
+  post:
     - curl -L -o google-chrome.deb https://s3.amazonaws.com/circle-downloads/google-chrome-stable_current_amd64_47.0.2526.73-1.deb
     - sudo dpkg -i google-chrome.deb
     - sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
