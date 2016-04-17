@@ -3,7 +3,7 @@ machine:
     version: 4.2.2
   post:
     - BUILD_FIREBASE_HOST=http://sparks-circleci.firebaseio.com webpack-dev-server:
-      background: true
+        background: true
     - sleep 3
 # test:
 #   pre:
