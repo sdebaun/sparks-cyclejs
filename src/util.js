@@ -22,8 +22,16 @@ export const trimTo = (val, len) =>
 export const combineLatestToDiv = (...domstreams) =>
   combineLatest(...domstreams, (...doms) => div({},doms))
 
+export const combineDOMsToDiv = (d, ...comps) =>
+  combineLatest(...comps.map(c => c.DOM), (...doms) => div(d, doms))
+
 export const controlsFromRows = (sources, rows, Control) =>
-  rows.map(row => isolate(Control,row.$key)({...sources, item$: just(row)}))
+  rows.map((row, i) =>
+    isolate(Control,row.$key)({
+      ...sources,
+      item$: just(row),
+      index$: just(i),
+    }))
 
 export const byMatch = (matchDomain,matchEvent) =>
   ({domain,event}) => domain === matchDomain && event === matchEvent

@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+const {of} = Observable
 // import combineLatestObj from 'rx-combine-latest-obj'
 
 import {div} from 'cycle-snabbdom'
@@ -6,67 +7,71 @@ import {div} from 'cycle-snabbdom'
 import AppFrame from 'components/AppFrame'
 import Title from 'components/Title'
 import Header from 'components/Header'
-import TabBar from 'components/TabBar'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+import {mergeOrFlatMapLatest} from 'util'
 // import {icon} from 'helpers'
 
 import ComingSoon from 'components/ComingSoon'
 
 import Projects from './Projects.js'
 
-const _routes = {
-  '/': Projects,
-  '/profiles': ComingSoon('Admin/Dash'),
-  '/previously': ComingSoon('Admin/Previously'),
-}
+import {TabbedPage} from 'components/ui'
 
-const _tabs = [
-  {path: '/', label: 'Projects'},
-  {path: '/profiles', label: 'Profiles'},
-  {path: '/previously', label: 'Previously'},
-]
+// const _Nav = sources => ({
+//   DOM: sources.isMobile$
+//     .map(isMobile =>
+//       div(
+//         {},
+//         [isMobile ? null : sources.titleDOM, 'Nav Items']
+//       )
+//     ),
+// })
 
-const Nav = sources => ({
-  DOM: sources.isMobile$
-    .map(isMobile =>
-      div(
-        {},
-        [isMobile ? null : sources.titleDOM, 'Nav Items']
-      )
-    ),
+const _Nav = sources => ({
+  DOM: sources.isMobile$.map(m => m ? null : sources.titleDOM),
+})
+
+const _Title = sources => Title({...sources,
+  labelText$: of('Administration'),
+  subLabelText$: of('At a Glance'), // eventually page$.something
+})
+
+const _Page = sources => TabbedPage({...sources,
+  tabs$: of([
+    {path: '/', label: 'Projects'},
+    {path: '/profiles', label: 'Profiles'},
+    {path: '/previously', label: 'Previously'},
+    {path: '/test', label: 'Test'},
+  ]),
+  routes$: of({
+    '/': Projects,
+    '/profiles': ComingSoon('Admin/Dash'),
+    '/previously': ComingSoon('Admin/Previously'),
+    '/test': ComingSoon('Admin/Test'),
+  }),
 })
 
 export default sources => {
-  const page$ = nestedComponent(sources.router.define(_routes),sources)
-
-  const tabBar = TabBar({...sources, tabs: Observable.just(_tabs)})
-
-  const title = Title({
-    tabsDOM$: tabBar.DOM,
-    labelText$: Observable.just('Administration'),
-    subLabelText$: Observable.just('At a Glance'), // eventually page$.something
-    ...sources,
+  const page = _Page(sources)
+  const title = _Title({...sources, tabsDOM$: page.tabBarDOM})
+  const nav = _Nav({...sources, titleDOM: title.DOM})
+  const header = Header({...sources,
+    titleDOM: title.DOM,
+    tabsDOM: page.tabBarDOM,
   })
-
-  const nav = Nav({titleDOM: title.DOM, ...sources})
-
-  const header = Header({titleDOM: title.DOM, tabsDOM: tabBar.DOM, ...sources})
 
   const appFrame = AppFrame({
     navDOM: nav.DOM,
     headerDOM: header.DOM,
-    pageDOM: page$.pluck('DOM'),
+    pageDOM: page.DOM,
     ...sources,
   })
 
-  const children = [appFrame, page$, tabBar, title, nav, header]
-
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
+  const children = [appFrame, page, title, nav, header]
 
   const route$ = Observable.merge(
     mergeOrFlatMapLatest('route$', ...children),
-    redirectOnLogout$,
+    sources.redirectLogout$,
   )
 
   return {

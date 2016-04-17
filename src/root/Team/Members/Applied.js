@@ -13,9 +13,13 @@ import {
 } from 'components/remote'
 
 const Item = sources => {
-  const eng$ = sources.item$
+  const eKey$ = sources.item$
     .pluck('engagementKey')
+
+  const eng$ = eKey$
     .flatMapLatest(Engagements.query.one(sources))
+    .combineLatest(sources.item$, (e, item) => ({...e, item}))
+    .tap(e => e.profileKey || console.log('eng$',e))
     .shareReplay(1)
 
   const profile$ = eng$

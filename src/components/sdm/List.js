@@ -1,27 +1,28 @@
+import {Observable} from 'rx'
+const {just} = Observable
+
 import {div} from 'helpers'
 import {requireSources, mergeOrFlatMapLatest, controlsFromRows} from 'util'
+
+import {combineDOMsToDiv} from 'util'
 
 const List = sources => {
   requireSources('List', sources, 'rows$', 'Control$')
 
   const controls$ = sources.rows$
+    .tap(x => console.count(x))
     .flatMapLatest(rows =>
       sources.Control$.map(Control =>
         controlsFromRows(sources, rows, Control)
       )
-    ).shareReplay(1)
-    // ).share() // lots of repeat nav breaks with this
+    )
+    .shareReplay(1)
 
-    // .share == .publish.refCount
-    // .publish == .multiCast(=>new subject)
-    // .refcount: tracks # of observers
-    // .shareReplay == multicasts to a replaysubject
-    // .publishBehavior? multicasts to a behavior
-
-  const children$ = controls$
-    .map(controls => controls.map(c => c.DOM))
-
-  const DOM = children$.map(children => div({}, children))
+  const DOM = controls$
+    .map(controls => controls.length > 0 ?
+      combineDOMsToDiv('', ...controls) :
+      just(div('',[]))
+    ).switch()
 
   const route$ = controls$.flatMapLatest(children =>
     mergeOrFlatMapLatest('route$', ...children)
@@ -35,11 +36,16 @@ const List = sources => {
     mergeOrFlatMapLatest('edit$', ...children)
   )
 
+  const lastIndex$ = controls$.flatMapLatest(children =>
+    mergeOrFlatMapLatest('lastIndex$', ...children)
+  )
+
   return {
     DOM,
     queue$,
     route$,
     edit$,
+    lastIndex$,
   }
 }
 

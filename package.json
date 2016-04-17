@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "eslint": "eslint js/",
-    "serve": "webpack-dev-server --hot --inline",
+    "serve": "webpack-dev-server --hot --inline --host 0.0.0.0",
     "start": "npm install && npm run serve",
     "build": "webpack",
     "test": "nightwatch"
@@ -61,10 +61,11 @@
     "@cycle/core": "^6.0.3",
     "@cycle/isolate": "^1.2.0",
     "cycle-snabbdom": "^1.2.0",
-    "cyclic-fire": "^2.0.1",
+    "cyclic-fire": "^2.0.2",
     "cyclic-router": "^1.0.0",
     "firebase": "^2.4.1",
     "history": "^2.0.1",
+    "moment": "^2.12.0",
     "normalize-css": "^2.3.1",
     "react": "^0.14.7",
     "react-cropper": "^0.6.0",

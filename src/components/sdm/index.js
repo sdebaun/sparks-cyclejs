@@ -4,6 +4,12 @@ export {Toolbar, AccentToolbar} from './Toolbar'
 export {Menu, MenuItem} from './Menu'
 
 export {
+  Avatar,
+  MediumAvatar,
+  LargeAvatar,
+} from './Avatar'
+
+export {
   RaisedButton,
   FlatButton,
   OkAndCancel,
@@ -22,7 +28,10 @@ export {
   ListWithHeader,
 } from './List'
 
-export {Dialog} from './Dialog'
+export {
+  Dialog,
+  BaseDialog,
+} from './Dialog'
 
 export {
   ListItem,
