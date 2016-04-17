@@ -36,6 +36,7 @@ describe('Nightwatch integration testing', () => {
     done()
   })
   it('shows confirm page on first login', (client) => {
+    client.getLog('browser', result => console.log('BROWSER LOG:', result))
     client.assert.value('.cycle-scope-fullName input', 'Test User')
     client.assert.value('.cycle-scope-email input', ACCOUNT.EMAIL)
   })
