@@ -174,7 +174,7 @@ const ListItemCollapsible = sources => {
 
   const isOpen$ = merge(
       sources.isOpen$,
-      sources.isOpen$.startWith(false)
+      (sources.isOpen$ || just(false))
         .flatMapLatest(isOpen => li.click$.scan(last => !last, isOpen))
     )
     .startWith(false)
