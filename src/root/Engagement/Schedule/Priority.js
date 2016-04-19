@@ -1,6 +1,7 @@
 import {Observable as $} from 'rx'
 import moment from 'moment'
 //import {div} from 'cycle-snabbdom'
+import {combineDOMsToDiv} from 'util'
 
 import {
   RaisedButton,
@@ -31,6 +32,8 @@ const ToggleControl = sources => {
     .shareReplay(1)
 
   return {
+    // click$: $.never(),
+    // DOM: $.just(div('',['wat'])),
     click$,
     DOM: sources.value$.merge(click$).map(v =>
       div({class: {toggle: true}},[
@@ -183,7 +186,8 @@ function groupByDate(arrayOfShifts) {
   const arr = Array(keys.length)
 
   for (let j = 0; j < keys.length; ++j) {
-    arr[j] = {$key: keys[j], shifts: obj[keys[j]]}
+    const $key = moment(keys[j]).format('YYYY-MM-DD')
+    arr[j] = {$key, shifts: obj[keys[j]]}
   }
   return arr
 }
@@ -200,7 +204,8 @@ const MembershipItem = (sources) => {
 
   const teamImage$ = sources.item$.pluck('teamKey')
     .flatMapLatest(TeamImages.query.one(sources))
-    .pluck('dataUrl')
+    .map(ti => ti && ti.dataUrl || '')
+    // .pluck('dataUrl')
 
   const li = List({
     ...sources,
@@ -260,43 +265,75 @@ const AssignmentList = sources =>
     Control$: $.of(AssignmentShiftListItem),
   })
 
-export function Priority(sources) {
+const _Fetch = sources => {
   const assignments$ = sources.userProfileKey$
     .flatMapLatest(Assignments.query.byOwner(sources))
 
-  const al = AssignmentList({...sources, assignments$})
-  const ml = MembershipList({...sources, assignments$})
+  const requiredAssignments$ = sources.commitments$
+    .map(c => c.filter(x => x.code === 'shifts'))
+    .map(a => a[0] && a[0].count || 0)
 
-  const button = RaisedButton({
+  const selectedAssignments$ = assignments$
+    .map(c => c.length)
+
+  const neededAssignments$ = $.combineLatest(
+    requiredAssignments$, selectedAssignments$,
+    (r,s) => r - s
+  )
+
+  return {
+    assignments$,
+    requiredAssignments$,
+    selectedAssignments$,
+    neededAssignments$,
+  }
+}
+
+const ConfirmButton = sources => {
+  const btn = RaisedButton({
     ...sources,
     label$: $.of('Confirm your shifts now!'),
   })
 
-  const requiredShiftNumber$ = sources.commitments$
-    .map(c => c.filter(x => x.code === 'shifts'))
-    .map(a => a[0].count)
+  return {
+    DOM: sources.neededAssignments$
+      .flatMapLatest(n => n > 0 ? btn.DOM : $.just(div('',[])))
+  }
+}
 
-  const reservedShiftsNumber$ = al.DOM.map(v => v.children.length)
-    .distinctUntilChanged()
+export default function(sources) {
+  const _sources = {...sources, ..._Fetch(sources)}
 
-  const shiftsNeeded$ = reservedShiftsNumber$
-    .withLatestFrom(requiredShiftNumber$,
-      (reserved, required) => required - reserved
-    )
+  const al = AssignmentList(_sources)
+  const ml = MembershipList(_sources)
+  const btn = ConfirmButton(_sources)
+
+  // const requiredShiftNumber$ = sources.commitments$
+  //   .map(c => c.filter(x => x.code === 'shifts'))
+  //   .map(a => a[0] && a[0].count || 0)
+
+  // const reservedShiftsNumber$ = al.DOM.map(v => v.children.length)
+  //   .distinctUntilChanged()
+
+  // const shiftsNeeded$ = reservedShiftsNumber$
+  //   .withLatestFrom(requiredShiftNumber$,
+  //     (reserved, required) => required - reserved
+  //   )
 
   return {
-    ...ml,
-    DOM: al.DOM.combineLatest(ml.DOM, shiftsNeeded$, (alDOM, mlDOM, needed) =>
-      div({}, [
-        div({}, [
-          needed === 0 ? button.DOM : h4({}, `You need ${needed} more shifts!`),
-          h4({}, 'Shifts you have reserved'),
-          alDOM,
-        ]),
-        div({}, [
-          h4({}, 'Other shifts available'),
-          mlDOM,
-        ]),
-      ])),
+    queue$: $.merge(al.queue$, ml.queue$),
+    DOM: combineDOMsToDiv('', al, btn, ml),
+    // DOM: al.DOM.combineLatest(ml.DOM, _sources.neededAssignments$, (alDOM, mlDOM, needed) =>
+    //   div({}, [
+    //     div({}, [
+    //       needed === 0 ? button.DOM : h4({}, `You need ${needed} more shifts!`),
+    //       h4({}, 'Shifts you have reserved'),
+    //       alDOM,
+    //     ]),
+    //     div({}, [
+    //       h4({}, 'Other shifts available'),
+    //       mlDOM,
+    //     ]),
+    //   ])),
   }
 }
