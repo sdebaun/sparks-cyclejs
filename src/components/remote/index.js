@@ -199,7 +199,7 @@ export const Shifts = {
 export const Assignments = {
   query: {
     one: filterOne('Assignments'),
-    byOwner: filterBy('Assignments', 'profileKey'),
+    byProfile: filterBy('Assignments', 'profileKey'),
     byTeam: filterBy('Assignments', 'teamKey'),
     byShift: filterBy('Assignments', 'shiftKey'),
   },

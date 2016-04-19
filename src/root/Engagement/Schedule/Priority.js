@@ -287,7 +287,7 @@ const AssignmentBlock = sources => {
 
 const _Fetch = sources => {
   const assignments$ = sources.userProfileKey$
-    .flatMapLatest(Assignments.query.byOwner(sources))
+    .flatMapLatest(Assignments.query.byProfile(sources))
 
   const requiredAssignments$ = sources.commitments$
     .map(c => c.filter(x => x.code === 'shifts'))
