@@ -15,10 +15,17 @@ const reduceControlsToObject = controls =>
     field && (a[field] = control.value$) && a || a, {}
   )
 
+// const _controlSources = (field,sources) => ({...sources,
+//   value$: (sources.value$ || just({}))
+//     .tap(x => console.log('form value$',x))
+//     .pluck(field),
+// })
 const _controlSources = (field,sources) => ({...sources,
-  value$: (sources.value$ || just({}))
-    .tap(x => console.log('form value$',x))
-    .pluck(field),
+  value$: (sources.value$ ||
+      sources.item$ && pluckStartValue(sources.item$, field) ||
+      just({})
+    )
+    .merge(pluckStartValue(sources.item$, field)),
 })
 
 const Form = sources => {
