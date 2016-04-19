@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {of, merge, combineLatest} = Observable
+const {of, merge} = Observable
 import {Form} from 'components/ui/Form'
 import {Shifts as ShiftsRemote} from 'components/remote'
 import {div} from 'cycle-snabbdom'

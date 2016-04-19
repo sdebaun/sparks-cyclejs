@@ -6,8 +6,6 @@ import Header from 'components/Header'
 
 import {mergeSinks} from 'util'
 
-import ComingSoon from 'components/ComingSoon'
-
 import {ResponsiveTitle} from 'components/Title'
 import {MediumProfileAvatar} from 'components/profile'
 

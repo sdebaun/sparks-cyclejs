@@ -10,7 +10,7 @@ const List = sources => {
   requireSources('List', sources, 'rows$', 'Control$')
 
   const controls$ = sources.rows$
-    .tap(x => console.count(x))
+    // .tap(x => console.count(x))
     .flatMapLatest(rows =>
       sources.Control$.map(Control =>
         controlsFromRows(sources, rows, Control)

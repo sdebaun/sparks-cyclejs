@@ -33,7 +33,7 @@ const ShiftItem = sources => {
       }
     )
     .map(a => a.length > 0 && a[0] || null)
-    .tap(x => console.log('assignment$', x))
+    // .tap(x => console.log('assignment$', x))
     .shareReplay(1)
 
   // const assignment$ = $.just(true)
@@ -64,23 +64,23 @@ const ShiftItem = sources => {
   }
 }
 
-const xAssignedShiftItem = sources => {
-  const shift$ = sources.item$.pluck('shiftKey')
-    .flatMapLatest(Shifts.query.one(sources))
-    .tap(x => console.log('ASI shift$', x))
-    .shareReplay(1)
+// const xAssignedShiftItem = sources => {
+//   const shift$ = sources.item$.pluck('shiftKey')
+//     .flatMapLatest(Shifts.query.one(sources))
+//     .tap(x => console.log('ASI shift$', x))
+//     .shareReplay(1)
 
-  return ShiftItem({...sources,
-    item$: shift$,
-  })
-}
+//   return ShiftItem({...sources,
+//     item$: shift$,
+//   })
+// }
 
 const AssignedShiftItem = sources => {
   const _sources = {...sources,
     shift$: sources.item$.pluck('shiftKey')
-    .tap(x => console.log('shiftKey', x))
+    // .tap(x => console.log('shiftKey', x))
     .flatMapLatest(Shifts.query.one(sources))
-    .tap(x => console.log('shift', x))
+    // .tap(x => console.log('shift', x))
     ,
   }
 
