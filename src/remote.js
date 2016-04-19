@@ -72,9 +72,9 @@ export const Fulfillers = {
     action: 'update',
     payload: {key, values},
   }),
-  delete: (key) => ({
+  remove: (key) => ({
     domain: 'Fulfillers',
-    action: 'delete',
+    action: 'remove',
     payload: key,
   }),
 }
