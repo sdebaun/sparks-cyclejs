@@ -17,6 +17,7 @@ import {Detail} from './Detail'
 
 const Item = sources => {
   const profile$ = sources.item$
+    .tap(i => !i.profileKey && console.log('item no profileKey', i))
     .pluck('profileKey')
     .flatMapLatest(Profiles.query.one(sources))
     .shareReplay(1)

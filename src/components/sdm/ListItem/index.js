@@ -174,7 +174,8 @@ const ListItemCollapsible = sources => {
 
   const isOpen$ = merge(
       sources.isOpen$,
-      li.click$.map(true).scan((x, a) => !x ? a : !x),
+      (sources.isOpen$ || just(false))
+        .flatMapLatest(isOpen => li.click$.scan(last => !last, isOpen))
     )
     .startWith(false)
 
@@ -200,12 +201,15 @@ const ListItemCollapsible = sources => {
 const ListItemCollapsibleTextArea = sources => {
   const ta = TextAreaControl(sources)
   const oac = OkAndCancel(sources)
+
+  const value$ = ta.value$.sample(merge(oac.ok$, ta.enter$))
+
   const li = ListItemCollapsible({...sources,
     contentDOM$: combineLatest(ta.DOM, oac.DOM, (...doms) => div({},doms)),
     subtitle$: sources.value$.combineLatest(
       sources.subtitle$ || just(null),
-      (v,st) => v ? v : st
-    ),
+      (v,st) => v || st
+    ).merge(value$),
     isOpen$: merge(
       sources.isOpen$ || never(),
       ta.enter$.map(false),
@@ -213,8 +217,6 @@ const ListItemCollapsibleTextArea = sources => {
       oac.cancel$.map(false)
     ).share(),
   })
-
-  const value$ = ta.value$.sample(oac.ok$).merge(ta.value$.sample(ta.enter$))
 
   return {
     DOM: li.DOM,
@@ -232,7 +234,7 @@ const ListItemTextArea = sources => {
 
   return {
     DOM: li.DOM,
-    value$: ta.value$.sample(oac.ok$).merge(ta.value$.sample(ta.enter$)),
+    value$: ta.value$.sample(merge(oac.ok$, ta.enter$)),
   }
 }
 

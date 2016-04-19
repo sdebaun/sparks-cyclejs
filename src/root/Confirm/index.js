@@ -9,7 +9,7 @@ import {ProfileForm} from 'components/ProfileForm'
 import {pageTitle} from 'helpers'
 import {submitAndCancel} from 'helpers/buttons'
 
-import {LargeProfileAvatar} from 'components/profile'
+import {LargeAvatar} from 'components/sdm'
 
 import {div} from 'helpers'
 
@@ -53,7 +53,7 @@ export default sources => {
 
   const portraitUrl$ = authProfile$.pluck('portraitUrl')
 
-  const pic = LargeProfileAvatar({...sources,
+  const pic = LargeAvatar({...sources,
     src$: portraitUrl$,
   })
 

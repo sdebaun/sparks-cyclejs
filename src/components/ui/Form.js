@@ -15,6 +15,12 @@ const reduceControlsToObject = controls =>
     field && (a[field] = control.value$) && a || a, {}
   )
 
+const _controlSources = (field,sources) => ({...sources,
+  value$: (sources.value$ || just({}))
+    .tap(x => console.log('form value$',x))
+    .pluck(field),
+})
+
 const Form = sources => {
   // sources.Controls$ is an array of components
 
@@ -22,11 +28,13 @@ const Form = sources => {
   const controls$ = sources.Controls$.map(Controls =>
     Controls.map(({field,Control}) => ({
       field,
-      control: isolate(Control,field)({
-        value$: sources.value$ && sources.value$
-          .merge(pluckStartValue(sources.item$, field)) ||
-          pluckStartValue(sources.item$, field),
-        ...sources,
+      control: isolate(Control,field)({...sources,
+        value$: _controlSources(field, sources).value$,
+          // .merge(pluckStartValue(sources.item$, field)) ||
+          // pluckStartValue(sources.item$, field),
+        // value$: sources.value$ && sources.value$
+        //   .merge(pluckStartValue(sources.item$, field)) ||
+        //   pluckStartValue(sources.item$, field),
       }),
     }))
   ).shareReplay(1) // keeps it from being pwnd every time

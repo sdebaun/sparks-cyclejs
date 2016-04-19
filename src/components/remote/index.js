@@ -179,8 +179,8 @@ export const Memberships = {
   },
   action: {
     create: actionCreator('Memberships', 'create'),
-    remove: actionCreator('Memberships', 'remove'), // CHANGE
-    update: actionCreator('Memberships', 'update'), // CHANGE
+    remove: actionCreator('Memberships', 'remove'),
+    update: actionCreator('Memberships', 'update'),
   },
 }
 

@@ -1,13 +1,23 @@
 import {Observable} from 'rx'
-const {of} = Observable
-import {ListItemWithDialog} from 'components/sdm'
+const {of, merge, combineLatest} = Observable
 import {Form} from 'components/ui/Form'
-import {InputControl} from 'components/sdm'
-import {ListItemClickable} from 'components/sdm'
 import {Shifts as ShiftsRemote} from 'components/remote'
 import {div} from 'cycle-snabbdom'
 import {icon} from 'helpers'
 import {combineLatestToDiv} from 'util'
+
+import isolate from '@cycle/isolate'
+
+import moment from 'moment'
+
+import {
+  List,
+  ListItemWithMenu,
+  ListItemClickable,
+  ListItemWithDialog,
+  InputControl,
+  Dialog,
+} from 'components/sdm'
 
 const StartsInput = sources => InputControl({...sources,
   label$: of('Starts At Hour (24 hour)'),
@@ -64,7 +74,7 @@ const ToggleBonus = sources => ListItemBonusToggle({...sources,
 
 const ShiftForm = sources => Form({...sources,
   Controls$: of([
-    {field: 'starts', Control: StartsInput},
+    {field: 'start', Control: StartsInput},
     {field: 'hours', Control: HoursInput},
     {field: 'people', Control: PeopleInput},
     {field: 'bonus', Control: ToggleBonus},
@@ -86,11 +96,15 @@ const AddShift = sources => {
     .withLatestFrom(
       sources.teamKey$,
       sources.date$,
-      (shift, teamKey, date) => ({
+      ({start, hours, people, bonus}, teamKey, date) => ({
         teamKey,
-        date,
+        date: moment(date).format(),
         reserved: 0,
-        ...shift,
+        hours,
+        people,
+        bonus,
+        start: moment(date).add(start,'hours').format(),
+        end: moment(date).add(start,'hours').add(hours,'hours').format(),
       }))
     .sample(submit$)
     .map(ShiftsRemote.action.create)
@@ -101,56 +115,194 @@ const AddShift = sources => {
   }
 }
 
-function convertHours(hours) {
-  const _hours = parseInt(hours)
-  if (_hours === 24) {
-    return `12 AM`
-  }
-  if (_hours === 12) {
-    return `12 PM`
-  }
-  if (_hours > 24) {
-    return convertHours(hours - 24)
-  }
-  return _hours > 12 ?
-    `${_hours - 12} PM` :
-    `${_hours} AM`
-}
-
-function getEndTime(starts, hours) {
-  return convertHours(parseInt(starts) + parseInt(hours))
-}
-
-const sharedStyle = {
-  flexGrow: '1',
-  textAlign: 'center',
-}
-
-function shiftView({hours, starts, reserved, people}) {
-  return div({style: {display: 'flex', flexDirection: 'row'}}, [
-    div({style: sharedStyle}, [convertHours(starts)]),
-    div({style: sharedStyle}, [getEndTime(starts, hours)]),
-    div({style: sharedStyle}, [`${reserved} / ${people}`, icon('people')]),
-  ])
-}
-
-const Shifts = sources => {
+const _Fetch = sources => {
   const shifts$ = sources.teamKey$
     .flatMapLatest(ShiftsRemote.query.byTeam(sources))
   const shiftsForDate$ = shifts$
-    .combineLatest(sources.date$, (shifts, date) => {
-      return shifts.filter(shift => shift.date === date)
+    .combineLatest(sources.date$, (shifts, date) =>
+      shifts.filter(shift => shift.date === moment(date).format())
+        .sort((a,b) => moment(a.start).valueOf() - moment(b.start).valueOf())
+    )
+  return {shifts$, shiftsForDate$}
+}
+
+const todIcons = [0,1,2,3,4,5,6]
+  .map(i => '/' + require(`images/daytimeicon_${i}.png`))
+
+const daySegment = hr => Math.floor((parseInt(hr) + 2) / 4)
+
+const row = (style, ...els) => div({style: {display: 'flex', ...style}}, els)
+const cell = (style, ...els) => div({style: {flex: '1', ...style}}, els)
+
+const timeCell = t =>
+  cell({minWidth: '90px', textAlign: 'left'}, moment(t).format('h:mm a'))
+
+const _Remove = sources => ListItemClickable({...sources,
+  iconName$: of('remove'),
+  title$: of('Remove'),
+})
+
+const _IncHours = sources => ListItemClickable({...sources,
+  iconName$: of('plus-square'),
+  title$: of('Lengthen'),
+})
+
+const _DecHours = sources => ListItemClickable({...sources,
+  iconName$: of('minus-square'),
+  title$: of('Shrink'),
+})
+
+const _IncPeople = sources => ListItemClickable({...sources,
+  iconName$: of('user-plus'),
+  title$: of('Increase'),
+})
+
+const _DecPeople = sources => ListItemClickable({...sources,
+  iconName$: of('user-minus'),
+  title$: of('Decrease'),
+})
+
+const _Edit = sources => ListItemClickable({...sources,
+  iconName$: of('pencil'),
+  title$: of('Edit'),
+})
+
+const _Item = sources => {
+  const ed = isolate(_Edit, 'edit')(sources)
+  const inc = isolate(_IncHours,'inc')(sources)
+  const dec = isolate(_DecHours,'dec')(sources)
+  const incp = isolate(_IncPeople)(sources)
+  const decp = isolate(_DecPeople)(sources)
+  const rm = isolate(_Remove,'remove')(sources)
+
+  const key$ = sources.item$.pluck('$key').shareReplay(1)
+  const hours$ = sources.item$.pluck('hours').shareReplay(1)
+  const people$ = sources.item$.pluck('people').shareReplay(1)
+  const start$ = sources.item$.pluck('start').shareReplay(1)
+
+  const hrChange$ = merge(
+    hours$.sample(inc.click$).map(h => parseInt(h) + 1),
+    hours$.sample(dec.click$).map(h => parseInt(h) - 1),
+  ).withLatestFrom(
+    start$,
+    (hours,start) => ({
+      hours,
+      end: moment(start).add(hours,'hours').format(),
     })
-  const DOM = shiftsForDate$
-    .map(shifts => div(shifts.map(shiftView)))
-  return {DOM}
+  ).withLatestFrom(
+    key$,
+    (values, key) => ({key: `${key}`, values})
+  )
+
+  const peopleChange$ = merge(
+    people$.sample(incp.click$).map(p => parseInt(p) + 1),
+    people$.sample(decp.click$).map(p => parseInt(p) - 1),
+  )
+  .map(people => ({people}))
+  .withLatestFrom(
+    key$,
+    (values, key) => ({key: `${key}`, values})
+  )
+
+  const edit$ = ed.click$.withLatestFrom(key$, (c,k) => k)
+    .tap(x => console.log('edit!',x))
+
+  const queue$ = merge(
+    key$.sample(rm.click$).map(ShiftsRemote.action.remove),
+    hrChange$.map(ShiftsRemote.action.update),
+    peopleChange$.map(ShiftsRemote.action.update),
+  )
+
+  return {
+    queue$,
+    edit$,
+
+    ...ListItemWithMenu({...sources,
+      iconSrc$: sources.item$.pluck('start')
+        .map(start => todIcons[daySegment(moment(start).hours())]),
+      title$: combineLatest(
+        sources.item$.pluck('start'),
+        sources.item$.pluck('end'),
+        sources.item$.pluck('people'),
+        (s,e,p) => row({},
+          timeCell(s), timeCell(e),
+          cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
+        )
+      ),
+      subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
+      rightDOM$: of(icon('menu')),
+      menuItems$: of([ed.DOM, inc.DOM, dec.DOM, incp.DOM, decp.DOM, rm.DOM]),
+    }),
+  }
+}
+
+const _List = sources => List({...sources,
+  Control$: of(_Item),
+  rows$: sources.shiftsForDate$,
+})
+
+const _EditDialog = sources => {
+  const shift$ = sources.edit$.withLatestFrom(
+      sources.shifts$,
+      (key,shifts) => shifts.find(s => key === s.$key)
+    )
+    .map(({start, date, hours, ...s}) => ({...s,
+      // start: moment(date).add(start, 'hours'),
+      start: moment(start).hours() + moment(start).minutes() / 60,
+      hours,
+      date,
+    }))
+    .tap(x => console.log('shift',x))
+    .shareReplay(1)
+  // Y U NO
+  // const shift$ = sources.edit$
+  //   .tap(k => console.log('edit',k))
+  //   .flatMapLatest(ShiftsRemote.query.one)
+  //   .tap(s => console.log('shift',s))
+  //   // .shareReplay(1)
+
+  const form = ShiftForm({...sources, value$: shift$})
+  const dialog = Dialog({...sources,
+    isOpen$: shift$.map(true),
+    title$: of('foo'),
+    contentDOM$: form.DOM,
+  })
+
+  form.item$.subscribe(x => console.log('item to submit', x))
+
+  return {
+    DOM: dialog.DOM,
+    queue$: dialog.submit$.withLatestFrom(form.item$, (s,i) => i)
+    // queue$: form.item$.sample(dialog.submit$)
+    .tap(n => console.log('new item', n))
+    .withLatestFrom(
+      sources.date$,
+      sources.edit$,
+      ({start, hours, ...values}, date, key) => ({
+        key, values: {
+          ...values,
+          start: moment(date).add(start,'hours').format(),
+          // start: moment(date).add(start,'hours').format(),
+          end: moment(date).add(start,'hours').add(hours,'hours').format(),
+        //   start: moment(date)
+        //     .add(start, 'seconds').format(),
+        //   end: moment(date)
+        //     .add(parseInt(start) + parseInt(hours),'hours').format(),
+        },
+      })
+    )
+    .map(ShiftsRemote.action.update),
+  }
 }
 
 export default sources => {
-  const s = Shifts(sources)
-  const as = AddShift(sources)
+  const _sources = {...sources, ..._Fetch(sources)}
+
+  const list = _List(_sources)
+  const add = AddShift(_sources)
+  const ed = _EditDialog({..._sources, edit$: list.edit$})
   return {
-    DOM: combineLatestToDiv(s.DOM, as.DOM),
-    queue$: as.queue$,
+    DOM: combineLatestToDiv(list.DOM, add.DOM, ed.DOM),
+    queue$: merge(add.queue$, list.queue$, ed.queue$),
   }
 }
