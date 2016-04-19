@@ -16,8 +16,8 @@ const reduceControlsToObject = controls =>
   )
 
 const _controlSources = (field,sources) => ({...sources,
-  value$: (sources.value$ || 
-      (sources.item$ && pluckStartValue(sources.item$, field)) ||
+  value$: (sources.value$ ||
+      sources.item$ && pluckStartValue(sources.item$, field) ||
       just({})
     )
     .tap(x => console.log('form value$',x))
