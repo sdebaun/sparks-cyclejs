@@ -101,12 +101,15 @@ const ListItemCheckbox = sources => {
   const item = ListItemClickable({...sources,
     rightDOM$: cb.DOM,
     title$: sources.value$.flatMapLatest(v =>
-      v ? sources.titleTrue$ : sources.titleFalse$
+      sources.title$ ||
+      (v ? sources.titleTrue$ : sources.titleFalse$)
     ),
   })
 
-  const value$ = sources.value$
-    .sample(item.click$)
+  const value$ = item.click$
+    .withLatestFrom(sources.value$)
+  // const value$ = sources.value$
+  //   .sample(item.click$)
     .map(x => !x)
 
   return {
