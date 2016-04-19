@@ -16,44 +16,11 @@ import {
   Assignments,
 } from 'components/remote'
 
-import {div, icon} from 'helpers'
+import {div} from 'helpers'
 
 import {
   ShiftContent,
 } from 'components/shift'
-
-function convertHours(hours) {
-  const _hours = parseInt(hours)
-  if (_hours === 24) {
-    return `12 AM`
-  }
-  if (_hours === 12) {
-    return `12 PM`
-  }
-  if (_hours > 24) {
-    return convertHours(hours - 24)
-  }
-  return _hours > 12 ?
-    `${_hours - 12} PM` :
-    `${_hours} AM`
-}
-
-function getEndTime(starts, hours) {
-  return convertHours(parseInt(starts) + parseInt(hours))
-}
-
-const sharedStyle = {
-  flexGrow: '1',
-  textAlign: 'center',
-}
-
-function shiftView({hours, starts, people}, reserved) {
-  return div({style: {display: 'flex', flexDirection: 'row'}}, [
-    div({style: sharedStyle}, [convertHours(starts)]),
-    div({style: sharedStyle}, [getEndTime(starts, hours)]),
-    div({style: sharedStyle}, [`${reserved} / ${people}`, icon('people')]),
-  ])
-}
 
 const ShiftItem = sources => {
   const content = ShiftContent(sources)
@@ -66,6 +33,12 @@ const ShiftItem = sources => {
       }
     )
     .map(a => a.length > 0 && a[0] || null)
+    .tap(x => console.log('assignment$', x))
+    .shareReplay(1)
+
+  // const assignment$ = $.just(true)
+  //   .tap(x => console.log('assignment$', x))
+  //   .shareReplay(1)
 
   const li = ListItemCheckbox({...sources,
     ...content,
@@ -87,6 +60,49 @@ const ShiftItem = sources => {
   return {
     DOM: li.DOM,
     // DOM: $.just(div('',['wat'])),
+    queue$,
+  }
+}
+
+const xAssignedShiftItem = sources => {
+  const shift$ = sources.item$.pluck('shiftKey')
+    .flatMapLatest(Shifts.query.one(sources))
+    .tap(x => console.log('ASI shift$', x))
+    .shareReplay(1)
+
+  return ShiftItem({...sources,
+    item$: shift$,
+  })
+}
+
+const AssignedShiftItem = sources => {
+  const _sources = {...sources,
+    shift$: sources.item$.pluck('shiftKey')
+    .tap(x => console.log('shiftKey', x))
+    .flatMapLatest(Shifts.query.one(sources))
+    .tap(x => console.log('shift', x))
+    ,
+  }
+
+  const content = ShiftContent({..._sources,
+    item$: _sources.shift$,
+  })
+
+  const li = ListItemCheckbox({..._sources,
+    ...content,
+    value$: $.just(true),
+  })
+
+  const queue$ = li.value$
+    .tap(x => console.log('new queue value', x))
+    .withLatestFrom(
+      sources.item$,
+      (val,{$key}) => Assignments.action.remove($key)
+    )
+    .shareReplay(1)
+
+  return {
+    DOM: li.DOM,
     queue$,
   }
 }
@@ -176,48 +192,12 @@ const MembershipItem = (sources) => {
   }
 }
 
-const MembershipList = sources =>
-  List({...sources,
-    rows$: sources.memberships$,
-    Control$: $.of(MembershipItem),
-  })
+const MembershipList = sources => List({...sources,
+  rows$: sources.memberships$,
+  Control$: $.of(MembershipItem),
+})
 
-const AssignmentShiftListItem = sources => {
-  const _sources = {...sources,
-    shift$: sources.item$.pluck('shiftKey')
-    .tap(x => console.log('shiftKey', x))
-    .flatMapLatest(Shifts.query.one(sources))
-    .tap(x => console.log('shift', x))
-    ,
-  }
-
-  const content = ShiftContent({..._sources,
-    item$: _sources.shift$,
-  })
-
-  // const li = ListItem({..._sources,
-  //   ...content,
-  // })
-  const li = ListItemCheckbox({..._sources,
-    ...content,
-    value$: $.just(true),
-  })
-
-  const queue$ = li.value$
-    .tap(x => console.log('new queue value', x))
-    .withLatestFrom(
-      sources.item$,
-      (val,{$key}) => Assignments.action.remove($key)
-    )
-    .shareReplay(1)
-
-  return {
-    DOM: li.DOM,
-    queue$,
-  }
-}
-
-const Instructions = sources => ListItem({...sources,
+const AssignmentInstructions = sources => ListItem({...sources,
   title$: sources.neededAssignments$
     .map(n => n === 0 ?
       `Perfect! Confirm your shifts and carry on.` :
@@ -227,16 +207,35 @@ const Instructions = sources => ListItem({...sources,
 
 const AssignmentList = sources => List({...sources,
   rows$: sources.assignments$,
-  Control$: $.of(AssignmentShiftListItem),
+  Control$: $.of(AssignedShiftItem),
   // Control$: $.of(ShiftItem),
 })
 
 const AssignmentBlock = sources => {
-  const inst = Instructions(sources)
+  const inst = AssignmentInstructions(sources)
   const list = AssignmentList(sources)
 
   return {
-    DOM: combineDOMsToDiv('', inst, list),
+    DOM: combineDOMsToDiv('', inst, list).distinctUntilChanged(),
+    queue$: list.queue$,
+  }
+}
+
+const SelectionInstructions = sources => ListItem({...sources,
+  title$: $.of('Choose shifts from the teams below.'),
+})
+
+const SelectionBlock = sources => {
+  const inst = SelectionInstructions(sources)
+  const list = MembershipList(sources)
+
+  return {
+    DOM: sources.neededAssignments$
+      .map(n => n > 0).distinctUntilChanged()
+      .flatMapLatest(needed => needed ?
+        combineDOMsToDiv('',inst,list) :
+        $.just(div('',[]))
+      ),
     queue$: list.queue$,
   }
 }
@@ -280,11 +279,11 @@ export default function(sources) {
   const _sources = {...sources, ..._Fetch(sources)}
 
   const ab = AssignmentBlock(_sources)
-  const ml = MembershipList(_sources)
+  const sb = SelectionBlock(_sources)
   const btn = ConfirmButton(_sources)
 
   return {
-    queue$: $.merge(ab.queue$, ml.queue$),
-    DOM: combineDOMsToDiv('', ab, btn, ml),
+    queue$: $.merge(ab.queue$, sb.queue$),
+    DOM: combineDOMsToDiv('', ab, btn, sb),
   }
 }

@@ -42,6 +42,7 @@ const filterBy = (collection, orderByChild) => sources => equalTo =>
 
 const filterOne = collection => sources => key =>
   sources.firebase(collection,key)
+    .map(o => ({$key: key, ...o}))
 
 const responseRedirect = (collection, action, routeMapper) => sources => ({
   route$: sources.responses$
