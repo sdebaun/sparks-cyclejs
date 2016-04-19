@@ -6,6 +6,7 @@ import {combineDOMsToDiv} from 'util'
 import {
   RaisedButton,
   List,
+  ListItem,
   ListItemCollapsible,
   ListItemClickable,
 } from 'components/sdm'
@@ -192,6 +193,8 @@ function groupByDate(arrayOfShifts) {
   return arr
 }
 
+import {TeamAvatar} from 'components/team'
+
 const MembershipItem = (sources) => {
   const team$ = sources.item$.pluck('teamKey')
     .flatMapLatest(key => sources.firebase('Teams', key))
@@ -202,9 +205,13 @@ const MembershipItem = (sources) => {
   const shiftsByDate$ = shifts$
     .map(groupByDate)
 
-  const teamImage$ = sources.item$.pluck('teamKey')
-    .flatMapLatest(TeamImages.query.one(sources))
-    .map(ti => ti && ti.dataUrl || '')
+  const av = TeamAvatar({...sources,
+    teamKey$: sources.item$.pluck('teamKey'),
+  })
+
+  // const teamImage$ = sources.item$.pluck('teamKey')
+  //   .flatMapLatest(TeamImages.query.one(sources))
+  //   .map(ti => ti && ti.dataUrl || null)
     // .pluck('dataUrl')
 
   const li = List({
@@ -220,7 +227,7 @@ const MembershipItem = (sources) => {
     team$,
     isOpen$: $.just(false),
     title$: team$.pluck('name'),
-    leftDOM$: teamImage$.map(iconSrc),
+    leftDOM$: av.DOM,
     contentDOM$: li.DOM,
   })
 
@@ -258,12 +265,28 @@ const AssignmentShiftListItem = sources => {
   }
 }
 
-const AssignmentList = sources =>
-  List({
-    ...sources,
-    rows$: sources.assignments$,
-    Control$: $.of(AssignmentShiftListItem),
-  })
+const Instructions = sources => ListItem({...sources,
+  title$: sources.neededAssignments$
+    .map(n => n === 0 ?
+      `Perfect! Confirm your shifts and carry on.` :
+      `You need to choose ${n} more shifts.`
+    ),
+})
+
+const AssignmentList = sources => List({...sources,
+  rows$: sources.assignments$,
+  Control$: $.of(AssignmentShiftListItem),
+})
+
+const AssignmentBlock = sources => {
+  const inst = Instructions(sources)
+  const list = AssignmentList(sources)
+
+  return {
+    DOM: combineDOMsToDiv('', inst, list),
+    queue$: list.queue$,
+  }
+}
 
 const _Fetch = sources => {
   const assignments$ = sources.userProfileKey$
@@ -290,50 +313,25 @@ const _Fetch = sources => {
 }
 
 const ConfirmButton = sources => {
-  const btn = RaisedButton({
-    ...sources,
+  const btn = RaisedButton({...sources,
     label$: $.of('Confirm your shifts now!'),
   })
 
   return {
     DOM: sources.neededAssignments$
-      .flatMapLatest(n => n > 0 ? btn.DOM : $.just(div('',[])))
+      .flatMapLatest(n => n > 0 ? btn.DOM : $.just(div('',[]))),
   }
 }
 
 export default function(sources) {
   const _sources = {...sources, ..._Fetch(sources)}
 
-  const al = AssignmentList(_sources)
+  const ab = AssignmentBlock(_sources)
   const ml = MembershipList(_sources)
   const btn = ConfirmButton(_sources)
 
-  // const requiredShiftNumber$ = sources.commitments$
-  //   .map(c => c.filter(x => x.code === 'shifts'))
-  //   .map(a => a[0] && a[0].count || 0)
-
-  // const reservedShiftsNumber$ = al.DOM.map(v => v.children.length)
-  //   .distinctUntilChanged()
-
-  // const shiftsNeeded$ = reservedShiftsNumber$
-  //   .withLatestFrom(requiredShiftNumber$,
-  //     (reserved, required) => required - reserved
-  //   )
-
   return {
-    queue$: $.merge(al.queue$, ml.queue$),
-    DOM: combineDOMsToDiv('', al, btn, ml),
-    // DOM: al.DOM.combineLatest(ml.DOM, _sources.neededAssignments$, (alDOM, mlDOM, needed) =>
-    //   div({}, [
-    //     div({}, [
-    //       needed === 0 ? button.DOM : h4({}, `You need ${needed} more shifts!`),
-    //       h4({}, 'Shifts you have reserved'),
-    //       alDOM,
-    //     ]),
-    //     div({}, [
-    //       h4({}, 'Other shifts available'),
-    //       mlDOM,
-    //     ]),
-    //   ])),
+    queue$: $.merge(ab.queue$, ml.queue$),
+    DOM: combineDOMsToDiv('', ab, btn, ml),
   }
 }
