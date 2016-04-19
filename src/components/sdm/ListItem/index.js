@@ -173,11 +173,11 @@ const ListItemCollapsible = sources => {
   const li = ListItemClickable(sources)
 
   const isOpen$ = merge(
-      sources.isOpen$,
-      (sources.isOpen$ || just(false))
-        .flatMapLatest(isOpen => li.click$.scan(last => !last, isOpen))
-    )
-    .startWith(false)
+    sources.isOpen$ || just(false),
+    li.click$.map(-1),
+  )
+  .scan((acc, next) => next === -1 ? !acc : next, false)
+  .startWith(false)
 
   const viewState = {
     isOpen$: isOpen$,
@@ -197,6 +197,34 @@ const ListItemCollapsible = sources => {
     DOM,
   }
 }
+// const ListItemCollapsible = sources => {
+//   const li = ListItemClickable(sources)
+
+//   const isOpen$ = merge(
+//       sources.isOpen$,
+//       (sources.isOpen$ || just(false))
+//         .flatMapLatest(isOpen => li.click$.scan(last => !last, isOpen))
+//     )
+//     .startWith(false)
+
+//   const viewState = {
+//     isOpen$: isOpen$,
+//     listItemDOM$: li.DOM,
+//     contentDOM$: sources.contentDOM$ || just(div({},['no contentDOM$'])),
+//   }
+
+//   const DOM = combineLatestObj(viewState)
+//     .map(({isOpen, listItemDOM, contentDOM}) =>
+//       div({},[
+//         listItemDOM,
+//         isOpen && div('.collapsible',[contentDOM]),
+//       ].filter(i => !!i))
+//     )
+
+//   return {
+//     DOM,
+//   }
+// }
 
 const ListItemCollapsibleTextArea = sources => {
   const ta = TextAreaControl(sources)
