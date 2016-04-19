@@ -9,6 +9,7 @@ import {
   ListItem,
   ListItemCollapsible,
   ListItemClickable,
+  ListItemCheckbox,
 } from 'components/sdm'
 
 import {
@@ -21,49 +22,49 @@ import {h4} from 'cycle-snabbdom'
 
 import {div, iconSrc, icon} from 'helpers'
 
-const ToggleControl = sources => {
-  const toggle$ = sources.DOM.select('.toggle').observable.map(e => e[0])
-    .filter(e => e && e.children)
-    .map(e => e.children[0].classList)
-    .map(e => Array.prototype.slice.call(e))
-    .map(e => e.indexOf('icon-toggle-on') !== -1 ? false : true)
-    .distinctUntilChanged()
+// const ToggleControl = sources => {
+//   const toggle$ = sources.DOM.select('.toggle').observable.map(e => e[0])
+//     .filter(e => e && e.children)
+//     .map(e => e.children[0].classList)
+//     .map(e => Array.prototype.slice.call(e))
+//     .map(e => e.indexOf('icon-toggle-on') !== -1 ? false : true)
+//     .distinctUntilChanged()
 
-  const click$ = toggle$.sample(sources.DOM.select('.toggle').events('click'))
-    .shareReplay(1)
+//   const click$ = toggle$.sample(sources.DOM.select('.toggle').events('click'))
+//     .shareReplay(1)
 
-  return {
-    // click$: $.never(),
-    // DOM: $.just(div('',['wat'])),
-    click$,
-    DOM: sources.value$.merge(click$).map(v =>
-      div({class: {toggle: true}},[
-        v ?
-        icon('toggle-on','accent') :
-        icon('toggle-off'),
-      ])
-    ),
-  }
-}
+//   return {
+//     // click$: $.never(),
+//     // DOM: $.just(div('',['wat'])),
+//     click$,
+//     DOM: sources.value$.merge(click$).map(v =>
+//       div({class: {toggle: true}},[
+//         v ?
+//         icon('toggle-on','accent') :
+//         icon('toggle-off'),
+//       ])
+//     ),
+//   }
+// }
 
-const ListItemToggle = (sources) => {
-  const toggle = ToggleControl(sources)
-  const click$ = toggle.click$.shareReplay(1)
+// const ListItemToggle = (sources) => {
+//   const toggle = ToggleControl(sources)
+//   const click$ = toggle.click$.shareReplay(1)
 
-  const titleValue$ = sources.value$ || click$
+//   const titleValue$ = sources.value$ || click$
 
-  const item = ListItemClickable({...sources,
-    leftDOM$: toggle.DOM,
-    title$: titleValue$.flatMapLatest(v =>
-      v ? sources.titleTrue$ : sources.titleFalse$
-    ),
-  })
+//   const item = ListItemClickable({...sources,
+//     leftDOM$: toggle.DOM,
+//     title$: titleValue$.flatMapLatest(v =>
+//       v ? sources.titleTrue$ : sources.titleFalse$
+//     ),
+//   })
 
-  return {
-    DOM: item.DOM,
-    value$: click$.shareReplay(1),
-  }
-}
+//   return {
+//     DOM: item.DOM,
+//     value$: click$.shareReplay(1),
+//   }
+// }
 
 function convertHours(hours) {
   const _hours = parseInt(hours)
@@ -124,7 +125,7 @@ const ShiftItem = sources => {
     .startWith(null)
     .shareReplay(1)
 
-  const li = ListItemToggle({
+  const li = ListItemCheckbox({
     ...sources,
     value$: assignmentKey$.map(k => k ? true : false).startWith(false),
     titleTrue$: sources.item$.withLatestFrom(reservations$, shiftView),
@@ -132,6 +133,7 @@ const ShiftItem = sources => {
   })
 
   const queue$ = li.value$
+    .tap(x => console.log('new queue value', x))
     .withLatestFrom(sources.item$, assignmentKey$,
       (val, {$key: shiftKey, teamKey}, assignmentKey) => {
         if (val) {
@@ -208,11 +210,6 @@ const MembershipItem = (sources) => {
   const av = TeamAvatar({...sources,
     teamKey$: sources.item$.pluck('teamKey'),
   })
-
-  // const teamImage$ = sources.item$.pluck('teamKey')
-  //   .flatMapLatest(TeamImages.query.one(sources))
-  //   .map(ti => ti && ti.dataUrl || null)
-    // .pluck('dataUrl')
 
   const li = List({
     ...sources,

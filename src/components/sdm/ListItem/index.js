@@ -12,6 +12,7 @@ import {ToggleControl, TextAreaControl} from 'components/sdm'
 import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
 import {OkAndCancel} from 'components/sdm'
+import {CheckboxControl} from 'components/sdm'
 
 // import {log} from 'util'
 
@@ -79,6 +80,26 @@ const ListItemToggle = sources => {
 
   const item = ListItemClickable({...sources,
     leftDOM$: toggle.DOM,
+    title$: sources.value$.flatMapLatest(v =>
+      v ? sources.titleTrue$ : sources.titleFalse$
+    ),
+  })
+
+  const value$ = sources.value$
+    .sample(item.click$)
+    .map(x => !x)
+
+  return {
+    DOM: item.DOM,
+    value$,
+  }
+}
+
+const ListItemCheckbox = sources => {
+  const cb = CheckboxControl(sources)
+
+  const item = ListItemClickable({...sources,
+    rightDOM$: cb.DOM,
     title$: sources.value$.flatMapLatest(v =>
       v ? sources.titleTrue$ : sources.titleFalse$
     ),
@@ -273,6 +294,7 @@ export {
   ListItem,
   ListItemClickable,
   ListItemToggle,
+  ListItemCheckbox,
   ListItemWithMenu,
   ListItemNavigating,
   ListItemWithDialog,
