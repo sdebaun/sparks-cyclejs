@@ -10,7 +10,7 @@ const List = sources => {
   requireSources('List', sources, 'rows$', 'Control$')
 
   const controls$ = sources.rows$
-    .tap(x => console.count(x))
+    // .tap(x => console.count(x))
     .flatMapLatest(rows =>
       sources.Control$.map(Control =>
         controlsFromRows(sources, rows, Control)
@@ -40,12 +40,22 @@ const List = sources => {
     mergeOrFlatMapLatest('lastIndex$', ...children)
   )
 
+  const assignment$ = controls$.flatMapLatest(c =>
+    mergeOrFlatMapLatest('assignment$', ...c)
+  )
+
+  const date$ = controls$.flatMapLatest(c =>
+    mergeOrFlatMapLatest('date$', ...c)
+  )
+
   return {
     DOM,
     queue$,
     route$,
     edit$,
     lastIndex$,
+    assignment$,
+    date$,
   }
 }
 

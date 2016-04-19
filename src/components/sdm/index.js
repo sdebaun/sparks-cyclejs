@@ -37,6 +37,7 @@ export {
   ListItem,
   ListItemClickable,
   ListItemToggle,
+  ListItemCheckbox,
   ListItemWithMenu,
   ListItemNavigating,
   ListItemWithDialog,

@@ -4,7 +4,8 @@ const {of} = Observable
 import ComingSoon from 'components/ComingSoon'
 import {TabbedPage} from 'components/ui'
 
-const Priority = ComingSoon('Manage/Glance/Find')
+import Priority from './Priority'
+// const Priority = ComingSoon('Manage/Glance/Priority')
 const Find = ComingSoon('Manage/Glance/Find')
 const Recently = ComingSoon('Manage/Glance/Recently')
 
