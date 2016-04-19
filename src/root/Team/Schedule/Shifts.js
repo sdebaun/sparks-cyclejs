@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {of, merge, combineLatest} = Observable
+const {of, merge} = Observable
 import {Form} from 'components/ui/Form'
 import {Shifts as ShiftsRemote} from 'components/remote'
 import {div} from 'cycle-snabbdom'
@@ -18,6 +18,10 @@ import {
   InputControl,
   Dialog,
 } from 'components/sdm'
+
+import {
+  ShiftContent,
+} from 'components/shift'
 
 const StartsInput = sources => InputControl({...sources,
   label$: of('Starts At Hour (24 hour)'),
@@ -126,17 +130,6 @@ const _Fetch = sources => {
   return {shifts$, shiftsForDate$}
 }
 
-const todIcons = [0,1,2,3,4,5,6]
-  .map(i => '/' + require(`images/daytimeicon_${i}.png`))
-
-const daySegment = hr => Math.floor((parseInt(hr) + 2) / 4)
-
-const row = (style, ...els) => div({style: {display: 'flex', ...style}}, els)
-const cell = (style, ...els) => div({style: {flex: '1', ...style}}, els)
-
-const timeCell = t =>
-  cell({minWidth: '90px', textAlign: 'left'}, moment(t).format('h:mm a'))
-
 const _Remove = sources => ListItemClickable({...sources,
   iconName$: of('remove'),
   title$: of('Remove'),
@@ -213,23 +206,14 @@ const _Item = sources => {
     peopleChange$.map(ShiftsRemote.action.update),
   )
 
+  const content = ShiftContent(sources)
+
   return {
     queue$,
     edit$,
 
     ...ListItemWithMenu({...sources,
-      iconSrc$: sources.item$.pluck('start')
-        .map(start => todIcons[daySegment(moment(start).hours())]),
-      title$: combineLatest(
-        sources.item$.pluck('start'),
-        sources.item$.pluck('end'),
-        sources.item$.pluck('people'),
-        (s,e,p) => row({},
-          timeCell(s), timeCell(e),
-          cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
-        )
-      ),
-      subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
+      ...content, // leftDOM$, title$, subtitle$,
       rightDOM$: of(icon('menu')),
       menuItems$: of([ed.DOM, inc.DOM, dec.DOM, incp.DOM, decp.DOM, rm.DOM]),
     }),
