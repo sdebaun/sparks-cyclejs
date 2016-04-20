@@ -26,25 +26,6 @@ import {
 
 import {ProfileSidenav} from 'components/profile'
 
-// const _routes = {
-//   '/': Glance,
-//   '/application': Application,
-//   '/schedule': Schedule,
-// }
-
-// const _Nav = sources => ({
-//   DOM: sources.isMobile$.map(m => m ? null : sources.titleDOM),
-// })
-
-// const _Title = sources => ResponsiveTitle({...sources,
-//   titleDOM$: sources.userName$,
-//   subtitleDOM$: of('Welcome'),
-//   leftDOM$: MediumProfileAvatar({...sources,
-//     profileKey$: sources.userProfileKey$,
-//   }).DOM,
-//   classes$: of(['profile']),
-// })
-
 const _Fetch = sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(key => sources.firebase('Engagements',key))
@@ -81,11 +62,11 @@ const _Fetch = sources => {
 }
 
 import Priority from './Priority'
-// import Application from './Application'
+import Application from './Application'
 // import Confirm from './Schedule'
 
 // const Priority = ComingSoon('Priority')
-const Application = ComingSoon('Application')
+// const Application = ComingSoon('Application')
 const Confirm = ComingSoon('Confirm')
 
 import {label} from 'components/engagement'
