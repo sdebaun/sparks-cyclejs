@@ -10,11 +10,13 @@
   line-height: 110%;
   text-shadow: 3px 3px 3px #333;
   text-align: center;
+  margin-bottom: 0.5em;
 }
 
 #hook h2, #promise h2, #cta h2, #benefits h2 {
   font-size: 4.25em;
   text-align: center;
+  margin-bottom: 1.5em;
 }
 
 #hook h3, #promise h3, #cta h3, #benefits h3 {
@@ -185,6 +187,7 @@ md-input-container.md-default-theme {
   padding: 1em 0em;
   overflow: hidden;
   position: relative;
+  min-height: 240px;
   img {
     width: 60%;
   }

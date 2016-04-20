@@ -12,6 +12,7 @@ import {ToggleControl, TextAreaControl} from 'components/sdm'
 import {Dialog} from 'components/sdm'
 import {Menu} from 'components/sdm'
 import {OkAndCancel} from 'components/sdm'
+import {CheckboxControl} from 'components/sdm'
 
 // import {log} from 'util'
 
@@ -86,6 +87,29 @@ const ListItemToggle = sources => {
 
   const value$ = sources.value$
     .sample(item.click$)
+    .map(x => !x)
+
+  return {
+    DOM: item.DOM,
+    value$,
+  }
+}
+
+const ListItemCheckbox = sources => {
+  const cb = CheckboxControl(sources)
+
+  const item = ListItemClickable({...sources,
+    rightDOM$: cb.DOM,
+    title$: sources.value$.flatMapLatest(v =>
+      sources.title$ ||
+      (v ? sources.titleTrue$ : sources.titleFalse$)
+    ),
+  })
+
+  const value$ = item.click$
+    .withLatestFrom(sources.value$)
+  // const value$ = sources.value$
+  //   .sample(item.click$)
     .map(x => !x)
 
   return {
@@ -197,6 +221,34 @@ const ListItemCollapsible = sources => {
     DOM,
   }
 }
+// const ListItemCollapsible = sources => {
+//   const li = ListItemClickable(sources)
+
+//   const isOpen$ = merge(
+//       sources.isOpen$,
+//       (sources.isOpen$ || just(false))
+//         .flatMapLatest(isOpen => li.click$.scan(last => !last, isOpen))
+//     )
+//     .startWith(false)
+
+//   const viewState = {
+//     isOpen$: isOpen$,
+//     listItemDOM$: li.DOM,
+//     contentDOM$: sources.contentDOM$ || just(div({},['no contentDOM$'])),
+//   }
+
+//   const DOM = combineLatestObj(viewState)
+//     .map(({isOpen, listItemDOM, contentDOM}) =>
+//       div({},[
+//         listItemDOM,
+//         isOpen && div('.collapsible',[contentDOM]),
+//       ].filter(i => !!i))
+//     )
+
+//   return {
+//     DOM,
+//   }
+// }
 
 const ListItemCollapsibleTextArea = sources => {
   const ta = TextAreaControl(sources)
@@ -245,6 +297,7 @@ export {
   ListItem,
   ListItemClickable,
   ListItemToggle,
+  ListItemCheckbox,
   ListItemWithMenu,
   ListItemNavigating,
   ListItemWithDialog,

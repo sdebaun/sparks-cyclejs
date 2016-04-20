@@ -42,6 +42,7 @@ const filterBy = (collection, orderByChild) => sources => equalTo =>
 
 const filterOne = collection => sources => key =>
   sources.firebase(collection,key)
+    .map(o => ({$key: key, ...o}))
 
 const responseRedirect = (collection, action, routeMapper) => sources => ({
   route$: sources.responses$
@@ -187,11 +188,25 @@ export const Memberships = {
 export const Shifts = {
   query: {
     one: filterOne('Shifts'),
-    byTeam: filterBy('Shifts','teamKey'),
+    byTeam: filterBy('Shifts', 'teamKey'),
   },
   action: {
     create: actionCreator('Shifts', 'create'),
-    remove: actionCreator('Shifts', 'remove'),
     update: actionCreator('Shifts', 'update'),
+    remove: actionCreator('Shifts', 'remove'),
+  },
+}
+
+export const Assignments = {
+  query: {
+    one: filterOne('Assignments'),
+    byProfile: filterBy('Assignments', 'profileKey'),
+    byTeam: filterBy('Assignments', 'teamKey'),
+    byShift: filterBy('Assignments', 'shiftKey'),
+  },
+  action: {
+    create: actionCreator('Assignments', 'create'),
+    update: actionCreator('Assignments', 'update'),
+    remove: actionCreator('Assignments', 'remove'),
   },
 }
