@@ -161,7 +161,9 @@ const Step1 = sources => {
 }
 
 const _Title = sources => TitleListItem({...sources,
-  title$: $.just('Confirm Your Spot'),
+  title$: sources.engagement$.map(({isPaid}) =>
+    isPaid ? 'You Are Confirmed' : 'Confirm Your Spot'
+  ),
 })
 
 const _AllDone = sources => ToDoListItem({...sources,
