@@ -80,101 +80,11 @@ const _Fetch = sources => {
   }
 }
 
-// export default sources => {
-//   const engagement$ = sources.engagementKey$
-//     .flatMapLatest(key => sources.firebase('Engagements',key))
-
-//   const oppKey$ = engagement$.pluck('oppKey')
-
-//   const commitments$ = oppKey$
-//     .flatMapLatest(Commitments.query.byOpp(sources))
-
-//   const opp$ = oppKey$
-//     .flatMapLatest(Opps.query.one(sources))
-
-//   const projectKey$ = opp$.pluck('projectKey')
-
-//   const project$ = projectKey$
-//     .flatMapLatest(Projects.query.one(sources))
-
-//   const projectImage$ = projectKey$
-//     .flatMapLatest(ProjectImages.query.one(sources))
-
-//   const memberships$ = sources.engagementKey$
-//     .flatMapLatest(Memberships.query.byEngagement(sources))
-
-//   const page$ = nestedComponent(
-//     sources.router.define(_routes), {
-//       ...sources,
-//       engagement$,
-//       oppKey$,
-//       opp$,
-//       projectKey$,
-//       project$,
-//       memberships$,
-//       commitments$,
-//     })
-
-//   // const quickNav = ProjectQuickNavMenu(
-//   //   {...sources, project$, projectKey$, opp$, teams$, opps$}
-//   // )
-
-//   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
-
-//   const subtitleDOM$ = $.combineLatest(
-//     sources.isMobile$,
-//     page$.flatMapLatest(page => page.pageTitle),
-//     (isMobile, pageTitle) => isMobile ? pageTitle : null,
-//   )
-
-//   const title = ResponsiveTitle({...sources,
-//     tabsDOM$: tabsDOM,
-//     // topDOM$: quickNav.DOM,
-//     titleDOM$: opp$.pluck('name'),
-//     subtitleDOM$,
-//     backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
-//   })
-
-//   // const nav = EngagementNav({...sources,
-//   //   titleDOM: title.DOM,
-//   //   engagement$,
-//   // })
-
-//   const nav = ProfileSidenav(sources)
-
-//   const header = Header({...sources,
-//     titleDOM: title.DOM,
-//     tabsDOM: tabsDOM,
-//   })
-
-//   const appFrame = AppFrame({...sources,
-//     navDOM: nav.DOM,
-//     headerDOM: header.DOM,
-//     pageDOM: page$.pluck('DOM'),
-//   })
-
-//   const children = [appFrame, page$, title, nav, header]
-
-//   const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
-
-//   const route$ = $.merge(
-//     mergeOrFlatMapLatest('route$', ...children),
-//     redirectOnLogout$,
-//   )
-
-//   return {
-//     DOM: appFrame.DOM,
-//     auth$: mergeOrFlatMapLatest('auth$', ...children),
-//     queue$: mergeOrFlatMapLatest('queue$', ...children),
-//     route$,
-//   }
-// }
-
-// import Priority from './Glance'
+import Priority from './Priority'
 // import Application from './Application'
 // import Confirm from './Schedule'
 
-const Priority = ComingSoon('Priority')
+// const Priority = ComingSoon('Priority')
 const Application = ComingSoon('Application')
 const Confirm = ComingSoon('Confirm')
 
@@ -183,9 +93,9 @@ import {label} from 'components/engagement'
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
-  const nav = ProfileSidenav(sources)
+  const nav = ProfileSidenav(_sources)
 
-  const page = TabbedPage({...sources,
+  const page = TabbedPage({..._sources,
     tabs$: $.of([
       {path: '/', label: 'Priority'},
       {path: '/application', label: 'Application'},
@@ -198,7 +108,7 @@ export default sources => {
     }),
   })
 
-  const title = TabbedTitle({...sources,
+  const title = TabbedTitle({..._sources,
     tabsDOM$: page.tabBarDOM,
     titleDOM$: _sources.project$.pluck('name'),
     subtitleDOM$: $.combineLatest(
@@ -219,7 +129,7 @@ export default sources => {
 
   const children = [frame, page, nav]
 
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
+  const redirectOnLogout$ = _sources.auth$.filter(auth => !auth).map(() => '/')
 
   const route$ = $.merge(
     mergeOrFlatMapLatest('route$', ...children),

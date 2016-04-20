@@ -289,59 +289,9 @@ const CardList = sources => {
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
   const cards = CardList(_sources)
-  // const welc = WelcomeCard(_sources)
-  // const conf = ConfirmationsNeededCard(_sources)
-  // const conf = ConfirmationCards(_sources)
-
-  // const create = isolate(CreateProjectListItem,'create')(_sources)
-
-  // const managed = ManagedList(_sources)
-  // const engaged = EngagedList(_sources)
-
-  // const engaged = isolate(EngagedList,'engaged')({..._sources,
-  //   rows$: _sources.engagements$,
-  // })
-
-  // const organizing = isolate(OrganizingList,'orgz')({..._sources,
-  //   rows$: _sources.organizers$,
-  // })
-
-  // const queue$ = create.project$
-    // .map(Projects.action.create)
-
-  const route$ = Observable.merge(
-    cards.route$,
-    // engaged.route$,
-  //   organizing.route$,
-    // conf.route$,
-  //   Projects.redirect.create(_sources).route$,
-  ).tap(x => console.log('route$', x))
-
-  const DOM = combineDOMsToDiv('.cardcontainer',
-    // create,
-    // conf,
-    // welc,
-    // conf,
-    // managed,
-    // organizing,
-    // engaged,
-    cards
-  )
-
-  // const DOM = combineLatest(
-  //   create.DOM,
-  //   conf.DOM,
-  //   welc.DOM,
-  //   managed.DOM,
-  //   organizing.DOM,
-  //   engaged.DOM,
-  //   (isEAP, cr, confirm, ...doms) =>
-  //     div({},[confirm, ...doms, isEAP ? cr : null])
-  // )
 
   return {
-    DOM,
-    route$,
-    // queue$,
+    DOM: cards.DOM.map(d => div('.cardcontainer',[d])),
+    route$: cards.route$,
   }
 }

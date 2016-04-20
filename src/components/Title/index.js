@@ -48,14 +48,14 @@ export const SidedrawerTitle = sources => {
   const url$ = sources.backgroundUrl$ || just(null)
   const classes$ = sources.classes$ || just([])
 
-  const route$ = sources.DOM.select('.title-block').events('click')
+  const route$ = sources.DOM.select('.title-block.sidedrawer').events('click')
     .map('/dash')
 
   return {
     DOM: combineLatest(
       sources.isMobile$, url$, classes$,
       (m, url, classes) =>
-        div('.title-block.' + classes.join('.'),
+        div('.title-block.sidedrawer.' + classes.join('.'),
           {style: bgStyle(url || sparkly)},
           [content.DOM]
         )
