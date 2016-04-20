@@ -20,6 +20,11 @@ import {ProjectItem, ProjectForm, ProjectAvatar} from 'components/project'
 import {EngagementItem} from 'components/engagement'
 
 import {
+  StepListItem,
+} from 'components/ui'
+
+import {
+  LargeCard,
   List,
   PartialList,
   ListWithHeader,
@@ -31,7 +36,6 @@ import {
   Dialog,
   TitledCard,
   ComplexCard,
-  Card,
   NavigatingComplexCard,
 } from 'components/sdm'
 
@@ -202,101 +206,123 @@ const ConfirmationsNeededCard = sources => {
   }
 }
 
-import NextSteps from './OldApplication/NextSteps'
+import PickTeams from './OldApplication/ChooseTeams'
 
-import {
-  ToDoListItem,
-} from 'components/ui'
-
-const ToDoShifts = sources => ToDoListItem({...sources,
-  title$: $.of('Choose when you\'d like to work.'),
-  isDone$: sources.engagement$.map(m => !!m.isAssigned),
-  path$: $.of(sources.router.createHref('/confirmation')),
-})
-
-const ToDoPayment = sources => ToDoListItem({...sources,
-  title$: $.of('Make your payments.'),
-  isDone$: sources.engagement$.map(m => !!m.isPaid),
-  path$: $.of(sources.router.createHref('/confirmation')),
-})
-
-const CNCard = sources => {
-  const sh = ToDoShifts(sources)
-  const pmt = ToDoPayment(sources)
-
-  const card = TitledCard({...sources,
-    title$: $.just('Lock in Your Spot'),
-    content$: $.combineLatest(sh.DOM, pmt.DOM),
-  })
-
-  return {
-    DOM: card.DOM,
-    route$: $.merge(sh.route$, pmt.route$),
-  }
-}
-
-const ConfirmNowCard = sources => hideable(CNCard)({...sources,
-  elevation$: $.just(2),
-  isVisible$: sources.engagement$.map(e => e.isAccepted && !e.isConfirmed),
-  title$: $.just('Confirm Now!'),
-})
-
-const NSCard = sources => {
-  const ns = NextSteps(sources)
+const PTCard = sources => {
+  const aq = PickTeams(sources)
   return {
     ...TitledCard({...sources,
-      content$: $.just([ns.DOM]),
+      content$: $.just([aq.DOM]),
     }),
-    route$: ns.route$,
+    route$: aq.route$,
+    queue$: aq.queue$,
   }
 }
 
-const ApplicationOpenCard = sources => hideable(NSCard)({...sources,
+const PickTeamsCard = sources => PTCard({...sources,
   elevation$: $.just(2),
-  isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
-  title$: $.just('Awaiting Approval'),
+  // isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
+  title$: $.just('Choose Some Teams'),
 })
 
-import EnergyExchange from './Glance/Commitments'
+import AnswerQuestion from './OldApplication/AnswerQuestion'
 
-const EnergyExchangeCard = sources => {
-  const ee = EnergyExchange(sources)
+const AQCard = sources => {
+  const aq = AnswerQuestion(sources)
   return {
-    ...Card({...sources,
-      content$: $.just([ee.DOM]),
+    ...TitledCard({...sources,
+      content$: $.just([aq.DOM]),
     }),
+    route$: aq.route$,
+    queue$: aq.queue$,
   }
 }
+
+const ApplicationQCard = sources => AQCard({...sources,
+  elevation$: $.just(2),
+  // isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
+  title$: $.just('Answer the Question'),
+})
 
 const CombinedList = sources => ({
   DOM: sources.contents$.map(contents => div('.cardcontainer',contents)),
 })
 
 const CardList = sources => {
-  const confirm = ConfirmNowCard(sources)
-  const app = ApplicationOpenCard(sources)
-  const ee = EnergyExchangeCard(sources)
+  const teams = PickTeamsCard(sources)
+  const app = ApplicationQCard(sources)
+  // const conf = ConfirmationsNeededCard(sources)
+  // const managed = ManagedList(sources)
+  // const engaged = EngagedList(sources)
 
   const contents$ = $.combineLatest(
-    confirm.DOM,
+    teams.DOM,
     app.DOM,
-    ee.DOM,
-    (...doms) => doms
+    // conf.DOM,
+    // managed.contents$,
+    // engaged.contents$,
+    (c, a) => [c, a]
+    // (w, c, m, e) => [w, c, ...m, ...e]
   )
 
   return {
     ...CombinedList({...sources,
       contents$,
     }),
-    route$: $.merge(confirm.route$, app.route$),
+    route$: $.merge(teams.route$, app.route$),
+    queue$: $.merge(teams.queue$, app.queue$),
+    // route$: $.merge(managed.route$, engaged.route$, conf.route$),
+  }
+}
+
+const MakePayment = sources => {
+  return {
+    DOM: $.just(div('',['wat'])),
+  }
+}
+
+import ChooseShifts from './Schedule/Priority'
+
+const Step2 = sources => {
+  const content = MakePayment(sources)
+
+  const li = StepListItem({...sources,
+    title$: $.just('Step 2: Make Your Payment'),
+    contentDOM$: content.DOM,
+    isOpen$: sources.engagement$.map(({isAssigned, isPaid}) => isAssigned && !isPaid),
+  })
+
+  return {
+    ...li,
+    queue$: content.queue$,
+  }
+}
+
+const Step1 = sources => {
+  const content = ChooseShifts(sources)
+
+  const li = StepListItem({...sources,
+    title$: $.just('Step 1: Choose Your Shifts'),
+    contentDOM$: content.DOM,
+    isOpen$: sources.engagement$.map(({isAssigned}) => !isAssigned),
+  })
+
+  return {
+    ...li,
+    queue$: content.queue$,
   }
 }
 
 export default sources => {
-  const cards = CardList(sources)
+  const s1 = Step1(sources)
+  const s2 = Step2(sources)
+
+  const card = LargeCard({...sources,
+    content$: $.combineLatest(s1.DOM, s2.DOM),
+  })
 
   return {
-    DOM: cards.DOM,
-    route$: cards.route$,
+    DOM: combineDOMsToDiv('.cardcontainer', card),
+    queue$: $.merge(s1.queue$, s2.queue$),
   }
 }

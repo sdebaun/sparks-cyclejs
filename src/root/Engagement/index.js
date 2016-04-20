@@ -1,18 +1,16 @@
 import {Observable as $} from 'rx'
-// const {combineLatest} = Observable
-// import isolate from '@cycle/isolate'
 
 import AppFrame from 'components/AppFrame'
 import {TabbedTitle} from 'components/Title'
-import Header from 'components/Header'
-// import {ProjectQuickNavMenu} from 'components/project/ProjectQuickNavMenu'
-import {EngagementNav} from 'components/engagement'
-import ComingSoon from 'components/ComingSoon'
-import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+
 import {
   TabbedPage,
 } from 'components/ui'
+
+import {ProfileSidenav} from 'components/profile'
+
 // import {log} from 'util'
+import {mergeOrFlatMapLatest} from 'util'
 
 import {div} from 'helpers'
 
@@ -23,8 +21,6 @@ import {
   Projects,
   ProjectImages,
 } from 'components/remote'
-
-import {ProfileSidenav} from 'components/profile'
 
 const _Fetch = sources => {
   const engagement$ = sources.engagementKey$
@@ -63,11 +59,7 @@ const _Fetch = sources => {
 
 import Priority from './Priority'
 import Application from './Application'
-// import Confirm from './Schedule'
-
-// const Priority = ComingSoon('Priority')
-// const Application = ComingSoon('Application')
-const Confirm = ComingSoon('Confirm')
+import Confirmation from './Confirmation'
 
 import {label} from 'components/engagement'
 
@@ -76,16 +68,18 @@ export default sources => {
 
   const nav = ProfileSidenav(_sources)
 
+  const tabs$ = _sources.engagement$.map(({isAccepted}) => [
+    {path: '/', label: 'Priority'},
+    {path: '/application', label: 'Application'},
+    isAccepted && {path: '/confirmation', label: 'Confirmation'},
+  ].filter(x => !!x))
+
   const page = TabbedPage({..._sources,
-    tabs$: $.of([
-      {path: '/', label: 'Priority'},
-      {path: '/application', label: 'Application'},
-      {path: '/confirmation', label: 'Confirmation'},
-    ]),
+    tabs$,
     routes$: $.of({
       '/': Priority,
       '/application': Application,
-      '/confirmation': Confirm,
+      '/confirmation': Confirmation,
     }),
   })
 
@@ -124,20 +118,3 @@ export default sources => {
     route$,
   }
 }
-
-// ({
-//   pageTitle: $.of('Engagement'),
-
-//   ...TabbedPage({...sources,
-//     tabs$: $.of([
-//       {path: '/', label: 'Priority'},
-//       {path: '/application', label: 'Application'},
-//       {path: '/confirmation', label: 'Confirmation'},
-//     ]),
-//     routes$: $.of({
-//       '/': Priority,
-//       '/application': Application,
-//       '/confirmation': Confirm,
-//     }),
-//   }),
-// })
