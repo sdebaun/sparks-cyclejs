@@ -16,7 +16,7 @@ import {
   ProjectImages,
 } from 'components/remote'
 
-import {ProjectItem, ProjectForm} from 'components/project'
+import {ProjectItem, ProjectForm, ProjectAvatar} from 'components/project'
 import {EngagementItem} from 'components/engagement'
 
 import {
@@ -24,6 +24,7 @@ import {
   PartialList,
   ListWithHeader,
   ListItem,
+  ListItemNavigating,
   ListItemCollapsible,
   RaisedButton,
   FlatButton,
@@ -244,24 +245,36 @@ const hideable = Control => sources => {
   }
 }
 
-const EngagedCard = sources => {
+const _EngagementFetcher = sources => {
   const opp$ = sources.item$.pluck('oppKey')
     .flatMapLatest(Opps.query.one(sources))
-  const project$ = opp$.pluck('projectKey')
+  const projectKey$ = opp$.pluck('projectKey')
+  const project$ = projectKey$
     .flatMapLatest(Projects.query.one(sources))
-  const projectImage$ = opp$.pluck('projectKey')
+  const projectImage$ = projectKey$
     .flatMapLatest(ProjectImages.query.one(sources))
 
-  return NavigatingComplexCard({...sources,
-    src$: projectImage$.map(p => p && p.dataUrl || null),
-    title$: project$.pluck('name'),
+  return {
+    opp$,
+    projectKey$,
+    project$,
+    projectImage$,
+  }
+}
+
+const EngagedCard = sources => {
+  const _sources = {...sources, ..._EngagementFetcher(sources)}
+
+  return NavigatingComplexCard({..._sources,
+    src$: _sources.projectImage$.map(p => p && p.dataUrl || null),
+    title$: _sources.project$.pluck('name'),
     // subtitle$: opp$.pluck('name'),
     subtitle$: combineLatest(
-      opp$.pluck('name'),
-      sources.item$,
+      _sources.opp$.pluck('name'),
+      _sources.item$,
       (name, item) => `${name} | ${_label(item)}`
     ),
-    path$: sources.item$.map(({$key}) => `/engaged/${$key}`),
+    path$: _sources.item$.map(({$key}) => `/engaged/${$key}`),
   })
 }
 
@@ -294,13 +307,24 @@ const WelcomeCard = sources => hideable(TitledCard)({...sources,
   title$: just('Welcome to the Sparks.Network!'),
 })
 
+const ConfirmListItem = sources => {
+  const _sources = {...sources, ..._EngagementFetcher(sources)}
+  return ListItemNavigating({..._sources,
+    leftDOM$: ProjectAvatar(_sources).DOM,
+    title$: _sources.project$.pluck('name'),
+    subtitle$: _sources.opp$.map(({name}) => `${name} | Accepted`),
+    path$: _sources.item$.map(({$key}) => `/engaged/${$key}/schedule`),
+  })
+}
+
 const ConfirmationsList = sources => PartialList({...sources,
   rows$: sources.acceptedEngagements$,
-  Control$: just(ListItem),
+  Control$: just(ConfirmListItem),
 })
 
 const ConfirmationsNeededCard = sources => {
-  const contents$ = ConfirmationsList(sources).contents$
+  const list = ConfirmationsList(sources)
+  const contents$ = list.contents$
     .map(contents => ['You\'ve been approved for these opportunities.  Confirm now to lock in your spot!', ...contents])
   const card = hideable(TitledCard)({...sources,
     elevation$: just(2),
@@ -310,6 +334,7 @@ const ConfirmationsNeededCard = sources => {
   })
   return {
     ...card,
+    route$: list.route$,
   }
 }
 
@@ -337,7 +362,7 @@ const CardList = sources => {
     ...CombinedList({...sources,
       contents$,
     }),
-    route$: merge(managed.route$, engaged.route$),
+    route$: merge(managed.route$, engaged.route$, conf.route$),
   }
 }
 
