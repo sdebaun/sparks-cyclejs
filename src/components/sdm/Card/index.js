@@ -31,7 +31,7 @@ export const Card = sources => {
   const DOM = $.combineLatest(
     elevation$, content$,
     (elevation, content) =>
-      div('.col-md-6',[
+      div('.col-md-6.col-xs-12',[
         div(`.card.paper${elevation}`, content),
       ])
   )

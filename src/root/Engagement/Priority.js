@@ -31,6 +31,7 @@ import {
   Dialog,
   TitledCard,
   ComplexCard,
+  Card,
   NavigatingComplexCard,
 } from 'components/sdm'
 
@@ -228,6 +229,23 @@ const ApplicationOpenCard = sources => hideable(NSCard)({...sources,
   title$: $.just('Awaiting Approval'),
 })
 
+import EnergyExchange from './Glance/Commitments'
+
+const EECard = sources => {
+  const ee = EnergyExchange(sources)
+  return {
+    ...Card({...sources,
+      content$: $.just([ee.DOM]),
+    }),
+  }
+}
+
+const EnergyExchangeCard = sources => EECard({...sources,
+  // elevation$: $.just(1),
+  // isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
+  // title$: $.just('Awaiting Approval'),
+})
+
 const CombinedList = sources => ({
   DOM: sources.contents$.map(contents => div('.cardcontainer',contents)),
 })
@@ -235,6 +253,7 @@ const CombinedList = sources => ({
 const CardList = sources => {
   const confirm = ConfirmNowCard(sources)
   const app = ApplicationOpenCard(sources)
+  const ee = EnergyExchangeCard(sources)
   // const conf = ConfirmationsNeededCard(sources)
   // const managed = ManagedList(sources)
   // const engaged = EngagedList(sources)
@@ -242,10 +261,11 @@ const CardList = sources => {
   const contents$ = $.combineLatest(
     confirm.DOM,
     app.DOM,
+    ee.DOM,
     // conf.DOM,
     // managed.contents$,
     // engaged.contents$,
-    (c, a) => [c, a]
+    (...doms) => doms
     // (w, c, m, e) => [w, c, ...m, ...e]
   )
 
