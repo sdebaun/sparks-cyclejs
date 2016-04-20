@@ -143,7 +143,7 @@ const _Fetch = sources => {
     .shareReplay(1)
 
   const acceptedEngagements$ = engagements$
-    .map(engagements => engagements.filter(e => !!e.isAccepted))
+    .map(engagements => engagements.filter(e => !!e.isAccepted && !e.isPaid))
 
   const organizers$ = sources.userProfileKey$
     .flatMapLatest(Organizers.query.byUser(sources))

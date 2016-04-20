@@ -282,13 +282,26 @@ const CardList = sources => {
 //     route$: cards.route$,
 //   }
 // }
+import {
+  StepListItem,
+  DescriptionListItem,
+  TitleListItem,
+  ToDoListItem,
+} from 'components/ui'
+
+const _Title = sources => TitleListItem({...sources,
+  title$: sources.engagement$.map(({isAccepted}) =>
+    isAccepted ? 'Application Accepted' : 'Your Application'
+  ),
+})
 
 export default sources => {
+  const t = _Title(sources)
   const aq = AnswerQuestion(sources)
   const pt = PickTeams(sources)
 
   const card = LargeCard({...sources,
-    content$: $.combineLatest(aq.DOM, pt.DOM),
+    content$: $.combineLatest(t.DOM, aq.DOM, pt.DOM),
   })
 
   return {

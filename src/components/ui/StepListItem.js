@@ -17,6 +17,7 @@ const StepListItem = sources => {
     )
 
   return ListItemCollapsible({...sources,
+    classes$: $.just({'list-item-title': true}),
     leftDOM$,
     // contentDOM$: $.just(div('',['wat'])),
     isOpen$,

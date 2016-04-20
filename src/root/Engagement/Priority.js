@@ -6,7 +6,7 @@ import isolate from '@cycle/isolate'
 import {div} from 'cycle-snabbdom'
 // import {log} from 'util'
 
-import {combineDOMsToDiv} from 'util'
+import {combineDOMsToDiv, hideable} from 'util'
 
 import {
   Projects,
@@ -35,92 +35,20 @@ import {
   NavigatingComplexCard,
 } from 'components/sdm'
 
-const CreateProjectListItem = sources => {
-  const createBtn = RaisedButton({...sources,
-    label$: $.just('Start a Project Anyway'),
-  })
-
-  const cancelBtn = FlatButton({...sources,
-    label$: $.just('Nevermind'),
-  })
-
-  const form = ProjectForm(sources)
-
-  const dialog = Dialog({...sources,
-    titleDOM$: $.just('Create Project'),
-    iconName$: $.just('sitemap'),
-    contentDOM$: form.DOM,
-    isOpen$: createBtn.click$.map(true),
-  })
-
-  const contentDOM$ = $.combineLatest(
-    dialog.DOM,
-    createBtn.DOM,
-    cancelBtn.DOM,
-    (dialogDOM, ...buttonsDOM) =>
-      div({},[
-        div({},[`
-          Before our public launch, we are inviting Early Access Partners
-          to try out the Sparks.Network.  You are welcome to create a project,
-          but you'll only be able to start recruiting volunteers if you're
-          an Early Access Partner.
-        `]),
-        div({}, buttonsDOM),
-        dialogDOM,
-      ])
-  )
-
-  const li = ListItemCollapsible({...sources,
-    title$: $.just('Start your own project'),
-    iconName$: $.just('sitemap'),
-    contentDOM$,
-    isOpen$: cancelBtn.click$.map(false),
-  })
-
-  return {
-    DOM: li.DOM,
-    project$: form.project$,
-  }
-}
-
-const sparkly = require('images/pitch/sparklerHeader-2048.jpg')
-
 const _label = ({isApplied, isAccepted, isConfirmed}) =>
   isConfirmed && 'Confirmed' ||
     isAccepted && 'Accepted' ||
       isApplied && 'Applied' ||
         'Unknown'
 
-// const _Fetch = sources => {
-//   const projects$ = sources.userProfileKey$
-//     .flatMapLatest(Projects.query.byOwner(sources))
-
-//   const engagements$ = sources.userProfileKey$
-//     .flatMapLatest(Engagements.query.byUser(sources))
-//     .shareReplay(1)
-
-//   const acceptedEngagements$ = engagements$
-//     .map(engagements => engagements.filter(e => !!e.isAccepted))
-
-//   const organizers$ = sources.userProfileKey$
-//     .flatMapLatest(Organizers.query.byUser(sources))
-
+// const hideable = Control => sources => {
+//   const ctrl = Control(sources)
+//   const {DOM, ...sinks} = ctrl
 //   return {
-//     projects$,
-//     engagements$,
-//     organizers$,
-//     acceptedEngagements$,
+//     DOM: sources.isVisible$.flatMapLatest(v => v ? DOM : $.just(null)),
+//     ...sinks,
 //   }
 // }
-
-const hideable = Control => sources => {
-  const ctrl = Control(sources)
-  const {DOM, ...sinks} = ctrl
-  return {
-    DOM: sources.isVisible$.flatMapLatest(v => v ? DOM : $.just(null)),
-    ...sinks,
-  }
-}
 
 const _EngagementFetcher = sources => {
   const opp$ = sources.item$.pluck('oppKey')
@@ -237,7 +165,7 @@ const CNCard = sources => {
 
 const ConfirmNowCard = sources => hideable(CNCard)({...sources,
   elevation$: $.just(2),
-  isVisible$: sources.engagement$.map(e => e.isAccepted && !e.isConfirmed),
+  isVisible$: sources.engagement$.map(e => e.isAccepted && !e.isConfirmed && !e.isPaid),
   title$: $.just('Confirm Now!'),
 })
 
@@ -268,6 +196,12 @@ const EnergyExchangeCard = sources => {
   }
 }
 
+const ReadyToWorkCard = sources => hideable(TitledCard)({...sources,
+  title$: $.just('Ready to Work?'),
+  content$: $.just(['You are on the team! Keep an eye on when you\'re scheduled to work, and we\'ll send you reminders.']),
+  isVisible$: sources.engagement$.map(e => e.isAssigned && e.isPaid),
+})
+
 const CombinedList = sources => ({
   DOM: sources.contents$.map(contents => div('.cardcontainer',contents)),
 })
@@ -275,11 +209,13 @@ const CombinedList = sources => ({
 const CardList = sources => {
   const confirm = ConfirmNowCard(sources)
   const app = ApplicationOpenCard(sources)
+  const r2w = ReadyToWorkCard(sources)
   const ee = EnergyExchangeCard(sources)
 
   const contents$ = $.combineLatest(
     confirm.DOM,
     app.DOM,
+    r2w.DOM,
     ee.DOM,
     (...doms) => doms
   )
