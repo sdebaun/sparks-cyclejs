@@ -20,9 +20,7 @@ import {
 import Doing from './Doing'
 import Being from './Being'
 
-const _Nav = sources => ({
-  DOM: sources.isMobile$.map(m => m ? null : sources.titleDOM),
-})
+import {ProfileSidenav} from 'components/profile'
 
 const _Page = sources => TabbedPage({...sources,
   tabs$: of([
@@ -35,38 +33,26 @@ const _Page = sources => TabbedPage({...sources,
   }),
 })
 
-const _Title = sources => ResponsiveTitle({...sources,
-  titleDOM$: sources.userName$,
-  subtitleDOM$: of('Welcome'),
-  leftDOM$: MediumProfileAvatar({...sources,
-    profileKey$: sources.userProfileKey$,
-  }).DOM,
-  classes$: of(['profile']),
-})
-
 export default sources => {
-  const _sources = {...sources,
-    userName$: sources.userProfile$.map(up => up && up.fullName || 'None'),
-    portraitUrl$: sources.userProfile$.map(up => up && up.portraitUrl),
-  }
-
-  const page = _Page(_sources)
-  const title = _Title({..._sources, tabsDOM$: page.tabBarDOM})
-  const nav = _Nav({..._sources, titleDOM: title.DOM})
-  const header = Header({..._sources,
-    titleDOM: title.DOM, tabsDOM: page.tabBarDOM,
+  const page = _Page(sources)
+  // const title = _Title({...sources, tabsDOM$: page.tabBarDOM})
+  const header = Header({...sources,
+    // titleDOM: of(null),
+    tabsDOM: page.tabBarDOM,
   })
 
-  const frame = AppFrame({..._sources,
+  const nav = ProfileSidenav(sources)
+
+  const frame = AppFrame({...sources,
     navDOM: nav.DOM,
     headerDOM: header.DOM,
     pageDOM: page.DOM,
   })
 
-  const redirect = LogoutRedirector(_sources)
+  const redirect = LogoutRedirector(sources)
 
   return {
     DOM: frame.DOM,
-    ...mergeSinks(frame, page, title, nav, header, redirect),
+    ...mergeSinks(frame, page, nav, header, redirect),
   }
 }

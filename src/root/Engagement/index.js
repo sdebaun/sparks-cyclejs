@@ -24,11 +24,26 @@ import Glance from './Glance'
 import Application from './Application'
 import Schedule from './Schedule'
 
+import {ProfileSidenav} from 'components/profile'
+
 const _routes = {
   '/': Glance,
   '/application': Application,
   '/schedule': Schedule,
 }
+
+// const _Nav = sources => ({
+//   DOM: sources.isMobile$.map(m => m ? null : sources.titleDOM),
+// })
+
+// const _Title = sources => ResponsiveTitle({...sources,
+//   titleDOM$: sources.userName$,
+//   subtitleDOM$: of('Welcome'),
+//   leftDOM$: MediumProfileAvatar({...sources,
+//     profileKey$: sources.userProfileKey$,
+//   }).DOM,
+//   classes$: of(['profile']),
+// })
 
 export default sources => {
   const engagement$ = sources.engagementKey$
@@ -85,10 +100,12 @@ export default sources => {
     backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
   })
 
-  const nav = EngagementNav({...sources,
-    titleDOM: title.DOM,
-    engagement$,
-  })
+  // const nav = EngagementNav({...sources,
+  //   titleDOM: title.DOM,
+  //   engagement$,
+  // })
+
+  const nav = ProfileSidenav(sources)
 
   const header = Header({...sources,
     titleDOM: title.DOM,
