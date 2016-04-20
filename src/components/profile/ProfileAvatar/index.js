@@ -1,3 +1,5 @@
+import {Observable as $} from 'rx'
+
 import {
   Avatar,
   MediumAvatar,
@@ -10,8 +12,9 @@ import {
 
 // hmmm???
 const ProfileFetcher = sources => ({
-  profile$: sources.profileKey$
-    .flatMapLatest(Profiles.query.one(sources)),
+  profile$: sources.profileKey$ ?
+    sources.profileKey$.flatMapLatest(Profiles.query.one(sources)) :
+    $.just(null),
 })
 
 const PortraitFetcher = sources => ({
