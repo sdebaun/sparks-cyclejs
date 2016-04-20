@@ -51,7 +51,7 @@ const _Fetch = sources => {
   const amountSparks$ = $.combineLatest(
     amountPayment$,
     amountDeposit$,
-    (pmt, dep) => ((pmt + dep) * 1.0 * 0.035) + 1.0
+    (pmt, dep) => (pmt + dep) * 0.035 + 1.0
   ).map(amt => +amt.toFixed(2))
 
   const amountNonrefund$ = $.combineLatest(

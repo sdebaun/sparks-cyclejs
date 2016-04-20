@@ -171,6 +171,6 @@ export default sources => {
 
   return {
     DOM: combineDOMsToDiv('.cardcontainer', card),
-    // queue$,
+    queue$,
   }
 }
