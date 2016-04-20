@@ -12,9 +12,8 @@ import {
 
 // hmmm???
 const ProfileFetcher = sources => ({
-  profile$: sources.profileKey$ ?
-    sources.profileKey$.flatMapLatest(Profiles.query.one(sources)) :
-    $.just(null),
+  profile$: sources.profileKey$
+    .flatMapLatest(k => k ? Profiles.query.one(sources)(k) : $.just(null)),
 })
 
 const PortraitFetcher = sources => ({
