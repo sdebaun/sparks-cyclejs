@@ -6,7 +6,7 @@ import {combineLatestToDiv} from 'util'
 
 export default (sources) => {
   const ic = InputControl({
-    label$: of('Choose a day to start adding shifts! (YYYY-MM-DD)'),
+    label$: of('Choose a day to start adding shifts! YYYY-MM-DD'),
     ...sources,
   })
   const rb = RaisedButton({label$: of('Add Date'), ...sources})
