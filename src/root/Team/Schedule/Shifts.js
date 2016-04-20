@@ -119,12 +119,15 @@ const AddShift = sources => {
   }
 }
 
+import {localTime} from 'util'
+
 const _Fetch = sources => {
   const shifts$ = sources.teamKey$
     .flatMapLatest(ShiftsRemote.query.byTeam(sources))
   const shiftsForDate$ = shifts$
     .combineLatest(sources.date$, (shifts, date) =>
-      shifts.filter(shift => shift.date === moment(date).format())
+      // shifts.filter(shift => moment.utc(shift.date).format('YYYY-MM-DD') === date)
+      shifts.filter(shift => localTime(shift.date).format('YYYY-MM-DD') === date)
         .sort((a,b) => moment(a.start).valueOf() - moment(b.start).valueOf())
     )
   return {shifts$, shiftsForDate$}
@@ -265,9 +268,9 @@ const _EditDialog = sources => {
       ({start, hours, ...values}, date, key) => ({
         key, values: {
           ...values,
-          start: moment(date).add(start,'hours').format(),
+          start: localTime(date).add(start,'hours').format(),
           // start: moment(date).add(start,'hours').format(),
-          end: moment(date).add(start,'hours').add(hours,'hours').format(),
+          end: localTime(date).add(start,'hours').add(hours,'hours').format(),
         //   start: moment(date)
         //     .add(start, 'seconds').format(),
         //   end: moment(date)
