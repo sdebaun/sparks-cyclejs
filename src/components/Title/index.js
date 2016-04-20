@@ -64,6 +64,30 @@ export const SidedrawerTitle = sources => {
   }
 }
 
+export const TabbedTitle = sources => {
+  // const rightDOM$ = just(sidenavButton)
+
+  const content = TitleContent({...sources,
+    // rightDOM$: sources.isMobile$
+      // .flatMapLatest(m => m && rightDOM$ || just(null)),
+    // subtitleDOM$: sources.isMobile$
+    //   .flatMapLatest(m => m && sources.subtitleDOM$ || just(null)),
+  })
+  const url$ = sources.backgroundUrl$ || just(null)
+  const classes$ = sources.classes$ || just([])
+
+  return {
+    DOM: combineLatest(
+      sources.isMobile$, url$, classes$,
+      (m, url, classes) =>
+        div('.title-block.' + classes.join('.'),
+          {style: bgStyle(url || sparkly)},
+          [content.DOM, sources.tabsDOM$]
+        )
+    ),
+  }
+}
+
 const ResponsiveTitle = sources => {
   // const rightDOM$ = just(sidenavButton)
 
