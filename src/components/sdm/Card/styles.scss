@@ -15,6 +15,25 @@
   flex: 1 1 auto;
   cursor: pointer;
   padding: 0.5em;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-end;
+
+  .title, .subtitle {
+    color: white;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: medium;
+    xflex: 1 1 auto;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    font-weight: normal;
+    xflex: 1 1 0;
+  }
 }
 
 .cardtitle {

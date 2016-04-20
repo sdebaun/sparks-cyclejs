@@ -2,9 +2,6 @@ require('./styles.scss')
 
 import {Observable as $} from 'rx'
 import {div} from 'cycle-snabbdom'
-import {Paper} from 'snabbdom-material'
-
-import {combineDOMsToDiv} from 'util'
 
 export const Grid = sources => ({
   DOM: sources.content$.map(content => div('.grid',content)),
@@ -28,8 +25,7 @@ export const Card = sources => {
 
 export const TitledCard = sources => {
   const title$ = sources.title$ || $.just('no $title')
-  const bodyContent$ = (sources.content$ || $.just(['no $content']))
-    // .map((...c) => c.length ? c : [c])
+  const bodyContent$ = sources.content$ || $.just(['no $content'])
 
   const content$ = $.combineLatest(
     title$, bodyContent$,
@@ -44,17 +40,21 @@ export const TitledCard = sources => {
 
 const sparkly = require('images/pitch/sparklerHeader-2048.jpg')
 
+const GRADIENT = 'linear-gradient(rgba(0,0,0,0.40),rgba(0,0,0,0.60))'
+
 const bgStyle = src => ({
   class: {cardmedia: true},
-  style: {backgroundImage: src || `url('/${sparkly}')`},
+  style: {
+    backgroundImage: `${GRADIENT}, url(${src || '/' + sparkly})`,
+  },
 })
 
 export const ComplexCard = sources => {
   const src$ = sources.src$ || $.just(null)
   const title$ = sources.title$ || $.just('no $title')
   const subtitle$ = sources.subtitle$ || $.just(null)
-  const toolbarContent$ = sources.toolbarContent$ || $.just(null)
-  const bodyContent$ = sources.content$ || $.just(['no $content'])
+  // const toolbarContent$ = sources.toolbarContent$ || $.just(null)
+  // const bodyContent$ = sources.content$ || $.just(['no $content'])
 
   const click$ = sources.DOM.select('.cardmedia').events('click')
 
@@ -62,8 +62,8 @@ export const ComplexCard = sources => {
     src$, title$, subtitle$,
     (src, title, subtitle) => [
       div(bgStyle(src), [
-        div('',[title]),
-        div('',[subtitle]),
+        div('.title',[title]),
+        div('.subtitle',[subtitle]),
       ]),
       // div('.cardcontent',[content]),
     ]
