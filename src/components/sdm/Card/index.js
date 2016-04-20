@@ -1,62 +1,90 @@
+require('./styles.scss')
+
 import {Observable as $} from 'rx'
 import {div} from 'cycle-snabbdom'
 import {Paper} from 'snabbdom-material'
 
-const style = {
-  margin: '1em',
-}
+import {combineDOMsToDiv} from 'util'
 
-const headerStyle = {
-  backgroundColor: '#FFEB3B',
-  fontSize: '1.8em',
-  fontWeight: 'bolder',
-  color: 'white',
-  padding: '.5em',
-  boxShadow: 'inset 0px -5px 10px 0px rgba(0,0,0,0.1)',
-  textShadow: `
-    1px 1px 0 rgba(0, 0, 0, 0.2),
-    -1px -1px 0 rgba(0, 0, 0, 0.2),
-    -1px 1px 0 rgba(0, 0, 0, 0.2),
-    1px -1px 0 rgba(0, 0, 0, 0.2)
-  `,
-}
-
-const contentStyle = {
-  paddingLeft: '.5em',
-  paddingRight: '.5em',
-}
+export const Grid = sources => ({
+  DOM: sources.content$.map(content => div('.grid',content)),
+})
 
 export const Card = sources => {
-  const {elevation$, content$, header$, DOM} = sources
+  const elevation$ = sources.elevation$ || $.just(1)
+  const content$ = sources.content$ || $.just('need content$')
+    .map((...c) => c)
 
-  const click$ = DOM.select('.card').events('click')
+  const DOM = $.combineLatest(
+    elevation$, content$,
+    (elevation, content) =>
+      div('.col-md-6.col-lg-4',[
+        div(`.card.paper${elevation}`, content),
+      ])
+  )
 
-  const view$ = $.combineLatest(elevation$, content$, header$,
-    (elevation, content, header) => div([div('.card', {style}, [
-      Paper({elevation, noPadding: true}, [
-        div({style: headerStyle}, [
-          header,
-        ]),
-        div({style: contentStyle}, [
-          content,
-        ]),
+  return {DOM}
+}
+
+export const TitledCard = sources => {
+  const title$ = sources.title$ || $.just('no $title')
+  const bodyContent$ = (sources.content$ || $.just(['no $content']))
+    // .map((...c) => c.length ? c : [c])
+
+  const content$ = $.combineLatest(
+    title$, bodyContent$,
+    (title, content) => [
+      div('.cardtitle',[title]),
+      div('.cardcontent',content),
+    ]
+  )
+
+  return Card({...sources, content$})
+}
+
+const sparkly = require('images/pitch/sparklerHeader-2048.jpg')
+
+const bgStyle = src => ({
+  class: {cardmedia: true},
+  style: {backgroundImage: src || `url('/${sparkly}')`},
+})
+
+export const ComplexCard = sources => {
+  const src$ = sources.src$ || $.just(null)
+  const title$ = sources.title$ || $.just('no $title')
+  const subtitle$ = sources.subtitle$ || $.just(null)
+  const toolbarContent$ = sources.toolbarContent$ || $.just(null)
+  const bodyContent$ = sources.content$ || $.just(['no $content'])
+
+  const click$ = sources.DOM.select('.cardmedia').events('click')
+
+  const content$ = $.combineLatest(
+    src$, title$, subtitle$,
+    (src, title, subtitle) => [
+      div(bgStyle(src), [
+        div('',[title]),
+        div('',[subtitle]),
       ]),
-    ])])
+      // div('.cardcontent',[content]),
+    ]
   )
 
   return {
+    ...Card({...sources, content$}),
     click$,
-    DOM: view$,
   }
 }
 
-export const CardNavigating = sources => {
-  const {path$} = sources
-  const {DOM, click$} = Card(sources)
-
-  const route$ = path$.sample(click$)
-
-  route$.subscribe(x => console.log('card route', x))
-
-  return {DOM, route$, click$}
+export const NavigatingComplexCard = sources => {
+  const card = ComplexCard(sources)
+  const path$ = sources.path$ || $.just('/')
+  const route$ = card.click$
+    .withLatestFrom(
+      path$,
+      (click,path) => path
+    )
+  return {
+    ...card,
+    route$,
+  }
 }

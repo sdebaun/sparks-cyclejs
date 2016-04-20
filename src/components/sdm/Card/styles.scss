@@ -1,0 +1,29 @@
+
+.cardcontainer {
+  background-color: #DDD;
+  flex: 1 1 100%;
+}
+
+.card {
+  margin: 0 0 1em;
+  min-height: 120px;
+  display: flex;
+  flex-flow: column;
+}
+
+.cardmedia {
+  flex: 1 1 auto;
+  cursor: pointer;
+}
+
+.cardtitle {
+  background-color: #FFEB3B;
+  font-size: 1.8em;
+  font-weight: bolder;
+  color: white;
+  padding: .5em;
+}
+
+.cardcontent {
+  padding: 0.5em;
+}

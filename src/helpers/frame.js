@@ -7,23 +7,26 @@ export const mobileFrame = ({sideNav, appBar, header, page}) =>
 
 const navlessStyle = {
   maxWidth: '800px',
-  margin: 'auto',
+  margin: '0 auto',
+  display: 'flex',
+  flex: '1 1 auto',
+  flexFlow: 'column',
   // display: 'flex',
 }
 
 const withSidenav = (sideNav, header, page) =>
-  div({style: {display: 'flex'}}, [
+  div({style: {display: 'flex', flex: '1 1 auto'}}, [
     sideNav ? div({style: {width: '300px'}}, [sideNav]) : null,
-    div({style: {flex: 1}}, [
+    div({style: {flex: '1 1 auto', display: 'flex', flexFlow: 'column'}}, [
       header,
-      div({style: {padding: '1em 1em'}}, [page]),
+      div({class: {cardcontainer: true}, style: {padding: '1em 1em'}}, [page]),
     ]),
   ])
 
 const noSidenav = (header, page) =>
   div({style: navlessStyle}, [
     header,
-    div({style: {padding: '1em 1em'}}, [page]),
+    div({class: {cardcontainer: true}, style: {padding: '1em 1em'}}, [page]),
   ])
 
 export const desktopFrame = ({sideNav, appBar, header, page}) =>

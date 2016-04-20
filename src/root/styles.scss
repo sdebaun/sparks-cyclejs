@@ -12,6 +12,19 @@ a {
   color: #eb8c58;
 }
 
+html, body {
+  height: 100%;
+}
+
+#root, #root > div {
+  height: 100%;
+}
+
+#root > div {
+  display: flex;
+  flex-flow: column;
+}
+
 body {
   background-color: #fff;
   overflow-x: hidden;
@@ -21,6 +34,7 @@ body {
   margin: 0 auto;
   padding: 0em 1em;
   max-width: 1024px;
+  flex: 1 1 100%;
 }
 
 .secondary {
