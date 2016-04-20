@@ -22,6 +22,9 @@ import {
   ProjectImages,
 } from 'components/remote'
 
+const extractAmount = s =>
+  parseInt(s.replace(/[^0-9\.]/g, ''), 10)
+
 const _Fetch = sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(key => sources.firebase('Engagements',key))
@@ -30,6 +33,32 @@ const _Fetch = sources => {
 
   const commitments$ = oppKey$
     .flatMapLatest(Commitments.query.byOpp(sources))
+
+  const commitmentPayment$ = commitments$
+    .map(col => col.filter(c => c.code === 'payment'))
+    .map(col => col.length >= 1 ? col[0] : null)
+
+  const commitmentDeposit$ = commitments$
+    .map(col => col.filter(c => c.code === 'deposit'))
+    .map(col => col.length >= 1 ? col[0] : null)
+
+  const amountPayment$ = commitmentPayment$
+    .map(({amount}) => extractAmount(amount))
+
+  const amountDeposit$ = commitmentDeposit$
+    .map(({amount}) => extractAmount(amount))
+
+  const amountSparks$ = $.combineLatest(
+    amountPayment$,
+    amountDeposit$,
+    (pmt, dep) => ((pmt + dep) * 1.0 * 0.035) + 1.0
+  ).map(amt => +amt.toFixed(2))
+
+  const amountNonrefund$ = $.combineLatest(
+    amountPayment$,
+    amountSparks$,
+    (pmt, sp) => pmt + sp
+  )
 
   const opp$ = oppKey$
     .flatMapLatest(Opps.query.one(sources))
@@ -49,11 +78,17 @@ const _Fetch = sources => {
     engagement$,
     oppKey$,
     commitments$,
+    commitmentPayment$,
+    commitmentDeposit$,
     opp$,
     projectKey$,
     project$,
     projectImage$,
     memberships$,
+    amountPayment$,
+    amountDeposit$,
+    amountSparks$,
+    amountNonrefund$,
   }
 }
 
