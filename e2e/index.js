@@ -17,12 +17,13 @@ describe('Nightwatch integration testing', () => {
       done()
     })
   })
-  beforeEach((client, done) => {
+
+  it('shows confirm page on first login', (client) => {
     client
       .url('http://localhost:8080')
       .click('i.icon-more_vert')
       .click('.cycle-scope-google .title')
-      .pause(3000)
+      .pause(1000)
       .window_handles((result) => {
         client.switchWindow(result.value[1])
           .waitForElementVisible('#Email', 10000)
@@ -34,13 +35,18 @@ describe('Nightwatch integration testing', () => {
       })
       .window_handles((result) => {
         client.switchWindow(result.value[0])
-          .pause(15000)
+          .pause(1000)
       })
-    done()
-  })
-  it('shows confirm page on first login', (client) => {
+
     client.getLog('browser', result => console.log('BROWSER LOG:', result))
     client.assert.value('.cycle-scope-fullName input', 'Test User')
     client.assert.value('.cycle-scope-email input', ACCOUNT.EMAIL)
+  })
+
+  it('should allow for entering phone number, confirming, redirecting to dash', (client) => {
+    client.setValue('.cycle-scope-phone input', '555-555-5555')
+      .waitForElementVisible('.submit')
+      .click('.submit')
+      .assert.urlContains('/dash')
   })
 })
