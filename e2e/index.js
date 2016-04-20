@@ -1,3 +1,6 @@
+/* eslint max-nested-callbacks: 0 */
+/* global describe, it, beforeEach, after*/
+
 if (!process.env.TEST_ACCOUNT_EMAIL || !process.env.TEST_ACCOUNT_PASSWD) {
   console.log('Need TEST_ACCOUNT_EMAIL and TEST_ACCOUNT_PASSWD env var')
   process.exit()
