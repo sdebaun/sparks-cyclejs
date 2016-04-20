@@ -23,10 +23,7 @@ export {ToggleControl} from './ToggleControl'
 export {TextAreaControl} from './TextAreaControl'
 export {CheckboxControl} from './CheckboxControl'
 
-export {
-  List,
-  ListWithHeader,
-} from './List'
+export * from './List'
 
 export {
   Dialog,
@@ -46,3 +43,5 @@ export {
   ListItemHeader,
   ListItemTextArea,
 } from './ListItem'
+
+export * from './Card'

@@ -1,0 +1,61 @@
+.fullpage {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 100%;
+}
+
+.cardcontainer {
+  height: 100%;
+  background-color: #DDD;
+  flex: 1 1 100%;
+  padding-top: 1em;
+  display: flex;
+  flex-flow: column;
+}
+
+.card {
+  margin: 0 0 1em 0;
+  min-height: 120px;
+  display: flex;
+  flex-flow: column;
+}
+
+.cardmedia {
+  flex: 1 1 auto;
+  cursor: pointer;
+  padding: 0.5em;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-end;
+  background-size: cover;
+  background-position: center;
+  min-height: 120px;
+
+  .title, .subtitle {
+    color: white;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: medium;
+    xflex: 1 1 auto;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    font-weight: normal;
+    xflex: 1 1 0;
+  }
+}
+
+.cardtitle {
+  background-color: #FFEB3B;
+  font-size: 1.8em;
+  font-weight: bolder;
+  color: white;
+  padding: .5em;
+}
+
+.cardcontent {
+  padding: 0.5em;
+}

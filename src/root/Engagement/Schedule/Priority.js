@@ -33,24 +33,21 @@ const ShiftItem = sources => {
       }
     )
     .map(a => a.length > 0 && a[0] || null)
-    // .tap(x => console.log('assignment$', x))
     .shareReplay(1)
-
-  // const assignment$ = $.just(true)
-  //   .tap(x => console.log('assignment$', x))
-  //   .shareReplay(1)
 
   const li = ListItemCheckbox({...sources,
     ...content,
     value$: assignment$,
   })
 
+  sources.engagement$.subscribe(x => console.log('engagement$',x))
+
   const queue$ = li.value$
     .tap(x => console.log('new queue value', x))
-    .withLatestFrom(sources.item$, assignment$,
-      (val, {$key: shiftKey, teamKey}, assignment) => {
+    .withLatestFrom(sources.item$, assignment$, sources.engagement$, sources.engagementKey$,
+      (val, {$key: shiftKey, teamKey}, assignment, {oppKey}, engagementKey) => {
         if (!assignment) {
-          return Assignments.action.create({teamKey, shiftKey})
+          return Assignments.action.create({teamKey, shiftKey, oppKey, engagementKey})
         }
         return assignment.$key && Assignments.action.remove(assignment.$key)
       }
@@ -243,6 +240,9 @@ const SelectionBlock = sources => {
 const _Fetch = sources => {
   const assignments$ = sources.userProfileKey$
     .flatMapLatest(Assignments.query.byProfile(sources))
+    .combineLatest(sources.engagementKey$)
+    .tap(x => console.log('wat',x))
+    .map(([c, engagementKey]) => c.filter(a => a.engagementKey === engagementKey))
 
   const requiredAssignments$ = sources.commitments$
     .map(c => c.filter(x => x.code === 'shifts'))
