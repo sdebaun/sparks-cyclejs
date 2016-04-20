@@ -33,13 +33,13 @@ const Title = sources => TitleListItem({...sources,
 const ToDoAnswer = sources => ToDoListItem({...sources,
   title$: of('Answer the application question.'),
   isDone$: sources.engagement$.map(({answer}) => !!answer),
-  path$: of(sources.router.createHref('/question')),
+  path$: of(sources.router.createHref('/application')),
 })
 
 const ToDoTeams = sources => ToDoListItem({...sources,
   title$: of('Choose the Teams you want to be in.'),
   isDone$: sources.memberships$.map(m => m.length > 0),
-  path$: of(sources.router.createHref('/teams')),
+  path$: of(sources.router.createHref('/application')),
 })
 
 const ToDoProfile = sources => ToDoListItem({...sources,

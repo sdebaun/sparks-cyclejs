@@ -14,6 +14,7 @@ import {
 import {
   Shifts,
   Assignments,
+  Engagements,
 } from 'components/remote'
 
 import {div} from 'helpers'
@@ -269,9 +270,17 @@ const ConfirmButton = sources => {
     label$: $.of('Confirm your shifts now!'),
   })
 
+  const queue$ = btn.click$
+    .withLatestFrom(
+      sources.engagementKey$,
+      (click, key) => ({key, values: {isAssigned: true}})
+    )
+    .map(Engagements.action.update)
+
   return {
     DOM: sources.neededAssignments$
       .flatMapLatest(n => n === 0 ? btn.DOM : $.just(div('',[]))),
+    queue$,
   }
 }
 
@@ -283,7 +292,7 @@ export default function(sources) {
   const btn = ConfirmButton(_sources)
 
   return {
-    queue$: $.merge(ab.queue$, sb.queue$),
+    queue$: $.merge(ab.queue$, sb.queue$, btn.queue$),
     DOM: combineDOMsToDiv('', ab, btn, sb),
   }
 }

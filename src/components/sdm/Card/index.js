@@ -7,6 +7,22 @@ export const Grid = sources => ({
   DOM: sources.content$.map(content => div('.grid',content)),
 })
 
+export const LargeCard = sources => {
+  const elevation$ = sources.elevation$ || $.just(1)
+  const content$ = sources.content$ || $.just('need content$')
+    .map((...c) => c)
+
+  const DOM = $.combineLatest(
+    elevation$, content$,
+    (elevation, content) =>
+      div('.col-xs-12',[
+        div(`.card.paper${elevation}`, content),
+      ])
+  )
+
+  return {DOM}
+}
+
 export const Card = sources => {
   const elevation$ = sources.elevation$ || $.just(1)
   const content$ = sources.content$ || $.just('need content$')
@@ -15,7 +31,7 @@ export const Card = sources => {
   const DOM = $.combineLatest(
     elevation$, content$,
     (elevation, content) =>
-      div('.col-md-6',[
+      div('.col-md-6.col-xs-12',[
         div(`.card.paper${elevation}`, content),
       ])
   )

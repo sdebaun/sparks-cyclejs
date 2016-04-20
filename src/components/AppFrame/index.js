@@ -1,8 +1,12 @@
+import {Observable as $} from 'rx'
+
 import {AppBar} from 'components/AppBar'
 import SideNav from 'components/SideNav'
 
 import {mobileFrame, desktopFrame} from 'helpers'
 import {mergeOrFlatMapLatest} from 'util'
+
+import {div} from 'helpers'
 
 export default sources => {
   const appBar = AppBar(sources)
@@ -23,7 +27,7 @@ export default sources => {
   const layoutParams = {
     sideNav: sideNav.DOM,
     appBar: appBar.DOM,
-    header: sources.headerDOM,
+    header: sources.headerDOM || $.of(div('',[])),
     page: sources.pageDOM,
   }
 

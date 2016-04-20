@@ -1,7 +1,10 @@
+import {Observable as $} from 'rx'
 import {Toolbar} from 'components/sdm'
 
 import AppMenu from 'components/AppMenu'
 import HeaderLogo from 'components/HeaderLogo'
+
+import {sidenavButton} from 'components/Title'
 
 const AppBar = sources => {
   const appMenu = AppMenu(sources)
@@ -12,6 +15,7 @@ const AppBar = sources => {
     route$: appMenu.route$,
     ...Toolbar({
       ...sources,
+      leftItemDOM$: sources.isMobile$.map(m => m ? sidenavButton : null),
       titleDOM$: headerLogo.DOM,
       rightItemDOM$: appMenu.DOM,
     }),

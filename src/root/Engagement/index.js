@@ -1,16 +1,18 @@
-import {Observable} from 'rx'
-const {combineLatest} = Observable
-// import isolate from '@cycle/isolate'
+import {Observable as $} from 'rx'
 
 import AppFrame from 'components/AppFrame'
-import {ResponsiveTitle} from 'components/Title'
-import Header from 'components/Header'
-// import {ProjectQuickNavMenu} from 'components/project/ProjectQuickNavMenu'
-import {EngagementNav} from 'components/engagement'
+import {TabbedTitle} from 'components/Title'
 
-import {nestedComponent, mergeOrFlatMapLatest} from 'util'
+import {
+  TabbedPage,
+} from 'components/ui'
+
+import {ProfileSidenav} from 'components/profile'
 
 // import {log} from 'util'
+import {mergeOrFlatMapLatest} from 'util'
+
+import {div} from 'helpers'
 
 import {
   Memberships,
@@ -20,17 +22,7 @@ import {
   ProjectImages,
 } from 'components/remote'
 
-import Glance from './Glance'
-import Application from './Application'
-import Schedule from './Schedule'
-
-const _routes = {
-  '/': Glance,
-  '/application': Application,
-  '/schedule': Schedule,
-}
-
-export default sources => {
+const _Fetch = sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(key => sources.firebase('Engagements',key))
 
@@ -53,65 +45,74 @@ export default sources => {
   const memberships$ = sources.engagementKey$
     .flatMapLatest(Memberships.query.byEngagement(sources))
 
-  const page$ = nestedComponent(
-    sources.router.define(_routes), {
-      ...sources,
-      engagement$,
-      oppKey$,
-      opp$,
-      projectKey$,
-      project$,
-      memberships$,
-      commitments$,
-    })
-
-  // const quickNav = ProjectQuickNavMenu(
-  //   {...sources, project$, projectKey$, opp$, teams$, opps$}
-  // )
-
-  const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
-
-  const subtitleDOM$ = combineLatest(
-    sources.isMobile$,
-    page$.flatMapLatest(page => page.pageTitle),
-    (isMobile, pageTitle) => isMobile ? pageTitle : null,
-  )
-
-  const title = ResponsiveTitle({...sources,
-    tabsDOM$: tabsDOM,
-    // topDOM$: quickNav.DOM,
-    titleDOM$: opp$.pluck('name'),
-    subtitleDOM$,
-    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
-  })
-
-  const nav = EngagementNav({...sources,
-    titleDOM: title.DOM,
+  return {
     engagement$,
+    oppKey$,
+    commitments$,
+    opp$,
+    projectKey$,
+    project$,
+    projectImage$,
+    memberships$,
+  }
+}
+
+import Priority from './Priority'
+import Application from './Application'
+import Confirmation from './Confirmation'
+
+import {label} from 'components/engagement'
+
+export default sources => {
+  const _sources = {...sources, ..._Fetch(sources)}
+
+  const nav = ProfileSidenav(_sources)
+
+  const tabs$ = _sources.engagement$.map(({isAccepted}) => [
+    {path: '/', label: 'Priority'},
+    {path: '/application', label: 'Application'},
+    isAccepted && {path: '/confirmation', label: 'Confirmation'},
+  ].filter(x => !!x))
+
+  const page = TabbedPage({..._sources,
+    tabs$,
+    routes$: $.of({
+      '/': Priority,
+      '/application': Application,
+      '/confirmation': Confirmation,
+    }),
   })
 
-  const header = Header({...sources,
-    titleDOM: title.DOM,
-    tabsDOM: tabsDOM,
+  const title = TabbedTitle({..._sources,
+    tabsDOM$: page.tabBarDOM,
+    titleDOM$: _sources.project$.pluck('name'),
+    subtitleDOM$: $.combineLatest(
+      _sources.opp$.pluck('name'),
+      _sources.engagement$.map(label),
+      (name,lab) => `${name} | ${lab}`
+    ),
+    backgroundUrl$: _sources.projectImage$.map(i => i && i.dataUrl),
   })
 
-  const appFrame = AppFrame({...sources,
+  const frame = AppFrame({..._sources,
     navDOM: nav.DOM,
-    headerDOM: header.DOM,
-    pageDOM: page$.pluck('DOM'),
+    pageDOM: $.combineLatest(
+      title.DOM, page.DOM,
+      (...doms) => div('', doms)
+    ),
   })
 
-  const children = [appFrame, page$, title, nav, header]
+  const children = [frame, page, nav]
 
-  const redirectOnLogout$ = sources.auth$.filter(auth => !auth).map(() => '/')
+  const redirectOnLogout$ = _sources.auth$.filter(auth => !auth).map(() => '/')
 
-  const route$ = Observable.merge(
+  const route$ = $.merge(
     mergeOrFlatMapLatest('route$', ...children),
     redirectOnLogout$,
   )
 
   return {
-    DOM: appFrame.DOM,
+    DOM: frame.DOM,
     auth$: mergeOrFlatMapLatest('auth$', ...children),
     queue$: mergeOrFlatMapLatest('queue$', ...children),
     route$,

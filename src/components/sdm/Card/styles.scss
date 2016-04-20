@@ -2,6 +2,13 @@
   display: flex;
   flex-flow: column;
   flex: 1 1 100%;
+
+  & > div {
+    display: flex;
+    flex-flow: column;
+    flex: 1 1 auto;
+    min-height: 100%;
+  }
 }
 
 .cardcontainer {
@@ -10,7 +17,7 @@
   flex: 1 1 100%;
   padding-top: 1em;
   display: flex;
-  flex-flow: column;
+  flex-wrap: wrap;
 }
 
 .card {

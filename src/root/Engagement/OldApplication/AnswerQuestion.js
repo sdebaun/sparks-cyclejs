@@ -58,12 +58,12 @@ export default sources => {
     answer$: sources.engagement$.map(e => e && e.answer),
   }
 
-  const inst = Instruct(_sources)
+  // const inst = Instruct(_sources)
   const quest = Question(_sources)
   const ans = isolate(Answer,'answer')(_sources)
-  const next = isolate(Next, 'next')(_sources)
+  // const next = isolate(Next, 'next')(_sources)
 
-  const childs = [inst, quest, ans, next]
+  const childs = [quest, ans]
 
   const queue$ = buildUpdate(
     sources.engagementKey$,
@@ -75,6 +75,6 @@ export default sources => {
   return {
     DOM,
     queue$,
-    route$: next.route$,
+    // route$: next.route$,
   }
 }

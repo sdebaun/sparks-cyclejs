@@ -21,5 +21,6 @@ export {QuotingListItem} from './QuotingListItem'
 export {TitleListItem} from './TitleListItem'
 
 export {ToDoListItem} from './ToDoListItem'
+export {StepListItem} from './StepListItem'
 
 export {ActionButton} from './ActionButton'

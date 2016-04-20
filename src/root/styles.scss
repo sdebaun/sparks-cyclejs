@@ -16,13 +16,19 @@ html, body {
   height: 100%;
 }
 
+#root {
+  display: flex;
+}
+
 #root, #root > div {
-  height: 100%;
+  xheight: 100%;
+  min-height: 100%;
 }
 
 #root > div {
   display: flex;
   flex-flow: column;
+  flex: 1 1 auto;
 }
 
 body {
@@ -49,4 +55,8 @@ body {
 .row {
   margin: 0;
   display: flex;
+}
+
+.nav-button .icon-menu {
+  color: white !important;
 }
