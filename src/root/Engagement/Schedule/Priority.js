@@ -12,6 +12,11 @@ import {
 } from 'components/sdm'
 
 import {
+  StepListItem,
+  DescriptionListItem,
+} from 'components/ui'
+
+import {
   Shifts,
   Assignments,
   Engagements,
@@ -195,11 +200,11 @@ const MembershipList = sources => List({...sources,
   Control$: $.of(MembershipItem),
 })
 
-const AssignmentInstructions = sources => ListItem({...sources,
+const AssignmentInstructions = sources => DescriptionListItem({...sources,
   title$: sources.neededAssignments$
     .map(n => n === 0 ?
       `Perfect! Confirm your shifts and carry on.` :
-      `You need to choose ${n} more shifts.`
+      `Pick which shifts you prefer to work.  You need to choose ${n} more shifts.  Your selection is temporary until you finish confirmation.`
     ),
 })
 

@@ -13,6 +13,8 @@ import {
 import {
   StepListItem,
   DescriptionListItem,
+  TitleListItem,
+  ToDoListItem,
 } from 'components/ui'
 
 import {
@@ -158,12 +160,25 @@ const Step1 = sources => {
   }
 }
 
+const _Title = sources => TitleListItem({...sources,
+  title$: $.just('Confirm Your Spot'),
+})
+
+const _AllDone = sources => ToDoListItem({...sources,
+  title$: $.just('You\'re confirmed!'),
+  isDone$: $.just(false),
+  subtitle$: $.just('We will send you a message when the event is coming up.'),
+  path$: sources.engagementKey$.map(k => `/engaged/${k}`),
+})
+
 export default sources => {
+  const t = _Title(sources)
   const s1 = Step1(sources)
   const s2 = Step2(sources)
+  const ad = _AllDone(sources)
 
   const card = LargeCard({...sources,
-    content$: $.combineLatest(s1.DOM, s2.DOM),
+    content$: $.combineLatest(t.DOM, s1.DOM, s2.DOM, ad.DOM),
   })
 
   const queue$ = $.merge(s1.queue$, s2.queue$)
@@ -172,5 +187,6 @@ export default sources => {
   return {
     DOM: combineDOMsToDiv('.cardcontainer', card),
     queue$,
+    route$: ad.route$,
   }
 }
