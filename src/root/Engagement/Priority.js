@@ -201,36 +201,51 @@ const ConfirmationsNeededCard = sources => {
   }
 }
 
-const CombinedList = sources => ({
-  DOM: sources.contents$
-    .tap(x => console.log('contents$', x))
-    .map(contents => div('.cardcontainer',contents)),
-})
-
 const ConfirmNowCard = sources => hideable(TitledCard)({...sources,
   elevation$: $.just(2),
   isVisible$: sources.engagement$.map(e => e.isAccepted && !e.isConfirmed),
-  //   sources.projects$, sources.engagements$,
-  //   (p,e) => p.length === 0 && e.length === 0
-  // ),
   content$: $.just([`
     list item
   `]),
   title$: $.just('Confirm Now!'),
 })
 
+import NextSteps from './OldApplication/NextSteps'
+
+const NSCard = sources => {
+  const ns = NextSteps(sources)
+  return {
+    ...TitledCard({...sources,
+      content$: $.just([ns.DOM]),
+    }),
+    route$: ns.route$,
+  }
+}
+
+const ApplicationOpenCard = sources => hideable(NSCard)({...sources,
+  elevation$: $.just(2),
+  isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
+  title$: $.just('Awaiting Approval'),
+})
+
+const CombinedList = sources => ({
+  DOM: sources.contents$.map(contents => div('.cardcontainer',contents)),
+})
+
 const CardList = sources => {
-  const welc = ConfirmNowCard(sources)
+  const confirm = ConfirmNowCard(sources)
+  const app = ApplicationOpenCard(sources)
   // const conf = ConfirmationsNeededCard(sources)
   // const managed = ManagedList(sources)
   // const engaged = EngagedList(sources)
 
   const contents$ = $.combineLatest(
-    welc.DOM,
+    confirm.DOM,
+    app.DOM,
     // conf.DOM,
     // managed.contents$,
     // engaged.contents$,
-    (w) => [w]
+    (c, a) => [c, a]
     // (w, c, m, e) => [w, c, ...m, ...e]
   )
 
@@ -238,7 +253,7 @@ const CardList = sources => {
     ...CombinedList({...sources,
       contents$,
     }),
-    // route$: $.merge(managed.route$, engaged.route$, conf.route$),
+    route$: $.merge(confirm.route$, app.route$),
     // route$: $.merge(managed.route$, engaged.route$, conf.route$),
   }
 }
@@ -251,6 +266,6 @@ export default sources => {
 
   return {
     DOM: cards.DOM,
-    // route$: cards.route$,
+    route$: cards.route$,
   }
 }
