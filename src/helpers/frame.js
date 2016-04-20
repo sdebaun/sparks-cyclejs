@@ -23,10 +23,19 @@ const withSidenav = (sideNav, header, page) =>
   ])
 
 const noSidenav = (header, page) =>
-  div({style: navlessStyle}, [
-    header,
-    div('.fullpage', [page]),
+  div({style: {display: 'flex', flex: '1 1 auto'}}, [
+    div({style: {flex: '1 1 auto'}},['']),
+    div({style: {flex: '1 1 800px', display: 'flex', flexFlow: 'column'}}, [
+      header,
+      div('.fullpage', [page]),
+    ]),
+    div({style: {flex: '1 1 auto'}},['']),
   ])
+  // div({style: navlessStyle}, [
+  // div({style: {flex: '1 1 100%', display: 'flex', flexFlow: 'column', alignItems: 'stretch'}}, [
+  //   header,
+  //   div('.fullpage', [page]),
+  // ])
 
 export const desktopFrame = ({sideNav, appBar, header, page}) =>
   div({}, [
