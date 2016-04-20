@@ -2,13 +2,8 @@ machine:
   node:
     version: 4.2.2
 test:
-  pre:
-    - BUILD_FIREBASE_HOST=http://sparks-circleci.firebaseio.com npm run build
-    - npm run serve-static:
-        background: true
-    - sleep 3
   override:
-    - MOCHA_FILE=$CIRCLE_TEST_REPORTS/test-results.xml npm test -- --env circleci
+    - bash ./scripts/run_integration_tests.sh
 
 notify:
   webhooks:
