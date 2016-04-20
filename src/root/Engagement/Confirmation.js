@@ -3,7 +3,7 @@ import {Observable as $} from 'rx'
 
 import isolate from '@cycle/isolate'
 
-import {div} from 'cycle-snabbdom'
+import {h, div} from 'cycle-snabbdom'
 // import {log} from 'util'
 
 import {combineDOMsToDiv} from 'util'
@@ -275,9 +275,27 @@ const CardList = sources => {
   }
 }
 
+import braintree from 'braintree-web'
+
 const MakePayment = sources => {
+  const clientToken$ = sources.engagement$
+    .pluck('paymentClientToken')
+
   return {
-    DOM: $.just(div('',['wat'])),
+    // DOM: $.just(div('', ['wat'])),
+    DOM: clientToken$.map(clientToken =>
+      h('form',[
+        div('#braintree', {
+          hook: {
+            insert: ({elm}) => braintree.setup(clientToken,'dropin',{
+              container: 'braintree',
+            }),
+          },
+        },[]),
+        h('input',{attrs: {type: 'submit', value: 'Pay Now'}}),
+      ])
+    ),
+    queue$: $.never(),
   }
 }
 
