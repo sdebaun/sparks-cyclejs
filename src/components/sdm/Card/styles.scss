@@ -1,11 +1,20 @@
-
-.cardcontainer {
-  background-color: #DDD;
+.fullpage {
+  display: flex;
+  flex-flow: column;
   flex: 1 1 100%;
 }
 
+.cardcontainer {
+  height: 100%;
+  background-color: #DDD;
+  flex: 1 1 100%;
+  padding-top: 1em;
+  display: flex;
+  flex-flow: column;
+}
+
 .card {
-  margin: 0 0 1em;
+  margin: 0 0 1em 0;
   min-height: 120px;
   display: flex;
   flex-flow: column;
@@ -18,6 +27,9 @@
   display: flex;
   flex-flow: column;
   justify-content: flex-end;
+  background-size: cover;
+  background-position: center;
+  min-height: 120px;
 
   .title, .subtitle {
     color: white;

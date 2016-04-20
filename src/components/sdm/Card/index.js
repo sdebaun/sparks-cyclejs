@@ -40,7 +40,7 @@ export const TitledCard = sources => {
 
 const sparkly = require('images/pitch/sparklerHeader-2048.jpg')
 
-const GRADIENT = 'linear-gradient(rgba(0,0,0,0.40),rgba(0,0,0,0.60))'
+const GRADIENT = 'linear-gradient(rgba(0,0,0,0.50),rgba(0,0,0,0.65),rgba(0,0,0,0.80),rgba(0,0,0,0.80))'
 
 const bgStyle = src => ({
   class: {cardmedia: true},
@@ -48,6 +48,8 @@ const bgStyle = src => ({
     backgroundImage: `${GRADIENT}, url(${src || '/' + sparkly})`,
   },
 })
+
+import {ListItemCollapsible} from 'components/sdm'
 
 export const ComplexCard = sources => {
   const src$ = sources.src$ || $.just(null)
@@ -58,13 +60,19 @@ export const ComplexCard = sources => {
 
   const click$ = sources.DOM.select('.cardmedia').events('click')
 
+  const toolbar = ListItemCollapsible({...sources,
+    title$: $.just(null),
+    subtitle$: $.just(null),
+  })
+
   const content$ = $.combineLatest(
-    src$, title$, subtitle$,
-    (src, title, subtitle) => [
+    src$, title$, subtitle$, toolbar.DOM,
+    (src, title, subtitle, tb) => [
       div(bgStyle(src), [
         div('.title',[title]),
         div('.subtitle',[subtitle]),
       ]),
+      // tb,
       // div('.cardcontent',[content]),
     ]
   )

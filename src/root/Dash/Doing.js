@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just, merge, combineLatest} = Observable
 
 import isolate from '@cycle/isolate'
 
@@ -21,6 +21,7 @@ import {EngagementItem} from 'components/engagement'
 
 import {
   List,
+  PartialList,
   ListWithHeader,
   ListItem,
   ListItemCollapsible,
@@ -218,9 +219,10 @@ const _Fetch = sources => {
 
   const engagements$ = sources.userProfileKey$
     .flatMapLatest(Engagements.query.byUser(sources))
+    .shareReplay(1)
 
   const acceptedEngagements$ = engagements$
-    .map(engagements => engagements.filter(e => e.isAccepted))
+    .map(engagements => engagements.filter(e => !!e.isAccepted))
 
   const organizers$ = sources.userProfileKey$
     .flatMapLatest(Organizers.query.byUser(sources))
@@ -247,14 +249,23 @@ const EngagedCard = sources => {
     .flatMapLatest(Opps.query.one(sources))
   const project$ = opp$.pluck('projectKey')
     .flatMapLatest(Projects.query.one(sources))
+  const projectImage$ = opp$.pluck('projectKey')
+    .flatMapLatest(ProjectImages.query.one(sources))
 
-  return ComplexCard({...sources,
+  return NavigatingComplexCard({...sources,
+    src$: projectImage$.map(p => p && p.dataUrl || null),
     title$: project$.pluck('name'),
-    subtitle$: opp$.pluck('name'),
+    // subtitle$: opp$.pluck('name'),
+    subtitle$: combineLatest(
+      opp$.pluck('name'),
+      sources.item$,
+      (name, item) => `${name} | ${_label(item)}`
+    ),
+    path$: sources.item$.map(({$key}) => `/engaged/${$key}`),
   })
 }
 
-const EngagedList = sources => List({...sources,
+const EngagedList = sources => PartialList({...sources,
   rows$: sources.engagements$,
   Control$: just(EngagedCard),
 })
@@ -265,7 +276,7 @@ const ManagedCard = sources => NavigatingComplexCard({...sources,
   path$: sources.item$.map(({$key}) => `/project/${$key}`),
 })
 
-const ManagedList = sources => List({...sources,
+const ManagedList = sources => PartialList({...sources,
   rows$: sources.projects$,
   Control$: just(ManagedCard),
 })
@@ -283,16 +294,64 @@ const WelcomeCard = sources => hideable(TitledCard)({...sources,
   title$: just('Welcome to the Sparks.Network!'),
 })
 
+const ConfirmationsList = sources => PartialList({...sources,
+  rows$: sources.acceptedEngagements$,
+  Control$: just(ListItem),
+})
+
+const ConfirmationsNeededCard = sources => {
+  const contents$ = ConfirmationsList(sources).contents$
+    .map(contents => ['You\'ve been approved for these opportunities.  Confirm now to lock in your spot!', ...contents])
+  const card = hideable(TitledCard)({...sources,
+    elevation$: just(2),
+    isVisible$: sources.acceptedEngagements$.map(c => c.length > 0),
+    content$: contents$,
+    title$: just('Confirm Your Spot!'),
+  })
+  return {
+    ...card,
+  }
+}
+
+const CombinedList = sources => ({
+  DOM: sources.contents$
+    .tap(x => console.log('contents$', x))
+    .map(contents => div('',contents)),
+})
+
+const CardList = sources => {
+  const welc = WelcomeCard(sources)
+  const conf = ConfirmationsNeededCard(sources)
+  const managed = ManagedList(sources)
+  const engaged = EngagedList(sources)
+
+  const contents$ = combineLatest(
+    welc.DOM,
+    conf.DOM,
+    managed.contents$,
+    engaged.contents$,
+    (w, c, m, e) => [w, c, ...m, ...e]
+  )
+
+  return {
+    ...CombinedList({...sources,
+      contents$,
+    }),
+    route$: merge(managed.route$, engaged.route$),
+  }
+}
+
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
-
-  const welc = WelcomeCard(_sources)
+  const cards = CardList(_sources)
+  // const welc = WelcomeCard(_sources)
+  // const conf = ConfirmationsNeededCard(_sources)
   // const conf = ConfirmationCards(_sources)
 
   // const create = isolate(CreateProjectListItem,'create')(_sources)
 
-  const managed = ManagedList(_sources)
-  const engaged = EngagedList(_sources)
+  // const managed = ManagedList(_sources)
+  // const engaged = EngagedList(_sources)
 
   // const engaged = isolate(EngagedList,'engaged')({..._sources,
   //   rows$: _sources.engagements$,
@@ -306,20 +365,22 @@ export default sources => {
     // .map(Projects.action.create)
 
   const route$ = Observable.merge(
-    managed.route$,
-    engaged.route$,
+    cards.route$,
+    // engaged.route$,
   //   organizing.route$,
-  //   conf.route$,
+    // conf.route$,
   //   Projects.redirect.create(_sources).route$,
   ).tap(x => console.log('route$', x))
 
-  const DOM = combineDOMsToDiv('',
+  const DOM = combineDOMsToDiv('.cardcontainer',
     // create,
     // conf,
-    welc,
-    managed,
+    // welc,
+    // conf,
+    // managed,
     // organizing,
-    engaged,
+    // engaged,
+    cards
   )
 
   // const DOM = combineLatest(

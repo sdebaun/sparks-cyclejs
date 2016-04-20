@@ -11,7 +11,6 @@ const navlessStyle = {
   display: 'flex',
   flex: '1 1 auto',
   flexFlow: 'column',
-  // display: 'flex',
 }
 
 const withSidenav = (sideNav, header, page) =>
@@ -19,14 +18,14 @@ const withSidenav = (sideNav, header, page) =>
     sideNav ? div({style: {width: '300px'}}, [sideNav]) : null,
     div({style: {flex: '1 1 auto', display: 'flex', flexFlow: 'column'}}, [
       header,
-      div({class: {cardcontainer: true}, style: {padding: '1em 1em'}}, [page]),
+      div('.fullpage', [page]),
     ]),
   ])
 
 const noSidenav = (header, page) =>
   div({style: navlessStyle}, [
     header,
-    div({class: {cardcontainer: true}, style: {padding: '1em 1em'}}, [page]),
+    div('.fullpage', [page]),
   ])
 
 export const desktopFrame = ({sideNav, appBar, header, page}) =>
