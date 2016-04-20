@@ -15,8 +15,16 @@ const filterPriority = e => e.filter(x => x.isAccepted && x.priority)
 const filterOK = e => e.filter(x => x.isAccepted && !x.priority)
 const filterNever = e => e.filter(x => !x.isAccepted && x.declined)
 const _Fetch = sources => {
-  const e$ = sources.teamKey$
+  const all$ = sources.teamKey$
     .flatMapLatest(Memberships.query.byTeam(sources))
+    .shareReplay(1)
+
+  const errored$ = all$
+    .map(engs => engs.filter(e => !e.authorProfileKey)) // filter out naughty records
+    .subscribe(engs => console.log('Memberships with errors:', engs))
+
+  const e$ = all$
+    .map(engs => engs.filter(e => !!e.authorProfileKey)) // filter out naughty records
     .shareReplay(1)
 
   return {

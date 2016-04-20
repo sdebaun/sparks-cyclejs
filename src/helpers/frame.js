@@ -14,7 +14,7 @@ const navlessStyle = {
 }
 
 const withSidenav = (sideNav, header, page) =>
-  div({style: {display: 'flex', flex: '1 1 auto'}}, [
+  div({style: {display: 'flex', flex: '1 1 100%'}}, [
     sideNav ? div({style: {width: '300px'}}, [sideNav]) : null,
     div({style: {flex: '1 1 auto', display: 'flex', flexFlow: 'column'}}, [
       header,
@@ -23,7 +23,7 @@ const withSidenav = (sideNav, header, page) =>
   ])
 
 const noSidenav = (header, page) =>
-  div({style: {display: 'flex', flex: '1 1 auto'}}, [
+  div({style: {display: 'flex', flex: '1 1 100%'}}, [
     div({style: {flex: '1 1 auto'}},['']),
     div({style: {flex: '1 1 800px', display: 'flex', flexFlow: 'column'}}, [
       header,

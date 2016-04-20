@@ -103,7 +103,7 @@ const TeamFulfilledListItem = sources => {
       // sources.teamKey$,
       sources.oppKey$,
       (fulfiller, teamKey, oppKey) => fulfiller && fulfiller.$key ?
-        Fulfillers.delete(fulfiller.$key) :
+        Fulfillers.remove(fulfiller.$key) :
         Fulfillers.create({teamKey, oppKey}),
     )
 

@@ -6,6 +6,8 @@ import {
   Avatar,
 } from 'components/sdm'
 
+import {localTime} from 'util'
+
 const icons = [0,1,2,3,4,5,6]
   .map(i => '/' + require(`images/daytimeicon_${i}.png`))
 
@@ -18,7 +20,7 @@ export const TimeOfDayAvatar = sources => Avatar({...sources,
 })
 
 const timeCell = t =>
-  cell({minWidth: '90px', textAlign: 'left'}, moment(t).format('h:mm a'))
+  cell({minWidth: '90px', textAlign: 'left'}, localTime(t).format('h:mm a'))
 
 export const ShiftContent = sources => {
   const tod = TimeOfDayAvatar({...sources,
