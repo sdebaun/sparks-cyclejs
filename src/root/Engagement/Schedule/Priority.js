@@ -44,10 +44,10 @@ const ShiftItem = sources => {
 
   const queue$ = li.value$
     .tap(x => console.log('new queue value', x))
-    .withLatestFrom(sources.item$, assignment$, sources.engagement$,
-      (val, {$key: shiftKey, teamKey}, assignment, {oppKey}) => {
+    .withLatestFrom(sources.item$, assignment$, sources.engagement$, sources.engagementKey$,
+      (val, {$key: shiftKey, teamKey}, assignment, {oppKey}, engagementKey) => {
         if (!assignment) {
-          return Assignments.action.create({teamKey, shiftKey, oppKey})
+          return Assignments.action.create({teamKey, shiftKey, oppKey, engagementKey})
         }
         return assignment.$key && Assignments.action.remove(assignment.$key)
       }
@@ -240,9 +240,9 @@ const SelectionBlock = sources => {
 const _Fetch = sources => {
   const assignments$ = sources.userProfileKey$
     .flatMapLatest(Assignments.query.byProfile(sources))
-    .combineLatest(sources.engagement$.pluck('oppKey'))
+    .combineLatest(sources.engagementKey$)
     .tap(x => console.log('wat',x))
-    .map(([c, oppKey]) => c.filter(a => a.oppKey === oppKey))
+    .map(([c, engagementKey]) => c.filter(a => a.engagementKey === engagementKey))
 
   const requiredAssignments$ = sources.commitments$
     .map(c => c.filter(x => x.code === 'shifts'))
