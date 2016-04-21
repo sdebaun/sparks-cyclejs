@@ -115,7 +115,9 @@ const ShiftFilter = sources => ({
     sources.item$,
     sources.shifts$,
     (item, shifts) =>
-      shifts.filter(s => s.date === item.date)
+      shifts
+        .filter(s => s.date === item.date)
+        .sort((a,b) => moment(a.start) - moment(b.start))
   ),
 })
 
