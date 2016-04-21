@@ -39,9 +39,17 @@ const MakePayment = sources => {
     .map(Engagements.action.pay)
     .tap(x => console.log('engagement payment action:', x))
 
+  const isVisible$ = $.merge(
+    $.just(true),
+    queue$.map(false),
+  )
+
+  const viewState$ = $.combineLatest(clientToken$, isVisible$)
+
   return {
-    DOM: clientToken$.map(clientToken =>
-      h('form',[
+    DOM: viewState$.map(([clientToken, isVisible]) =>
+      isVisible ?
+      h('form',{style: {marginBottom: '1em'}}, [
         div('#braintree', {
           hook: {
             insert: () => braintree.setup(clientToken,'dropin',{
@@ -50,9 +58,19 @@ const MakePayment = sources => {
             }),
           },
         },[]),
-        h('input',{attrs: {type: 'submit', value: 'Pay Now'}}),
-      ])
-    ),
+        h('button.waves-button.waves-float.waves-light.waves-effect',
+          {
+            attrs: {type: 'submit'},
+            style: {fontSize: '16px', lineHeight: '36px',
+              padding: '0 24px', textAlign: 'center',
+              backgroundColor: 'rgb(0,150,136)', color: '#FFF',
+            },
+          },
+          ['Pay With This']
+        ),
+      ]) :
+      div('','Payment submitted, thank you!')
+    ) ,
     queue$,
   }
 }
@@ -116,6 +134,14 @@ const ItemRefund = sources => ListItem({...sources,
   ),
 })
 
+const ItemPaymentError = sources => ListItem({...sources,
+  // iconName$: $.just('power'),
+  isVisible$: sources.engagement$.map(({paymentError}) => paymentError),
+  title$: sources.engagement$.map(({paymentError}) => `What!? ${paymentError}???`),
+  subtitle$: $.just('Evil internet monkies have interfered with processing your payment.  Refresh the page and try again, or contact help@sparks.network.'),
+  leftDOM$: $.just(icon('error','accent')),
+})
+
 const Step2Content = sources => {
   const inst = PaymentInstructions(sources)
   const paymentForm = MakePayment(sources)
@@ -124,9 +150,10 @@ const Step2Content = sources => {
   const ispk = ItemSparks(sources)
   const ref = ItemRefund(sources)
   const nref = ItemNonrefund(sources)
+  const err = ItemPaymentError(sources)
 
   return {
-    DOM: combineDOMsToDiv('',inst,ipmt,idep,ispk,ref,nref,paymentForm),
+    DOM: combineDOMsToDiv('',inst,ipmt,idep,ispk,ref,nref,paymentForm,err),
     queue$: paymentForm.queue$,
   }
 }
