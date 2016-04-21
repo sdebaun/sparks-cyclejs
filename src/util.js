@@ -11,6 +11,20 @@ export const PROVIDERS = {
   logout: {type: 'logout'},
 }
 
+import moment from 'moment'
+
+export const hideable = Control => sources => {
+  const ctrl = Control(sources)
+  const {DOM, ...sinks} = ctrl
+  return {
+    DOM: sources.isVisible$.flatMapLatest(v => v ? DOM : just(null)),
+    ...sinks,
+  }
+}
+
+export const localTime = t => //1p
+  moment(t).utc().add(moment.parseZone(t).utcOffset(),'m')
+
 export const requireSources = (cname, sources, ...sourceNames) =>
   sourceNames.forEach(n => {
     if (!sources[n]) { throw new Error(cname + ' must specify ' + n)}

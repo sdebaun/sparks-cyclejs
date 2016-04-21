@@ -1,10 +1,16 @@
+.title-block.profile {
+  cursor: pointer;
+}
+
 .title-block {
-  z-index: 100;
-  min-height: 120px;
+  z-index: 0;
+  height: 120px;
   background-size: cover;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  min-width: 300px;
+  flex: 0 0 120px;
 
   * {
     color: white;

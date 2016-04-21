@@ -14,6 +14,7 @@ import {
   Opps,
   ProjectImages,
   Teams,
+  Projects,
 } from 'components/remote'
 
 import {
@@ -36,7 +37,8 @@ const _Fetch = sources => {
 
   const projectKey$ = opp$.pluck('projectKey')
 
-  const project$ = opp$.pluck('project')
+  const project$ = projectKey$
+    .flatMapLatest(Projects.query.one(sources))
 
   const projectImage$ = projectKey$
     .flatMapLatest(ProjectImages.query.one(sources))

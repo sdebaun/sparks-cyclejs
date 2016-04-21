@@ -40,15 +40,60 @@ const TitleContent = sources => ({
   ),
 })
 
-const sidenavButton =
+export const sidenavButton =
   Appbar.Button({className: 'nav-button'}, [icon('menu')])
 
-const ResponsiveTitle = sources => {
-  const rightDOM$ = just(sidenavButton)
+export const SidedrawerTitle = sources => {
+  const content = TitleContent(sources)
+  const url$ = sources.backgroundUrl$ || just(null)
+  const classes$ = sources.classes$ || just([])
+
+  const route$ = sources.DOM.select('.title-block.sidedrawer').events('click')
+    .map('/dash')
+
+  return {
+    DOM: combineLatest(
+      sources.isMobile$, url$, classes$,
+      (m, url, classes) =>
+        div('.title-block.sidedrawer.' + classes.join('.'),
+          {style: bgStyle(url || sparkly)},
+          [content.DOM]
+        )
+    ),
+    route$,
+  }
+}
+
+export const TabbedTitle = sources => {
+  // const rightDOM$ = just(sidenavButton)
 
   const content = TitleContent({...sources,
-    rightDOM$: sources.isMobile$
-      .flatMapLatest(m => m && rightDOM$ || just(null)),
+    // rightDOM$: sources.isMobile$
+      // .flatMapLatest(m => m && rightDOM$ || just(null)),
+    // subtitleDOM$: sources.isMobile$
+    //   .flatMapLatest(m => m && sources.subtitleDOM$ || just(null)),
+  })
+  const url$ = sources.backgroundUrl$ || just(null)
+  const classes$ = sources.classes$ || just([])
+
+  return {
+    DOM: combineLatest(
+      sources.isMobile$, url$, classes$,
+      (m, url, classes) =>
+        div('.title-block.' + classes.join('.'),
+          {style: bgStyle(url || sparkly)},
+          [content.DOM, sources.tabsDOM$]
+        )
+    ),
+  }
+}
+
+const ResponsiveTitle = sources => {
+  // const rightDOM$ = just(sidenavButton)
+
+  const content = TitleContent({...sources,
+    // rightDOM$: sources.isMobile$
+      // .flatMapLatest(m => m && rightDOM$ || just(null)),
     // subtitleDOM$: sources.isMobile$
     //   .flatMapLatest(m => m && sources.subtitleDOM$ || just(null)),
   })

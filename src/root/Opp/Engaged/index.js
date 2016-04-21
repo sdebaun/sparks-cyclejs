@@ -14,8 +14,16 @@ const filterPriority = e => e.filter(x => x.isAccepted && x.priority)
 const filterOK = e => e.filter(x => x.isAccepted && !x.priority)
 const filterNever = e => e.filter(x => !x.isAccepted && x.declined)
 const _Fetch = sources => {
-  const e$ = sources.oppKey$
+  const all$ = sources.oppKey$
     .flatMapLatest(Engagements.query.byOpp(sources))
+    .shareReplay(1)
+
+  const errored$ = all$
+    .map(engs => engs.filter(e => !e.profileKey)) // filter out naughty records
+    .subscribe(engs => console.log('Applications with errors:', engs))
+
+  const e$ = all$
+    .map(engs => engs.filter(e => !!e.profileKey)) // filter out naughty records
     .shareReplay(1)
 
   return {

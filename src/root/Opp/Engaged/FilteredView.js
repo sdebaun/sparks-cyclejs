@@ -17,9 +17,13 @@ import {Detail} from './Detail'
 
 const Item = sources => {
   const profile$ = sources.item$
-    .tap(i => !i.profileKey && console.log('item no profileKey', i))
     .pluck('profileKey')
     .flatMapLatest(Profiles.query.one(sources))
+    // .flatMapLatest(({profileKey, $key}) =>
+    //   profileKey ?
+    //   Profiles.query.one(sources)(profileKey) :
+    //   of({fullName: $key, $key}),
+    // )
     .shareReplay(1)
 
   return ListItemNavigating({...sources,

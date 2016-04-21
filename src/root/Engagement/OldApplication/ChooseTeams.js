@@ -269,12 +269,8 @@ const Next = sources => ListItemNavigating({...sources,
     just('You can choose as many teams as you want, but you only need one.'),
   leftDOM$: just(icon('chevron-circle-right', 'accent')),
   path$:
-    sources.engagementKey$.map(k => '/engaged/' + k + '/application'),
+    sources.engagementKey$.map(k => `/engaged/${k}`),
 })
-
-// const combineToDiv = (...DOMs) => combineLatest(
-//   ...DOMs, (...doms) => div({},doms)
-// )
 
 export default sources => {
   const _sources = {...sources, ...Fetch(sources)}

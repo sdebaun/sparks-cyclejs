@@ -12,6 +12,25 @@ a {
   color: #eb8c58;
 }
 
+html, body {
+  height: 100%;
+}
+
+#root {
+  display: flex;
+}
+
+#root, #root > div {
+  xheight: 100%;
+  min-height: 100%;
+}
+
+#root > div {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+}
+
 body {
   background-color: #fff;
   overflow-x: hidden;
@@ -21,6 +40,7 @@ body {
   margin: 0 auto;
   padding: 0em 1em;
   max-width: 1024px;
+  flex: 1 1 100%;
 }
 
 .secondary {
@@ -35,4 +55,19 @@ body {
 .row {
   margin: 0;
   display: flex;
+}
+
+.nav-button .icon-menu {
+  color: white !important;
+}
+
+.amount {
+  font-size: 18px;
+  font-weight: bold;
+  color: #666;
+  text-align: right;
+}
+
+.total {
+  font-size: 18px;
 }

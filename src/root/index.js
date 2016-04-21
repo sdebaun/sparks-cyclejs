@@ -79,9 +79,15 @@ const UserManager = sources => {
       return key ? sources.firebase('Profiles', key) : just(null)
     })
 
+  const userName$ = userProfile$.map(up => up && up.fullName || 'None')
+
+  const userPortraitUrl$ = userProfile$.map(up => up && up.portraitUrl)
+
   return {
     userProfile$,
     userProfileKey$,
+    userName$,
+    userPortraitUrl$,
   }
 }
 

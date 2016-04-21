@@ -1,9 +1,2 @@
-export {
-  Avatar,
-  MediumAvatar,
-  LargeAvatar,
-
-  LargeProfileAvatar,
-  MediumProfileAvatar,
-  ProfileAvatar,
-} from './ProfileAvatar'
+export * from './ProfileAvatar'
+export * from './ProfileSidenav'

@@ -25,6 +25,7 @@ const _controlSources = (field,sources) => ({...sources,
       sources.item$ && pluckStartValue(sources.item$, field) ||
       just({})
     )
+    // .tap(x => console.log('form value$',x))
     .merge(pluckStartValue(sources.item$, field)),
 })
 

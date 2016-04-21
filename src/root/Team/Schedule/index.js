@@ -37,12 +37,14 @@ function removeDuplicates(arr) {
   return newArray
 }
 
+import {localTime} from 'util'
+
 export default sources => {
   const shifts$ = sources.teamKey$
     .flatMapLatest(ShiftsRemote.query.byTeam(sources))
 
   const shiftDates$ = shifts$
-    .map(arr => arr.map(a => moment(a.date).format('YYYY-MM-DD')))
+    .map(arr => arr.map(a => localTime(a.date).format('YYYY-MM-DD')))
 
   const selectedDate$ = sources.router.observable.pluck('pathname')
     .map(dateFromPath)
