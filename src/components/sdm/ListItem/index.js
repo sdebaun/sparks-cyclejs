@@ -66,7 +66,7 @@ const ListItem = sources => {
 
 const ListItemClickable = sources => {
   const classes$ = (sources.classes$ || just({}))
-    .map(c => ({...c, clickable: true}))
+    .map(c => ({clickable: true, ...c}))
 
   return {
     click$: sources.DOM.select('.list-item').events('click'),
