@@ -33,9 +33,10 @@ export const ShiftContent = sources => {
       sources.item$.pluck('start'),
       sources.item$.pluck('end'),
       sources.item$.pluck('people'),
-      (s,e,p) => row({},
+      sources.item$.pluck('assigned'),
+      (s,e,p,a) => row({},
         timeCell(s), timeCell(e),
-        cell({flex: '100', textAlign: 'right'},`0 / ${p} `,icon('people')),
+        cell({flex: '100', textAlign: 'right'},`${a||0} / ${p} `,icon('people')),
       )
     ),
     subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),

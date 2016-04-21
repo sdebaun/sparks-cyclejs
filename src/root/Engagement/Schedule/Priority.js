@@ -9,10 +9,11 @@ import {
   ListItem,
   ListItemCollapsible,
   ListItemCheckbox,
+  ListItemClickable,
+  CheckboxControl,
 } from 'components/sdm'
 
 import {
-  StepListItem,
   DescriptionListItem,
 } from 'components/ui'
 
@@ -28,6 +29,34 @@ import {
   ShiftContent,
 } from 'components/shift'
 
+const ListItemCheckboxDisabling = sources => {
+  const cbox = CheckboxControl(sources)
+
+  const item = ListItemClickable({...sources,
+    rightDOM$: $.combineLatest(
+      sources.isDisabled$ || $.just(false),
+      sources.disabledDOM || $.just(''),
+      cbox.DOM,
+      (isDisabled, d, cb) => isDisabled ? d : cb
+    ),
+    title$: sources.value$.flatMapLatest(v =>
+      sources.title$ ||
+      (v ? sources.titleTrue$ : sources.titleFalse$)
+    ),
+    classes$: sources.isDisabled$
+      .map(isDisabled => ({disabled: isDisabled, clickable: !isDisabled})),
+  })
+
+  const value$ = item.click$
+    .withLatestFrom(sources.value$)
+    .map(x => !x)
+
+  return {
+    DOM: item.DOM,
+    value$,
+  }
+}
+
 const ShiftItem = sources => {
   const content = ShiftContent(sources)
   const shiftKey$ = sources.item$.pluck('$key')
@@ -41,14 +70,23 @@ const ShiftItem = sources => {
     .map(a => a.length > 0 && a[0] || null)
     .shareReplay(1)
 
-  const li = ListItemCheckbox({...sources,
+  const isDisabled$ = sources.item$
+    .map(({people,assigned}) => parseInt(assigned,10) >= parseInt(people,10))
+
+  const li = ListItemCheckboxDisabling({...sources,
     ...content,
     value$: assignment$,
+    isDisabled$,
+    disabledDOM: $.just(div('.disabled',['FULL'])),
   })
 
   sources.engagement$.subscribe(x => console.log('engagement$',x))
 
-  const queue$ = li.value$
+  const value$ = li.value$
+    .combineLatest(isDisabled$)
+    .filter(([val,isDisabled]) => !isDisabled)
+
+  const queue$ = value$
     .tap(x => console.log('new queue value', x))
     .withLatestFrom(sources.item$, assignment$, sources.engagement$, sources.engagementKey$,
       (val, {$key: shiftKey, teamKey}, assignment, {oppKey}, engagementKey) => {
@@ -110,10 +148,22 @@ const AssignedShiftItem = sources => {
   }
 }
 
+const ShiftFilter = sources => ({
+  rows$: $.combineLatest(
+    sources.item$,
+    sources.shifts$,
+    (item, shifts) =>
+      shifts
+        .filter(s => s.date === item.date)
+        .sort((a,b) => moment(a.start) - moment(b.start))
+  ),
+})
+
 const DaysListItem = sources => {
   const list = List({
     ...sources,
-    rows$: sources.item$.pluck('shifts'),
+    // rows$: sources.item$.pluck('shifts'),
+    rows$: ShiftFilter(sources).rows$,
     Control$: $.just(ShiftItem),
   })
 
@@ -150,7 +200,8 @@ const DatesBuilder = sources => {
   return {
     rows$: sources.rows$
       .map(r => r.reduce(groupDateRows, {}))
-      .map(o => Object.keys(o).map(k => ({$key: k, ...o[k]}))),
+      .map(o => Object.keys(o).map(k => ({$key: k, ...o[k]})))
+      .distinctUntilChanged(i => i.length),
   }
 }
 

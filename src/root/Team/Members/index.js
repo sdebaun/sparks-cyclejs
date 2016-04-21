@@ -10,10 +10,17 @@ import {
 
 import {FilteredView} from './FilteredView'
 
-const filterApplied = e => e.filter(x => !x.isAccepted && !x.declined)
-const filterPriority = e => e.filter(x => x.isAccepted && x.priority)
-const filterOK = e => e.filter(x => x.isAccepted && !x.priority)
-const filterNever = e => e.filter(x => !x.isAccepted && x.declined)
+const filterApplied = e =>
+  e.filter(x => !x.isAccepted && !x.declined && !x.isConfirmed)
+const filterPriority = e =>
+  e.filter(x => x.isAccepted && x.priority && !x.isConfirmed)
+const filterOK = e =>
+  e.filter(x => x.isAccepted && !x.priority && !x.isConfirmed)
+const filterNever = e =>
+  e.filter(x => !x.isAccepted && x.declined && !x.isConfirmed)
+const filterConfirmed = e =>
+  e.filter(x => x.isConfirmed)
+
 const _Fetch = sources => {
   const all$ = sources.teamKey$
     .flatMapLatest(Memberships.query.byTeam(sources))
@@ -33,6 +40,7 @@ const _Fetch = sources => {
     priority$: e$.map(filterPriority).shareReplay(1),
     ok$: e$.map(filterOK).shareReplay(1),
     never$: e$.map(filterNever).shareReplay(1),
+    confirmed$: e$.map(filterConfirmed).shareReplay(1),
   }
 }
 
@@ -42,8 +50,10 @@ const _TabMaker = sources => ({
     sources.priority$,
     sources.ok$,
     sources.never$,
-    (ap,pr,ok,nv) => [
+    sources.confirmed$,
+    (ap,pr,ok,nv,cf) => [
       {path: '/', label: `${ap.length} Applied`},
+      pr.length > 0 && {path: '/confirmed', label: `${cf.length} Confirmed`},
       pr.length > 0 && {path: '/priority', label: `${pr.length} Priority`},
       ok.length > 0 && {path: '/ok', label: `${ok.length} OK`},
       nv.length > 0 && {path: '/never', label: `${nv.length} Never`},
@@ -63,6 +73,9 @@ const OK = sources => FilteredView({...sources,
 const Never = sources => FilteredView({...sources,
   memberships$: sources.never$,
 })
+const Confirmed = sources => FilteredView({...sources,
+  memberships$: sources.confirmed$,
+})
 
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
@@ -74,6 +87,7 @@ export default sources => {
       tabs$: _TabMaker(_sources).tabs$,
       routes$: of({
         '/': Applied,
+        '/confirmed': Confirmed,
         '/priority': Priority,
         '/ok': OK,
         '/never': Never,
