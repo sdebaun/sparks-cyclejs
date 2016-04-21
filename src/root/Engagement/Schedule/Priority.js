@@ -110,10 +110,20 @@ const AssignedShiftItem = sources => {
   }
 }
 
+const ShiftFilter = sources => ({
+  rows$: $.combineLatest(
+    sources.item$,
+    sources.shifts$,
+    (item, shifts) =>
+      shifts.filter(s => s.date === item.date)
+  ),
+})
+
 const DaysListItem = sources => {
   const list = List({
     ...sources,
-    rows$: sources.item$.pluck('shifts'),
+    // rows$: sources.item$.pluck('shifts'),
+    rows$: ShiftFilter(sources).rows$,
     Control$: $.just(ShiftItem),
   })
 
@@ -150,7 +160,8 @@ const DatesBuilder = sources => {
   return {
     rows$: sources.rows$
       .map(r => r.reduce(groupDateRows, {}))
-      .map(o => Object.keys(o).map(k => ({$key: k, ...o[k]}))),
+      .map(o => Object.keys(o).map(k => ({$key: k, ...o[k]})))
+      .distinctUntilChanged(i => i.length),
   }
 }
 
