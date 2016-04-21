@@ -5,6 +5,7 @@ import {h, div} from 'cycle-snabbdom'
 // import {log} from 'util'
 
 import {combineDOMsToDiv} from 'util'
+import {icon} from 'helpers'
 
 import {
   Engagements,
@@ -20,6 +21,7 @@ import {
 import {
   LargeCard,
   ListItem,
+  ListItemNavigating,
 } from 'components/sdm'
 
 import braintree from 'braintree-web'
@@ -166,11 +168,12 @@ const _Title = sources => TitleListItem({...sources,
   ),
 })
 
-const _AllDone = sources => ToDoListItem({...sources,
+const _AllDone = sources => ListItemNavigating({...sources,
   title$: $.just('You\'re confirmed!'),
-  isDone$: $.just(false),
   subtitle$: $.just('We will send you a message when the event is coming up.'),
+  leftDOM$: $.of(icon('chevron-circle-right', 'accent')),
   path$: sources.engagementKey$.map(k => `/engaged/${k}`),
+  isVisible$: sources.engagement$.map(({isPaid, isAssigned}) => isPaid && isAssigned),
 })
 
 export default sources => {

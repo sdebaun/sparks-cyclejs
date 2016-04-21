@@ -59,8 +59,8 @@
       background-color: #eee;
     }
   }
-  &.disabled {
-    color: #666;
+  &.disabled, &.disabled * {
+    color: #CCC !important;
   }
 
   .left, .right {
