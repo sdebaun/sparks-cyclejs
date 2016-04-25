@@ -1,0 +1,1 @@
+export {AssignmentsFetcher} from './AssignmentsFetcher'
