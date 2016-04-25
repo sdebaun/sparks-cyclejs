@@ -6,74 +6,72 @@ import Overview from './Overview'
 import Shifts from './Shifts'
 import {Shifts as ShiftsRemote} from 'components/remote'
 
-import moment from 'moment'
-
-function getPathParts(pathname) {
-  return pathname.split('/').filter(Boolean)
-}
-
-function hasShifts(pathname) {
-  return getPathParts(pathname).indexOf('shifts') !== -1
-}
-
-function dateFromPath(pathname) {
-  if (!hasShifts(pathname)) { return null }
-  const pathParts = getPathParts(pathname)
-  const date = pathParts[pathParts.length - 1]
-  return date
-}
-
-function makeTabs(dates) {
-  return dates.map(d => ({path: '/shifts/' + d, label: d}))
-}
-
-function removeDuplicates(arr) {
-  const newArray = []
-  for (let i = 0; i < arr.length; ++i) {
-    if (newArray.indexOf(arr[i]) === -1) {
-      newArray.push(arr[i])
-    }
-  }
-  return newArray
-}
+import {log} from 'util'
 
 import {localTime} from 'util'
 
-export default sources => {
+const fromPath = pathName => {
+  const items = pathName.split('/').filter(Boolean)
+  return items[4]
+}
+
+const _Fetch = sources => {
   const shifts$ = sources.teamKey$
     .flatMapLatest(ShiftsRemote.query.byTeam(sources))
+    // .tap(log('shifts$'))
 
   const shiftDates$ = shifts$
     .map(arr => arr.map(a => localTime(a.date).format('YYYY-MM-DD')))
+    // .tap(log('shiftDates$'))
+
+  // Y U NO
+  // const selectedDate$ = (sources.date$ || of(null))
+  //   .tap(log('date$'))
 
   const selectedDate$ = sources.router.observable.pluck('pathname')
-    .map(dateFromPath)
+    .map(fromPath)
 
-  const datesInTabs$ = combineLatest(
-    shiftDates$, selectedDate$,
-    (shiftDates, selectedDate) => selectedDate ?
-      [selectedDate, ...shiftDates] :
-      shiftDates
-    )
-    .map(removeDuplicates)
+  const allDates$ = combineLatest(shiftDates$, selectedDate$)
+    .tap(log('allDates$ start'))
+    .map(([fmShifts,fmSelected]) => [...fmShifts, fmSelected].filter(i => !!i))
     .map(arr => arr.sort())
+    // .map(arr => arr.filter((item, pos, ary) => !pos || item !== ary[pos - 1]))
+    .map(arr => Array.from(new Set(arr))) // orly???
+    // .tap(log('allDates$ end'))
+    .shareReplay(1)
 
-  const dateTabs$ = datesInTabs$
-    .map(makeTabs)
+  return {
+    shifts$,
+    selectedDate$,
+    allDates$,
+  }
+}
 
-  const tabs$ = combineLatest(
-    of({path: '/', label: 'Overview'}),
-    dateTabs$,
-    (ov,dt) => [ov, ...dt]
-  ).shareReplay(1)
+const TabBuilder = sources => {
+  const overview$ = of({path: '/', label: 'Overview'})
+  const dateTabs$ = sources.allDates$
+    .map(arr => arr.map(d => ({path: '/shifts/' + d, label: d})))
+    .tap(log('dateTabs$'))
+
+  const tabs$ = combineLatest(overview$, dateTabs$)
+    .map(([ov,dt]) => [ov, ...dt])
+    .shareReplay(1)
+    .tap(log('tabs$'))
+
+  return {tabs$}
+}
+
+export default sources => {
+  const _sources = {...sources, ..._Fetch(sources)}
+  const {tabs$} = TabBuilder(_sources)
 
   const routes$ = of({
     '/': Overview,
-    '/shifts/:date': date => _sources => Shifts({..._sources, date$: of(date)}),
+    '/shifts/:date': date => srcs => Shifts({...srcs, date$: of(date)}),
   })
 
   return {
     pageTitle: of('Schedule'),
-    ...TabbedPage({...sources, tabs$, routes$}),
+    ...TabbedPage({..._sources, tabs$, routes$}),
   }
 }
