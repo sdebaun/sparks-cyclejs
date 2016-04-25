@@ -1,7 +1,11 @@
 import {Observable} from 'rx'
 const {of, merge} = Observable
 import {Form} from 'components/ui/Form'
-import {Shifts as ShiftsRemote} from 'components/remote'
+import {
+  Assignments,
+  Shifts,
+} from 'components/remote'
+
 import {div} from 'cycle-snabbdom'
 import {icon} from 'helpers'
 import {combineLatestToDiv} from 'util'
@@ -12,10 +16,9 @@ import moment from 'moment'
 
 import {
   List,
-  ListItemWithMenu,
   ListItemClickable,
   ListItemWithDialog,
-  InputControl,
+  ListItemCollapsibleWithMenu,
   Dialog,
 } from 'components/sdm'
 
@@ -27,7 +30,7 @@ import {localTime} from 'util'
 
 const _Fetch = sources => {
   const shifts$ = sources.teamKey$
-    .flatMapLatest(ShiftsRemote.query.byTeam(sources))
+    .flatMapLatest(Shifts.query.byTeam(sources))
   const shiftsForDate$ = shifts$
     .combineLatest(sources.date$, (shifts, date) =>
       // shifts.filter(shift => moment.utc(shift.date).format('YYYY-MM-DD') === date)
@@ -37,39 +40,39 @@ const _Fetch = sources => {
   return {shifts$, shiftsForDate$}
 }
 
-const ToggleControl = sources => {
-  const click$ = sources.DOM.select('.toggle').events('click')
-    .map(true)
-    .scan((a) => !a, false)
-    .startWith(false)
-    .shareReplay(1)
+// const ToggleControl = sources => {
+//   const click$ = sources.DOM.select('.toggle').events('click')
+//     .map(true)
+//     .scan((a) => !a, false)
+//     .startWith(false)
+//     .shareReplay(1)
 
-  return {
-    click$,
-    DOM: click$.map(v =>
-      div({class: {toggle: true}},[
-        v ?
-        icon('toggle-on','accent') :
-        icon('toggle-off'),
-      ])
-    ),
-  }
-}
+//   return {
+//     click$,
+//     DOM: click$.map(v =>
+//       div({class: {toggle: true}},[
+//         v ?
+//         icon('toggle-on','accent') :
+//         icon('toggle-off'),
+//       ])
+//     ),
+//   }
+// }
 
-const ListItemBonusToggle = (sources) => {
-  const toggle = ToggleControl(sources)
-  const item = ListItemClickable({...sources,
-    leftDOM$: toggle.DOM,
-    title$: toggle.click$.flatMapLatest(v =>
-      v ? sources.titleTrue$ : sources.titleFalse$
-    ),
-  })
+// const ListItemBonusToggle = (sources) => {
+//   const toggle = ToggleControl(sources)
+//   const item = ListItemClickable({...sources,
+//     leftDOM$: toggle.DOM,
+//     title$: toggle.click$.flatMapLatest(v =>
+//       v ? sources.titleTrue$ : sources.titleFalse$
+//     ),
+//   })
 
-  return {
-    DOM: item.DOM,
-    value$: toggle.click$,
-  }
-}
+//   return {
+//     DOM: item.DOM,
+//     value$: toggle.click$,
+//   }
+// }
 
 import {ShiftForm} from './ShiftForm'
 
@@ -99,7 +102,7 @@ const AddShift = sources => {
         end: moment(date).add(start,'hours').add(hours,'hours').format(),
       }))
     .sample(submit$)
-    .map(ShiftsRemote.action.create)
+    .map(Shifts.action.create)
 
   return {
     DOM: liwd.DOM,
@@ -135,6 +138,13 @@ const _DecPeople = sources => ListItemClickable({...sources,
 const _Edit = sources => ListItemClickable({...sources,
   iconName$: of('pencil'),
   title$: of('Edit'),
+})
+
+import {AssignmentItem} from './AssignmentItem'
+
+const _ShiftAssignmentList = sources => List({...sources,
+  Control$: of(AssignmentItem),
+  rows$: sources.assignments$ || of([]),
 })
 
 const _Item = sources => {
@@ -178,21 +188,28 @@ const _Item = sources => {
     .tap(x => console.log('edit!',x))
 
   const queue$ = merge(
-    key$.sample(rm.click$).map(ShiftsRemote.action.remove),
-    hrChange$.map(ShiftsRemote.action.update),
-    peopleChange$.map(ShiftsRemote.action.update),
+    key$.sample(rm.click$).map(Shifts.action.remove),
+    hrChange$.map(Shifts.action.update),
+    peopleChange$.map(Shifts.action.update),
   )
 
   const content = ShiftContent(sources)
+
+  const assignments$ = key$
+    .flatMapLatest(Assignments.query.byShift(sources))
+
+  const sa = _ShiftAssignmentList({...sources,
+    assignments$,
+  })
 
   return {
     queue$,
     edit$,
 
-    ...ListItemWithMenu({...sources,
+    ...ListItemCollapsibleWithMenu({...sources,
       ...content, // leftDOM$, title$, subtitle$,
-      rightDOM$: of(icon('menu')),
       menuItems$: of([ed.DOM, inc.DOM, dec.DOM, incp.DOM, decp.DOM, rm.DOM]),
+      contentDOM$: sa.DOM,
     }),
   }
 }
@@ -225,7 +242,7 @@ const _EditDialog = sources => {
   const form = ShiftForm({...sources, item$: shift$})
   const dialog = Dialog({...sources,
     isOpen$: shift$.map(true),
-    title$: of('foo'),
+    titleDOM$: of('Edit Shift'),
     contentDOM$: form.DOM,
   })
 
@@ -252,7 +269,7 @@ const _EditDialog = sources => {
         },
       })
     )
-    .map(ShiftsRemote.action.update),
+    .map(Shifts.action.update),
   }
 }
 

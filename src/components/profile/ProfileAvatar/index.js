@@ -1,4 +1,4 @@
-import {Observable as $} from 'rx'
+// import {Observable as $} from 'rx'
 
 import {
   Avatar,
@@ -6,15 +6,7 @@ import {
   LargeAvatar,
 } from 'components/sdm'
 
-import {
-  Profiles,
-} from 'components/remote'
-
-// hmmm???
-const ProfileFetcher = sources => ({
-  profile$: sources.profileKey$
-    .flatMapLatest(k => k ? Profiles.query.one(sources)(k) : $.just(null)),
-})
+import {ProfileFetcher} from 'components/profile/ProfileFetcher'
 
 const PortraitFetcher = sources => ({
   portraitUrl$: ProfileFetcher(sources).profile$
