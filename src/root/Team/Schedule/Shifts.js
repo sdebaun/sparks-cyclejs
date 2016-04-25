@@ -222,7 +222,7 @@ const _EditDialog = sources => {
   //   .tap(s => console.log('shift',s))
   //   // .shareReplay(1)
 
-  const form = ShiftForm({...sources, value$: shift$})
+  const form = ShiftForm({...sources, item$: shift$})
   const dialog = Dialog({...sources,
     isOpen$: shift$.map(true),
     title$: of('foo'),
