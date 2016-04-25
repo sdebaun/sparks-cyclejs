@@ -10,7 +10,7 @@ import {
 } from 'components/sdm'
 
 import {
-  ShiftContent,
+  ShiftContentExtra,
 } from 'components/shift'
 
 import {
@@ -22,6 +22,6 @@ export const AssignmentItem = sources => {
     .flatMapLatest(Shifts.query.one(sources))
 
   return ListItemWithMenu({...sources,
-    ...ShiftContent({...sources, item$: shift$}),
+    ...ShiftContentExtra({...sources, item$: shift$}),
   })
 }
