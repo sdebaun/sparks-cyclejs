@@ -1,5 +1,7 @@
 import {Observable as $} from 'rx'
 
+import moment from 'moment'
+
 import {
   List,
   ListItemCollapsible,
@@ -9,12 +11,20 @@ import {
   ProfileFetcher,
 } from 'components/profile'
 
+import {
+  Shifts,
+} from 'components/remote'
+
 import {AssignmentItem} from './AssignmentItem'
 import {AssignmentsFetcher} from 'components/assignment'
 
+import {cellC, icon} from 'helpers/layout'
+
+import {log} from 'util'
+
 const AssignmentList = sources => List({...sources,
   Control$: $.of(AssignmentItem),
-  rows$: sources.assignments$,
+  rows$: sources.shifts$,
 })
 
 // const TeamList = sources => List({
@@ -25,24 +35,42 @@ const AssignmentList = sources => List({...sources,
 const _Fetch = sources => {
   const profileKey$ = sources.item$.pluck('profileKey')
   const {profile$} = ProfileFetcher({...sources, profileKey$})
-  const {assignments$} = AssignmentsFetcher({...sources, profileKey$})
+  // const {assignments$} = AssignmentsFetcher({...sources, profileKey$})
+  const unsortedAssignments$ = AssignmentsFetcher({...sources, profileKey$}).assignments$
+
+  const shifts$ = unsortedAssignments$
+    .map(arr => arr.map(a => Shifts.query.one(sources)(a.shiftKey)))
+    .tap(log('shifts$ passed to query'))
+    .shareReplay(1)
+    .flatMapLatest(sarr => sarr.length > 0 ? $.combineLatest(...sarr) : $.of([]))
+    .tap(log('shifts$ from assignments$'))
+    .map(arr => arr.sort((a,b) => moment(a.start) - moment(b.start)))
+    .shareReplay(1)
   // const {memberships$} = MembershipFetcher({...sources, profileKey$})
 
   return {
     profileKey$,
     profile$,
-    assignments$,
+    shifts$,
   }
 }
+
+const EngagementAssignmentCount = sources => ({
+  DOM: sources.shifts$.map(s =>
+    cellC({accent: s.length !== 2}, `${s.length}/2`, icon('insert_invitation'))
+  ),
+})
 
 export const Item = sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
   const al = AssignmentList(_sources)
+  const eac = EngagementAssignmentCount(_sources)
 
   return ListItemCollapsible({..._sources,
     title$: _sources.profile$.pluck('fullName'),
     iconSrc$: _sources.profile$.pluck('portraitUrl'),
+    rightDOM$: eac.DOM,
     contentDOM$: al.DOM,
   })
 }

@@ -18,10 +18,8 @@ import {
 } from 'components/remote'
 
 export const AssignmentItem = sources => {
-  const shift$ = sources.item$.pluck('shiftKey')
-    .flatMapLatest(Shifts.query.one(sources))
-
+  sources.item$.tap(x => console.log('AssignmentItem.item$', x))
   return ListItemWithMenu({...sources,
-    ...ShiftContentExtra({...sources, item$: shift$}),
+    ...ShiftContentExtra(sources),
   })
 }
