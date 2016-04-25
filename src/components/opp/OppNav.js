@@ -23,9 +23,15 @@ const _Manage = sources => ListItemNavigating({...sources,
   path$: just('/manage'),
 })
 
+const _Confirmed = sources => ListItemNavigating({...sources,
+  title$: just('Confirmed'),
+  iconName$: just('people'),
+  path$: just('/confirmed'),
+})
+
 const _Engaged = sources => ListItemNavigating({...sources,
   title$: just('Engaged'),
-  iconName$: just('people'),
+  iconName$: just('event_available'),
   path$: just('/engaged'),
 })
 
@@ -33,6 +39,7 @@ const _List = sources => {
   const childs = [
     isolate(_Glance,'glance')(sources),
     isolate(_Manage,'manage')(sources),
+    isolate(_Confirmed,'manage')(sources),
     isolate(_Engaged,'enaged')(sources),
   ]
 

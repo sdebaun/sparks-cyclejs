@@ -30,6 +30,7 @@ import {ProjectQuickNavMenu} from 'components/project'
 import Glance from './Glance'
 import Manage from './Manage'
 import Engaged from './Engaged'
+import Confirmed from './Confirmed'
 
 const _Fetch = sources => {
   const opp$ = sources.oppKey$
@@ -72,6 +73,7 @@ const _Page = sources => RoutedComponent({...sources, routes$: of({
   '/': Glance,
   '/manage': Manage,
   '/engaged': Engaged,
+  '/confirmed': Confirmed,
 })})
 
 export default sources => {
