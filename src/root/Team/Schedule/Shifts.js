@@ -23,17 +23,19 @@ import {
   ShiftContent,
 } from 'components/shift'
 
-const StartsInput = sources => InputControl({...sources,
-  label$: of('Starts At Hour (24 hour)'),
-})
+import {localTime} from 'util'
 
-const HoursInput = sources => InputControl({...sources,
-  label$: of('Hours'),
-})
-
-const PeopleInput = sources => InputControl({...sources,
-  label$: of('People (Number)'),
-})
+const _Fetch = sources => {
+  const shifts$ = sources.teamKey$
+    .flatMapLatest(ShiftsRemote.query.byTeam(sources))
+  const shiftsForDate$ = shifts$
+    .combineLatest(sources.date$, (shifts, date) =>
+      // shifts.filter(shift => moment.utc(shift.date).format('YYYY-MM-DD') === date)
+      shifts.filter(shift => localTime(shift.date).format('YYYY-MM-DD') === date)
+        .sort((a,b) => moment(a.start).valueOf() - moment(b.start).valueOf())
+    )
+  return {shifts$, shiftsForDate$}
+}
 
 const ToggleControl = sources => {
   const click$ = sources.DOM.select('.toggle').events('click')
@@ -69,21 +71,7 @@ const ListItemBonusToggle = (sources) => {
   }
 }
 
-const ToggleBonus = sources => ListItemBonusToggle({...sources,
-  titleTrue$:
-    of('Bonus'),
-  titleFalse$:
-    of('Normal'),
-})
-
-const ShiftForm = sources => Form({...sources,
-  Controls$: of([
-    {field: 'start', Control: StartsInput},
-    {field: 'hours', Control: HoursInput},
-    {field: 'people', Control: PeopleInput},
-    {field: 'bonus', Control: ToggleBonus},
-  ]),
-})
+import {ShiftForm} from './ShiftForm'
 
 const AddShift = sources => {
   const form = ShiftForm(sources)
@@ -117,20 +105,6 @@ const AddShift = sources => {
     DOM: liwd.DOM,
     queue$,
   }
-}
-
-import {localTime} from 'util'
-
-const _Fetch = sources => {
-  const shifts$ = sources.teamKey$
-    .flatMapLatest(ShiftsRemote.query.byTeam(sources))
-  const shiftsForDate$ = shifts$
-    .combineLatest(sources.date$, (shifts, date) =>
-      // shifts.filter(shift => moment.utc(shift.date).format('YYYY-MM-DD') === date)
-      shifts.filter(shift => localTime(shift.date).format('YYYY-MM-DD') === date)
-        .sort((a,b) => moment(a.start).valueOf() - moment(b.start).valueOf())
-    )
-  return {shifts$, shiftsForDate$}
 }
 
 const _Remove = sources => ListItemClickable({...sources,
