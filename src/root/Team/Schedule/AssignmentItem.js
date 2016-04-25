@@ -6,8 +6,18 @@ import {
 } from 'components/profile'
 
 import {
-  ListItemClickable,
+  ListItemWithMenu,
+  MenuItem,
 } from 'components/sdm'
+
+import {
+  Assignments,
+} from 'components/remote'
+
+const _Remove = sources => MenuItem({...sources,
+  iconName$: $.of('remove'),
+  title$: $.of('Remove'),
+})
 
 export const AssignmentItem = sources => {
   const profileKey$ = sources.item$.pluck('profileKey')
@@ -19,8 +29,21 @@ export const AssignmentItem = sources => {
     (fullName, $key) => fullName || $key
   )
 
-  return ListItemClickable({..._sources,
+  const rem = _Remove(_sources)
+
+  const li = ListItemWithMenu({..._sources,
     leftDOM$: ProfileAvatar(_sources).DOM,
+    menuItems$: $.of([rem.DOM]),
     title$,
   })
+
+  const queue$ = rem.click$
+    .flatMapLatest(_sources.item$)
+    .pluck('$key')
+    .map(Assignments.action.remove)
+
+  return {
+    DOM: li.DOM,
+    queue$,
+  }
 }
