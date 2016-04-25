@@ -28,6 +28,8 @@ import {
 
 import {localTime} from 'util'
 
+import {AssignmentItem} from './AssignmentItem'
+
 const _Fetch = sources => {
   const shifts$ = sources.teamKey$
     .flatMapLatest(Shifts.query.byTeam(sources))
@@ -140,8 +142,6 @@ const _Edit = sources => ListItemClickable({...sources,
   title$: of('Edit'),
 })
 
-import {AssignmentItem} from './AssignmentItem'
-
 const _ShiftAssignmentList = sources => List({...sources,
   Control$: of(AssignmentItem),
   rows$: sources.assignments$ || of([]),
@@ -187,12 +187,6 @@ const _Item = sources => {
   const edit$ = ed.click$.withLatestFrom(key$, (c,k) => k)
     .tap(x => console.log('edit!',x))
 
-  const queue$ = merge(
-    key$.sample(rm.click$).map(Shifts.action.remove),
-    hrChange$.map(Shifts.action.update),
-    peopleChange$.map(Shifts.action.update),
-  )
-
   const content = ShiftContent(sources)
 
   const assignments$ = key$
@@ -201,6 +195,13 @@ const _Item = sources => {
   const sa = _ShiftAssignmentList({...sources,
     assignments$,
   })
+
+  const queue$ = merge(
+    key$.sample(rm.click$).map(Shifts.action.remove),
+    hrChange$.map(Shifts.action.update),
+    peopleChange$.map(Shifts.action.update),
+    sa.queue$,
+  )
 
   return {
     queue$,

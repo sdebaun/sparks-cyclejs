@@ -33,5 +33,6 @@ export default sources => {
     pageTitle: $.of('Confirmed Volunteers'),
     tabBarDOM: $.of(div('',[])),
     DOM: combineDOMsToDiv('',hdr,list),
+    queue$: list.queue$,
   }
 }

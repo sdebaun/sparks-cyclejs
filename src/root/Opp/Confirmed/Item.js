@@ -36,13 +36,13 @@ const _Fetch = sources => {
   const profileKey$ = sources.item$.pluck('profileKey')
   const {profile$} = ProfileFetcher({...sources, profileKey$})
   // const {assignments$} = AssignmentsFetcher({...sources, profileKey$})
-  const unsortedAssignments$ = AssignmentsFetcher({...sources, profileKey$}).assignments$
+  const assignments$ = AssignmentsFetcher({...sources, profileKey$}).assignments$
 
-  const shifts$ = unsortedAssignments$
+  const shifts$ = assignments$
     .map(arr => arr.map(a => Shifts.query.one(sources)(a.shiftKey)))
     .tap(log('shifts$ passed to query'))
     .shareReplay(1)
-    .flatMapLatest(sarr => sarr.length > 0 ? $.combineLatest(...sarr) : $.of([]))
+    .flatMapLatest(oarr => oarr.length > 0 ? $.combineLatest(...oarr) : $.of([]))
     .tap(log('shifts$ from assignments$'))
     .map(arr => arr.sort((a,b) => moment(a.start) - moment(b.start)))
     .shareReplay(1)
@@ -52,6 +52,7 @@ const _Fetch = sources => {
     profileKey$,
     profile$,
     shifts$,
+    assignments$,
   }
 }
 
@@ -67,11 +68,16 @@ export const Item = sources => {
   const al = AssignmentList(_sources)
   const eac = EngagementAssignmentCount(_sources)
 
-  return ListItemCollapsible({..._sources,
+  const li = ListItemCollapsible({..._sources,
     title$: _sources.profile$.pluck('fullName'),
     iconSrc$: _sources.profile$.pluck('portraitUrl'),
     rightDOM$: eac.DOM,
     contentDOM$: al.DOM,
   })
+
+  return {
+    DOM: li.DOM,
+    queue$: al.queue$,
+  }
 }
 
