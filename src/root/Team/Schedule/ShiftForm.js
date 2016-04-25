@@ -19,16 +19,16 @@ const PeopleInput = sources => InputControl({...sources,
   label$: $.of('People (Number)'),
 })
 
-const ToggleBonus = sources => ListItemCheckbox({...sources,
-  titleTrue$: $.of('Bonus'),
-  titleFalse$: $.of('Normal'),
-})
+// const ToggleBonus = sources => ListItemCheckbox({...sources,
+//   titleTrue$: $.of('Bonus'),
+//   titleFalse$: $.of('Normal'),
+// })
 
 export const ShiftForm = sources => Form({...sources,
   Controls$: $.of([
     {field: 'start', Control: StartsInput},
     {field: 'hours', Control: HoursInput},
     {field: 'people', Control: PeopleInput},
-    {field: 'bonus', Control: ToggleBonus},
+    // {field: 'bonus', Control: ToggleBonus},
   ]),
 })
