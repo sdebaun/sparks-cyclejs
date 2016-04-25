@@ -18,14 +18,8 @@ import {
 import {combineLatestToDiv} from 'util'
 // import {log} from 'util'
 
-const applicationComplete$$ = sources => $.combineLatest(
-  sources.engagement$.map(({answer}) => !!answer),
-  sources.memberships$.map(m => m.length > 0),
-  (ans, len) => ans && len,
-)
-
 const Title = sources => TitleListItem({...sources,
-  title$: sources.complete$.map(complete => complete ?
+  title$: sources.isApplicationComplete$.map(complete => complete ?
     'Your Application is being reviewed.' :
     'Complete your Application!'
   ),
@@ -56,21 +50,17 @@ const Done = sources => ListItem({...sources,
     to review your application and Approve you.
   `),
   leftDOM$: $.of(icon('heart','accent')),
-  isVisible$: sources.complete$.map(c => !!c),
+  isVisible$: sources.isApplicationComplete$.map(c => !!c),
 })
 
-const NextSteps = sources => {
-  const _sources = {...sources,
-    complete$: applicationComplete$$(sources),
-  }
-
+const NextStepsList = sources => {
   const todos = [
-    isolate(ToDoAnswer,'answer')(_sources),
-    isolate(ToDoTeams,'teams')(_sources),
-    isolate(ToDoProfile,'profile')(_sources),
+    isolate(ToDoAnswer,'answer')(sources),
+    isolate(ToDoTeams,'teams')(sources),
+    isolate(ToDoProfile,'profile')(sources),
   ]
 
-  const childs = [Title(_sources), ...todos, Done(_sources)]
+  const childs = [Title(sources), ...todos, Done(sources)]
 
   return {
     DOM: combineLatestToDiv(...childs.map(c => c.DOM)),
@@ -78,18 +68,18 @@ const NextSteps = sources => {
   }
 }
 
-const NSCard = sources => {
-  const ns = NextSteps(sources)
+export const CardApplicationNextSteps = sources => {
+  const ns = NextStepsList(sources)
+  const card = hideable(TitledCard)({...sources,
+    elevation$: $.just(2),
+    isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
+    title$: $.just('Awaiting Approval'),
+    content$: $.just([ns.DOM]),
+  })
+
   return {
-    ...TitledCard({...sources,
-      content$: $.just([ns.DOM]),
-    }),
+    DOM: card.DOM,
     route$: ns.route$,
   }
 }
 
-export const CardApplicationNextSteps = sources => hideable(NSCard)({...sources,
-  elevation$: $.just(2),
-  isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
-  title$: $.just('Awaiting Approval'),
-})

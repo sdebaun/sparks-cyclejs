@@ -74,6 +74,14 @@ const _Fetch = sources => {
   const memberships$ = sources.engagementKey$
     .flatMapLatest(Memberships.query.byEngagement(sources))
 
+  const isConfirmed$ = engagement$.pluck('isConfirmed')
+
+  const isApplicationComplete$ = $.combineLatest(
+    engagement$.map(({answer}) => !!answer),
+    memberships$.map(m => m.length > 0),
+    (ans, len) => ans && len,
+  )
+
   return {
     engagement$,
     oppKey$,
@@ -89,6 +97,8 @@ const _Fetch = sources => {
     amountDeposit$,
     amountSparks$,
     amountNonrefund$,
+    isConfirmed$,
+    isApplicationComplete$,
   }
 }
 
