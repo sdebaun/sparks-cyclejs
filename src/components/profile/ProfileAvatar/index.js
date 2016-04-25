@@ -1,5 +1,3 @@
-// import {Observable as $} from 'rx'
-
 import {
   Avatar,
   MediumAvatar,
@@ -13,20 +11,14 @@ const PortraitFetcher = sources => ({
     .map(p => p ? p.portraitUrl : null),
 })
 
-const ProfileAvatar = sources => Avatar({...sources,
+export const ProfileAvatar = sources => Avatar({...sources,
   src$: PortraitFetcher(sources).portraitUrl$,
 })
 
-const MediumProfileAvatar = sources => MediumAvatar({...sources,
+export const MediumProfileAvatar = sources => MediumAvatar({...sources,
   src$: PortraitFetcher(sources).portraitUrl$,
 })
 
-const LargeProfileAvatar = sources => LargeAvatar({...sources,
+export const LargeProfileAvatar = sources => LargeAvatar({...sources,
   src$: PortraitFetcher(sources).portraitUrl$,
 })
-
-export {
-  ProfileAvatar,
-  MediumProfileAvatar,
-  LargeProfileAvatar,
-}
