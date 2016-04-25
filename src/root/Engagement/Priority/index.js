@@ -130,7 +130,7 @@ const ConfirmationsNeededCard = sources => {
   }
 }
 
-import NextSteps from './OldApplication/NextSteps'
+// import NextSteps from './OldApplication/NextSteps'
 
 import {
   ToDoListItem,
@@ -169,23 +169,8 @@ const ConfirmNowCard = sources => hideable(CNCard)({...sources,
   title$: $.just('Confirm Now!'),
 })
 
-const NSCard = sources => {
-  const ns = NextSteps(sources)
-  return {
-    ...TitledCard({...sources,
-      content$: $.just([ns.DOM]),
-    }),
-    route$: ns.route$,
-  }
-}
 
-const ApplicationOpenCard = sources => hideable(NSCard)({...sources,
-  elevation$: $.just(2),
-  isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
-  title$: $.just('Awaiting Approval'),
-})
-
-import EnergyExchange from './Glance/Commitments'
+import EnergyExchange from '../Glance/Commitments'
 
 const EnergyExchangeCard = sources => {
   const ee = EnergyExchange(sources)
@@ -196,20 +181,17 @@ const EnergyExchangeCard = sources => {
   }
 }
 
-const ReadyToWorkCard = sources => hideable(TitledCard)({...sources,
-  title$: $.just('Ready to Work?'),
-  content$: $.just(['You are on the team! Keep an eye on when you\'re scheduled to work, and we\'ll send you reminders.']),
-  isVisible$: sources.engagement$.map(e => e.isAssigned && e.isPaid),
-})
-
 const CombinedList = sources => ({
   DOM: sources.contents$.map(contents => div('.cardcontainer',contents)),
 })
 
+import {CardUpcomingShifts} from './CardUpcomingShifts'
+import {CardApplicationNextSteps} from './CardApplicationNextSteps'
+
 const CardList = sources => {
   const confirm = ConfirmNowCard(sources)
-  const app = ApplicationOpenCard(sources)
-  const r2w = ReadyToWorkCard(sources)
+  const app = CardApplicationNextSteps(sources)
+  const r2w = CardUpcomingShifts(sources)
   const ee = EnergyExchangeCard(sources)
 
   const contents$ = $.combineLatest(

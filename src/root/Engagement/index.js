@@ -92,7 +92,7 @@ const _Fetch = sources => {
   }
 }
 
-import Priority from './Priority'
+import Priority from './Priority/index.js'
 import Application from './Application'
 import Confirmation from './Confirmation'
 
