@@ -13,7 +13,7 @@ import {AccentToolbar} from 'components/sdm/Toolbar'
 import {icon, iconSrc} from 'helpers'
 
 const dialogStyle = {
-  position: 'absolute',
+  position: 'fixed',
   top: '140px',
   margin: 'auto',
   // minWidth: '400px',
