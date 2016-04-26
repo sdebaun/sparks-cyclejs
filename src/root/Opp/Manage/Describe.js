@@ -7,19 +7,12 @@ import {div, icon} from 'helpers'
 import {
   ListItemToggle,
   ListItemCollapsibleTextArea,
-  ListItemNavigating,
+
 } from 'components/sdm'
 
 import {Opps} from 'remote'
 
-const PreviewRecruiting = sources => ListItemNavigating({...sources,
-  title$: just('View your Recruiting page.'),
-  iconName$: just('link'),
-  path$: combineLatest(
-    sources.projectKey$, sources.oppKey$,
-    (pk, ok) => '/apply/' + pk + '/opp/' + ok
-  ),
-})
+import {RecruitmentLinkItem} from '../RecruitmentLinkItem'
 
 const TogglePublic = sources => ListItemToggle({...sources,
   titleTrue$: just('This is a Public Opportunity, and anyone can apply.'),
@@ -40,7 +33,7 @@ const TextareaDescription = sources => ListItemCollapsibleTextArea({
 })
 
 export default sources => {
-  const preview = isolate(PreviewRecruiting)(sources)
+  const preview = isolate(RecruitmentLinkItem)(sources)
 
   const togglePublic = isolate(TogglePublic)({...sources,
     value$: sources.opp$.pluck('isPublic'),

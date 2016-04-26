@@ -1,5 +1,6 @@
 import {Observable as $} from 'rx'
 import {div, icon} from 'helpers'
+import isolate from '@cycle/isolate'
 
 import {
   ListItemCollapsible,
@@ -16,7 +17,7 @@ const StepListItem = sources => {
       ])
     )
 
-  return ListItemCollapsible({...sources,
+  return isolate(ListItemCollapsible)({...sources,
     classes$: $.just({'list-item-title': true}),
     leftDOM$,
     // contentDOM$: $.just(div('',['wat'])),
