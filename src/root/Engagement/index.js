@@ -2,6 +2,7 @@ import {Observable as $} from 'rx'
 
 import AppFrame from 'components/AppFrame'
 import {TabbedTitle} from 'components/Title'
+import moment from 'moment'
 
 import {
   TabbedPage,
@@ -9,7 +10,7 @@ import {
 
 import {ProfileSidenav} from 'components/profile'
 
-// import {log} from 'util'
+import {log} from 'util'
 import {mergeOrFlatMapLatest} from 'util'
 
 import {div} from 'helpers'
@@ -20,6 +21,8 @@ import {
   Opps,
   Projects,
   ProjectImages,
+  Shifts,
+  Assignments,
 } from 'components/remote'
 
 const extractAmount = s =>
@@ -31,16 +34,35 @@ const _Fetch = sources => {
 
   const oppKey$ = engagement$.pluck('oppKey')
 
+  const assignments$ = sources.engagementKey$
+    .flatMapLatest(Assignments.query.byEngagement(sources))
+    .tap(log('assignments$'))
+
+  const shifts$ = assignments$
+    .map(arr => arr.map(a => Shifts.query.one(sources)(a.shiftKey)))
+    // .tap(log('shifts$ passed to query'))
+    .shareReplay(1)
+    .flatMapLatest(oarr => oarr.length > 0 ? $.combineLatest(...oarr) : $.of([]))
+    // .tap(log('shifts$ from assignments$'))
+    .map(arr => arr.sort((a,b) => moment(a.start) - moment(b.start)))
+    .shareReplay(1)
+
   const commitments$ = oppKey$
     .flatMapLatest(Commitments.query.byOpp(sources))
 
   const commitmentPayment$ = commitments$
     .map(col => col.filter(c => c.code === 'payment'))
-    .map(col => col.length >= 1 ? col[0] : null)
+    .map(col => col.length >= 1 ? col[0] : 0)
 
   const commitmentDeposit$ = commitments$
     .map(col => col.filter(c => c.code === 'deposit'))
-    .map(col => col.length >= 1 ? col[0] : null)
+    .map(col => col.length >= 1 ? col[0] : 0)
+
+  const commitmentShifts$ = commitments$
+    .map(col => col.filter(c => c.code === 'shifts'))
+    .map(col => parseInt(col.length >= 1 ? col[0].count : 0, 10))
+    .shareReplay(1)
+    .tap(log('commitmentShifts$'))
 
   const amountPayment$ = commitmentPayment$
     .map(({amount}) => extractAmount(amount))
@@ -74,12 +96,23 @@ const _Fetch = sources => {
   const memberships$ = sources.engagementKey$
     .flatMapLatest(Memberships.query.byEngagement(sources))
 
+  const isConfirmed$ = engagement$.pluck('isConfirmed')
+
+  const isApplicationComplete$ = $.combineLatest(
+    engagement$.map(({answer}) => !!answer),
+    memberships$.map(m => m.length > 0),
+    (ans, len) => ans && len,
+  )
+
   return {
     engagement$,
     oppKey$,
+    assignments$,
+    shifts$,
     commitments$,
     commitmentPayment$,
     commitmentDeposit$,
+    commitmentShifts$,
     opp$,
     projectKey$,
     project$,
@@ -89,10 +122,12 @@ const _Fetch = sources => {
     amountDeposit$,
     amountSparks$,
     amountNonrefund$,
+    isConfirmed$,
+    isApplicationComplete$,
   }
 }
 
-import Priority from './Priority'
+import Priority from './Priority/index.js'
 import Application from './Application'
 import Confirmation from './Confirmation'
 

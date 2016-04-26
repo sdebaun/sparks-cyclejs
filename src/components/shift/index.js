@@ -24,7 +24,7 @@ export const TimeOfDayAvatar = sources => Avatar({...sources,
 })
 
 const timeCell = t =>
-  cell({minWidth: '90px', textAlign: 'left'}, localTime(t).format('h:mm a'))
+  cell({minWidth: '100px', textAlign: 'left'}, localTime(t).format('h:mm a'))
 
 export const ShiftContent = sources => {
   const tod = TimeOfDayAvatar({...sources,
@@ -64,9 +64,9 @@ export const ShiftContentExtra = sources => {
       sources.item$.pluck('people'),
       sources.item$.pluck('assigned'),
       (s,n,p,a) => row({},
-        cell({flex: '30'},localTime(s).format('ddd D MMM')),
+        cell({minWidth: '100px'},localTime(s).format('ddd D MMM')),
         cell({flex: '100'},n),
-        cell({flex: '20', textAlign: 'right'},`${a||0} / ${p} `,icon('people')),
+        cell({minWidth: '100px', textAlign: 'right'},`${a||0} / ${p} `,icon('people')),
       )
     ),
     subtitle$: $.combineLatest(
@@ -78,16 +78,5 @@ export const ShiftContentExtra = sources => {
         cell({flex: '100'},`${h} hours`),
       )
     ),
-    // title$: $.combineLatest(
-    //   sources.item$.pluck('start'),
-    //   sources.item$.pluck('end'),
-    //   sources.item$.pluck('people'),
-    //   sources.item$.pluck('assigned'),
-    //   (s,e,p,a) => row({},
-    //     timeCell(s), timeCell(e),
-    //     cell({flex: '100', textAlign: 'right'},`${a||0} / ${p} `,icon('people')),
-    //   )
-    // ),
-    // subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
   }
 }
