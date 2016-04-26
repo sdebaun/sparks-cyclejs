@@ -100,40 +100,6 @@ const _label = ({isApplied, isAccepted, isConfirmed}) =>
       isApplied && 'Applied' ||
         'Unknown'
 
-// const acceptedCardView = sources => item =>
-//   div({}, [
-//     p({style: {fontSize: '1em', fontWeight: 'bold'}},
-//       'Congrats! You\'ve been accepted. Confirm to lock your spot for:'),
-//     ListItem({...sources,
-//       iconSrc$: just(item.opp.projectKey)
-//         .flatMapLatest(ProjectImages.query.one(sources))
-//         .map(i => i && i.dataUrl || '/' + sparkly),
-//       title$: just(div({style: {margin: 0, padding: 0}}, [
-//         p({style: {fontWeight: 'bold', margin: 0}}, [
-//           item.opp.project.name,
-//         ]),
-//         p('.subtitle', {style: {margin: 0, fontSize: '0.8em'}}, [
-//           `${item.opp.name} | ${_label(item)}`,
-//         ]),
-//       ])),
-//     }).DOM,
-//   ])
-
-// const AcceptedCard = sources => Card({
-//   ...sources,
-//   elevation$: just(2),
-//   header$: just('Confirm Now!'),
-//   content$: sources.item$.map(acceptedCardView(sources)),
-//   path$: sources.item$.map(i => `/engaged/${i.$key}/`),
-// })
-
-// const ConfirmationCards = sources =>
-//   List({
-//     ...sources,
-//     rows$: sources.acceptedEngagements$,
-//     Control$: just(AcceptedCard),
-//   })
-
 const _Fetch = sources => {
   const projects$ = sources.userProfileKey$
     .flatMapLatest(Projects.query.byOwner(sources))

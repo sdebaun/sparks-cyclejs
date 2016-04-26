@@ -8,9 +8,21 @@ import {div} from 'helpers'
 import {Engagements, Opps} from 'components/remote'
 
 import {
+  // ListItemNewTarget,
   ListItemNavigating,
   ListItemToggle,
 } from 'components/sdm'
+
+import {RecruitmentLinkItem} from '../RecruitmentLinkItem'
+
+// const PreviewItem = sources => ListItemNewTarget({...sources,
+//   title$: just('Check out your Recruiting page.'),
+//   iconName$: just('link'),
+//   url$: combineLatest(
+//     sources.projectKey$, sources.oppKey$,
+//     (pk, ok) => '/apply/' + pk + '/opp/' + ok
+//   ),
+// })
 
 const WhatItem = sources => ListItemNavigating({...sources,
   title$: just('Tell applicants about this Opportunity.'),
@@ -72,6 +84,7 @@ export default sources => {
     .map(Engagements.query.byOpp(sources)).switch()
     .shareReplay(1)
 
+  const preview = isolate(RecruitmentLinkItem)(sources)
   const what = isolate(WhatItem,'what')(sources)
   const exchange = isolate(ExchangeItem,'invite')(sources)
   const how = isolate(HowItem,'how')(sources)
@@ -80,7 +93,7 @@ export default sources => {
   })
   const confirmations = isolate(ConfirmationToggle, 'confirmations')(sources)
 
-  const items = [what, exchange, how, applicants]
+  const items = [preview, what, exchange, how, applicants]
 
   const queue$ = confirmations.value$
     .withLatestFrom(sources.oppKey$,

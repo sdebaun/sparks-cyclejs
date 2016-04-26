@@ -4,7 +4,7 @@ const {of, combineLatest} = Observable
 import AppFrame from 'components/AppFrame'
 import {ResponsiveTitle} from 'components/Title'
 import Header from 'components/Header'
-import {OppNav} from 'components/opp'
+import {OppNav} from './OppNav'
 
 import {mergeSinks} from 'util'
 
@@ -30,6 +30,9 @@ import {ProjectQuickNavMenu} from 'components/project'
 import Glance from './Glance'
 import Manage from './Manage'
 import Engaged from './Engaged'
+import Confirmed from './Confirmed'
+
+import {FetchEngagements} from './FetchEngagements'
 
 const _Fetch = sources => {
   const opp$ = sources.oppKey$
@@ -72,10 +75,12 @@ const _Page = sources => RoutedComponent({...sources, routes$: of({
   '/': Glance,
   '/manage': Manage,
   '/engaged': Engaged,
+  '/confirmed': Confirmed,
 })})
 
 export default sources => {
-  const _sources = {...sources, ..._Fetch(sources)}
+  const __sources = {...sources, ..._Fetch(sources)}
+  const _sources = {...__sources, ...FetchEngagements(__sources)}
 
   const page = _Page(_sources)
   const qn = ProjectQuickNavMenu(_sources)
