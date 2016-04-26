@@ -104,6 +104,18 @@ const _Fetch = sources => {
     (ans, len) => ans && len,
   )
 
+  const requiredAssignments$ = commitments$
+    .map(c => c.filter(x => x.code === 'shifts'))
+    .map(a => a[0] && a[0].count || 0)
+
+  const selectedAssignments$ = assignments$
+    .map(c => c.length)
+
+  const neededAssignments$ = $.combineLatest(
+    requiredAssignments$, selectedAssignments$,
+    (r,s) => r - s
+  )
+
   return {
     engagement$,
     oppKey$,
@@ -124,6 +136,9 @@ const _Fetch = sources => {
     amountNonrefund$,
     isConfirmed$,
     isApplicationComplete$,
+    requiredAssignments$,
+    selectedAssignments$,
+    neededAssignments$,
   }
 }
 
