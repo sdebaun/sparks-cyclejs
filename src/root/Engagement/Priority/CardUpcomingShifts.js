@@ -5,11 +5,20 @@ import {
   TitledCard,
 } from 'components/sdm'
 
-export const CardUpcomingShifts = sources => hideable(TitledCard)({...sources,
-  title$: $.just('Ready to Work?'),
-  content$: $.just([`
-    You are on the team! Keep an eye on when you're scheduled to work,
-    and we'll send you reminders.
-  `]),
-  isVisible$: sources.engagement$.map(e => e.isAssigned && e.isPaid),
-})
+export const CardUpcomingShifts = sources => {
+  const content$ = sources.shifts$
+    .map(shifts => [`
+      You've got ${shifts.length} shifts coming up.
+      Are you ready to make a difference?
+    `])
+
+  return hideable(TitledCard)({...sources,
+    title$: $.just('Ready to Work?'),
+    content$,
+    // content$: $.just([`
+    //   You've got some shifts coming up. Are you ready to make a difference?
+    // `]),
+    isVisible$: sources.engagement$.map(e => e.isAssigned && e.isPaid),
+  })
+}
+

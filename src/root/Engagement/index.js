@@ -2,6 +2,7 @@ import {Observable as $} from 'rx'
 
 import AppFrame from 'components/AppFrame'
 import {TabbedTitle} from 'components/Title'
+import moment from 'moment'
 
 import {
   TabbedPage,
@@ -9,7 +10,7 @@ import {
 
 import {ProfileSidenav} from 'components/profile'
 
-// import {log} from 'util'
+import {log} from 'util'
 import {mergeOrFlatMapLatest} from 'util'
 
 import {div} from 'helpers'
@@ -20,6 +21,8 @@ import {
   Opps,
   Projects,
   ProjectImages,
+  Shifts,
+  Assignments,
 } from 'components/remote'
 
 const extractAmount = s =>
@@ -30,6 +33,19 @@ const _Fetch = sources => {
     .flatMapLatest(key => sources.firebase('Engagements',key))
 
   const oppKey$ = engagement$.pluck('oppKey')
+
+  const assignments$ = sources.engagementKey$
+    .flatMapLatest(Assignments.query.byEngagement(sources))
+    .tap(log('assignments$'))
+
+  const shifts$ = assignments$
+    .map(arr => arr.map(a => Shifts.query.one(sources)(a.shiftKey)))
+    // .tap(log('shifts$ passed to query'))
+    .shareReplay(1)
+    .flatMapLatest(oarr => oarr.length > 0 ? $.combineLatest(...oarr) : $.of([]))
+    // .tap(log('shifts$ from assignments$'))
+    .map(arr => arr.sort((a,b) => moment(a.start) - moment(b.start)))
+    .shareReplay(1)
 
   const commitments$ = oppKey$
     .flatMapLatest(Commitments.query.byOpp(sources))
@@ -85,6 +101,8 @@ const _Fetch = sources => {
   return {
     engagement$,
     oppKey$,
+    assignments$,
+    shifts$,
     commitments$,
     commitmentPayment$,
     commitmentDeposit$,
