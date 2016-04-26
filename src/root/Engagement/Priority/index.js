@@ -5,14 +5,16 @@ import {CardUpcomingShifts} from './CardUpcomingShifts'
 import {CardApplicationNextSteps} from './CardApplicationNextSteps'
 import {CardEnergyExchange} from './CardEnergyExchange'
 import {CardConfirmNow} from './CardConfirmNow'
+import {CardPickMoreShifts} from './CardPickMoreShifts'
 
 export default sources => {
   const confirm = CardConfirmNow(sources)
   const app = CardApplicationNextSteps(sources)
   const r2w = CardUpcomingShifts(sources)
+  const pms = CardPickMoreShifts(sources)
   const ee = CardEnergyExchange(sources)
 
-  const DOM = combineDOMsToDiv('.cardcontainer',confirm,app,r2w,ee)
+  const DOM = combineDOMsToDiv('.cardcontainer',confirm,app,r2w,pms,ee)
 
   return {
     DOM,
