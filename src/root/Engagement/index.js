@@ -52,11 +52,17 @@ const _Fetch = sources => {
 
   const commitmentPayment$ = commitments$
     .map(col => col.filter(c => c.code === 'payment'))
-    .map(col => col.length >= 1 ? col[0] : null)
+    .map(col => col.length >= 1 ? col[0] : 0)
 
   const commitmentDeposit$ = commitments$
     .map(col => col.filter(c => c.code === 'deposit'))
-    .map(col => col.length >= 1 ? col[0] : null)
+    .map(col => col.length >= 1 ? col[0] : 0)
+
+  const commitmentShifts$ = commitments$
+    .map(col => col.filter(c => c.code === 'shifts'))
+    .map(col => parseInt(col.length >= 1 ? col[0].count : 0, 10))
+    .shareReplay(1)
+    .tap(log('commitmentShifts$'))
 
   const amountPayment$ = commitmentPayment$
     .map(({amount}) => extractAmount(amount))
@@ -106,6 +112,7 @@ const _Fetch = sources => {
     commitments$,
     commitmentPayment$,
     commitmentDeposit$,
+    commitmentShifts$,
     opp$,
     projectKey$,
     project$,
