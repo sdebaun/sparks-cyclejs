@@ -3,6 +3,7 @@ const {just, merge} = Observable
 
 // import {log} from 'util'
 import {combineDOMsToDiv} from 'util'
+import {icon} from 'helpers'
 
 import {
   QuotingListItem,
@@ -27,6 +28,8 @@ import {
   Memberships,
   Teams,
 } from 'components/remote'
+
+import {hideable} from 'util'
 
 const Blank = () => ({DOM: just('')})
 
@@ -130,14 +133,23 @@ const _Decline = sources => ActionButton({...sources,
   classNames$: just(['red']),
 })
 
+const _Remove = sources => hideable(ActionButton)({...sources,
+  label$: just(icon('remove')),
+  params$: just({isAccepted: false, priority: false, declined: true}),
+  classNames$: just(['black']),
+  isVisible$: sources.userProfile$.pluck('isAdmin'),
+})
+
 const _Actions = (sources) => {
   const pr = _Priority(sources)
   const ac = _Accept(sources)
   const dec = _Decline(sources)
+  const rem = _Remove(sources)
 
   return {
-    DOM: combineDOMsToDiv('.center', pr, ac, dec),
+    DOM: combineDOMsToDiv('.center', pr, ac, dec, rem),
     action$: merge(pr.action$, ac.action$, dec.action$),
+    remove$: rem.action$,
   }
 }
 
@@ -176,6 +188,7 @@ const _Content = sources => {
   return {
     DOM: combineDOMsToDiv('', acts, scr),
     action$: acts.action$,
+    remove$: acts.remove$,
   }
 }
 
@@ -207,6 +220,7 @@ const ApprovalDialog = sources => {
   const route$ = merge(
     navs.route$,
     _sources.engagementKey$.map(k => [k, 1]).sample(c.action$),
+    _sources.engagementKey$.map(k => [k, 1]).sample(c.remove$),
   )
   .combineLatest(
     _sources.oppKey$,
@@ -214,11 +228,19 @@ const ApprovalDialog = sources => {
     (r, key, engs) => switchRoute(r, key, engs)
   )
 
-  const queue$ = c.action$
+  const action$ = c.action$
     .withLatestFrom(_sources.engagementKey$,
       (values, key) => ({key, values})
     )
     .map(Engagements.action.update)
+
+  const remove$ = c.remove$
+    .withLatestFrom(_sources.engagementKey$,
+      (values, key) => key
+    )
+    .map(Engagements.action.remove)
+
+  const queue$ = merge(action$, remove$)
 
   return {
     ...d,
