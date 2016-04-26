@@ -5,7 +5,7 @@ import {
 } from 'components/sdm'
 
 export const RecruitmentLinkItem = sources => ListItemNewTarget({...sources,
-  title$: $.just('Check out your Recruiting page.'),
+  title$: $.just('Check out your Recruiting page in a new window.'),
   iconName$: $.just('link'),
   url$: $.combineLatest(
     sources.projectKey$, sources.oppKey$,

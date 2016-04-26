@@ -1,7 +1,7 @@
 .quote {
   position:relative;
   padding:8px;
-  margin:12px 4px 16px 4px;
+  margin:12px 12px 10px 12px;
   border:1px solid black;
   color:#333;
   background:#fff;
@@ -14,9 +14,9 @@
 .quote:before {
   content:"";
   position:absolute;
-  bottom:-20px; /* value = - border-top-width - border-bottom-width */
+  bottom:-13px; /* value = - border-top-width - border-bottom-width */
   left:10px; /* controls horizontal position */
-  border-width:20px 20px 0;
+  border-width:14px 14px 0;
   border-style:solid;
   border-color:black transparent;
   /* reduce the damage in FF3.0 */
@@ -28,9 +28,9 @@
 .quote:after {
   content:"";
   position:absolute;
-  bottom:-19px; /* value = - border-top-width - border-bottom-width */
+  bottom:-12px; /* value = - border-top-width - border-bottom-width */
   left:11px; /* value = (:before left) + (:before border-left) - (:after border-left) */
-  border-width:19px 19px 0;
+  border-width:13px 13px 0;
   border-style:solid;
   border-color:#fff transparent;
   /* reduce the damage in FF3.0 */
