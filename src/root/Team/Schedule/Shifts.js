@@ -93,15 +93,13 @@ const AddShift = sources => {
     .withLatestFrom(
       sources.teamKey$,
       sources.date$,
-      ({start, hours, people, bonus}, teamKey, date) => ({
+      ({start, ...vals}, teamKey, date) => ({
         teamKey,
         date: moment(date).format(),
         reserved: 0,
-        hours,
-        people,
-        bonus,
+        ...vals,
         start: moment(date).add(start,'hours').format(),
-        end: moment(date).add(start,'hours').add(hours,'hours').format(),
+        end: moment(date).add(start,'hours').add(vals.hours,'hours').format(),
       }))
     .sample(submit$)
     .map(Shifts.action.create)
