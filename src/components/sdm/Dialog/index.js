@@ -13,6 +13,15 @@ import {AccentToolbar} from 'components/sdm/Toolbar'
 import {icon, iconSrc} from 'helpers'
 
 const dialogStyle = {
+  position: 'absolute',
+  top: '140px',
+  margin: 'auto',
+  // minWidth: '400px',
+  // width: 'auto',
+  minWidth: '600px',
+}
+
+const mobileDialogStyle = {
   marginTop: '-15em',
   // minWidth: '400px',
   // width: 'auto',
@@ -23,11 +32,11 @@ const contentStyle = {
   padding: '0em 1em 1em 1em',
 }
 
-const modal = ({isOpen, toolbarDOM, contentDOM, actionsDOM}) =>
+const modal = ({isOpen, isMobile, toolbarDOM, contentDOM, actionsDOM}) =>
   SmDialog({
     isOpen,
     noPadding: true,
-    style: dialogStyle,
+    style: isMobile ? mobileDialogStyle : dialogStyle,
     title: toolbarDOM,
     footer: actionsDOM,
   },[
@@ -51,6 +60,7 @@ const BaseDialog = sources => {
 
   const viewState = {
     isOpen$,
+    isMobile$: sources.isMobile$,
     toolbarDOM$: toolbar.DOM,
     contentDOM$: sources.contentDOM$,
     actionsDOM$: sources.actionsDOM$,
