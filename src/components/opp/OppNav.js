@@ -39,7 +39,7 @@ const _List = sources => {
   const childs = [
     isolate(_Glance,'glance')(sources),
     isolate(_Manage,'manage')(sources),
-    isolate(_Confirmed,'manage')(sources),
+    isolate(_Confirmed,'confirmed')(sources),
     isolate(_Engaged,'enaged')(sources),
   ]
 
