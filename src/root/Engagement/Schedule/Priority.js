@@ -2,6 +2,7 @@ import {Observable as $} from 'rx'
 import moment from 'moment'
 //import {div} from 'cycle-snabbdom'
 import {combineDOMsToDiv} from 'util'
+import isolate from '@cycle/isolate'
 
 import {
   RaisedButton,
@@ -322,7 +323,7 @@ const _Fetch = sources => {
 }
 
 const ConfirmButton = sources => {
-  const btn = RaisedButton({...sources,
+  const btn = isolate(RaisedButton)({...sources,
     label$: $.of('Confirm your shifts now!'),
   })
 
