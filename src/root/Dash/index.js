@@ -6,8 +6,8 @@ import Header from 'components/Header'
 
 import {mergeSinks} from 'util'
 
-import {ResponsiveTitle} from 'components/Title'
-import {MediumProfileAvatar} from 'components/profile'
+// import {ResponsiveTitle} from 'components/Title'
+// import {MediumProfileAvatar} from 'components/profile'
 
 import {
   TabbedPage,
@@ -20,7 +20,7 @@ import {
 import Doing from './Doing'
 import Being from './Being'
 
-import {ProfileSidenav} from 'components/profile'
+// import {ProfileSidenav} from 'components/profile'
 
 const _Page = sources => TabbedPage({...sources,
   tabs$: of([

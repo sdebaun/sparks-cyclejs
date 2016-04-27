@@ -67,27 +67,47 @@ const AuthRedirectManager = sources => {
   }
 }
 
+import {
+  Projects,
+  Organizers,
+  Engagements,
+} from 'components/remote'
+
 const UserManager = sources => {
   const userProfileKey$ = sources.auth$
     .flatMapLatest(auth =>
       auth ? sources.firebase('Users', auth.uid) : just(null)
     )
+    .shareReplay(1)
 
   const userProfile$ = userProfileKey$
     .distinctUntilChanged()
     .flatMapLatest(key => {
       return key ? sources.firebase('Profiles', key) : just(null)
     })
+    .shareReplay(1)
 
-  const userName$ = userProfile$.map(up => up && up.fullName || 'None')
+  const userName$ = userProfile$
+    .map(up => up && up.fullName || 'None')
+    .shareReplay(1)
 
-  const userPortraitUrl$ = userProfile$.map(up => up && up.portraitUrl)
+  const userPortraitUrl$ = userProfile$
+    .map(up => up && up.portraitUrl)
+    .shareReplay(1)
+
+  const user = {
+    projectsOwned$: userProfileKey$
+      .flatMapLatest(Projects.query.byOwner(sources)),
+    engagements$: userProfileKey$
+      .flatMapLatest(Engagements.query.byUser(sources)),
+  }
 
   return {
     userProfile$,
     userProfileKey$,
     userName$,
     userPortraitUrl$,
+    user,
   }
 }
 
@@ -104,7 +124,8 @@ const AuthedActionManager = sources => ({
     .map(([action,auth]) => ({uid: auth && auth.uid, ...action})),
 })
 
-import {ProfileSidenav} from 'components/profile'
+import {SideNav} from './SideNav'
+// import {ProfileSidenav} from 'components/profile'
 import {pluckLatest, pluckLatestOrNever} from 'util'
 
 const SwitchedComponent = sources => {
@@ -122,7 +143,7 @@ const SwitchedComponent = sources => {
   }
 }
 
-const BlankSidenav = sources => ({
+const BlankSidenav = () => ({
   DOM: just(null),
 })
 
@@ -153,7 +174,7 @@ export default _sources => {
 
   const nav = SwitchedComponent({...sources,
     Component$: sources.userProfile$
-      .map(up => up ? ProfileSidenav : BlankSidenav),
+      .map(up => up ? SideNav : BlankSidenav),
   })
 
   nav.route$.subscribe(x => console.log('navroute',x))
