@@ -151,7 +151,7 @@ import {label} from 'components/engagement'
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
-  const nav = ProfileSidenav(_sources)
+  // const nav = ProfileSidenav(_sources)
 
   const tabs$ = _sources.engagement$.map(({isAccepted}) => [
     {path: '/', label: 'Priority'},
@@ -180,14 +180,15 @@ export default sources => {
   })
 
   const frame = AppFrame({..._sources,
-    navDOM: nav.DOM,
+    navDOM: sources.navDOM$,
     pageDOM: $.combineLatest(
       title.DOM, page.DOM,
       (...doms) => div('', doms)
     ),
   })
 
-  const children = [frame, page, nav]
+  // const children = [frame, page, nav]
+  const children = [frame, page]
 
   const redirectOnLogout$ = _sources.auth$.filter(auth => !auth).map(() => '/')
 

@@ -5,6 +5,7 @@ import moment from 'moment'
 import {
   List,
   ListItemCollapsible,
+  ListItemNewTarget,
 } from 'components/sdm'
 
 import {
@@ -21,6 +22,7 @@ import {AssignmentsFetcher} from 'components/assignment'
 import {cellC, icon} from 'helpers/layout'
 
 import {log} from 'util'
+import {combineDOMsToDiv} from 'util'
 
 const AssignmentList = sources => List({...sources,
   Control$: $.of(AssignmentItem),
@@ -62,9 +64,17 @@ const EngagementAssignmentCount = sources => ({
   ),
 })
 
+const ViewEngagement = sources => ListItemNewTarget({
+  iconName$: $.just('link'),
+  title$: $.just('See their Engagement Page'),
+  url$: sources.item$.pluck('$key')
+    .map(k => `/engaged/${k}`),
+})
+
 export const Item = sources => {
   const _sources = {...sources, ..._Fetch(sources)}
 
+  const prev = ViewEngagement(_sources)
   const al = AssignmentList(_sources)
   const eac = EngagementAssignmentCount(_sources)
 
@@ -72,7 +82,7 @@ export const Item = sources => {
     title$: _sources.profile$.pluck('fullName'),
     iconSrc$: _sources.profile$.pluck('portraitUrl'),
     rightDOM$: eac.DOM,
-    contentDOM$: al.DOM,
+    contentDOM$: combineDOMsToDiv('',prev,al),
   })
 
   return {

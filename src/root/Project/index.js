@@ -27,7 +27,7 @@ import {
   Organizers,
 } from 'components/remote'
 
-export default sources => {
+const Fetch = sources => {
   const projectKey$ = sources.projectKey$
 
   const project$ = sources.projectKey$
@@ -45,9 +45,22 @@ export default sources => {
   const organizers$ = sources.projectKey$
     .flatMapLatest(Organizers.query.byProject(sources))
 
+  return {
+    projectKey$,
+    project$,
+    projectImage$,
+    teams$,
+    opps$,
+    organizers$,
+  }
+}
+
+export default _sources => {
+  const sources = {..._sources, ...Fetch(_sources)}
+
   const page$ = nestedComponent(
-    sources.router.define(_routes),
-    {project$, projectImage$, teams$, organizers$, ...sources}
+    _sources.router.define(_routes),
+    sources
   )
 
   const tabsDOM = page$.flatMapLatest(page => page.tabBarDOM)
@@ -60,23 +73,19 @@ export default sources => {
 
   const title = ResponsiveTitle({...sources,
     tabsDOM$: tabsDOM,
-    titleDOM$: project$.pluck('name'),
+    titleDOM$: sources.project$.pluck('name'),
     subtitleDOM$,
-    // subtitleDOM$: page$.flatMapLatest(page => page.pageTitle),
-    backgroundUrl$: projectImage$.map(i => i && i.dataUrl),
+    backgroundUrl$: sources.projectImage$.map(i => i && i.dataUrl),
   })
 
-  const nav = ProjectNav({
+  const nav = ProjectNav({...sources,
     titleDOM: title.DOM,
-    project$,
-    teams$,
-    opps$,
-    ...sources,
   })
 
   const header = Header({titleDOM: title.DOM, tabsDOM, ...sources})
 
   const appFrame = AppFrame({
+    // navDOM: sources.navDOM$,
     navDOM: nav.DOM,
     headerDOM: header.DOM,
     pageDOM: page$.pluck('DOM'),

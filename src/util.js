@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+const {just, combineLatest, empty} = Observable
 
 import {div} from 'helpers'
 
@@ -87,6 +87,12 @@ export const mergeSinks = (...childs) => ({
   queue$: mergeOrFlatMapLatest('queue$', ...childs),
   route$: mergeOrFlatMapLatest('route$', ...childs),
 })
+
+export const pluckLatest = (k,s$) => s$.pluck(k).switch()
+
+export const pluckLatestOrNever = (k,s$) =>
+  s$.map(c => c[k] || empty()).switch()
+
 
 // app-wide material styles
 export const material = {

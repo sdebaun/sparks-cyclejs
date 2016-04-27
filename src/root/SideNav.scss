@@ -1,0 +1,17 @@
+.mini-menu-item {
+  height: 48px;
+  min-height: 48px;
+}
+
+.menu-subheader {
+  color: #999;
+  border-top: 1px solid #CCC;
+  height: 36px !important;
+  margin-top: 12px;
+  min-height: 36px !important;
+  text-transform: uppercase;
+
+  .title {
+    font-size: 14px !important;
+  }
+}

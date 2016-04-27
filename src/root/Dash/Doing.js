@@ -176,14 +176,14 @@ const ManagedCard = sources => NavigatingComplexCard({...sources,
 })
 
 const ManagedList = sources => PartialList({...sources,
-  rows$: sources.projects$,
+  rows$: sources.user.projectsOwned$,
   Control$: just(ManagedCard),
 })
 
 const WelcomeCard = sources => hideable(TitledCard)({...sources,
   elevation$: just(2),
   isVisible$: combineLatest(
-    sources.projects$, sources.engagements$,
+    sources.user.projectsOwned$, sources.engagements$,
     (p,e) => p.length === 0 && e.length === 0
   ),
   content$: just([`
