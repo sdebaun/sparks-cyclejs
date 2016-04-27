@@ -160,6 +160,8 @@ const ShiftFilter = sources => ({
   ),
 })
 
+import {localTime} from 'util'
+
 const DaysListItem = sources => {
   const list = List({
     ...sources,
@@ -172,7 +174,7 @@ const DaysListItem = sources => {
     ...sources,
     isOpen$: $.just(false),
     title$: sources.item$.pluck('date')
-      .map(d => moment(d).format('dddd, MMMM Do')),
+      .map(d => localTime(d).format('dddd, MMMM Do')),
     contentDOM$: list.DOM,
   })
 
