@@ -17,11 +17,16 @@ import {
 import {
   Opps,
   Projects,
+  Teams,
 } from 'components/remote'
 
 import {combineDOMsToDiv} from 'util'
 
 require('./SideNav.scss')
+
+const MenuSubheader = sources => hideable(ListItem)({...sources,
+  classes$: $.just({'mini-menu-item': true, 'menu-subheader': true}),
+})
 
 const _Title = sources => SidedrawerTitle({...sources,
   titleDOM$: sources.userName$,
@@ -74,6 +79,13 @@ const ProjectOppItem = sources => ListItemNavigating({...sources,
   // subtitle$: $.just('Project Owner'),
 })
 
+const ProjectTeamItem = sources => ListItemNavigating({...sources,
+  classes$: $.just({'mini-menu-item': true}),
+  title$: sources.item$.pluck('name'),
+  path$: sources.item$.pluck('$key').map(k => `/team/${k}`),
+  // subtitle$: $.just('Project Owner'),
+})
+
 const ProjectPriorityItem = sources => ListItemNavigating({...sources,
   classes$: $.just({'mini-menu-item': true}),
   title$: $.just('Priority'),
@@ -81,26 +93,78 @@ const ProjectPriorityItem = sources => ListItemNavigating({...sources,
   // subtitle$: $.just('Project Owner'),
 })
 
+const OptionalBlock = sources => {
+  const hdr = MenuSubheader(sources)
+  const list = List(sources)
+
+  return {
+    DOM: combineDOMsToDiv('',hdr,list),
+    route$: list.route$,
+  }
+}
+
+const ProjectOpps = sources => {
+  const opps$ = sources.item$.pluck('$key')
+    .flatMapLatest(Opps.query.byProject(sources))
+    .shareReplay(1)
+
+  return OptionalBlock({...sources,
+    isVisible$: opps$.map(o => o.length > 0),
+    title$: $.just('Opportunities'),
+    rows$: opps$,
+    Control$: $.just(ProjectOppItem),
+  })
+}
+
+const ProjectTeams = sources => {
+  const teams$ = sources.item$.pluck('$key')
+    .flatMapLatest(Teams.query.byProject(sources))
+    .shareReplay(1)
+
+  return OptionalBlock({...sources,
+    isVisible$: teams$.map(o => o.length > 0),
+    title$: $.just('Teams'),
+    rows$: teams$,
+    Control$: $.just(ProjectTeamItem),
+  })
+}
+
+// const ProjectOpps = sources => {
+//   const opps$ = sources.item$.pluck('$key')
+//     .flatMapLatest(Opps.query.byProject(sources))
+//     .shareReplay(1)
+
+//   const hdr = MenuSubheader({...sources,
+//     title$: $.just('Opportunities'),
+//     isVisible$: opps$.map(o => o.length > 0),
+//   })
+//   const list = List({...sources,
+//     Control$: $.just(ProjectOppItem),
+//     rows$: opps$,
+//   })
+
+//   return {
+//     DOM: combineDOMsToDiv('',hdr,list),
+//     route$: list.route$,
+//   }
+// }
+
 const ProjectItem = sources => {
   const prior = isolate(ProjectPriorityItem)(sources)
-  const ol = List({...sources,
-    Control$: $.just(ProjectOppItem),
-    rows$: sources.item$.pluck('$key')
-      .flatMapLatest(Opps.query.byProject(sources))
-      .shareReplay(1),
-  })
+  const opps = ProjectOpps(sources)
+  const teams = ProjectTeams(sources)
 
   const li = ListItemCollapsible({...sources,
     classes$: $.just({'menu-item': true}),
     title$: sources.item$.pluck('name'),
     // path$: sources.item$.pluck('$key').map(k => `/project/${k}`),
     subtitle$: $.just('Project Owner'),
-    contentDOM$: combineDOMsToDiv('',prior,ol),
+    contentDOM$: combineDOMsToDiv('', prior, opps, teams),
   })
 
   return {
     ...li,
-    route$: $.merge(ol.route$, prior.route$),
+    route$: $.merge(prior.route$, opps.route$, teams.route$),
   }
 }
 
