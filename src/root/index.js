@@ -104,14 +104,36 @@ const AuthedActionManager = sources => ({
     .map(([action,auth]) => ({uid: auth && auth.uid, ...action})),
 })
 
-export default sources => {
-  const user = UserManager(sources)
+import {ProfileSidenav} from 'components/profile'
+import {pluckLatest, pluckLatestOrNever} from 'util'
 
-  const redirects = AuthRedirectManager({...user, ...sources})
+const SwitchedComponent = sources => {
+  const comp$ = sources.Component$
+    .distinctUntilChanged()
+    .map(C => isolate(C)(sources))
+    .shareReplay(1)
 
-  const {responses$} = AuthedResponseManager(sources)
+  return {
+    pluck: key => pluckLatestOrNever(key, comp$),
+    DOM: pluckLatest('DOM', comp$),
+    ...['auth$', 'queue$', 'route$'].reduce((a,k) =>
+      (a[k] = pluckLatestOrNever(k,comp$)) && a, {}
+    ),
+  }
+}
 
-  const previousRoute$ = sources.router.observable
+const BlankSidenav = sources => ({
+  DOM: just(null),
+})
+
+export default _sources => {
+  const user = UserManager(_sources)
+
+  const redirects = AuthRedirectManager({...user, ..._sources})
+
+  const {responses$} = AuthedResponseManager(_sources)
+
+  const previousRoute$ = _sources.router.observable
     .pluck('pathname')
     .scan((acc,val) => [val, acc[0]], [null,null])
     .filter(arr => arr[1] !== '/confirm')
@@ -121,12 +143,24 @@ export default sources => {
   // confirm redirect doesnt work without this log line!!!  wtf??
   previousRoute$.subscribe(log('index.previousRoute$'))
 
-  const page = RoutedComponent({...sources,
+  const sources = {
+    ..._sources,
     ...user,
     ...redirects,
     responses$,
     previousRoute$,
+  }
+
+  const nav = SwitchedComponent({...sources,
+    Component$: sources.userProfile$
+      .map(up => up ? ProfileSidenav : BlankSidenav),
+  })
+
+  nav.route$.subscribe(x => console.log('navroute',x))
+
+  const page = RoutedComponent({...sources,
     routes$: just(_routes),
+    navDOM$: nav.DOM,
   })
 
   const DOM = page.DOM
@@ -137,6 +171,7 @@ export default sources => {
 
   const router = merge(
     page.route$,
+    nav.pluck('route$'),
     redirects.redirectUnconfirmed$,
   )
 

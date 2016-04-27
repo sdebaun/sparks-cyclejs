@@ -77,7 +77,8 @@ export default sources => {
   const header = Header({titleDOM: title.DOM, tabsDOM, ...sources})
 
   const appFrame = AppFrame({
-    navDOM: nav.DOM,
+    navDOM: sources.navDOM$,
+    // navDOM: nav.DOM,
     headerDOM: header.DOM,
     pageDOM: page$.pluck('DOM'),
     ...sources,
