@@ -6,8 +6,8 @@ import Header from 'components/Header'
 
 import {mergeSinks} from 'util'
 
-import {ResponsiveTitle} from 'components/Title'
-import {MediumProfileAvatar} from 'components/profile'
+// import {ResponsiveTitle} from 'components/Title'
+// import {MediumProfileAvatar} from 'components/profile'
 
 import {
   TabbedPage,
@@ -20,7 +20,7 @@ import {
 import Doing from './Doing'
 import Being from './Being'
 
-import {ProfileSidenav} from 'components/profile'
+// import {ProfileSidenav} from 'components/profile'
 
 const _Page = sources => TabbedPage({...sources,
   tabs$: of([
@@ -41,10 +41,11 @@ export default sources => {
     tabsDOM: page.tabBarDOM,
   })
 
-  const nav = ProfileSidenav(sources)
+  // const nav = ProfileSidenav(sources)
 
   const frame = AppFrame({...sources,
-    navDOM: nav.DOM,
+    // navDOM: nav.DOM,
+    navDOM: sources.navDOM$,
     headerDOM: header.DOM,
     pageDOM: page.DOM,
   })
@@ -53,6 +54,7 @@ export default sources => {
 
   return {
     DOM: frame.DOM,
-    ...mergeSinks(frame, page, nav, header, redirect),
+    // ...mergeSinks(frame, page, nav, header, redirect),
+    ...mergeSinks(frame, page, header, redirect),
   }
 }
