@@ -15,6 +15,7 @@ import {
 
 import {
   ListItemCollapsible,
+  ListItemNewTarget,
   BaseDialog,
   FlatButton,
   List,
@@ -62,6 +63,13 @@ const _Intro = sources => DescriptionListItem({...sources,
 
 const _ProfileInfo = sources => ({
   DOM: combineDOMsToDiv('.row', _Avatar(sources), _Intro(sources)),
+})
+
+const _ViewEngagement = sources => ListItemNewTarget({
+  iconName$: just('link'),
+  title$: just('See their Engagement Page'),
+  url$: sources.engagement$.pluck('$key')
+    .map(k => `/engaged/${k}`),
 })
 
 const _OppQ = sources => QuotingListItem({...sources,
@@ -176,6 +184,7 @@ const _Navs = sources => {
 const _Scrolled = sources => ({
   DOM: combineDOMsToDiv('.scrollable',
     _ProfileInfo(sources),
+    _ViewEngagement(sources),
     _EngageInfo(sources),
     _TeamsInfo(sources),
   ),
