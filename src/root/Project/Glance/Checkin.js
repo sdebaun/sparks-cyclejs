@@ -7,6 +7,7 @@ import moment from 'moment'
 
 import {
   ListItem,
+  ListItemNavigating,
   List,
   TitledCard,
 } from 'components/sdm'
@@ -15,6 +16,7 @@ import {
   Assignments,
   Shifts,
   Profiles,
+  Engagements,
 } from 'components/remote'
 
 import {log} from 'util'
@@ -23,11 +25,13 @@ const _Fetch = sources => {
   const assignmentsByOpp$ = sources.opps$
     .map(opps => opps.map(o => Assignments.query.byOpp(sources)(o.$key)))
     .flatMapLatest(arrayAssignQueries => $.combineLatest(arrayAssignQueries))
+    .shareReplay(1)
 
   assignmentsByOpp$.subscribe(log('assignmentsByOpp$'))
 
   const assignmentsOnly$ = assignmentsByOpp$
     .map(assignments => [].concat.apply([],assignments))
+    .shareReplay(1)
 
   assignmentsOnly$.subscribe(log('assignmentsOnly$'))
 
@@ -36,10 +40,13 @@ const _Fetch = sources => {
       $.combineLatest(
         Shifts.query.one(sources)(amnt.shiftKey),
         Profiles.query.one(sources)(amnt.profileKey),
-        (shift, profile) => ({...amnt, shift, profile})
+        Engagements.query.one(sources)(amnt.engagementKey),
+        (shift, profile, engagement) => ({...amnt, shift, profile, engagement})
       )
     ))
     .flatMapLatest(amntQueries => $.combineLatest(amntQueries))
+    // .map(amnts => amnts.filter(a => a.engagement.isConfirmed))
+    .shareReplay(1)
 
   assignments$.subscribe(log('assignments$'))
 
@@ -49,6 +56,7 @@ const _Fetch = sources => {
         !a.startTime && localTime(a.shift.start) < localTime(moment())
       )
     )
+    .shareReplay(1)
 
   assignmentsStarting$.subscribe(log('assignmentsStarting$'))
 
@@ -65,8 +73,20 @@ const _Fetch = sources => {
 //     DOM: $.just(div('',['wat'])),
 //   }
 // }
+const CheckinItem = sources => {
+  const profile$ = sources.item$
+    .pluck('profile')
 
-const CheckinItem = sources => ListItem({...sources,
+  return ListItem({...sources,
+    title$: profile$.pluck('fullName'),
+    iconSrc$: profile$.pluck('portraitUrl'),
+    // path$: sources.item$.map(({$key}) =>
+      // sources.router.createHref(`/show/${$key}`)
+  })
+}
+
+
+const xCheckinItem = sources => ListItem({...sources,
   title$: sources.item$.pluck('$key'),
 })
 
