@@ -1,8 +1,5 @@
 import {Observable as $} from 'rx'
 
-import isolate from '@cycle/isolate'
-
-import {icon} from 'helpers'
 import {hideable} from 'util'
 
 import {

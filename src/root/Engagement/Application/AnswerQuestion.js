@@ -3,15 +3,11 @@ const {of} = Observable
 
 import isolate from '@cycle/isolate'
 
-import {icon} from 'helpers'
-
 import {
   Engagements,
 } from 'components/remote'
 
 import {
-  ListItem,
-  ListItemNavigating,
   ListItemCollapsibleTextArea,
 } from 'components/sdm'
 
@@ -22,9 +18,10 @@ import {
 import {combineLatestToDiv, trimTo} from 'util'
 // import {log} from 'util'
 
+/*
 const Instruct = sources => ListItem({...sources,
   title$: of('The organizer would like to ask you a question:'),
-})
+})*/
 
 const Question = sources => QuotingListItem({...sources,
   title$: sources.opp$.map(({question}) => question || 'No Question'),
@@ -42,13 +39,14 @@ const Answer = sources => ListItemCollapsibleTextArea({...sources,
   value$: sources.answer$.map(a => a || ''),
 })
 
+/*
 const Next = sources => ListItemNavigating({...sources,
   title$: of('Next, pick the teams you want to join.'),
   leftDOM$: of(icon('chevron-circle-right', 'accent')),
   path$:
     sources.engagementKey$.map(k => '/engaged/' + k + '/application/teams'),
   isVisible$: sources.answer$.map(a => !!a),
-})
+})*/
 
 const buildUpdate = (key$, values$) =>
   values$.withLatestFrom(key$, (values, key) => ({key, values}))

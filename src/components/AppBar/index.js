@@ -1,4 +1,3 @@
-import {Observable as $} from 'rx'
 import {Toolbar} from 'components/sdm'
 
 import AppMenu from 'components/AppMenu'
