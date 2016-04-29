@@ -17,6 +17,7 @@ import {
   Shifts,
   Profiles,
   Engagements,
+  Teams,
 } from 'components/remote'
 
 import {log} from 'util'
@@ -41,11 +42,12 @@ const _Fetch = sources => {
         Shifts.query.one(sources)(amnt.shiftKey),
         Profiles.query.one(sources)(amnt.profileKey),
         Engagements.query.one(sources)(amnt.engagementKey),
-        (shift, profile, engagement) => ({...amnt, shift, profile, engagement})
+        Teams.query.one(sources)(amnt.teamKey),
+        (shift, profile, engagement, team) => ({...amnt, shift, profile, engagement, team})
       )
     ))
     .flatMapLatest(amntQueries => $.combineLatest(amntQueries))
-    // .map(amnts => amnts.filter(a => a.engagement.isConfirmed))
+    .map(amnts => amnts.sort((a,b) => moment(a.shift.start) - moment(b.shift.start)))
     .shareReplay(1)
 
   assignments$.subscribe(log('assignments$'))
@@ -77,8 +79,16 @@ const CheckinItem = sources => {
   const profile$ = sources.item$
     .pluck('profile')
 
+  const subtitle$ = $.combineLatest(
+    sources.item$.pluck('shift')
+      .map(s => localTime(s.start).format('hh:mm a')),
+    sources.item$.pluck('team').pluck('name'),
+    (shiftStart,teamName) => `${shiftStart} | ${teamName}`
+  )
+
   return ListItem({...sources,
     title$: profile$.pluck('fullName'),
+    subtitle$,
     iconSrc$: profile$.pluck('portraitUrl'),
     // path$: sources.item$.map(({$key}) =>
       // sources.router.createHref(`/show/${$key}`)
