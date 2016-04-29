@@ -1,5 +1,7 @@
 import {Observable as $} from 'rx'
 
+import {div} from 'helpers'
+
 import {
   InputControl,
 } from 'components/sdm'
@@ -11,11 +13,6 @@ import {
 } from 'components/remote'
 
 import {log} from 'util'
-
-const SearchForm = sources =>
-  InputControl({...sources,
-    label$: $.just('test'),
-  })
 
 const _Fetch = sources => {
   const assignmentsByOpp$ = sources.opps$
@@ -48,15 +45,8 @@ const _Fetch = sources => {
 
 export default _sources => {
   const sources = {..._sources, ..._Fetch(_sources)}
-  // const sources = _sources
-
-  const sf = SearchForm(sources)
-
-  const debounced$ = sf.value$.debounce(1000)
-
-  debounced$.subscribe(log('sf.value$'))
 
   return {
-    DOM: sf.DOM,
+    DOM: $.just(div('',['wat'])),
   }
 }
