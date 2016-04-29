@@ -6,6 +6,9 @@ import {div} from 'helpers'
 import {localTime} from 'util'
 import moment from 'moment'
 
+const diff = start =>
+  parseInt(localTime(start).diff(localTime(moment()), 'hours'))
+
 import {
   ListItem,
   // ListItemNavigating,
@@ -58,7 +61,7 @@ const _Fetch = sources => {
   const assignmentsStarting$ = assignments$
     .map(amnts =>
       amnts.filter(a =>
-        !a.startTime && localTime(a.shift.start) < localTime(moment())
+        !a.startTime && diff(a.shift.start) >= -3 && diff(a.shift.start) <= 3
       )
     )
     .shareReplay(1)
@@ -66,7 +69,7 @@ const _Fetch = sources => {
   const assignmentsEnding$ = assignments$
     .map(amnts =>
       amnts.filter(a =>
-        a.startTime && !a.endTime && localTime(a.shift.start) < localTime(moment())
+        a.startTime && !a.endTime && diff(a.shift.start) <= 3
       )
     )
     .shareReplay(1)
