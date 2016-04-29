@@ -93,7 +93,7 @@ const CheckoutItem = sources => {
 
   const subtitle$ = $.combineLatest(
     sources.item$.pluck('shift')
-      .map(s => localTime(s.start).format('hh:mm a')),
+      .map(s => localTime(s.start).format('ddd D MMM hh:mm a')),
     sources.item$.pluck('shift')
       .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')),
     sources.item$.pluck('team').pluck('name'),
@@ -135,7 +135,7 @@ const CheckinItem = sources => {
 
   const subtitle$ = $.combineLatest(
     sources.item$.pluck('shift')
-      .map(s => localTime(s.start).format('hh:mm a')),
+      .map(s => localTime(s.start).format('ddd D MMM hh:mm a')),
     sources.item$.pluck('shift')
       .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')),
     sources.item$.pluck('team').pluck('name'),
