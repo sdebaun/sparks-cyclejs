@@ -12,6 +12,7 @@ import {
 
 import {
   Assignments,
+  Engagements,
 } from 'components/remote'
 
 const _Remove = sources => MenuItem({...sources,
@@ -20,7 +21,11 @@ const _Remove = sources => MenuItem({...sources,
 })
 
 export const AssignmentItem = sources => {
-  const profileKey$ = sources.item$.pluck('profileKey')
+  const engagement$ = sources.item$.pluck('engagementKey')
+    .flatMapLatest(Engagements.query.one(sources))
+
+  const profileKey$ = engagement$.pluck('profileKey')
+
   const pf = ProfileFetcher({...sources, profileKey$})
   const _sources = {...sources, profileKey$, profile$: pf.profile$}
   const title$ = $.combineLatest(
