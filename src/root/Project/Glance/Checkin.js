@@ -6,6 +6,8 @@ import {
 
 import {
   Assignments,
+  Shifts,
+  Profiles,
 } from 'components/remote'
 
 import {log} from 'util'
@@ -16,35 +18,31 @@ const SearchForm = sources =>
   })
 
 const _Fetch = sources => {
-  const assignmentQueries$ = sources.opps$
+  const assignmentsByOpp$ = sources.opps$
     .map(opps => opps.map(o => Assignments.query.byOpp(sources)(o.$key)))
-    // .map(opps => opps.map(o => $.just([1,2,3])))
-    .tap(log('assignmentQueries$'))
-
-  // const assignments$ = $.combineLatest(
-  //   ...assignmentQueries$,
-  //   log('assignments$ via cL'),
-  // )
-  // const assignments$ = $.forkJoin(
-  //   assignmentQueries$,
-  //   log('assignmentQueries$'),
-  // )
-  // const assignments$ = $.forkJoin(assignmentQueries$)
-  // const x$ = $.zip(...assignmentQueries$, (...args) => args)
-  // const x$ = $.combineLatest(assignmentQueries$)
-  // const x$ = $.combineLatest(assignmentQueries$, (...args) => args)
-
-  const x$ = assignmentQueries$
-    // .flatMapLatest(arrayAssignQueries => $.forkJoin(arrayAssignQueries))
     .flatMapLatest(arrayAssignQueries => $.combineLatest(arrayAssignQueries))
-  // const x$ = $.zipIterable(assignmentQueries$)
-  // const x$ = assignmentQueries$.zipIterable()
 
-  x$.subscribe(log('assignments$'))
+  assignmentsByOpp$.subscribe(log('assignmentsByOpp$'))
 
+  const assignmentsOnly$ = assignmentsByOpp$
+    .map(assignments => [].concat.apply([],assignments))
+
+  assignmentsOnly$.subscribe(log('assignmentsOnly$'))
+
+  const assignments$ = assignmentsOnly$
+    .map(amnts => amnts.filter(a => a.profileKey && a.shiftKey).map(amnt =>
+      $.combineLatest(
+        Shifts.query.one(sources)(amnt.shiftKey),
+        Profiles.query.one(sources)(amnt.profileKey),
+        (shift, profile) => ({...amnt, shift, profile})
+      )
+    ))
+    .flatMapLatest(amntQueries => $.combineLatest(amntQueries))
+
+  assignments$.subscribe(log('assignments$'))
 
   return {
-    x$,
+    assignments$,
   }
 }
 
