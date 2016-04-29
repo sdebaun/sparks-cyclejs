@@ -205,6 +205,7 @@ export const Assignments = {
     byTeam: filterBy('Assignments', 'teamKey'),
     byShift: filterBy('Assignments', 'shiftKey'),
     byEngagement: filterBy('Assignments', 'engagementKey'),
+    byOpp: filterBy('Assignments', 'oppKey'),
   },
   action: {
     create: actionCreator('Assignments', 'create'),
