@@ -66,7 +66,7 @@ const _Fetch = sources => {
   const assignmentsEnding$ = assignments$
     .map(amnts =>
       amnts.filter(a =>
-        a.startTime && localTime(a.shift.start) < localTime(moment())
+        a.startTime && !a.endTime && localTime(a.shift.start) < localTime(moment())
       )
     )
     .shareReplay(1)
@@ -77,6 +77,48 @@ const _Fetch = sources => {
     assignments$,
     assignmentsStarting$,
     assignmentsEnding$,
+  }
+}
+
+const _Checkout = sources => MenuItem({...sources,
+  iconName$: $.of('sign-out'),
+  title$: $.of('Checkout Now!'),
+})
+
+const CheckoutItem = sources => {
+  const profile$ = sources.item$
+    .pluck('profile')
+
+  const ci = isolate(_Checkout)(sources)
+
+  const subtitle$ = $.combineLatest(
+    sources.item$.pluck('shift')
+      .map(s => localTime(s.start).format('hh:mm a')),
+    sources.item$.pluck('shift')
+      .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')),
+    sources.item$.pluck('team').pluck('name'),
+    (shiftStart,shiftEnd,teamName) => `${shiftStart} - ${shiftEnd} | ${teamName}`
+  )
+
+  const queue$ = ci.click$
+    .withLatestFrom(
+      sources.item$.pluck('$key'),
+      (c, key) => ({key, values: {endTime: localTime(moment()).format()}})
+    )
+    .tap(log('queue$'))
+    .map(Assignments.action.update)
+    .tap(log('queue$:Assignments.update'))
+
+  const li = ListItemWithMenu({...sources,
+    title$: profile$.pluck('fullName'),
+    subtitle$,
+    iconSrc$: profile$.pluck('portraitUrl'),
+    menuItems$: $.just([ci.DOM]),
+  })
+
+  return {
+    ...li,
+    queue$,
   }
 }
 
@@ -149,7 +191,7 @@ const CheckinCard = sources => {
 
 const CheckoutCard = sources => {
   const list = List({...sources,
-    Control$: $.just(CheckinItem),
+    Control$: $.just(CheckoutItem),
     rows$: sources.assignmentsEnding$,
     // rows$: $.just([1,2,3]),
   })
