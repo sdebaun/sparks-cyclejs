@@ -1,4 +1,5 @@
 import {Observable as $} from 'rx'
+import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
@@ -7,7 +8,9 @@ import moment from 'moment'
 
 import {
   ListItem,
-  ListItemNavigating,
+  // ListItemNavigating,
+  ListItemWithMenu,
+  MenuItem,
   List,
   TitledCard,
 } from 'components/sdm'
@@ -75,9 +78,17 @@ const _Fetch = sources => {
 //     DOM: $.just(div('',['wat'])),
 //   }
 // }
+
+const _Checkin = sources => MenuItem({...sources,
+  iconName$: $.of('sign-in'),
+  title$: $.of('Checkin Now!'),
+})
+
 const CheckinItem = sources => {
   const profile$ = sources.item$
     .pluck('profile')
+
+  const ci = isolate(_Checkin)(sources)
 
   const subtitle$ = $.combineLatest(
     sources.item$.pluck('shift')
@@ -86,15 +97,36 @@ const CheckinItem = sources => {
     (shiftStart,teamName) => `${shiftStart} | ${teamName}`
   )
 
-  return ListItem({...sources,
+  const queue$ = ci.click$
+    .withLatestFrom(
+      sources.item$.pluck('$key'),
+      (c, key) => ({key, values: {startTime: localTime(moment()).format()}})
+    )
+    .tap(log('queue$'))
+    .map(Assignments.action.update)
+    .tap(log('queue$:Assignments.update'))
+    // .withLatestFrom(
+    //   sources.item$.pluck('$key'),
+    //   (c, key) => ({key, values: {startTime: localTime(moment()).format()}})
+    // )
+    // .tap(log('queue$'))
+    // .map(Assignments.action.update(sources))
+    // .tap(log('queue$:Assignments.update'))
+
+  const li = ListItemWithMenu({...sources,
     title$: profile$.pluck('fullName'),
     subtitle$,
     iconSrc$: profile$.pluck('portraitUrl'),
+    menuItems$: $.just([ci.DOM]),
     // path$: sources.item$.map(({$key}) =>
       // sources.router.createHref(`/show/${$key}`)
   })
-}
 
+  return {
+    ...li,
+    queue$,
+  }
+}
 
 const xCheckinItem = sources => ListItem({...sources,
   title$: sources.item$.pluck('$key'),
@@ -113,7 +145,7 @@ const CheckinCard = sources => {
     // rows$: $.just([1,2,3]),
   })
 
-  return TitledCard({...sources,
+  const card = TitledCard({...sources,
     elevation$: $.just(2),
     // isVisible$: $.combineLatest(
     //   sources.user.projectsOwned$, sources.engagements$,
@@ -122,6 +154,11 @@ const CheckinCard = sources => {
     content$: $.just([list.DOM]),
     title$: $.just('Welcome to the Sparks.Network!'),
   })
+
+  return {
+    ...card,
+    queue$: list.queue$,
+  }
 }
 
 const CardList = sources => {
@@ -139,6 +176,7 @@ const CardList = sources => {
     ...CombinedList({...sources,
       contents$: $.combineLatest(cin.DOM),
     }),
+    queue$: cin.queue$,
     // route$: $.merge(managed.route$, engaged.route$, conf.route$),
   }
 }
@@ -146,9 +184,11 @@ const CardList = sources => {
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
   const cards = CardList(_sources)
+  cards.queue$.subscribe(log('cards.queue$'))
 
   return {
     DOM: cards.DOM.map(d => div('.cardcontainer',[d])),
+    queue$: cards.queue$,
     // route$: cards.route$,
   }
 }
