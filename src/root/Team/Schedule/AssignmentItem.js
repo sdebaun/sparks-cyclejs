@@ -24,9 +24,9 @@ export const AssignmentItem = sources => {
   const pf = ProfileFetcher({...sources, profileKey$})
   const _sources = {...sources, profileKey$, profile$: pf.profile$}
   const title$ = $.combineLatest(
-    _sources.profile$.pluck('fullName'),
+    _sources.profile$.map(p => p && p.fullName),
     _sources.item$.pluck('$key'),
-    (fullName, $key) => fullName || $key
+    (fullName, $key) => fullName || `DELETE ME: ${$key}`
   )
 
   const rem = _Remove(_sources)
