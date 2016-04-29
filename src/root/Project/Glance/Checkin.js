@@ -63,21 +63,22 @@ const _Fetch = sources => {
     )
     .shareReplay(1)
 
+  const assignmentsEnding$ = assignments$
+    .map(amnts =>
+      amnts.filter(a =>
+        a.startTime && localTime(a.shift.start) < localTime(moment())
+      )
+    )
+    .shareReplay(1)
+
   assignmentsStarting$.subscribe(log('assignmentsStarting$'))
 
   return {
     assignments$,
     assignmentsStarting$,
+    assignmentsEnding$,
   }
 }
-
-// export default _sources => {
-//   const sources = {..._sources, ..._Fetch(_sources)}
-
-//   return {
-//     DOM: $.just(div('',['wat'])),
-//   }
-// }
 
 const _Checkin = sources => MenuItem({...sources,
   iconName$: $.of('sign-in'),
@@ -93,8 +94,10 @@ const CheckinItem = sources => {
   const subtitle$ = $.combineLatest(
     sources.item$.pluck('shift')
       .map(s => localTime(s.start).format('hh:mm a')),
+    sources.item$.pluck('shift')
+      .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')),
     sources.item$.pluck('team').pluck('name'),
-    (shiftStart,teamName) => `${shiftStart} | ${teamName}`
+    (shiftStart,shiftEnd,teamName) => `${shiftStart} - ${shiftEnd} | ${teamName}`
   )
 
   const queue$ = ci.click$
@@ -105,21 +108,12 @@ const CheckinItem = sources => {
     .tap(log('queue$'))
     .map(Assignments.action.update)
     .tap(log('queue$:Assignments.update'))
-    // .withLatestFrom(
-    //   sources.item$.pluck('$key'),
-    //   (c, key) => ({key, values: {startTime: localTime(moment()).format()}})
-    // )
-    // .tap(log('queue$'))
-    // .map(Assignments.action.update(sources))
-    // .tap(log('queue$:Assignments.update'))
 
   const li = ListItemWithMenu({...sources,
     title$: profile$.pluck('fullName'),
     subtitle$,
     iconSrc$: profile$.pluck('portraitUrl'),
     menuItems$: $.just([ci.DOM]),
-    // path$: sources.item$.map(({$key}) =>
-      // sources.router.createHref(`/show/${$key}`)
   })
 
   return {
@@ -127,10 +121,6 @@ const CheckinItem = sources => {
     queue$,
   }
 }
-
-const xCheckinItem = sources => ListItem({...sources,
-  title$: sources.item$.pluck('$key'),
-})
 
 const CombinedList = sources => ({
   DOM: sources.contents$
@@ -147,12 +137,27 @@ const CheckinCard = sources => {
 
   const card = TitledCard({...sources,
     elevation$: $.just(2),
-    // isVisible$: $.combineLatest(
-    //   sources.user.projectsOwned$, sources.engagements$,
-    //   (p,e) => p.length === 0 && e.length === 0
-    // ),
     content$: $.just([list.DOM]),
-    title$: $.just('Welcome to the Sparks.Network!'),
+    title$: $.just('Check them IN'),
+  })
+
+  return {
+    ...card,
+    queue$: list.queue$,
+  }
+}
+
+const CheckoutCard = sources => {
+  const list = List({...sources,
+    Control$: $.just(CheckinItem),
+    rows$: sources.assignmentsEnding$,
+    // rows$: $.just([1,2,3]),
+  })
+
+  const card = TitledCard({...sources,
+    elevation$: $.just(2),
+    content$: $.just([list.DOM]),
+    title$: $.just('Check them OUT'),
   })
 
   return {
@@ -163,20 +168,13 @@ const CheckinCard = sources => {
 
 const CardList = sources => {
   const cin = CheckinCard(sources)
-
-  // const contents$ = $.combineLatest(
-  //   cin.DOM,
-  //   // conf.DOM,
-  //   // managed.contents$,
-  //   // engaged.contents$,
-  //   (w, c, m, e) => [w, c, ...m, ...e]
-  // )
+  const cout = CheckoutCard(sources)
 
   return {
     ...CombinedList({...sources,
-      contents$: $.combineLatest(cin.DOM),
+      contents$: $.combineLatest(cin.DOM, cout.DOM),
     }),
-    queue$: cin.queue$,
+    queue$: $.merge(cin.queue$,cout.queue$),
     // route$: $.merge(managed.route$, engaged.route$, conf.route$),
   }
 }
