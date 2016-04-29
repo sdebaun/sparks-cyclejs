@@ -8,8 +8,6 @@ import {
   TabbedPage,
 } from 'components/ui'
 
-import {ProfileSidenav} from 'components/profile'
-
 import {log} from 'util'
 import {mergeOrFlatMapLatest} from 'util'
 
@@ -42,7 +40,10 @@ const _Fetch = sources => {
     .map(arr => arr.map(a => Shifts.query.one(sources)(a.shiftKey)))
     // .tap(log('shifts$ passed to query'))
     .shareReplay(1)
-    .flatMapLatest(oarr => oarr.length > 0 ? $.combineLatest(...oarr) : $.of([]))
+    .flatMapLatest(oarr => oarr.length > 0 ?
+        $.combineLatest(...oarr) :
+        $.of([])
+    )
     // .tap(log('shifts$ from assignments$'))
     .map(arr => arr.sort((a,b) => moment(a.start) - moment(b.start)))
     .shareReplay(1)

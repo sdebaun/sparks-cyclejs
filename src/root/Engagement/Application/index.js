@@ -1,39 +1,11 @@
 import {Observable as $} from 'rx'
 // const {just, merge, combineLatest} = Observable
 
-import isolate from '@cycle/isolate'
-
-import {div} from 'cycle-snabbdom'
 // import {log} from 'util'
 
 import {combineDOMsToDiv} from 'util'
 
-import {
-  Projects,
-  Engagements,
-  Organizers,
-  Opps,
-  ProjectImages,
-} from 'components/remote'
-
-import {ProjectItem, ProjectForm, ProjectAvatar} from 'components/project'
-import {EngagementItem} from 'components/engagement'
-
-import {
-  LargeCard,
-  List,
-  PartialList,
-  ListWithHeader,
-  ListItem,
-  ListItemNavigating,
-  ListItemCollapsible,
-  RaisedButton,
-  FlatButton,
-  Dialog,
-  TitledCard,
-  ComplexCard,
-  NavigatingComplexCard,
-} from 'components/sdm'
+import {LargeCard} from 'components/sdm'
 
 // const _label = ({isApplied, isAccepted, isConfirmed}) =>
 //   isConfirmed && 'Confirmed' ||
@@ -139,7 +111,10 @@ import {
 // const ConfirmationsNeededCard = sources => {
 //   const list = ConfirmationsList(sources)
 //   const contents$ = list.contents$
-//     .map(contents => ['You\'ve been approved for these opportunities.  Confirm now to lock in your spot!', ...contents])
+//     .map(contents => [
+//      'You\'ve been approved for these opportunities. ' +
+//      'Confirm now to lock in your spot!', ...contents]
+//      )
 //   const card = hideable(TitledCard)({...sources,
 //     elevation$: $.just(2),
 //     isVisible$: sources.acceptedEngagements$.map(c => c.length > 0),
@@ -152,6 +127,7 @@ import {
 //   }
 // }
 
+/*
 import PickTeams from '../OldApplication/ChooseTeams'
 
 const PTCard = sources => {
@@ -165,6 +141,7 @@ const PTCard = sources => {
   }
 }
 
+/*
 const PickTeamsCard = sources => PTCard({...sources,
   elevation$: $.just(2),
   // isVisible$: sources.engagement$.map(e => e.isApplied && !e.isAccepted),
@@ -193,6 +170,7 @@ const ApplicationQCard = sources => AQCard({...sources,
 const CombinedList = sources => ({
   DOM: sources.contents$.map(contents => div('.cardcontainer',contents)),
 })
+*/
 
 // const CardList = sources => {
 //   const teams = PickTeamsCard(sources)
@@ -232,12 +210,7 @@ const CombinedList = sources => ({
 //     route$: cards.route$,
 //   }
 // }
-import {
-  StepListItem,
-  DescriptionListItem,
-  TitleListItem,
-  ToDoListItem,
-} from 'components/ui'
+import {TitleListItem} from 'components/ui'
 
 const _Title = sources => TitleListItem({...sources,
   title$: sources.engagement$.map(({isAccepted}) =>

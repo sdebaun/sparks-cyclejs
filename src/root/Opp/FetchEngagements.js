@@ -18,7 +18,7 @@ export const FetchEngagements = sources => {
     .flatMapLatest(Engagements.query.byOpp(sources))
     .shareReplay(1)
 
-  const errored$ = all$
+  all$ // all errors logged here
     .map(engs => engs.filter(e => !e.profileKey)) // filter out naughty records
     .subscribe(engs => console.log('Applications with errors:', engs))
 

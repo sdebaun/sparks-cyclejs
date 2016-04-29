@@ -26,13 +26,15 @@ const _Fetch = sources => {
     .flatMapLatest(Memberships.query.byTeam(sources))
     .shareReplay(1)
 
-  const errored$ = all$
+  /* eslint-disable max-len */
+  all$ // all errors here
     .map(engs => engs.filter(e => e.authorProfileKey !== void 0 || e.profileKey !== void 0)) // filter out naughty records
     .subscribe(engs => console.log('Memberships with errors:', engs))
 
   const e$ = all$
     .map(engs => engs.filter(e => e.authorProfileKey === void 0 || e.profileKey === void 0)) // filter out naughty records
     .shareReplay(1)
+  /* eslint-enable max-len */
 
   return {
     memberships$: e$,

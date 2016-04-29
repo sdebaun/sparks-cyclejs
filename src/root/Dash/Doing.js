@@ -1,12 +1,8 @@
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
 
-import isolate from '@cycle/isolate'
-
 import {div} from 'cycle-snabbdom'
 // import {log} from 'util'
-
-import {combineDOMsToDiv} from 'util'
 
 import {
   Projects,
@@ -16,71 +12,14 @@ import {
   ProjectImages,
 } from 'components/remote'
 
-import {ProjectItem, ProjectForm, ProjectAvatar} from 'components/project'
-import {EngagementItem} from 'components/engagement'
+import {ProjectAvatar} from 'components/project'
 
 import {
-  List,
   PartialList,
-  ListWithHeader,
-  ListItem,
   ListItemNavigating,
-  ListItemCollapsible,
-  RaisedButton,
-  FlatButton,
-  Dialog,
   TitledCard,
-  ComplexCard,
   NavigatingComplexCard,
 } from 'components/sdm'
-
-const CreateProjectListItem = sources => {
-  const createBtn = RaisedButton({...sources,
-    label$: just('Start a Project Anyway'),
-  })
-
-  const cancelBtn = FlatButton({...sources,
-    label$: just('Nevermind'),
-  })
-
-  const form = ProjectForm(sources)
-
-  const dialog = Dialog({...sources,
-    titleDOM$: just('Create Project'),
-    iconName$: just('sitemap'),
-    contentDOM$: form.DOM,
-    isOpen$: createBtn.click$.map(true),
-  })
-
-  const contentDOM$ = combineLatest(
-    dialog.DOM,
-    createBtn.DOM,
-    cancelBtn.DOM,
-    (dialogDOM, ...buttonsDOM) =>
-      div({},[
-        div({},[`
-          Before our public launch, we are inviting Early Access Partners
-          to try out the Sparks.Network.  You are welcome to create a project,
-          but you'll only be able to start recruiting volunteers if you're
-          an Early Access Partner.
-        `]),
-        div({}, buttonsDOM),
-        dialogDOM,
-      ])
-  )
-
-  const li = ListItemCollapsible({...sources,
-    title$: just('Start your own project'),
-    iconName$: just('sitemap'),
-    contentDOM$,
-    isOpen$: cancelBtn.click$.map(false),
-  })
-
-  return {
-    DOM: li.DOM,
-    project$: form.project$,
-  }
-}
 
 // const Welcome = sources => ({...sources,
 //   DOM: sources.isVisible$.map(show => show &&
@@ -91,8 +30,6 @@ const CreateProjectListItem = sources => {
 //     `)
 //   ),
 // })
-
-const sparkly = require('images/pitch/sparklerHeader-2048.jpg')
 
 const _label = ({isApplied, isAccepted, isConfirmed}) =>
   isConfirmed && 'Confirmed' ||
@@ -208,10 +145,14 @@ const ConfirmationsList = sources => PartialList({...sources,
   Control$: just(ConfirmListItem),
 })
 
+const approvedMsg =
+  `You've been approved for these opportunities. ` +
+  `Confirm now to lock in your spot!`
+
 const ConfirmationsNeededCard = sources => {
   const list = ConfirmationsList(sources)
   const contents$ = list.contents$
-    .map(contents => ['You\'ve been approved for these opportunities.  Confirm now to lock in your spot!', ...contents])
+    .map(contents => [approvedMsg, ...contents])
   const card = hideable(TitledCard)({...sources,
     elevation$: just(2),
     isVisible$: sources.acceptedEngagements$.map(c => c.length > 0),

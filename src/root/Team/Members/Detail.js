@@ -1,35 +1,36 @@
 import {Observable} from 'rx'
-const {just, merge} = Observable
+const {just} = Observable
 
 // import {log} from 'util'
-import {combineDOMsToDiv} from 'util'
+// import {combineDOMsToDiv} from 'util'
 
 import {
-  QuotingListItem,
+  //QuotingListItem,
   RoutedComponent,
-  ActionButton,
-  DescriptionListItem,
-  TitleListItem,
+  //ActionButton,
+  //DescriptionListItem,
+  //TitleListItem,
 } from 'components/ui'
 
 import {
-  ListItemCollapsible,
-  BaseDialog,
-  FlatButton,
-  List,
+  //ListItemCollapsible,
+  //BaseDialog,
+  //FlatButton,
+  //List,
 } from 'components/sdm'
 
-import {LargeProfileAvatar} from 'components/profile'
+// import {LargeProfileAvatar} from 'components/profile'
 
 import {
-  Profiles,
-  Engagements,
-  Memberships,
-  Teams,
+  //Profiles,
+  //Engagements,
+  //Memberships,
+  //Teams,
 } from 'components/remote'
 
 const Blank = () => ({DOM: just('')})
 
+/*
 const _Fetch = sources => {
   const engagement$ = sources.engagementKey$
     .flatMapLatest(Engagements.query.one(sources))
@@ -225,7 +226,7 @@ const ApprovalDialog = sources => {
     route$,
     queue$,
   }
-}
+}*/
 
 const Detail = sources => RoutedComponent({...sources,
   routes$: just({

@@ -40,7 +40,9 @@ export const ShiftContent = sources => {
       sources.item$.pluck('assigned'),
       (s,e,p,a) => row({},
         timeCell(s), timeCell(e),
-        cell({flex: '100', textAlign: 'right'},`${a||0} / ${p} `,icon('people')),
+        cell({flex: '100', textAlign: 'right'},
+          `${a||0} / ${p} `,icon('people')
+        ),
       )
     ),
     subtitle$: sources.item$.pluck('hours').map(h => `${h} hours`),
@@ -66,7 +68,9 @@ export const ShiftContentExtra = sources => {
       (s,n,p,a) => row({},
         cell({minWidth: '100px'},localTime(s).format('ddd D MMM')),
         cell({flex: '100'},n),
-        cell({minWidth: '100px', textAlign: 'right'},`${a||0} / ${p} `,icon('people')),
+        cell({minWidth: '100px', textAlign: 'right'},
+          `${a||0} / ${p} `,icon('people')
+        ),
       )
     ),
     subtitle$: $.combineLatest(

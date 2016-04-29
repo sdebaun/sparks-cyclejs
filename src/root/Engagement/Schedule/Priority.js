@@ -85,16 +85,16 @@ const ShiftItem = sources => {
 
   const value$ = li.value$
     .combineLatest(isDisabled$)
-    .filter(([val,isDisabled]) => !isDisabled)
+    .filter(([val,isDisabled]) => !isDisabled) // eslint-disable-line
 
   const queue$ = value$
     .tap(x => console.log('new queue value', x))
     .withLatestFrom(
       sources.item$, assignment$, sources.engagement$,
       sources.engagementKey$, sources.engagement$.pluck('profileKey'),
-      (val, {$key: shiftKey, teamKey}, assignment, {oppKey}, engagementKey, profileKey) => {
+      (val, {$key: shiftKey, teamKey}, assignment, {oppKey}, engagementKey, profileKey) => { // eslint-disable-line
         if (!assignment) {
-          return Assignments.action.create({teamKey, shiftKey, oppKey, engagementKey, profileKey})
+          return Assignments.action.create({teamKey, shiftKey, oppKey, engagementKey, profileKey}) // eslint-disable-line
         }
         return assignment.$key && Assignments.action.remove(assignment.$key)
       }
@@ -260,7 +260,9 @@ const AssignmentInstructions = sources => DescriptionListItem({...sources,
   title$: sources.neededAssignments$
     .map(n => n === 0 ?
       `Perfect! Confirm your shifts and carry on.` :
-      `Pick which shifts you prefer to work.  You need to choose ${n} more shifts.  Your selection is temporary until you finish confirmation.`
+      `Pick which shifts you prefer to work. ` +
+        `You need to choose ${n} more shifts.  ` +
+        `Your selection is temporary until you finish confirmation.`
     ),
 })
 
@@ -304,7 +306,9 @@ const _Fetch = sources => {
     .flatMapLatest(Assignments.query.byProfile(sources))
     .combineLatest(sources.engagementKey$)
     .tap(x => console.log('wat',x))
-    .map(([c, engagementKey]) => c.filter(a => a.engagementKey === engagementKey))
+    .map(
+      ([c, engagementKey]) => c.filter(a => a.engagementKey === engagementKey)
+    )
 
   const requiredAssignments$ = sources.commitments$
     .map(c => c.filter(x => x.code === 'shifts'))

@@ -5,8 +5,6 @@ import {TabbedPage} from 'components/ui'
 
 import {FilteredView} from './FilteredView'
 
-import {FetchEngagements} from '../FetchEngagements'
-
 const _TabMaker = sources => ({
   tabs$: combineLatest(
     sources.applied$,
@@ -14,7 +12,7 @@ const _TabMaker = sources => ({
     sources.ok$,
     sources.never$,
     // sources.confirmed$,
-    (ap,pr,ok,nv,cf) => [
+    (ap,pr,ok,nv/*,cf*/) => [
       {path: '/', label: `${ap.length} Applied`},
       // cf.length > 0 && {path: '/confirmed', label: `${cf.length} Confirmed`},
       pr.length > 0 && {path: '/priority', label: `${pr.length} Priority`},

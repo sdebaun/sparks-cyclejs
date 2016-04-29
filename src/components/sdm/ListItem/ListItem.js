@@ -11,7 +11,9 @@ const contentClass = (...doms) =>
   (12 - doms.filter(i => !!i).length)
 
 const listItemLink = ({url, leftDOM, title, subtitle, rightDOM, classes}) =>
-  a({class: {...liClasses, ...classes, clickable: true}, attrs: {href: url, target: '_new'}}, [
+  a({class: {...liClasses, ...classes, clickable: true},
+    attrs: {href: url, target: '_new'},
+  }, [
     leftDOM && div('.left.xcol-sm-1', [leftDOM]),
     div(contentClass(leftDOM,rightDOM), [
       div('.title', [title]),
@@ -62,7 +64,7 @@ export const ListItem = sources => {
   }
 }
 
-export const ListItemNewTarget = sources => {
+export const ListItemNewTarget = sources => { // eslint-disable-line complexity
   const viewState = {
     classes$: sources.classes$ || $.just({}),
     url$: sources.url$ || $.just('/'),

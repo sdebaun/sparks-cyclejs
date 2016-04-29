@@ -1,13 +1,13 @@
 import {Observable} from 'rx'
 const {of, merge} = Observable
-import {Form} from 'components/ui/Form'
+//import {Form} from 'components/ui/Form'
 import {
   Assignments,
   Shifts,
 } from 'components/remote'
 
-import {div} from 'cycle-snabbdom'
-import {icon} from 'helpers'
+//import {div} from 'cycle-snabbdom'
+//import {icon} from 'helpers'
 import {combineLatestToDiv} from 'util'
 
 import isolate from '@cycle/isolate'
@@ -30,6 +30,7 @@ import {localTime} from 'util'
 
 import {AssignmentItem} from './AssignmentItem'
 
+/* eslint-disable max-len */
 const _Fetch = sources => {
   const shifts$ = sources.teamKey$
     .flatMapLatest(Shifts.query.byTeam(sources))
@@ -41,6 +42,7 @@ const _Fetch = sources => {
     )
   return {shifts$, shiftsForDate$}
 }
+/* eslint-enable max-len */
 
 // const ToggleControl = sources => {
 //   const click$ = sources.DOM.select('.toggle').events('click')

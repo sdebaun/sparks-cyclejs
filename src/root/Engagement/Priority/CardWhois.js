@@ -1,8 +1,5 @@
 import {Observable as $} from 'rx'
 
-import isolate from '@cycle/isolate'
-
-import {icon} from 'helpers'
 import {hideable} from 'util'
 
 import {
@@ -11,13 +8,10 @@ import {
 } from 'components/sdm'
 
 import {
-  ToDoListItem,
-} from 'components/ui'
-
-import {
   Profiles,
 } from 'components/remote'
 
+/*
 const ToDoShifts = sources => ToDoListItem({...sources,
   title$: $.of('Choose when you\'d like to work.'),
   isDone$: sources.engagement$.map(m => !!m.isAssigned),
@@ -29,6 +23,7 @@ const ToDoPayment = sources => ToDoListItem({...sources,
   isDone$: sources.engagement$.map(m => !!m.isPaid),
   path$: $.of(sources.router.createHref('/confirmation')),
 })
+*/
 
 const BaseCard = sources => {
   const profile$ = sources.engagement$.pluck('profileKey')

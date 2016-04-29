@@ -1,8 +1,5 @@
 import {Observable as $} from 'rx'
 
-import isolate from '@cycle/isolate'
-
-import {icon} from 'helpers'
 import {hideable} from 'util'
 
 import {
@@ -34,9 +31,16 @@ const CNCard = sources => {
     content$: $.combineLatest(sh.DOM, pmt.DOM),
   })
 
+  const route$ = $.merge(
+    sh.route$,
+    pmt.route$.withLatestFrom(sources.engagements$,
+      (route, eng) => eng.isAccepted ? route : false
+    ).filter(Boolean)
+  )
+
   return {
     DOM: card.DOM,
-    route$: $.merge(sh.route$, pmt.route$),
+    route$,
   }
 }
 

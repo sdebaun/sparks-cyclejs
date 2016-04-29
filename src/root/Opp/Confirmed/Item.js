@@ -38,13 +38,17 @@ const _Fetch = sources => {
   const profileKey$ = sources.item$.pluck('profileKey')
   const {profile$} = ProfileFetcher({...sources, profileKey$})
   // const {assignments$} = AssignmentsFetcher({...sources, profileKey$})
-  const assignments$ = AssignmentsFetcher({...sources, profileKey$}).assignments$
+  const assignments$ =
+    AssignmentsFetcher({...sources, profileKey$}).assignments$
 
   const shifts$ = assignments$
     .map(arr => arr.map(a => Shifts.query.one(sources)(a.shiftKey)))
     .tap(log('shifts$ passed to query'))
     .shareReplay(1)
-    .flatMapLatest(oarr => oarr.length > 0 ? $.combineLatest(...oarr) : $.of([]))
+    .flatMapLatest(oarr => oarr.length > 0 ?
+      $.combineLatest(...oarr) :
+      $.of([])
+    )
     .tap(log('shifts$ from assignments$'))
     .map(arr => arr.sort((a,b) => moment(a.start) - moment(b.start)))
     .shareReplay(1)
@@ -90,4 +94,3 @@ export const Item = sources => {
     queue$: al.queue$,
   }
 }
-

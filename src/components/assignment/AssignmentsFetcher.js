@@ -6,5 +6,8 @@ import {
 
 export const AssignmentsFetcher = sources => ({
   assignments$: sources.profileKey$
-    .flatMapLatest(k => k ? Assignments.query.byProfile(sources)(k) : $.just(null)),
+    .flatMapLatest(k => k ?
+        Assignments.query.byProfile(sources)(k) :
+        $.just(null)
+      ),
 })
