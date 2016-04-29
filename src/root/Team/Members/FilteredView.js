@@ -24,17 +24,23 @@ const Item = sources => {
 
   // const profile$ = sources.item$.pluck('authorProfileKey')
   const profile$ = eng$
-    .pluck('profileKey')
+    .map(x => x && x.profileKey || x.authorProfileKey)
+    .filter(x => !!x)
     .flatMapLatest(Profiles.query.one(sources))
     .shareReplay(1)
 
-  return ListItemNavigating({...sources,
+  const {DOM, route$} = ListItemNavigating({...sources,
     title$: profile$.pluck('fullName'),
     iconSrc$: profile$.pluck('portraitUrl'),
     path$: sources.item$.map(({$key}) =>
       sources.router.createHref(`/show/${$key}`)
     ),
   })
+
+  return {
+    DOM: DOM.startWith(div([null])),
+    route$,
+  }
 }
 
 const AppList = sources => List({...sources,

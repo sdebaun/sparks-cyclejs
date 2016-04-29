@@ -27,11 +27,11 @@ const _Fetch = sources => {
     .shareReplay(1)
 
   const errored$ = all$
-    .map(engs => engs.filter(e => !e.authorProfileKey)) // filter out naughty records
+    .map(engs => engs.filter(e => e.authorProfileKey !== void 0 || e.profileKey !== void 0)) // filter out naughty records
     .subscribe(engs => console.log('Memberships with errors:', engs))
 
   const e$ = all$
-    .map(engs => engs.filter(e => !!e.authorProfileKey)) // filter out naughty records
+    .map(engs => engs.filter(e => e.authorProfileKey === void 0 || e.profileKey === void 0)) // filter out naughty records
     .shareReplay(1)
 
   return {
@@ -57,7 +57,7 @@ const _TabMaker = sources => ({
       pr.length > 0 && {path: '/priority', label: `${pr.length} Priority`},
       ok.length > 0 && {path: '/ok', label: `${ok.length} OK`},
       nv.length > 0 && {path: '/never', label: `${nv.length} Never`},
-    ].filter(x => !!x)
+    ].filter(Boolean)
   ),
 })
 
