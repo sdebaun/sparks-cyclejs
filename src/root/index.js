@@ -69,7 +69,6 @@ const AuthRedirectManager = sources => {
 
 import {
   Projects,
-  Organizers,
   Engagements,
 } from 'components/remote'
 

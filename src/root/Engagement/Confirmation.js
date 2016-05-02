@@ -15,7 +15,6 @@ import {
   StepListItem,
   DescriptionListItem,
   TitleListItem,
-  ToDoListItem,
 } from 'components/ui'
 
 import {
@@ -79,7 +78,9 @@ import ChooseShifts from './Schedule/Priority'
 import codeIcons from 'components/opp/codeIcons'
 
 const PaymentInstructions = sources => DescriptionListItem({...sources,
-  title$: $.just('Make a payment and/or a deposit commitment and you will be confirmed.'),
+  title$:
+    $.of('Make a payment and/or a deposit commitment ' +
+      'and you will be confirmed.'),
 })
 
 const formatAmount = s =>
@@ -91,7 +92,8 @@ const formatLabel = s =>
 const ItemPayment = sources => ListItem({...sources,
   iconName$: $.just(codeIcons['payment']),
   title$: sources.commitmentPayment$.map(({amount}) => formatLabel(amount)),
-  subtitle$: $.just('The entire amount goes to the organizer for their stated purpose.'),
+  subtitle$: $.just('The entire amount goes to the organizer ' +
+    'for their stated purpose.'),
   rightDOM$: sources.amountPayment$.map(amount =>
     div('.money', [formatAmount(amount)])
   ),
@@ -100,7 +102,10 @@ const ItemPayment = sources => ListItem({...sources,
 const ItemDeposit = sources => ListItem({...sources,
   iconName$: $.just(codeIcons['deposit']),
   title$: $.just('Refundable Deposit'),
-  subtitle$: $.just('This will be charged to your card and given to the organizer if you do not complete your commitments or cancel less than 7 days in advance.'),
+  subtitle$: $.just('This will be charged to your card and given to the ' +
+    'organizer if you do not complete your commitments or cancel ' +
+    'less than 7 days in advance.'
+  ),
   rightDOM$: sources.amountDeposit$.map(amount =>
     div('.money', [formatAmount(amount)])
   ),
@@ -109,7 +114,9 @@ const ItemDeposit = sources => ListItem({...sources,
 const ItemSparks = sources => ListItem({...sources,
   iconName$: $.just('power'),
   title$: $.just('Sparks Contribution'),
-  subtitle$: $.just('This includes 3rd-party payment processing fees and service expenses.'),
+  subtitle$: $.just('This includes 3rd-party payment processing ' +
+    'fees and service expenses.'
+  ),
   rightDOM$: sources.amountSparks$.map(amount =>
     div('.money', [formatAmount(amount)])
   ),
@@ -119,7 +126,6 @@ const ItemNonrefund = sources => ListItem({...sources,
   // iconName$: $.just('power'),
   classes$: $.just({total: true}),
   title$: $.just('Nonrefundable Total Paid Now'),
-  // subtitle$: $.just('This includes 3rd-party payment processing fees and service expenses.'),
   rightDOM$: sources.amountNonrefund$.map(amount =>
     div('.money', [formatAmount(amount)])
   ),
@@ -128,7 +134,9 @@ const ItemNonrefund = sources => ListItem({...sources,
 const ItemRefund = sources => ListItem({...sources,
   // iconName$: $.just('power'),
   title$: $.just('Deposit Commitment'),
-  subtitle$: $.just('You will not be charged if you fulfill your commitments or cancel early.'),
+  subtitle$: $.just('You will not be charged if you fulfill ' +
+    'your commitments or cancel early.'
+  ),
   rightDOM$: sources.amountDeposit$.map(amount =>
     div('.money', [formatAmount(amount)])
   ),
@@ -137,8 +145,12 @@ const ItemRefund = sources => ListItem({...sources,
 const ItemPaymentError = sources => ListItem({...sources,
   // iconName$: $.just('power'),
   isVisible$: sources.engagement$.map(({paymentError}) => paymentError),
-  title$: sources.engagement$.map(({paymentError}) => `What!? ${paymentError}???`),
-  subtitle$: $.just('Evil internet monkies have interfered with processing your payment.  Refresh the page and try again, or contact help@sparks.network.'),
+  title$: sources.engagement$
+    .map(({paymentError}) => `What!? ${paymentError}???`),
+  subtitle$: $.just('Evil internet monkies have interfered with ' +
+    'processing your payment. Refresh the page and try again, ' +
+    'or contact help@sparks.network.'
+  ),
   leftDOM$: $.just(icon('error','accent')),
 })
 
@@ -204,7 +216,8 @@ const _AllDone = sources => ListItemNavigating({...sources,
   subtitle$: $.just('We will send you a message when the event is coming up.'),
   leftDOM$: $.of(icon('chevron-circle-right', 'accent')),
   path$: sources.engagementKey$.map(k => `/engaged/${k}`),
-  isVisible$: sources.engagement$.map(({isPaid, isAssigned}) => isPaid && isAssigned),
+  isVisible$: sources.engagement$
+    .map(({isPaid, isAssigned}) => isPaid && isAssigned),
 })
 
 export default sources => {

@@ -10,7 +10,7 @@ const diff = start =>
   parseInt(localTime(start).diff(localTime(moment()), 'hours'))
 
 import {
-  ListItem,
+  //ListItem,
   // ListItemNavigating,
   ListItemWithMenu,
   MenuItem,
@@ -49,11 +49,11 @@ const _Fetch = sources => {
         Profiles.query.one(sources)(amnt.profileKey),
         Engagements.query.one(sources)(amnt.engagementKey),
         Teams.query.one(sources)(amnt.teamKey),
-        (shift, profile, engagement, team) => ({...amnt, shift, profile, engagement, team})
+        (shift, profile, engagement, team) => ({...amnt, shift, profile, engagement, team}) // eslint-disable-line
       )
     ))
     .flatMapLatest(amntQueries => $.combineLatest(amntQueries))
-    .map(amnts => amnts.sort((a,b) => moment(a.shift.start) - moment(b.shift.start)))
+    .map(amnts => amnts.sort((a,b) => moment(a.shift.start) - moment(b.shift.start))) //eslint-disable-line
     .shareReplay(1)
 
   assignments$.subscribe(log('assignments$'))
@@ -98,9 +98,9 @@ const CheckoutItem = sources => {
     sources.item$.pluck('shift')
       .map(s => localTime(s.start).format('ddd D MMM hh:mm a')),
     sources.item$.pluck('shift')
-      .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')),
+      .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')), // eslint-disable-line max-len
     sources.item$.pluck('team').pluck('name'),
-    (shiftStart,shiftEnd,teamName) => `${shiftStart} - ${shiftEnd} | ${teamName}`
+    (shiftStart,shiftEnd,teamName) => `${shiftStart} - ${shiftEnd} | ${teamName}` // eslint-disable-line max-len
   )
 
   const queue$ = ci.click$
@@ -140,9 +140,9 @@ const CheckinItem = sources => {
     sources.item$.pluck('shift')
       .map(s => localTime(s.start).format('ddd D MMM hh:mm a')),
     sources.item$.pluck('shift')
-      .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')),
+      .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')), // eslint-disable-line max-len
     sources.item$.pluck('team').pluck('name'),
-    (shiftStart,shiftEnd,teamName) => `${shiftStart} - ${shiftEnd} | ${teamName}`
+    (shiftStart,shiftEnd,teamName) => `${shiftStart} - ${shiftEnd} | ${teamName}` // eslint-disable-line max-len
   )
 
   const queue$ = ci.click$

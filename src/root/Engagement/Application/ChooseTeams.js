@@ -1,5 +1,5 @@
 import {Observable} from 'rx'
-const {just, empty, merge, combineLatest} = Observable
+const {of, just, empty, merge, combineLatest} = Observable
 // const {merge} = Observable
 
 import isolate from '@cycle/isolate'
@@ -266,7 +266,7 @@ const Fetch = sources => {
 const Next = sources => ListItemNavigating({...sources,
   title$: just('Pick more or finish'),
   subtitle$:
-    just('The more teams you\'re part of, the more shifts you can choose from!'),
+    of('The more teams you\'re part of, the more shifts you can choose from!'),
   leftDOM$: just(icon('chevron-circle-right', 'accent')),
   path$:
     sources.engagementKey$.map(k => `/engaged/${k}`),

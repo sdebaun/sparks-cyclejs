@@ -56,7 +56,7 @@ export const TitledCard = sources => {
 
 const sparkly = require('images/pitch/sparklerHeader-2048.jpg')
 
-const GRADIENT = 'linear-gradient(rgba(0,0,0,0.50),rgba(0,0,0,0.65),rgba(0,0,0,0.80),rgba(0,0,0,0.80))'
+const GRADIENT = 'linear-gradient(rgba(0,0,0,0.50),rgba(0,0,0,0.65),rgba(0,0,0,0.80),rgba(0,0,0,0.80))' //eslint-disable-line max-len
 
 const bgStyle = src => ({
   class: {cardmedia: true},
@@ -83,7 +83,7 @@ export const ComplexCard = sources => {
 
   const content$ = $.combineLatest(
     src$, title$, subtitle$, toolbar.DOM,
-    (src, title, subtitle, tb) => [
+    (src, title, subtitle/*, tb*/) => [
       div(bgStyle(src), [
         div('.title',[title]),
         div('.subtitle',[subtitle]),

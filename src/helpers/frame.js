@@ -29,7 +29,12 @@ const noSidenav = (header, page) =>
     div({style: {flex: '1 1 auto'}},['']),
   ])
   // div({style: navlessStyle}, [
-  // div({style: {flex: '1 1 100%', display: 'flex', flexFlow: 'column', alignItems: 'stretch'}}, [
+  // div({style: {
+    //  flex: '1 1 100%',
+    //  display: 'flex',
+    //  flexFlow: 'column',
+    //  alignItems: 'stretch'
+  //  }}, [
   //   header,
   //   div('.fullpage', [page]),
   // ])

@@ -35,7 +35,9 @@ const _Fetch = sources => {
     .tap(log('allDates$ start'))
     .map(([fmShifts,fmSelected]) => [...fmShifts, fmSelected].filter(i => !!i))
     .map(arr => arr.sort())
-    // .map(arr => arr.filter((item, pos, ary) => !pos || item !== ary[pos - 1]))
+    // .map(
+    //    arr => arr.filter((item, pos, ary) => !pos || item !== ary[pos - 1])
+    //  )
     .map(arr => Array.from(new Set(arr))) // orly???
     // .tap(log('allDates$ end'))
     .shareReplay(1)
