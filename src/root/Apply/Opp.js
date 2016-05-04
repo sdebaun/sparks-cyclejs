@@ -3,6 +3,7 @@ const {just, merge, combineLatest} = Observable
 
 // import isolate from '@cycle/isolate'
 
+import {h5} from 'cycle-snabbdom'
 import {div} from 'helpers'
 
 import {CommitmentItemPassive} from 'components/commitment'
@@ -87,6 +88,15 @@ export default sources => {
   const commitments$ = oppKey$
     .flatMapLatest(Commitments.query.byOpp(sources))
 
+  const userEngagments$ = sources.userProfileKey$
+    .flatMapLatest(Engagements.query.byUser(sources))
+
+  const hasPriorEngagmentsForOpp$ = userEngagments$.withLatestFrom(oppKey$,
+    (engs, oppKey) => engs.filter(e => e.oppKey === oppKey)
+  ).map(engs => engs.length > 0 ? true : false)
+
+  hasPriorEngagmentsForOpp$.subscribe(x => console.log('asdf', x))
+
   const _sources = {...sources, opp$, oppKey$, commitments$}
 
   // delegate to controls
@@ -126,6 +136,7 @@ export default sources => {
   ).share()
 
   const DOM = combineLatest(
+    hasPriorEngagmentsForOpp$,
     sources.auth$,
     applyNow.DOM,
     logins.DOM,
@@ -134,9 +145,13 @@ export default sources => {
     desc.DOM,
     gives.DOM,
     gets.DOM,
-    (auth, anDOM, lDOM, ...doms) => div({},[
+    (hasApplied, auth, anDOM, lDOM, ...doms) => div({},[
       ...doms,
-      auth ? anDOM : lDOM,
+      auth ? // eslint-disable-line no-nested-ternary
+        hasApplied ?
+          h5(`You've already applied for this opportunity!`) :
+          anDOM :
+        lDOM,
     ])
   )
 
