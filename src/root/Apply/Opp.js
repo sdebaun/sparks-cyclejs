@@ -95,8 +95,6 @@ export default sources => {
     (engs, oppKey) => engs.filter(e => e.oppKey === oppKey)
   ).map(engs => engs.length > 0 ? true : false)
 
-  hasPriorEngagmentsForOpp$.subscribe(x => console.log('asdf', x))
-
   const _sources = {...sources, opp$, oppKey$, commitments$}
 
   // delegate to controls
