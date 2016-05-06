@@ -33,9 +33,10 @@ const CNCard = sources => {
 
   const route$ = $.merge(
     sh.route$,
-    pmt.route$.withLatestFrom(sources.engagements$,
-      (route, eng) => eng.isAccepted ? route : false
-    ).filter(Boolean)
+    pmt.route$
+      .withLatestFrom(sources.engagements$ || $.just({isAccepted: false}),
+        (route, eng) => eng.isAccepted ? route : false
+      ).filter(Boolean)
   )
 
   return {
