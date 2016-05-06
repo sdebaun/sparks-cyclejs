@@ -2,7 +2,10 @@ var path = require('path')
 var webpack = require('webpack')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 
-var ENV = process.env.BUILD_ENV || 'development'
+if (!process.env.BUILD_ENV) {
+  process.env.BUILD_ENV = 'development'
+}
+var ENV = process.env.BUILD_ENV
 
 console.log('webpack run with BUILD_FIREBASE_HOST', process.env.BUILD_FIREBASE_HOST)
 
@@ -11,6 +14,7 @@ if (!process.env.BUILD_FIREBASE_HOST) { console.log('Need BUILD_FIREBASE_HOST en
 var srcPath = path.join(__dirname, '/src')
 var imagePath = path.join(__dirname, '/images')
 
+console.log(ENV);
 var basePlugins = [
   new CopyWebpackPlugin([
     {from: './200.html'},
@@ -18,6 +22,9 @@ var basePlugins = [
   new webpack.DefinePlugin({
     __FIREBASE_HOST__: JSON.stringify(process.env.BUILD_FIREBASE_HOST.trim()),
   }),
+  new webpack.EnvironmentPlugin([
+    'BUILD_ENV',
+  ]),
 ]
 
 var prodPlugins = [
