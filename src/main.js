@@ -1,4 +1,4 @@
-import {run} from '@cycle/core'
+import Cycle from '@cycle/rx-run'
 
 // drivers
 import {makeDOMDriver} from 'cycle-snabbdom'
@@ -16,7 +16,7 @@ const history = supportsHistory() ?
 
 const fbRoot = new Firebase(__FIREBASE_HOST__) // eslint-disable-line
 
-const {sources, sinks} = run(Root, {
+Cycle.run(Root, {
   isMobile$,
   DOM: makeDOMDriver('#root'),
   router: makeRouterDriver(history),
@@ -24,12 +24,3 @@ const {sources, sinks} = run(Root, {
   auth$: makeAuthDriver(fbRoot),
   queue$: makeQueueDriver(fbRoot.child('!queue')),
 })
-
-if (module.hot) {
-  module.hot.accept()
-
-  module.hot.dispose(() => {
-    sinks.dispose()
-    sources.dispose()
-  })
-}

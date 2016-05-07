@@ -1,3 +1,4 @@
+/* no cycle-hmr */
 // TODO: exterminate
 
 import {Observable} from 'rx'

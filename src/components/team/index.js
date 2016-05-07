@@ -1,13 +1,27 @@
-export {CreateTeamListItem} from './CreateTeamListItem'
-export {CreateTeamHeader} from './CreateTeamHeader'
-export {TeamForm} from './TeamForm'
-export {TeamItemNavigating} from './TeamItemNavigating'
-export {TeamListNavigating} from './TeamListNavigating'
-export {TeamIcon} from './TeamIcon'
-export {TeamFetcher} from './TeamFetcher'
+/* no cycle-hmr */
+import {CreateTeamListItem} from './CreateTeamListItem'
+import {CreateTeamHeader} from './CreateTeamHeader'
+import {TeamForm} from './TeamForm'
+import {TeamItemNavigating} from './TeamItemNavigating'
+import {TeamListNavigating} from './TeamListNavigating'
+import {TeamIcon} from './TeamIcon'
+import {TeamFetcher} from './TeamFetcher'
 
-export {
+import {
   TeamAvatar,
   MediumTeamAvatar,
   LargeTeamAvatar,
 } from './TeamAvatar'
+
+export {
+  CreateTeamListItem,
+  CreateTeamHeader,
+  TeamForm,
+  TeamItemNavigating,
+  TeamListNavigating,
+  TeamIcon,
+  TeamFetcher,
+  TeamAvatar,
+  MediumTeamAvatar,
+  LargeTeamAvatar,
+}

@@ -24,7 +24,7 @@ import {
 } from 'components/remote'
 
 const extractAmount = s =>
-  parseInt(s.replace(/[^0-9\.]/g, ''), 10)
+  parseInt(s ? s.replace(/[^0-9\.]/g, '') : 0, 10)
 
 const _Fetch = sources => {
   const engagement$ = sources.engagementKey$

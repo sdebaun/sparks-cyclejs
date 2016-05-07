@@ -25,25 +25,37 @@ var basePlugins = [
   new webpack.EnvironmentPlugin([
     'BUILD_ENV',
   ]),
+  new webpack.NoErrorsPlugin(),
+  new webpack.IgnorePlugin(/most-adapter/),
+  new webpack.IgnorePlugin(/xstream-adapter/),
+  new webpack.IgnorePlugin(/rxjs-adapter/),
 ]
 
 var prodPlugins = [
   new webpack.optimize.UglifyJsPlugin({minimize: true}),
 ]
 
-var plugins = basePlugins.concat(ENV == 'production' ? prodPlugins : [])
+var plugins = basePlugins.concat(ENV == 'production' ? prodPlugins : [
+  new webpack.HotModuleReplacementPlugin(),
+])
 
 module.exports = {
-  entry: ['./src/main'],
+  entry: [
+    'webpack-dev-server/client?http://localhost:8080/',
+    'webpack/hot/only-dev-server',
+    './src/main',
+  ],
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js',
+    publicPath: 'http://localhost:8080/',
   },
   devServer: {
     hot: true,
-    inline: true,
+    //inline: true,
     historyApiFallback: true,
   },
+  devtool: 'eval',
   module: {
     loaders: [
       {
