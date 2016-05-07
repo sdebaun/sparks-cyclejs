@@ -1,5 +1,13 @@
-export {ProjectForm} from './ProjectForm'
-export {ProjectItem} from './ProjectItem'
-export {ProjectNav} from './ProjectNav'
-export {ProjectQuickNavMenu} from './ProjectQuickNavMenu'
+/* no cycle-hmr */
+import {ProjectForm} from './ProjectForm'
+import {ProjectItem} from './ProjectItem'
+import {ProjectNav} from './ProjectNav'
+import {ProjectQuickNavMenu} from './ProjectQuickNavMenu'
 export * from './ProjectAvatar'
+
+export {
+  ProjectForm,
+  ProjectItem,
+  ProjectNav,
+  ProjectQuickNavMenu,
+}

@@ -1,3 +1,4 @@
+/* no cycle-hmr */
 require('./styles.scss')
 
 export * from './Card'
@@ -11,13 +12,22 @@ export * from './Avatar'
 
 export * from './Button'
 
-export {Fab} from './Fab'
+import {Fab} from './Fab'
+export {Fab}
 
-export {InputControl} from './InputControl'
-export {SelectControl} from './SelectControl'
-export {ToggleControl} from './ToggleControl'
-export {TextAreaControl} from './TextAreaControl'
-export {CheckboxControl} from './CheckboxControl'
+import {InputControl} from './InputControl'
+export {InputControl}
+
+import {SelectControl} from './SelectControl'
+export {SelectControl}
+
+import {ToggleControl} from './ToggleControl'
+export {ToggleControl}
+
+import {TextAreaControl} from './TextAreaControl'
+export {TextAreaControl}
+
+import {CheckboxControl} from './CheckboxControl'
+export {CheckboxControl}
 
 export * from './Dialog'
-

@@ -1,4 +1,12 @@
 {
-  "plugins": [ "transform-class-properties" ],
+  "plugins": [
+    "transform-class-properties",
+    ["cycle-hmr", {
+      "include": [
+        "src/root/**/*.js",
+        "src/components/**/*.js"
+      ]
+    }]
+   ],
   "presets": ["es2015", "stage-0", "react"]
 }

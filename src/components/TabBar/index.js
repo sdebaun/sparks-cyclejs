@@ -13,7 +13,7 @@ import {controlsFromRows, combineDOMsToDiv, mergeOrFlatMapLatest} from 'util'
 const _view = ({label}) =>
   div({class: {'tab-label-content': true}},[
     h('label',{attrs: {for: label}, style: {
-      color: material.primaryFontColor},
+      color: material.secondaryFontColor},
     },[label]),
   ])
 
