@@ -170,7 +170,7 @@ const CheckinItem = sources => {
 const CombinedList = sources => ({
   DOM: sources.contents$
     .tap(x => console.log('contents$', x))
-    .map(contents => div('',contents)),
+    .map(contents => div(contents)),
 })
 
 const CheckinCard = sources => {

@@ -103,7 +103,7 @@ const ShiftItem = sources => {
 
   return {
     DOM: li.DOM,
-    // DOM: $.just(div('',['wat'])),
+    // DOM: $.just(div(['wat'])),
     queue$,
   }
 }
@@ -294,8 +294,8 @@ const SelectionBlock = sources => {
     DOM: sources.neededAssignments$
       .map(n => n > 0).distinctUntilChanged()
       .flatMapLatest(needed => needed ?
-        combineDOMsToDiv('',inst,list) :
-        $.just(div('',[]))
+        combineDOMsToDiv('', inst, list) :
+        $.just(div([]))
       ),
     queue$: list.queue$,
   }
@@ -344,7 +344,7 @@ const ConfirmButton = sources => {
 
   return {
     DOM: sources.neededAssignments$
-      .flatMapLatest(n => n === 0 ? btn.DOM : $.just(div('',[]))),
+      .flatMapLatest(n => n === 0 ? btn.DOM : $.just(div([]))),
     queue$,
   }
 }

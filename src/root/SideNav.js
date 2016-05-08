@@ -98,7 +98,7 @@ const OptionalBlock = sources => {
   const list = List(sources)
 
   return {
-    DOM: combineDOMsToDiv('',hdr,list),
+    DOM: combineDOMsToDiv('', hdr,list),
     route$: list.route$,
   }
 }
@@ -144,7 +144,7 @@ const ProjectTeams = sources => {
 //   })
 
 //   return {
-//     DOM: combineDOMsToDiv('',hdr,list),
+//     DOM: combineDOMsToDiv('', hdr,list),
 //     route$: list.route$,
 //   }
 // }

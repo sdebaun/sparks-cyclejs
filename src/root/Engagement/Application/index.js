@@ -199,7 +199,7 @@ const CombinedList = sources => ({
 //   }
 // }
 
-// const CardList = sources => ({DOM: $.just(div('',[]))})
+// const CardList = sources => ({DOM: $.just(div([]))})
 
 // export default sources => {
 //   // const _sources = {...sources, ..._Fetch(sources)}

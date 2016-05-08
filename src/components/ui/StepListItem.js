@@ -20,7 +20,7 @@ const StepListItem = sources => {
   return isolate(ListItemCollapsible)({...sources,
     classes$: $.just({'list-item-title': true}),
     leftDOM$,
-    // contentDOM$: $.just(div('',['wat'])),
+    // contentDOM$: $.just(div(['wat'])),
     isOpen$,
     // classes$: sources.isDone$.map(isDone => ({disabled: isDone})),
   })

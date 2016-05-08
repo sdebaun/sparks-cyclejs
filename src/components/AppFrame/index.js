@@ -27,7 +27,7 @@ export default sources => {
   const layoutParams = {
     sideNav: sideNav.DOM,
     appBar: appBar.DOM,
-    header: sources.headerDOM || $.of(div('',[])),
+    header: sources.headerDOM || $.of(div([])),
     page: sources.pageDOM,
   }
 

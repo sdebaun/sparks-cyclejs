@@ -26,7 +26,7 @@ const _Info = sources => ListItem({...sources,
 
 const _Reschedule = sources => DescriptionListItem({...sources,
   title$: $.of(
-    div('', [
+    div([
       'Your schedule is locked.  To request an unlock, email ',
       a({attrs: {href: 'mailto:help@sparks.network'}},'help@sparks.network'),
       '.',

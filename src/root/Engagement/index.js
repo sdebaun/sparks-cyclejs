@@ -184,7 +184,7 @@ export default sources => {
     navDOM: sources.navDOM$,
     pageDOM: $.combineLatest(
       title.DOM, page.DOM,
-      (...doms) => div('', doms)
+      (...doms) => div(doms)
     ),
   })
 
