@@ -47,7 +47,8 @@ export const CardPickMoreShifts = _sources => {
 
   const card = hideable(TitledCard)({...sources,
     title$: sources.shiftsNeeded$.map(needed =>
-      needed > 0 ? `Pick ${needed} more shifts!` : `Lock in Your Shifts`
+      needed > 0 ? `Pick ${needed} more shifts!` :
+        `Confirm your shift preferences and carry on`
     ),
     content$,
     isVisible$,
@@ -58,4 +59,3 @@ export const CardPickMoreShifts = _sources => {
     route$: info.route$,
   }
 }
-

@@ -191,8 +191,8 @@ const Step1 = sources => {
 
   const li = StepListItem({...sources,
     title$: sources.neededAssignments$.map(n => n > 0 ?
-      `Step 1: Choose ${n} More Shifts` :
-      `Step 1: Shifts Chosen`
+      `Step 1: Choose ${n} More Preferred Shifts` :
+      `Step 1: Preferred Shifts Selected`
     ),
     // title$: $.just('Step 1: Choose Your Shifts'),
     contentDOM$: content.DOM,
