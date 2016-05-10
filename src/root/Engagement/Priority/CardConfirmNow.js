@@ -11,7 +11,7 @@ import {
 } from 'components/ui'
 
 const ToDoShifts = sources => ToDoListItem({...sources,
-  title$: $.of('Choose youre preferred shifts.'),
+  title$: $.of('Choose your preferred shifts.'),
   isDone$: sources.engagement$.map(m => !!m.isAssigned),
   path$: $.of(sources.router.createHref('/confirmation')),
 })

@@ -262,7 +262,7 @@ const AssignmentInstructions = sources => DescriptionListItem({...sources,
       `Perfect! Confirm your shift preferences and carry on.` :
       `Pick which shifts you prefer to work. ` +
         `You need to choose ${n} more shifts.  ` +
-        `Your selection is temporary until you finish confirmation.`
+        `You will be notified if the organizers need to reschedule you.`
     ),
 })
 

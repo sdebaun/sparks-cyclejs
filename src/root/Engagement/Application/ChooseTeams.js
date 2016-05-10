@@ -273,7 +273,7 @@ const Next = sources => {
 
   const DOM = rb.DOM.map(button => div([
     button,
-    div('.subtitle', {style: {color: '#666'}},
+    div({style: {color: '#666'}},
       `You can pick more teams if you like, but you don't have to.`),
   ]))
 
