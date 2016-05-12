@@ -73,10 +73,8 @@ const ConfirmationToggle = (sources) =>
   ListItemToggle({
     ...sources,
     value$: sources.opp$.map(opp => opp.confirmationsOn),
-    titleTrue$: just('Confirmations are off and no confirmation emails are ' +
-      'being sent to applicants.'),
-    titleFalse$: just('Confirmations are now on, and acceptance emails are ' +
-      'being sent as applications are approved.'),
+    titleTrue$: just('Send confirmation emails to applicants.'),
+    titleFalse$: just('Send confirmation emails to applicants.'),
   })
 
 export default sources => {
