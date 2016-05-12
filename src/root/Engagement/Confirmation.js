@@ -83,11 +83,14 @@ const PaymentInstructions = sources => DescriptionListItem({...sources,
       'and you will be confirmed.'),
 })
 
+const parseToCurrency = s =>
+  parseFloat(('' + s).replace(/[^0-9\.]/g, ''), 10).toFixed(2)
+
 const formatAmount = s =>
-  `$${parseFloat(`${s}`.replace(/[^0-9\.]/g, ''), 10).toFixed(2)}`
+  '$' + parseToCurrency(s)
 
 const formatLabel = s =>
-  `${s}`.replace(/[$0-9\.]/g, '')
+  ('' + s).replace(/[$0-9\.]/g, '')
 
 const ItemPayment = sources => ListItem({...sources,
   iconName$: $.just(codeIcons['payment']),
