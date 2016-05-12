@@ -11,7 +11,7 @@ import {
 } from 'components/ui'
 
 const ToDoShifts = sources => ToDoListItem({...sources,
-  title$: $.of('Choose when you\'d like to work.'),
+  title$: $.of('Choose your preferred shifts.'),
   isDone$: sources.engagement$.map(m => !!m.isAssigned),
   path$: $.of(sources.router.createHref('/confirmation')),
 })
@@ -33,9 +33,10 @@ const CNCard = sources => {
 
   const route$ = $.merge(
     sh.route$,
-    pmt.route$.withLatestFrom(sources.engagements$,
-      (route, eng) => eng.isAccepted ? route : false
-    ).filter(Boolean)
+    pmt.route$
+      .withLatestFrom(sources.engagements$ || $.just({isAccepted: false}),
+        (route, eng) => eng.isAccepted ? route : false
+      ).filter(Boolean)
   )
 
   return {

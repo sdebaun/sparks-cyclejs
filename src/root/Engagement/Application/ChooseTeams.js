@@ -1,10 +1,10 @@
 import {Observable} from 'rx'
-const {of, just, empty, merge, combineLatest} = Observable
+const {just, empty, merge, combineLatest} = Observable
 // const {merge} = Observable
 
 import isolate from '@cycle/isolate'
 
-import {div, icon} from 'helpers'
+import {div} from 'helpers'
 
 import {
   ListWithHeader,
@@ -12,7 +12,7 @@ import {
   ListItemClickable,
   // ListItemCollapsibleTextArea,
   ListItemHeader,
-  ListItemNavigating,
+  // ListItemNavigating,
   CheckboxControl,
   TextAreaControl,
   ListItemCollapsible,
@@ -263,14 +263,36 @@ const Fetch = sources => {
   }
 }
 
+const Next = sources => {
+  const rb = RaisedButton({...sources,
+    label$: just(`You're all done!`),
+  })
+
+  const route$ = sources.engagementKey$.map(k => `/engaged/${k}`)
+    .sample(rb.click$)
+
+  const DOM = rb.DOM.map(button => div([
+    button,
+    div({style: {color: '#666'}},
+      `You can pick more teams if you like, but you don't have to.`),
+  ]))
+
+  return {
+    ...rb,
+    DOM,
+    route$,
+  }
+}
+
+/*
 const Next = sources => ListItemNavigating({...sources,
   title$: just('Pick more or finish'),
   subtitle$:
     of('The more teams you\'re part of, the more shifts you can choose from!'),
-  leftDOM$: just(icon('chevron-circle-right', 'accent')),
+  leftDOM$: just(null),
   path$:
     sources.engagementKey$.map(k => `/engaged/${k}`),
-})
+})*/
 
 export default sources => {
   const _sources = {...sources, ...Fetch(sources)}

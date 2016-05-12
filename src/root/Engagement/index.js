@@ -23,8 +23,7 @@ import {
   Assignments,
 } from 'components/remote'
 
-const extractAmount = s =>
-  parseInt(s.replace(/[^0-9\.]/g, ''), 10)
+const extractAmount = s => parseInt(('' + s).replace(/[^0-9\.]/g, ''), 10)
 
 const _Fetch = sources => {
   const engagement$ = sources.engagementKey$
@@ -66,10 +65,10 @@ const _Fetch = sources => {
     .tap(log('commitmentShifts$'))
 
   const amountPayment$ = commitmentPayment$
-    .map(({amount}) => extractAmount(amount))
+    .map(({amount}) => extractAmount(amount || 0))
 
   const amountDeposit$ = commitmentDeposit$
-    .map(({amount}) => extractAmount(amount))
+    .map(({amount}) => extractAmount(amount || 0))
 
   const amountSparks$ = $.combineLatest(
     amountPayment$,

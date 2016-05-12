@@ -259,10 +259,10 @@ const MembershipList = sources => List({...sources,
 const AssignmentInstructions = sources => DescriptionListItem({...sources,
   title$: sources.neededAssignments$
     .map(n => n === 0 ?
-      `Perfect! Confirm your shifts and carry on.` :
+      `Perfect! Confirm your shift preferences and carry on.` :
       `Pick which shifts you prefer to work. ` +
         `You need to choose ${n} more shifts.  ` +
-        `Your selection is temporary until you finish confirmation.`
+        `You will be notified if the organizers need to reschedule you.`
     ),
 })
 

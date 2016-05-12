@@ -83,11 +83,14 @@ const PaymentInstructions = sources => DescriptionListItem({...sources,
       'and you will be confirmed.'),
 })
 
+const parseToCurrency = s =>
+  parseFloat(('' + s).replace(/[^0-9\.]/g, ''), 10).toFixed(2)
+
 const formatAmount = s =>
-  `$${parseFloat(`${s}`.replace(/[^0-9\.]/g, ''), 10).toFixed(2)}`
+  '$' + parseToCurrency(s)
 
 const formatLabel = s =>
-  `${s}`.replace(/[$0-9\.]/g, '')
+  ('' + s).replace(/[$0-9\.]/g, '')
 
 const ItemPayment = sources => ListItem({...sources,
   iconName$: $.just(codeIcons['payment']),
@@ -191,8 +194,8 @@ const Step1 = sources => {
 
   const li = StepListItem({...sources,
     title$: sources.neededAssignments$.map(n => n > 0 ?
-      `Step 1: Choose ${n} More Shifts` :
-      `Step 1: Shifts Chosen`
+      `Step 1: Choose ${n} More Preferred Shifts` :
+      `Step 1: Preferred Shifts Selected`
     ),
     // title$: $.just('Step 1: Choose Your Shifts'),
     contentDOM$: content.DOM,

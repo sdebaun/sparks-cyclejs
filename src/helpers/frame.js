@@ -1,4 +1,5 @@
 import {div} from 'cycle-snabbdom'
+import EnvBanner from 'components/EnvBanner'
 
 export const mobileFrame = ({sideNav, appBar, header, page}) =>
   div({style: {display: 'block'}}, [
@@ -8,6 +9,7 @@ export const mobileFrame = ({sideNav, appBar, header, page}) =>
       header,
       div({}, [page]),
     ]),
+    EnvBanner(),
   ])
 
 const withSidenav = (sideNav, header, page) =>
@@ -43,4 +45,5 @@ export const desktopFrame = ({sideNav, appBar, header, page}) =>
   div({}, [
     appBar,
     sideNav ? withSidenav(sideNav,header,page) : noSidenav(header,page),
+    EnvBanner(),
   ])
