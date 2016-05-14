@@ -251,8 +251,10 @@ const MembershipItem = (sources) => {
   }
 }
 
+const isAccepted = m => m.isAccepted
+
 const MembershipList = sources => List({...sources,
-  rows$: sources.memberships$,
+  rows$: sources.memberships$.map(x => x && x.filter(isAccepted)),
   Control$: $.of(MembershipItem),
 })
 
