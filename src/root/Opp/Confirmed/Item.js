@@ -86,7 +86,7 @@ export const Item = sources => {
     title$: _sources.profile$.pluck('fullName'),
     iconSrc$: _sources.profile$.pluck('portraitUrl'),
     rightDOM$: eac.DOM,
-    contentDOM$: combineDOMsToDiv('',prev,al),
+    contentDOM$: combineDOMsToDiv('', prev, al),
   })
 
   return {

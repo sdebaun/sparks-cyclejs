@@ -21,7 +21,7 @@ export const PartialList = sources => {
   const contents$ = controls$.map(ctrls => ctrls.map(ctrl => ctrl.DOM))
     // .map(controls => controls.length > 0 ?
     //   combineDOMsToDiv('', ...controls) :
-    //   just(div('',[]))
+    //   just(div([]))
     // ).switch()
 
   const route$ = controls$.flatMapLatest(children =>
@@ -74,7 +74,7 @@ export const List = sources => {
   const DOM = controls$
     .map(controls => controls.length > 0 ?
       combineDOMsToDiv('', ...controls) :
-      just(div('',[]))
+      just(div([]))
     ).switch()
 
   const route$ = controls$.flatMapLatest(children =>

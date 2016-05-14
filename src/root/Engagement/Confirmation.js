@@ -68,7 +68,7 @@ const MakePayment = sources => {
           ['Pay With This']
         ),
       ]) :
-      div('','Payment submitted, thank you!')
+      div({}, 'Payment submitted, thank you!')
     ) ,
     queue$,
   }
@@ -168,7 +168,7 @@ const Step2Content = sources => {
   const err = ItemPaymentError(sources)
 
   return {
-    DOM: combineDOMsToDiv('',inst,ipmt,idep,ispk,ref,nref,paymentForm,err),
+    DOM: combineDOMsToDiv('', inst,ipmt,idep,ispk,ref,nref,paymentForm,err),
     queue$: paymentForm.queue$,
   }
 }
