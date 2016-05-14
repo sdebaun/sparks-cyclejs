@@ -57,7 +57,9 @@
   "dependencies": {
     "@cycle/core": "^6.0.3",
     "@cycle/isolate": "^1.2.0",
+    "attr-accept": "^1.0.3",
     "braintree-web": "^2.23.0",
+    "cropperjs": "^0.7.0",
     "cycle-snabbdom": "1.2.0",
     "cyclic-fire": "^2.0.2",
     "cyclic-router": "^1.0.0",
@@ -65,6 +67,7 @@
     "history": "^2.0.1",
     "moment": "^2.12.0",
     "normalize-css": "^2.3.1",
+    "ramda": "^0.21.0",
     "react": "^0.14.7",
     "react-cropper": "^0.6.0",
     "react-dom": "^0.14.7",

@@ -1,6 +1,7 @@
 //placeholder for replacement w cyclic-surface-material
-import {Observable} from 'rx'
-const {just, combineLatest} = Observable
+import {Observable as $} from 'rx'
+import {objOf} from 'ramda'
+const {just, combineLatest} = $
 
 // import isolate from '@cycle/isolate'
 
@@ -80,8 +81,44 @@ const OkAndCancel = sources => {
   }
 }
 
+const OkAndCancelAndRemove = sources => {
+  const ok = RaisedButton({...sources,
+    label$: sources.okLabel$ || just('OK'),
+  })
+  const remove = RaisedButton({...sources,
+    label$: sources.removeLabel$ || just('Remove'),
+    classNames$: just(['accent']),
+  })
+  const cancel = FlatButton({...sources,
+    label$: sources.cancelLabel$ || just('Cancel'),
+  })
+
+  const doms = [ok, remove, cancel].map(c => c.DOM)
+  const action = objOf('action')
+
+  return {
+    DOM: combineLatest(
+      sources.value$, ...doms,
+      (val, okDOM, rDOM, cDOM) => div({},[
+        okDOM,
+        val && rDOM || null,
+        cDOM,
+      ])
+    ),
+    intent$: $.merge(
+      ok.click$.map(action('ok')),
+      remove.click$.map(action('remove')),
+      cancel.click$.map(action('cancel')),
+    ),
+    ok$: ok.click$,
+    remove$: remove.click$,
+    cancel$: cancel.click$,
+  }
+}
+
 export {
   RaisedButton,
   FlatButton,
   OkAndCancel,
+  OkAndCancelAndRemove,
 }
