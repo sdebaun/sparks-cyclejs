@@ -33,3 +33,28 @@ export const ListItemCollapsible = sources => {
     DOM,
   }
 }
+
+export const ListItemCollapsibleDumb = sources => {
+  const li = ListItemClickable(sources)
+
+  const isOpen$ = sources.isOpen$ || $.just(false)
+    .startWith(false)
+
+  const viewState = {
+    isOpen$: isOpen$,
+    listItemDOM$: li.DOM,
+    contentDOM$: sources.contentDOM$ || $.just(div({},['no contentDOM$'])),
+  }
+
+  const DOM = combineLatestObj(viewState)
+    .map(({isOpen, listItemDOM, contentDOM}) =>
+      div({},[
+        listItemDOM,
+        isOpen && div('.collapsible',[contentDOM]),
+      ].filter(i => !!i))
+    )
+
+  return {
+    DOM,
+  }
+}
