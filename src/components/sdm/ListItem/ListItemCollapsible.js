@@ -34,6 +34,9 @@ export const ListItemCollapsible = sources => {
   }
 }
 
+// A "dumb" version of the ListItemCollapsible component
+// Does not manage any type of internal isOpen state, and
+// only responds to external sources.
 export const ListItemCollapsibleDumb = sources => {
   const li = ListItemClickable(sources)
 
