@@ -58,7 +58,7 @@
     "@cycle/core": "^6.0.3",
     "@cycle/isolate": "^1.2.0",
     "braintree-web": "^2.23.0",
-    "cycle-snabbdom": "^1.2.0",
+    "cycle-snabbdom": "1.2.0",
     "cyclic-fire": "^2.0.2",
     "cyclic-router": "^1.0.0",
     "firebase": "^2.4.1",

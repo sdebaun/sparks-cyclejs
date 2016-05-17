@@ -22,6 +22,7 @@ import {
   Shifts,
   Assignments,
   Engagements,
+  Teams,
 } from 'components/remote'
 
 import {div} from 'helpers'
@@ -252,7 +253,10 @@ const MembershipItem = (sources) => {
 }
 
 const MembershipList = sources => List({...sources,
-  rows$: sources.memberships$,
+  rows$: sources.memberships$
+    .combineLatest(sources.teamStatuses$,
+      (m, ts) => m.filter((item, i) => ts[i] || item.isAccepted)
+    ),
   Control$: $.of(MembershipItem),
 })
 
@@ -305,7 +309,6 @@ const _Fetch = sources => {
   const assignments$ = sources.engagement$.pluck('profileKey')
     .flatMapLatest(Assignments.query.byProfile(sources))
     .combineLatest(sources.engagementKey$)
-    .tap(x => console.log('wat',x))
     .map(
       ([c, engagementKey]) => c.filter(a => a.engagementKey === engagementKey)
     )
@@ -322,11 +325,22 @@ const _Fetch = sources => {
     (r,s) => r - s
   )
 
+  const teamKeys$ = sources.memberships$
+    .map(m => m.map(n => n.teamKey))
+
+  const teams$ = teamKeys$
+    .map(x => $.combineLatest(x.map(Teams.query.one(sources))))
+    .switch()
+
+  const teamStatuses$ = teams$
+    .map(teams => teams.map(x => x.isPublic || false))
+
   return {
     assignments$,
     requiredAssignments$,
     selectedAssignments$,
     neededAssignments$,
+    teamStatuses$,
   }
 }
 

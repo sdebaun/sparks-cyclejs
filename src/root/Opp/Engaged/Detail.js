@@ -100,16 +100,41 @@ const _TeamQandA = sources => ({
   DOM: combineDOMsToDiv('', _TeamQ(sources), _TeamAnswer(sources)),
 })
 
+const getTeamTitle = ({isAccepted = false, isDeclined = false}, {name}) => {
+  if (isAccepted === true) { return `${name} - Accepted` }
+  return isDeclined ? `${name} - Declined` : `${name}`
+}
+
 const _TeamItem = sources => {
   const team$ = sources.item$.pluck('teamKey')
     .flatMapLatest(Teams.query.one(sources))
 
-  const li = ListItemCollapsible({...sources,
-    title$: team$.pluck('name'),
-    contentDOM$: _TeamQandA({...sources, team$}).DOM,
+  const title$ = sources.item$.combineLatest(team$, getTeamTitle)
+
+  const qa = _TeamQandA({...sources, team$})
+
+  const okButton = ActionButton({...sources,
+    label$: just('Ok'),
+    params$: just({isAccepted: true, isDeclined: false}),
   })
 
-  return li
+  const neverButton = ActionButton({...sources,
+    label$: just('Never'),
+    params$: just({isAccepted: false, isDeclined: true}),
+    classNames$: just(['red']),
+  })
+
+  const queue$ = merge(okButton.action$, neverButton.action$)
+    .withLatestFrom(sources.item$, (action, item) => ({
+      key: item.$key,
+      values: action,
+    }))
+    .map(Memberships.action.update)
+
+  const contentDOM$ = combineDOMsToDiv('', qa, okButton, neverButton)
+
+  const li = ListItemCollapsible({...sources, title$, contentDOM$})
+  return {...li, queue$: merge(li.queue$, queue$)}
 }
 
 const _TeamsInfo = sources => {
@@ -121,6 +146,7 @@ const _TeamsInfo = sources => {
 
   return {
     DOM: combineDOMsToDiv('', title, list),
+    queue$: list.queue$,
   }
 }
 
@@ -181,14 +207,18 @@ const _Navs = sources => {
   }
 }
 
-const _Scrolled = sources => ({
-  DOM: combineDOMsToDiv('.scrollable',
-    _ProfileInfo(sources),
-    _ViewEngagement(sources),
-    _EngageInfo(sources),
-    _TeamsInfo(sources),
-  ),
-})
+const _Scrolled = sources => {
+  const teamInfo = _TeamsInfo(sources)
+  return {
+    DOM: combineDOMsToDiv('.scrollable',
+      _ProfileInfo(sources),
+      _ViewEngagement(sources),
+      _EngageInfo(sources),
+      teamInfo,
+    ),
+    queue$: teamInfo.queue$,
+  }
+}
 
 const _Content = sources => {
   const acts = _Actions(sources)
@@ -198,6 +228,7 @@ const _Content = sources => {
     DOM: combineDOMsToDiv('', acts, scr),
     action$: acts.action$,
     remove$: acts.remove$,
+    queue$: scr.queue$,
   }
 }
 
@@ -249,7 +280,7 @@ const ApprovalDialog = sources => {
     )
     .map(Engagements.action.remove)
 
-  const queue$ = merge(action$, remove$)
+  const queue$ = merge(action$, remove$, c.queue$)
 
   return {
     ...d,

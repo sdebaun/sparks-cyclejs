@@ -13,6 +13,7 @@ import {
 
 import {
   StepListItem,
+  StepListItemDumb,
   DescriptionListItem,
   TitleListItem,
 } from 'components/ui'
@@ -176,7 +177,7 @@ const Step2Content = sources => {
 const Step2 = sources => {
   const content = Step2Content(sources)
 
-  const li = StepListItem({...sources,
+  const li = StepListItemDumb({...sources,
     title$: $.just('Step 2: Make Your Payment'),
     contentDOM$: content.DOM,
     isOpen$: sources.engagement$
