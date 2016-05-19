@@ -8,7 +8,7 @@ const component = ({DOM, props$}) => {
   const evt$ = DOM.select('.crop').events('crop').share()
 
   const image$ = evt$.flatMap(evt => {
-    const canvas = evt.originalTarget.cropper.getCroppedCanvas()
+    const canvas = evt.target.cropper.getCroppedCanvas()
     return $.create(obs =>
       canvas.toBlob(blob => obs.onNext({...evt.detail, blob})))
   }).shareReplay(1)
