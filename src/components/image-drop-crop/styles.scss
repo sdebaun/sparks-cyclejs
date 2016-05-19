@@ -1,0 +1,29 @@
+
+.drop-zone {
+  border: 1px dashed black;
+  text-align: center;
+  position: relative;
+  min-height: 50px;
+
+  &.active {
+    background: green;
+  }
+
+  &.accepted {
+    border-color: green;
+  }
+
+  &.rejected {
+    border-color: red;
+  }
+
+  input {
+    opacity: 0.0;
+    z-index: 1;
+    display: block;
+    top: 0px; left: 0px; right: 0px; bottom: 0px;
+    width: 100%;
+    background: red;
+    position: absolute;
+  }
+}

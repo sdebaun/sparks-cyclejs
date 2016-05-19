@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
+import {complement, identity} from 'ramda'
 
 import isolate from '@cycle/isolate'
 
@@ -47,13 +48,16 @@ export default sources => {
     .map(Projects.action.update)
 
   const setImage$ = setImage.dataUrl$
-    .withLatestFrom(
-      sources.projectKey$,
-      (dataUrl,key) => ({key, values: {dataUrl}})
-    )
-    .map(ProjectImages.action.set)
+    .filter(identity)
+    .withLatestFrom(sources.projectKey$, (dataUrl, key) =>
+      ProjectImages.action.set({key, values: {dataUrl}}))
 
-  const queue$ = merge(updateDescription$, setImage$)
+  const removeImage$ = setImage.dataUrl$
+    .filter(complement(identity))
+    .withLatestFrom(sources.projectKey$, (dataUrl, key) =>
+      ProjectImages.action.remove(key))
+
+  const queue$ = merge(updateDescription$, setImage$, removeImage$)
 
   const DOM = combineLatest(
     descriptionTextarea.DOM,

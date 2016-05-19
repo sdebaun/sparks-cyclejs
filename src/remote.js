@@ -19,6 +19,11 @@ export const ProjectImages = {
       payload: {key, values},
     }
   },
+  remove: key => ({
+    domain: 'ProjectImages',
+    action: 'remove',
+    payload: {key},
+  }),
 }
 
 export const Projects = {

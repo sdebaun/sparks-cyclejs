@@ -88,6 +88,7 @@ export const ProjectImages = {
   },
   action: {
     set: actionCreator('ProjectImages', 'set'),
+    remove: actionCreator('ProjectImages', 'remove'),
   },
 }
 
