@@ -2,6 +2,7 @@ import {Observable} from 'rx'
 const {just, empty, merge} = Observable
 
 import isolate from '@cycle/isolate'
+import {propOr, pick} from 'ramda'
 
 import Landing from './Landing'
 import Confirm from './Confirm'
@@ -195,10 +196,21 @@ export default _sources => {
     redirects.redirectUnconfirmed$,
   )
 
+  // Refresh bugsnag on page change, send user uid
+  const bugsnag = Observable.merge(
+    router.map({action: 'refresh'}),
+    sources.auth$.map(authInfo =>
+      ({
+        action: 'user',
+        user: pick(['provider', 'uid'], propOr({}, 'auth', authInfo)),
+      }))
+  )
+
   return {
     DOM,
     auth$,
     queue$,
     router,
+    bugsnag,
   }
 }

@@ -75,6 +75,9 @@ module.exports = {
       },
     ],
   },
+  externals: {
+    Bugsnag: 'Bugsnag',
+  },
   resolve: {
     alias: {
       drivers: srcPath + '/drivers',
