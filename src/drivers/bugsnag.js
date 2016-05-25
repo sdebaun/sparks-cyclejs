@@ -1,6 +1,13 @@
 import Bugsnag from 'Bugsnag'
 
 const makeBugsnagDriver = options => {
+  if (Bugsnag._u) {
+    return function nullDriver(input$) {
+      input$.subscribe(() => {})
+      return {}
+    }
+  }
+
   Bugsnag.releaseStage = options.releaseStage
 
   const actions = {
