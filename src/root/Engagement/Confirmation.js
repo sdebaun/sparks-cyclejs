@@ -21,6 +21,7 @@ import {
 import {
   LargeCard,
   ListItem,
+  ListItemWithDialog,
   ListItemNavigating,
 } from 'components/sdm'
 
@@ -103,13 +104,26 @@ const ItemPayment = sources => ListItem({...sources,
   ),
 })
 
-const ItemDeposit = sources => ListItem({...sources,
+const ItemDeposit = sources => ListItemWithDialog({...sources,
+  isOpen$: sources.DOM.select(':root').events('click')
+    .startWith(false).scan(acc => !acc, true),
   iconName$: $.just(codeIcons['deposit']),
-  title$: $.just('Refundable Deposit'),
-  subtitle$: $.just('This will be charged to your card and given to the ' +
-    'organizer if you do not complete your commitments or cancel ' +
-    'less than 7 days in advance.'
-  ),
+  title$: $.just('Accountability Amount'),
+  subtitle$: $.just('Click me for more details on what this means.'),
+  dialogContentDOM$: $.just(div({}, [
+    h('p', {}, [
+      'This amount will',
+      h('b', {}, [' not ']),
+      'be charged to you if you complete the shifts you have signed up for.',
+    ]),
+    h('p', {}, [
+      'However, in the event that you do',
+      h('b', {}, [' not ']),
+      'follow through with your commitments, you',
+      h('b', {}, [' will ']),
+      'be charged this full amount.',
+    ]),
+  ])),
   rightDOM$: sources.amountDeposit$.map(amount =>
     div('.money', [formatAmount(amount)])
   ),
