@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
+import {identity} from 'ramda'
 // import isolate from '@cycle/isolate'
 
 import {Profiles} from 'remote'
@@ -16,26 +17,29 @@ import {div} from 'helpers'
 // import {log} from 'util'
 
 const _fromGoogleData =
-  ({uid, google: {displayName, email, profileImageURL}}) => ({
+  ({uid, displayName, email, photoURL}) => ({
     uid,
     fullName: displayName,
     email,
-    portraitUrl: profileImageURL,
+    portraitUrl: photoURL,
   })
 
 const _fromFacebookData =
-  ({uid, facebook: {displayName, email, profileImageURL}}) => ({
+  ({uid, displayName, email, profileImageURL}) => ({
     uid,
     fullName: displayName,
     email,
     portraitUrl: profileImageURL,
   })
 
+const fromProviderData = ({providerId, ...data}) => ({ // eslint-disable-line no-extra-parens,max-len
+  'google.com': _fromGoogleData,
+  'facebook.com': _fromFacebookData
+}[providerId](data))
+
 const _fromAuthData$ = sources =>
-  sources.auth$.filter(a => !!a).map(({provider, ...auth}) =>
-    provider === 'google' && _fromGoogleData(auth) ||
-    provider === 'facebook' && _fromFacebookData(auth)
-  )
+  sources.auth$.filter(identity)
+    .map(fromProviderData)
 
 const _submitAction$ = ({DOM}) =>
   DOM.select('.submit').events('click').map(true)
@@ -96,7 +100,7 @@ export default sources => {
         valid ?
           submitAndCancel('yup, that\'s me!', 'let me log in again') :
           null,
-      ].filter(i => !!i))
+      ].filter(identity))
     )
 
   const frame = SoloFrame({pageDOM, ...sources})

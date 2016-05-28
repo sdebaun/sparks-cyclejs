@@ -7,9 +7,9 @@ if (!process.env.BUILD_ENV) {
 }
 var ENV = process.env.BUILD_ENV
 
-console.log('webpack run with BUILD_FIREBASE_HOST', process.env.BUILD_FIREBASE_HOST)
+console.log('webpack run with FIREBASE_URL', process.env.FIREBASE_URL)
 
-if (!process.env.BUILD_FIREBASE_HOST) { console.log('Need BUILD_FIREBASE_HOST env var'); process.exit()}
+if (!process.env.FIREBASE_URL) { console.log('Need FIREBASE_URL env var'); process.exit()}
 
 var srcPath = path.join(__dirname, '/src')
 var imagePath = path.join(__dirname, '/images')
@@ -19,11 +19,12 @@ var basePlugins = [
   new CopyWebpackPlugin([
     {from: './200.html'},
   ]),
-  new webpack.DefinePlugin({
-    __FIREBASE_HOST__: JSON.stringify(process.env.BUILD_FIREBASE_HOST.trim()),
-  }),
   new webpack.EnvironmentPlugin([
     'BUILD_ENV',
+    'FIREBASE_URL',
+    'FIREBASE_API_KEY',
+    'AUTH_DOMAIN',
+    'STORAGE_BUCKET'
   ]),
 ]
 

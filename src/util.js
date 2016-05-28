@@ -5,9 +5,20 @@ import {div} from 'helpers'
 
 import isolate from '@cycle/isolate'
 
+import firebase from 'firebase'
+
+const google = new firebase.auth.GoogleAuthProvider()
+google.addScope('email')
+google.addScope('profile')
+google.addScope('https://www.googleapis.com/auth/userinfo.profile')
+google.addScope('https://www.googleapis.com/auth/plus.me')
+
+const facebook = new firebase.auth.FacebookAuthProvider()
+facebook.addScope('email')
+
 export const PROVIDERS = {
-  google: {type: 'popup', provider: 'google'},
-  facebook: {type: 'popup', provider: 'facebook'},
+  google: {type: 'popup', provider: google},
+  facebook: {type: 'popup', provider: facebook},
   logout: {type: 'logout'},
 }
 
