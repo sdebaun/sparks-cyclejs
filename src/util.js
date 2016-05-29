@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 const {just, combineLatest, empty} = Observable
+import {compose} from 'ramda'
 
 import {div} from 'helpers'
 
@@ -24,14 +25,11 @@ export const PROVIDERS = {
 
 import moment from 'moment'
 
-export const hideable = Control => sources => {
-  const ctrl = Control(sources)
-  const {DOM, ...sinks} = ctrl
-  return {
-    DOM: sources.isVisible$.flatMapLatest(v => v ? DOM : just(null)),
+export const hideable = Control => ({isVisible$, ...sources}) =>
+  compose(sinks => ({
     ...sinks,
-  }
-}
+    DOM: isVisible$.flatMapLatest(v => v ? sinks.DOM : just(null))
+  }), Control)(sources)
 
 export const localTime = t => //1p
   moment(t).utc().add(moment.parseZone(t).utcOffset(),'m')

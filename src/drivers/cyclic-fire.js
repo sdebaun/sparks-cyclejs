@@ -22,7 +22,7 @@ const FirebaseStream = (ref, evtName) =>
 
 const ValueStream = ref => FirebaseStream(ref, 'value')
   .map(({val}) => val)
-  .share()
+  .shareReplay(1)
 
 const ChildAddedStream = ref => FirebaseStream(ref, 'child_added')
 

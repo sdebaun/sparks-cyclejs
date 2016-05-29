@@ -88,11 +88,11 @@ const UserManager = sources => {
     .shareReplay(1)
 
   const userName$ = userProfile$
-    .map(up => up && up.fullName || 'None')
+    .map(propOr('None', 'fullName'))
     .shareReplay(1)
 
   const userPortraitUrl$ = userProfile$
-    .map(up => up && up.portraitUrl)
+    .map(propOr(null, 'portraitUrl'))
     .shareReplay(1)
 
   const user = {

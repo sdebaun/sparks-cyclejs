@@ -1,6 +1,7 @@
 import {Observable as $} from 'rx'
 import {h} from 'cycle-snabbdom'
 import {hideable} from 'util'
+import {equals} from 'ramda'
 
 import isolate from '@cycle/isolate'
 
@@ -39,7 +40,7 @@ const _Title = sources => SidedrawerTitle({...sources,
 
 const _Welcome = sources => hideable(ListItem)({...sources,
   title$: $.just('Welcome to the Sparks.Network!'),
-  isVisible$: sources.navItemCount$.map(c => c === 0),
+  isVisible$: sources.navItemCount$.map(equals(0)),
 })
 
 const _HelpLink = sources => isolate(ListItem)({...sources,

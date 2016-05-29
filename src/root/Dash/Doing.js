@@ -196,9 +196,11 @@ const CardList = sources => {
 export default sources => {
   const _sources = {...sources, ..._Fetch(sources)}
   const cards = CardList(_sources)
+  const vtree$ = cards.DOM.map(d => div('.cardcontainer', [d]))
+  vtree$.subscribe(x => console.log(x))
 
   return {
-    DOM: cards.DOM.map(d => div('.cardcontainer',[d])),
+    DOM: vtree$,
     route$: cards.route$,
   }
 }
