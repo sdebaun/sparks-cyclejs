@@ -19,6 +19,7 @@ if (env === 'development') {
 
   smith.use(smithWatch({
     'src/site/**/*': true,
+    'src/layouts/*': '**/*',
     livereload: true,
   }))
 
