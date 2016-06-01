@@ -1,24 +1,28 @@
-var path = require('path')
-var webpack = require('webpack')
-var CopyWebpackPlugin = require('copy-webpack-plugin')
+import path from 'path'
+import webpack from 'webpack'
+// import CopyWebpackPlugin from 'copy-webpack-plugin'
 
 if (!process.env.BUILD_ENV) {
   process.env.BUILD_ENV = 'development'
 }
-var ENV = process.env.BUILD_ENV
+const ENV = process.env.BUILD_ENV
 
-console.log('webpack run with BUILD_FIREBASE_HOST', process.env.BUILD_FIREBASE_HOST)
+console.log('webpack run with BUILD_FIREBASE_HOST',
+  process.env.BUILD_FIREBASE_HOST)
 
-if (!process.env.BUILD_FIREBASE_HOST) { console.log('Need BUILD_FIREBASE_HOST env var'); process.exit()}
+if (!process.env.BUILD_FIREBASE_HOST) {
+  console.log('Need BUILD_FIREBASE_HOST env var'); process.exit()
+}
 
-var srcPath = path.join(__dirname, '/src')
-var imagePath = path.join(__dirname, '/images')
+const srcPath = path.join(__dirname, '/src')
+const imagePath = path.join(__dirname, '/images')
 
-console.log(ENV);
-var basePlugins = [
-  new CopyWebpackPlugin([
-    {from: './200.html'},
-  ]),
+console.log(ENV)
+
+const basePlugins = [
+  // new CopyWebpackPlugin([
+  //   {from: './200.html'},
+  // ]),
   new webpack.DefinePlugin({
     __FIREBASE_HOST__: JSON.stringify(process.env.BUILD_FIREBASE_HOST.trim()),
   }),
@@ -27,22 +31,39 @@ var basePlugins = [
   ]),
 ]
 
-var prodPlugins = [
-  new webpack.optimize.UglifyJsPlugin({minimize: true}),
-]
+const plugins = {
+  production: basePlugins.concat([
+    new webpack.optimize.UglifyJsPlugin({minimize: true}),
+  ]),
+  development: basePlugins.concat([
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
+  ]),
+}
 
-var plugins = basePlugins.concat(ENV == 'production' ? prodPlugins : [])
+const entry = {
+  production: [
+    './src/main',
+  ],
+  development: [
+    './src/main',
+    'webpack-hot-middleware/client',
+  ],
+}
 
 module.exports = {
-  entry: ['./src/main'],
+  entry: entry[ENV],
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js',
   },
   devServer: {
-    hot: true,
     inline: true,
     historyApiFallback: true,
+    stats: {
+      colors: true,
+    },
+    publicPath: '/',
   },
   module: {
     loaders: [
@@ -89,5 +110,5 @@ module.exports = {
       remote: srcPath + '/remote',
     },
   },
-  plugins: plugins,
+  plugins: plugins[ENV],
 }
