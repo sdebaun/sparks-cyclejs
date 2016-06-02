@@ -38,4 +38,3 @@ export const ListItemWithDialog = sources => {
     close$: dialog.close$,
   }
 }
-
