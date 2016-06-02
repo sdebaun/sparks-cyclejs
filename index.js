@@ -32,6 +32,7 @@ if (env === 'development') {
   })
 }
 
+app.use(express.static('dist'))
 app.use(express.static('static/build'))
 
 const index = fs.readFileSync(`./index-${env}.html`, {encoding: 'utf-8'})

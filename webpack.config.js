@@ -1,6 +1,5 @@
 import path from 'path'
 import webpack from 'webpack'
-// import CopyWebpackPlugin from 'copy-webpack-plugin'
 
 if (!process.env.BUILD_ENV) {
   process.env.BUILD_ENV = 'development'
@@ -20,9 +19,6 @@ const imagePath = path.join(__dirname, '/images')
 console.log(ENV)
 
 const basePlugins = [
-  // new CopyWebpackPlugin([
-  //   {from: './200.html'},
-  // ]),
   new webpack.DefinePlugin({
     __FIREBASE_HOST__: JSON.stringify(process.env.BUILD_FIREBASE_HOST.trim()),
   }),
@@ -35,6 +31,9 @@ const plugins = {
   production: basePlugins.concat([
     new webpack.optimize.UglifyJsPlugin({minimize: true}),
   ]),
+  staging: basePlugins.concat([
+    new webpack.optimize.UglifyJsPlugin({minimize: true}),
+  ]),
   development: basePlugins.concat([
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
@@ -43,6 +42,9 @@ const plugins = {
 
 const entry = {
   production: [
+    './src/main',
+  ],
+  staging: [
     './src/main',
   ],
   development: [

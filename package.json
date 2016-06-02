@@ -17,10 +17,14 @@
   ],
   "scripts": {
     "eslint": "eslint js/",
-    "serve": "webpack-dev-server --hot --inline --host 0.0.0.0",
-    "start": "nodemon index.js --exec babel-node",
-    "build": "webpack",
+    "serve": "nodemon index.js --exec babel-node",
+    "start": "babel-node index.js",
+    "build": "babel-node build.js",
+    "heroku-postbuild": "babel-node build.js",
     "test": "echo \"No tests, bad developer.\""
+  },
+  "engines": {
+    "node": "6.1.0"
   },
   "author": "Sparks.Network",
   "license": "MIT",
