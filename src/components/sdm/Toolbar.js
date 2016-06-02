@@ -14,7 +14,7 @@ const RIGHTSTYLE = {style: {flex: '25% 25%'}}
 const AccentToolbar = sources => ({
   DOM: combineLatestObj({
     leftItemDOM$: sources.leftItemDOM$ || just(null),
-    titleDOM$: sources.titleDOM$ || just('no title'),
+    titleDOM$: sources.titleDOM$ || sources.title$ || just('no title'),
     rightItemDOM$: sources.rightItemDOM$ || just(null),
   }).map(({
     leftItemDOM,
