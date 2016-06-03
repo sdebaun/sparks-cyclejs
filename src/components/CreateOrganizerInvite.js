@@ -3,7 +3,7 @@ const {just} = Observable
 
 // import isolate from '@cycle/isolate'
 
-import {Organizers} from 'remote'
+import {Organizers} from 'components/remote'
 
 import {ListItemWithDialog} from 'components/sdm'
 import {OrganizerInviteForm} from 'components/OrganizerInviteForm'
@@ -18,10 +18,13 @@ const CreateOrganizerListItem = sources => {
     dialogContentDOM$: form.DOM,
   })
 
-  const queue$ = form.item$
+  const queue$ = form.item$.shareReplay(1)
     .sample(listItem.submit$)
-    .zip(sources.projectKey$, (opp,projectKey) => ({projectKey, ...opp}))
-    .map(Organizers.create)
+    .withLatestFrom(sources.projectKey$,
+      (opp, projectKey) => ({...opp, projectKey})
+    )
+    .map(Organizers.action.create)
+    .tap(x => console.log('', x))
 
   return {
     DOM: listItem.DOM,
