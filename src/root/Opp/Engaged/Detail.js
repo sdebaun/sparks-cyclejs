@@ -144,9 +144,13 @@ const _TeamsInfo = sources => {
     rows$: sources.memberships$,
   })
 
+  const hasBeenAccepted$ = sources.memberships$
+    .map(memberships => memberships.some(x => x.isAccepted === true))
+
   return {
     DOM: combineDOMsToDiv('', title, list),
     queue$: list.queue$,
+    hasBeenAccepted$,
   }
 }
 
@@ -217,6 +221,7 @@ const _Scrolled = sources => {
       teamInfo,
     ),
     queue$: teamInfo.queue$,
+    hasBeenAccepted$: teamInfo.hasBeenAccepted$,
   }
 }
 
@@ -224,11 +229,16 @@ const _Content = sources => {
   const acts = _Actions(sources)
   const scr = _Scrolled(sources)
 
+  const action$ = acts.action$.withLatestFrom(scr.hasBeenAccepted$,
+    (action, hasBeenAccepted) => hasBeenAccepted || action.declined ?
+      action : false
+  ).filter(Boolean)
+
   return {
     DOM: combineDOMsToDiv('', acts, scr),
-    action$: acts.action$,
     remove$: acts.remove$,
     queue$: scr.queue$,
+    action$,
   }
 }
 
