@@ -255,7 +255,13 @@ const _AddTeamItem = sources => {
 
   const queue$ = $.merge(createMembership$, updateEngagement$).share()
 
-  return {...li, queue$}
+  const DOM = sources.item$.combineLatest(sources.memberships$,
+    (item, memberships) => !memberships.some(m => m.teamKey === item.$key) ?
+      li.DOM :
+      $.of(div([null]))
+  ).switch()
+
+  return {...li, DOM, queue$}
 }
 
 const _AddToTeam = sources => {
