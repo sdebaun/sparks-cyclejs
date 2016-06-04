@@ -1,6 +1,6 @@
-import {Observable} from 'rx'
-const {just, merge} = Observable
-
+import {Observable as $} from 'rx'
+const {just, merge} = $
+import isolate from '@cycle/isolate'
 // import {log} from 'util'
 import {combineDOMsToDiv} from 'util'
 import {div, p} from 'cycle-snabbdom'
@@ -19,6 +19,8 @@ import {
   BaseDialog,
   FlatButton,
   List,
+  ListItemClickable,
+  ListItemWithMenu,
 } from 'components/sdm'
 
 import {LargeProfileAvatar} from 'components/profile'
@@ -225,17 +227,67 @@ const _Navs = sources => {
   }
 }
 
+const _AddTeamItem = sources => {
+  const li = ListItemClickable({...sources,
+    title$: sources.item$.pluck('name'),
+  })
+
+  const teamKey$ = sources.item$.pluck('$key')
+
+  const createMembership$ = $.combineLatest(
+    teamKey$, sources.engagementKey$, sources.oppKey$,
+    (teamKey, engagementKey, oppKey) => ({
+      teamKey,
+      engagementKey,
+      oppKey,
+      isApplied: true,
+      isAccepted: true,
+      answer: 'Added by organizer',
+    })
+  )
+    .sample(li.click$)
+    .map(Memberships.action.create)
+
+  const updateEngagement$ = sources.engagementKey$
+    .sample(li.click$)
+    .map(engagementKey => ({key: engagementKey, values: {isAccepted: true}}))
+    .map(Engagements.action.update)
+
+  const queue$ = $.merge(createMembership$, updateEngagement$).share()
+
+  return {...li, queue$}
+}
+
+const _AddToTeam = sources => {
+  const list = List({...sources,
+    rows$: sources.teams$,
+    Control$: just(_AddTeamItem),
+  })
+
+  return {
+    ...ListItemWithMenu({...sources,
+      title$: just('Add to another team'),
+      iconName$: just('plus-square'),
+      menuItems$: just([list.DOM]),
+    }),
+    queue$: list.queue$,
+  }
+}
+
 const _Scrolled = sources => {
+  const addToTeam = isolate(_AddToTeam)(sources)
   const teamInfo = _TeamsInfo(sources)
   return {
     DOM: combineDOMsToDiv('.scrollable',
       _ProfileInfo(sources),
       _ViewEngagement(sources),
       _EngageInfo(sources),
+      addToTeam,
       teamInfo,
     ),
-    queue$: teamInfo.queue$,
-    hasBeenAccepted$: teamInfo.hasBeenAccepted$,
+    queue$: teamInfo.queue$.merge(addToTeam.queue$),
+    hasBeenAccepted$: teamInfo.hasBeenAccepted$
+      .map(addToTeam.queue$.map(() => true)),
   }
 }
 
