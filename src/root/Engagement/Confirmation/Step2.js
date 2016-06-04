@@ -55,7 +55,7 @@ const ConfirmWithoutPayment = sources => {
       sources.engagementKey$,
       (click, key) => ({key})
     )
-    .map(Engagements.action.pay) // this should be confirmWithoutPayment
+    .map(Engagements.action.confirmWithoutPay)
     .tap(x => console.log('engagement payment action:', x))
 
   return {
@@ -108,8 +108,7 @@ const Step2Content = sources => {
 
   return {
     DOM: combineDOMsToDiv('',acct,nonref,pmt,nopmt),
-    // queue$: $.merge(pmt.queue$,nopmt.queue$),
-    queue$: $.merge(pmt.queue$),
+    queue$: $.merge(pmt.queue$,nopmt.queue$),
   }
 }
 
