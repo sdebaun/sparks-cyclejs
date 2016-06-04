@@ -253,7 +253,9 @@ const _AddTeamItem = sources => {
     .map(engagementKey => ({key: engagementKey, values: {isAccepted: true}}))
     .map(Engagements.action.update)
 
-  const queue$ = $.merge(createMembership$, updateEngagement$).share()
+  const queue$ = $
+    .merge(createMembership$, updateEngagement$)
+    .share()
 
   const DOM = sources.item$.combineLatest(sources.memberships$,
     (item, memberships) => !memberships.some(m => m.teamKey === item.$key) ?
@@ -261,7 +263,11 @@ const _AddTeamItem = sources => {
       $.of(div([null]))
   ).switch()
 
-  return {...li, DOM, queue$}
+  const route$ = queue$.map(() =>
+    sources.engagementKey$.map(key => '/ok/show/' + key)
+  ).switch().shareReplay(1)
+
+  return {...li, DOM, queue$, route$}
 }
 
 const _AddToTeam = sources => {
@@ -277,6 +283,7 @@ const _AddToTeam = sources => {
       menuItems$: just([list.DOM]),
     }),
     queue$: list.queue$,
+    route$: list.route$.shareReplay(1),
   }
 }
 
@@ -292,8 +299,8 @@ const _Scrolled = sources => {
       teamInfo,
     ),
     queue$: teamInfo.queue$.merge(addToTeam.queue$),
-    hasBeenAccepted$: teamInfo.hasBeenAccepted$
-      .map(addToTeam.queue$.map(() => true)),
+    hasBeenAccepted$: teamInfo.hasBeenAccepted$,
+    route$: addToTeam.route$,
   }
 }
 
@@ -311,6 +318,7 @@ const _Content = sources => {
     remove$: acts.remove$,
     queue$: scr.queue$,
     action$,
+    route$: scr.route$,
   }
 }
 
@@ -348,7 +356,7 @@ const ApprovalDialog = sources => {
     _sources.oppKey$,
     _sources.engagements$,
     (r, key, engs) => switchRoute(r, key, engs)
-  )
+  ).merge(c.route$)
 
   const action$ = c.action$
     .withLatestFrom(_sources.engagementKey$,
