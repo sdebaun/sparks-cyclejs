@@ -73,7 +73,10 @@ const _Fetch = sources => {
   const amountSparks$ = $.combineLatest(
     amountPayment$,
     amountDeposit$,
-    (pmt, dep) => (pmt + dep) * 0.035 + 1.0
+    (pmt, dep) =>
+      pmt + dep > 0 ?
+      (pmt + dep) * 0.035 + 1.0 :
+      0
   ).map(amt => +amt.toFixed(2))
 
   const amountNonrefund$ = $.combineLatest(
@@ -81,6 +84,15 @@ const _Fetch = sources => {
     amountSparks$,
     (pmt, sp) => pmt + sp
   )
+
+  const hasDeposit$ = amountDeposit$
+    .map(amt => amt > 0)
+
+  const hasNonrefund$ = amountNonrefund$
+    .map(amt => amt > 0)
+
+  const hasPayment$ = amountPayment$
+    .map(amt => amt > 0)
 
   const opp$ = oppKey$
     .flatMapLatest(Opps.query.one(sources))
@@ -116,6 +128,9 @@ const _Fetch = sources => {
     (r,s) => r - s
   )
 
+  const engagementUrl$ = sources.engagementKey$
+    .map(k => `/engaged/${k}`)
+
   return {
     engagement$,
     oppKey$,
@@ -139,12 +154,16 @@ const _Fetch = sources => {
     requiredAssignments$,
     selectedAssignments$,
     neededAssignments$,
+    engagementUrl$,
+    hasDeposit$,
+    hasNonrefund$,
+    hasPayment$,
   }
 }
 
 import Priority from './Priority/index.js'
 import Application from './Application'
-import Confirmation from './Confirmation'
+import Confirmation from './Confirmation/index.js'
 
 import {label} from 'components/engagement'
 

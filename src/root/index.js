@@ -1,5 +1,4 @@
 import {Observable} from 'rx'
-import {Observable as $} from 'rx'
 const {just, empty, merge} = Observable
 
 import isolate from '@cycle/isolate'
