@@ -58,7 +58,7 @@ const AuthRedirectManager = sources => {
     .map(() => '/')
 
   // this is the only global redirect, always gets piped to the router
-  const redirectUnconfirmed$ = sources.userProfileKey$
+  const redirectUnconfirmed$ = sources.userProfile$
     .withLatestFrom(sources.auth$)
     .filter(([profile,auth]) => !profile && !!auth)
     .map(() => '/confirm')
