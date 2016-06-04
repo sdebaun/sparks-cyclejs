@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+import {Observable as $} from 'rx'
 const {just, empty, merge} = Observable
 
 import isolate from '@cycle/isolate'
@@ -23,6 +24,7 @@ import '!style!css!snabbdom-material/lib/index.css'
 import {RoutedComponent} from 'components/ui'
 
 import {log} from 'util'
+import {div} from 'helpers'
 
 import './styles.scss'
 
@@ -144,7 +146,7 @@ const SwitchedComponent = sources => {
 }
 
 const BlankSidenav = () => ({
-  DOM: just(null),
+  DOM: just(div('')),
 })
 
 export default _sources => {
