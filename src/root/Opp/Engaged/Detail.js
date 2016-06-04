@@ -3,7 +3,7 @@ const {just, merge} = Observable
 
 // import {log} from 'util'
 import {combineDOMsToDiv} from 'util'
-import {icon} from 'helpers'
+import {div, p} from 'cycle-snabbdom'
 
 import {
   QuotingListItem,
@@ -61,8 +61,29 @@ const _Intro = sources => DescriptionListItem({...sources,
   default$: just('No intro written.'),
 })
 
+const _PersonalInfo = sources => {
+  const view = ({email, phone}) =>
+    div({}, [
+      div('.row', {}, [
+        p('#email', 'Email: ' + email),
+      ]),
+      div('.row', {}, [
+        p('#phone', 'Phone number: ' + phone),
+      ]),
+    ])
+  return {
+    DOM: sources.profile$.map(view),
+  }
+}
+
 const _ProfileInfo = sources => ({
-  DOM: combineDOMsToDiv('.row', _Avatar(sources), _Intro(sources)),
+  DOM: just(div([
+    combineDOMsToDiv('.row',
+      _Avatar(sources),
+      _Intro(sources)
+    ),
+    combineDOMsToDiv('row', _PersonalInfo(sources)),
+  ])),
 })
 
 const _ViewEngagement = sources => ListItemNewTarget({
@@ -154,12 +175,6 @@ const _TeamsInfo = sources => {
   }
 }
 
-const _Priority = sources => ActionButton({...sources,
-  label$: just('priority'),
-  params$: just({isAccepted: true, priority: true, declined: false}),
-  classNames$: just(['accent']),
-})
-
 const _Accept = sources => ActionButton({...sources,
   label$: just('OK'),
   params$: just({isAccepted: true, priority: false, declined: false}),
@@ -172,21 +187,20 @@ const _Decline = sources => ActionButton({...sources,
 })
 
 const _Remove = sources => hideable(ActionButton)({...sources,
-  label$: just(icon('remove')),
+  label$: just('Delete'),
   params$: just({isAccepted: false, priority: false, declined: true}),
   classNames$: just(['black']),
   isVisible$: sources.userProfile$.pluck('isAdmin'),
 })
 
 const _Actions = (sources) => {
-  const pr = _Priority(sources)
   const ac = _Accept(sources)
   const dec = _Decline(sources)
   const rem = _Remove(sources)
 
   return {
-    DOM: combineDOMsToDiv('.center', pr, ac, dec, rem),
-    action$: merge(pr.action$, ac.action$, dec.action$),
+    DOM: combineDOMsToDiv('.center', ac, dec, rem),
+    action$: merge(ac.action$, dec.action$),
     remove$: rem.action$,
   }
 }
