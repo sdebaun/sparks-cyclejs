@@ -25,6 +25,7 @@ import {
   Teams,
   Opps,
   Organizers,
+  Arrivals,
 } from 'components/remote'
 
 const Fetch = sources => {
@@ -45,6 +46,9 @@ const Fetch = sources => {
   const organizers$ = sources.projectKey$
     .flatMapLatest(Organizers.query.byProject(sources))
 
+  const arrivals$ = sources.projectKey$
+    .flatMapLatest(Arrivals.query.byProject(sources))
+
   return {
     projectKey$,
     project$,
@@ -52,6 +56,7 @@ const Fetch = sources => {
     teams$,
     opps$,
     organizers$,
+    arrivals$,
   }
 }
 
@@ -105,6 +110,7 @@ export default _sources => {
     DOM: appFrame.DOM,
     auth$: mergeOrFlatMapLatest('auth$', ...children),
     queue$: mergeOrFlatMapLatest('queue$', ...children),
+    focus$: mergeOrFlatMapLatest('focus$', ...children),
     route$,
   }
 }

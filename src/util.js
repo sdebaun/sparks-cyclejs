@@ -42,6 +42,9 @@ export const startValue = (Control, value) => sources => {
 export const localTime = t => //1p
   moment(t).utc().add(moment.parseZone(t).utcOffset(),'m')
 
+export const formatTime = t =>
+  localTime(t).format('hh:mm a')
+
 export const requireSources = (cname, sources, ...sourceNames) =>
   sourceNames.forEach(n => {
     if (!sources[n]) { throw new Error(cname + ' must specify ' + n)}
@@ -103,6 +106,7 @@ export const mergeSinks = (...childs) => ({
   auth$: mergeOrFlatMapLatest('auth$', ...childs),
   queue$: mergeOrFlatMapLatest('queue$', ...childs),
   route$: mergeOrFlatMapLatest('route$', ...childs),
+  focus$: mergeOrFlatMapLatest('focus$', ...childs),
 })
 
 export const pluckLatest = (k,s$) => s$.pluck(k).switch()

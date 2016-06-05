@@ -43,6 +43,7 @@ export const Card = sources => {
 export const TitledCard = sources => {
   const title$ = sources.title$ || $.just('no $title')
   const bodyContent$ = sources.content$ || $.just(['no $content'])
+  const cardComponent = sources.cardComponent || Card
 
   const content$ = $.combineLatest(
     title$, bodyContent$,
@@ -52,7 +53,7 @@ export const TitledCard = sources => {
     ]
   )
 
-  return Card({...sources, content$})
+  return cardComponent({...sources, content$})
 }
 
 const sparkly = require('images/pitch/sparklerHeader-2048.jpg')

@@ -7,14 +7,12 @@ import {div} from 'helpers'
 
 import {Input} from 'snabbdom-material'
 
-// import {log} from 'util'
-
 const InputControl = sources => {
   const input$ = sources.DOM.select('.input').events('input')
+  const key$ = sources.DOM.select('.input').events('keydown')
 
   const value$ = (sources.value$ || just(null))
-    .merge(input$.pluck('target','value'))
-  // value$.subscribe(log('value$'))
+    .merge(input$.pluck('target', 'value'))
 
   const viewState = {
     label$: sources.label$ || just(null),
@@ -32,6 +30,7 @@ const InputControl = sources => {
   return {
     DOM,
     value$,
+    key$,
   }
 }
 

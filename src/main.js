@@ -8,6 +8,7 @@ import Firebase from 'firebase'
 import {makeAuthDriver, makeFirebaseDriver, makeQueueDriver} from 'cyclic-fire'
 import {isMobile$} from 'drivers/isMobile'
 import makeBugsnagDriver from 'drivers/bugsnag'
+import makeFocusNextDriver from 'drivers/focusNext'
 
 // app root function
 import Root from './root'
@@ -20,6 +21,7 @@ const fbRoot = new Firebase(__FIREBASE_HOST__) // eslint-disable-line
 const {sources, sinks} = run(Root, {
   isMobile$,
   DOM: makeDOMDriver('#root'),
+  focus$: makeFocusNextDriver(),
   router: makeRouterDriver(history),
   firebase: makeFirebaseDriver(fbRoot),
   auth$: makeAuthDriver(fbRoot),
