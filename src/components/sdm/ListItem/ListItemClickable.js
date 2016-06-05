@@ -5,9 +5,10 @@ export const ListItemClickable = sources => {
   const classes$ = (sources.classes$ || $.just({}))
     .map(c => ({clickable: true, ...c}))
 
-  return {
-    click$: sources.DOM.select('.list-item').events('click'),
+  const click$ = sources.DOM.select('.list-item').events('click')
 
+  return {
     DOM: ListItem({...sources, classes$}).DOM,
+    click$,
   }
 }

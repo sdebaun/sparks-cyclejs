@@ -42,7 +42,7 @@ export const ListItem = sources => {
   const viewState = {
     classes$: sources.classes$ || $.just({}),
     leftDOM$: sources.leftDOM$ || Icon(sources).DOM || $.just(null),
-    title$: sources.title$ || $.just('no title$'),
+    title$: sources.title$ || $.just(''),
     subtitle$: sources.subtitle$ || $.just(null),
     rightDOM$: sources.rightDOM$ || $.just(null),
     isVisible$: sources.isVisible$ || $.just(true),
@@ -69,7 +69,7 @@ export const ListItemNewTarget = sources => { // eslint-disable-line complexity
     classes$: sources.classes$ || $.just({}),
     url$: sources.url$ || $.just('/'),
     leftDOM$: sources.leftDOM$ || Icon(sources).DOM || $.just(null),
-    title$: sources.title$ || $.just('no title$'),
+    title$: sources.title$ || $.just(''),
     subtitle$: sources.subtitle$ || $.just(null),
     rightDOM$: sources.rightDOM$ || $.just(null),
     isVisible$: sources.isVisible$ || $.just(true),
