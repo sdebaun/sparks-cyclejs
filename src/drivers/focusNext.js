@@ -37,4 +37,4 @@ function makeFocusNextDriver() {
   }
 }
 
-export {makeFocusNextDriver}
+export default makeFocusNextDriver

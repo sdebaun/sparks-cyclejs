@@ -105,6 +105,7 @@ export default _sources => {
     DOM: appFrame.DOM,
     auth$: mergeOrFlatMapLatest('auth$', ...children),
     queue$: mergeOrFlatMapLatest('queue$', ...children),
+    focus$: mergeOrFlatMapLatest('focus$', ...children),
     route$,
   }
 }

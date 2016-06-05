@@ -86,6 +86,7 @@ export const mergeSinks = (...childs) => ({
   auth$: mergeOrFlatMapLatest('auth$', ...childs),
   queue$: mergeOrFlatMapLatest('queue$', ...childs),
   route$: mergeOrFlatMapLatest('route$', ...childs),
+  focus$: mergeOrFlatMapLatest('focus$', ...childs),
 })
 
 export const pluckLatest = (k,s$) => s$.pluck(k).switch()
