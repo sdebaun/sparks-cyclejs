@@ -3,11 +3,10 @@ import isolate from '@cycle/isolate'
 
 import {div} from 'helpers'
 
+import AssignmentsFetcher from './AssignmentsFetcher'
+
 import {localTime} from 'util'
 import moment from 'moment'
-
-const diff = start =>
-  parseInt(localTime(start).diff(localTime(moment()), 'hours'))
 
 import {
   //ListItem,
@@ -20,68 +19,9 @@ import {
 
 import {
   Assignments,
-  Shifts,
-  Profiles,
-  Engagements,
-  Teams,
 } from 'components/remote'
 
 import {log} from 'util'
-
-const _Fetch = sources => {
-  const assignmentsByOpp$ = sources.opps$
-    .map(opps => opps.map(o => Assignments.query.byOpp(sources)(o.$key)))
-    .flatMapLatest(arrayAssignQueries => $.combineLatest(arrayAssignQueries))
-    .shareReplay(1)
-
-  assignmentsByOpp$.subscribe(log('assignmentsByOpp$'))
-
-  const assignmentsOnly$ = assignmentsByOpp$
-    .map(assignments => [].concat.apply([],assignments))
-    .shareReplay(1)
-
-  assignmentsOnly$.subscribe(log('assignmentsOnly$'))
-
-  const assignments$ = assignmentsOnly$
-    .map(amnts => amnts.filter(a => a.profileKey && a.shiftKey).map(amnt =>
-      $.combineLatest(
-        Shifts.query.one(sources)(amnt.shiftKey),
-        Profiles.query.one(sources)(amnt.profileKey),
-        Engagements.query.one(sources)(amnt.engagementKey),
-        Teams.query.one(sources)(amnt.teamKey),
-        (shift, profile, engagement, team) => ({...amnt, shift, profile, engagement, team}) // eslint-disable-line
-      )
-    ))
-    .flatMapLatest(amntQueries => $.combineLatest(amntQueries))
-    .map(amnts => amnts.sort((a,b) => moment(a.shift.start) - moment(b.shift.start))) //eslint-disable-line
-    .shareReplay(1)
-
-  assignments$.subscribe(log('assignments$'))
-
-  const assignmentsStarting$ = assignments$
-    .map(amnts =>
-      amnts.filter(a =>
-        !a.startTime && diff(a.shift.start) >= -3 && diff(a.shift.start) <= 3
-      )
-    )
-    .shareReplay(1)
-
-  const assignmentsEnding$ = assignments$
-    .map(amnts =>
-      amnts.filter(a =>
-        a.startTime && !a.endTime && diff(a.shift.start) <= 3
-      )
-    )
-    .shareReplay(1)
-
-  assignmentsStarting$.subscribe(log('assignmentsStarting$'))
-
-  return {
-    assignments$,
-    assignmentsStarting$,
-    assignmentsEnding$,
-  }
-}
 
 const _Checkout = sources => MenuItem({...sources,
   iconName$: $.of('sign-out'),
@@ -176,7 +116,10 @@ const CombinedList = sources => ({
 const CheckinCard = sources => {
   const list = List({...sources,
     Control$: $.just(CheckinItem),
-    rows$: sources.assignmentsStarting$,
+    rows$: sources.range({
+      hoursAgo: 3,
+      hoursAhead: 3,
+    }),
     // rows$: $.just([1,2,3]),
   })
 
@@ -195,7 +138,7 @@ const CheckinCard = sources => {
 const CheckoutCard = sources => {
   const list = List({...sources,
     Control$: $.just(CheckoutItem),
-    rows$: sources.assignmentsEnding$,
+    rows$: sources.ending({hoursAhead: 3}),
     // rows$: $.just([1,2,3]),
   })
 
@@ -225,7 +168,7 @@ const CardList = sources => {
 }
 
 export default sources => {
-  const _sources = {...sources, ..._Fetch(sources)}
+  const _sources = {...sources, ...AssignmentsFetcher(sources)}
   const cards = CardList(_sources)
   cards.queue$.subscribe(log('cards.queue$'))
 
