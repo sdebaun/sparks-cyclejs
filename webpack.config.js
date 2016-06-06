@@ -6,13 +6,6 @@ if (!process.env.BUILD_ENV) {
 }
 const ENV = process.env.BUILD_ENV
 
-console.log('webpack run with BUILD_FIREBASE_HOST',
-  process.env.BUILD_FIREBASE_HOST)
-
-if (!process.env.BUILD_FIREBASE_HOST) {
-  console.log('Need BUILD_FIREBASE_HOST env var'); process.exit()
-}
-
 const srcPath = path.join(__dirname, '/src')
 const imagePath = path.join(__dirname, '/images')
 
@@ -20,7 +13,7 @@ console.log(ENV)
 
 const basePlugins = [
   new webpack.DefinePlugin({
-    __FIREBASE_HOST__: JSON.stringify(process.env.BUILD_FIREBASE_HOST.trim()),
+    __FIREBASE_HOST__: 'window.Sparks.FIREBASE_HOST',
   }),
   new webpack.EnvironmentPlugin([
     'BUILD_ENV',

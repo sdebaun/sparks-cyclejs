@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import express from 'express'
+import Handlebars from 'handlebars'
 import webpack from 'webpack'
 import webpackDevMiddleware from 'webpack-dev-middleware'
 import webpackHotMiddleware from 'webpack-hot-middleware'
@@ -56,9 +57,21 @@ if (env === 'development') {
 app.use(express.static('dist'))
 app.use(express.static('static/build'))
 
-const index = fs.readFileSync(`./index-${env}.html`, {encoding: 'utf-8'})
+const compileHtml = () => {
+  const indexSource = fs.readFileSync(`./index-${env}.html`, {encoding: 'utf-8'})
+  const template = Handlebars.compile(indexSource)
+  const html = template({...process.env})
+  return html
+}
+
+const html = compileHtml()
+
 app.get('*', (req, res) => {
-  res.send(index)
+  if (env === 'development') {
+    res.send(compileHtml())
+  } else {
+    res.send(html)
+  }
 })
 
 app.listen(port, () => console.log(`Listening on ${port}`))
