@@ -16,3 +16,9 @@ deployment:
     branch: release
     heroku:
       appname: sparks-frontend-staging
+
+  production:
+    branch: master
+    heroku:
+      appname: sparks-frontend-production
+
