@@ -7,6 +7,7 @@ import {createHistory, createHashHistory} from 'history'
 import Firebase from 'firebase'
 import {makeAuthDriver, makeFirebaseDriver, makeQueueDriver} from 'cyclic-fire'
 import {isMobile$} from 'drivers/isMobile'
+import makeBugsnagDriver from 'drivers/bugsnag'
 
 // app root function
 import Root from './root'
@@ -23,6 +24,9 @@ const {sources, sinks} = run(Root, {
   firebase: makeFirebaseDriver(fbRoot),
   auth$: makeAuthDriver(fbRoot),
   queue$: makeQueueDriver(fbRoot.child('!queue')),
+  bugsnag: makeBugsnagDriver({
+    releaseStage: process.env.BUILD_ENV || 'development',
+  }),
 })
 
 if (module.hot) {
