@@ -66,6 +66,12 @@ const _Fetch = sources => {
     )
     .shareReplay(1)
 
+  const assignmentsLate$ = assignments$
+    .map(amnts =>
+      amnts.filter(a => !a.startTime && diff(a.shift.start) < 0)
+    )
+    .shareReplay(1)
+
   const assignmentsEnding$ = assignments$
     .map(amnts =>
       amnts.filter(a =>
@@ -79,44 +85,55 @@ const _Fetch = sources => {
   return {
     assignments$,
     assignmentsStarting$,
+    assignmentsLate$,
     assignmentsEnding$,
   }
 }
 
-const _Checkout = sources => MenuItem({...sources,
-  iconName$: $.of('sign-out'),
-  title$: $.of('Checkout Now!'),
-})
+const endOfShift = shift =>
+  localTime(shift.start).add(parseInt(shift.hours, 10), 'hour')
 
 const CheckoutItem = sources => {
   const profile$ = sources.item$
     .pluck('profile')
 
-  const ci = isolate(_Checkout)(sources)
+  const checkoutNow = isolate(MenuItem)({
+    ...sources,
+    iconName$: $.of('sign-out'),
+    title$: $.of('Checkout Now!'),
+  })
+  const checkoutLate = isolate(MenuItem)({
+    ...sources,
+    iconName$: $.of('sign-out'),
+    title$: $.of('Checkout at shift'),
+  })
 
   const subtitle$ = $.combineLatest(
     sources.item$.pluck('shift')
       .map(s => localTime(s.start).format('ddd D MMM hh:mm a')),
     sources.item$.pluck('shift')
-      .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')), // eslint-disable-line max-len
+      .map(s => endOfShift(s).format('hh:mm a')),
     sources.item$.pluck('team').pluck('name'),
-    (shiftStart,shiftEnd,teamName) => `${shiftStart} - ${shiftEnd} | ${teamName}` // eslint-disable-line max-len
+    (shiftStart, shiftEnd, teamName) =>
+      `${shiftStart} - ${shiftEnd} | ${teamName}`
   )
 
-  const queue$ = ci.click$
-    .withLatestFrom(
-      sources.item$.pluck('$key'),
-      (c, key) => ({key, values: {endTime: localTime(moment()).format()}})
-    )
-    .tap(log('queue$'))
+  const queue$ = sources.item$.map(item => $.merge(
+      checkoutNow.click$.map({item, endTime: localTime(moment())}),
+      checkoutLate.click$.map({item, endTime: endOfShift(item.shift)})))
+    .mergeAll()
+    .map(({item, endTime}) =>
+      ({key: item.$key, values: {endTime: endTime.format()}}))
     .map(Assignments.action.update)
-    .tap(log('queue$:Assignments.update'))
 
   const li = ListItemWithMenu({...sources,
     title$: profile$.pluck('fullName'),
     subtitle$,
     iconSrc$: profile$.pluck('portraitUrl'),
-    menuItems$: $.just([ci.DOM]),
+    menuItems$: $.just([
+      checkoutNow.DOM,
+      checkoutLate.DOM,
+    ]),
   })
 
   return {
@@ -125,34 +142,34 @@ const CheckoutItem = sources => {
   }
 }
 
-const _Checkin = sources => MenuItem({...sources,
-  iconName$: $.of('sign-in'),
-  title$: $.of('Checkin Now!'),
-})
-
 const CheckinItem = sources => {
   const profile$ = sources.item$
     .pluck('profile')
 
-  const ci = isolate(_Checkin)(sources)
+  const ci = isolate(MenuItem)({
+    ...sources,
+    iconName$: $.of('sign-in'),
+  })
 
   const subtitle$ = $.combineLatest(
     sources.item$.pluck('shift')
       .map(s => localTime(s.start).format('ddd D MMM hh:mm a')),
     sources.item$.pluck('shift')
-      .map(s => localTime(s.start).add(parseInt(s.hours,10),'hour').format('hh:mm a')), // eslint-disable-line max-len
+      .map(s => endOfShift(s).format('hh:mm a')),
     sources.item$.pluck('team').pluck('name'),
-    (shiftStart,shiftEnd,teamName) => `${shiftStart} - ${shiftEnd} | ${teamName}` // eslint-disable-line max-len
+    (shiftStart, shiftEnd, teamName) =>
+      `${shiftStart} - ${shiftEnd} | ${teamName}`
   )
 
   const queue$ = ci.click$
     .withLatestFrom(
-      sources.item$.pluck('$key'),
-      (c, key) => ({key, values: {startTime: localTime(moment()).format()}})
+      sources.item$,
+      (c, item) => ({
+        key: item.$key,
+        values: {startTime: localTime(sources.time(item)).format()},
+      })
     )
-    .tap(log('queue$'))
     .map(Assignments.action.update)
-    .tap(log('queue$:Assignments.update'))
 
   const li = ListItemWithMenu({...sources,
     title$: profile$.pluck('fullName'),
@@ -174,7 +191,10 @@ const CombinedList = sources => ({
 })
 
 const CheckinCard = sources => {
-  const list = List({...sources,
+  const list = List({
+    ...sources,
+    title$: $.of('Checkin NOW'),
+    time: () => moment(),
     Control$: $.just(CheckinItem),
     rows$: sources.assignmentsStarting$,
     // rows$: $.just([1,2,3]),
@@ -184,6 +204,28 @@ const CheckinCard = sources => {
     elevation$: $.just(2),
     content$: $.just([list.DOM]),
     title$: $.just('Check them IN'),
+  })
+
+  return {
+    ...card,
+    queue$: list.queue$,
+  }
+}
+
+const LateCheckinCard = sources => {
+  const list = List({
+    ...sources,
+    title$: $.of('Check in at shift time'),
+    time: item => item.shift.start,
+    Control$: $.just(CheckinItem),
+    rows$: sources.assignmentsLate$,
+  })
+
+  const card = TitledCard({
+    ...sources,
+    elevation$: $.just(2),
+    content$: $.just([list.DOM]),
+    title$: $.just('Late Check In'),
   })
 
   return {
@@ -213,13 +255,14 @@ const CheckoutCard = sources => {
 
 const CardList = sources => {
   const cin = CheckinCard(sources)
+  const lin = LateCheckinCard(sources)
   const cout = CheckoutCard(sources)
 
   return {
     ...CombinedList({...sources,
-      contents$: $.combineLatest(cin.DOM, cout.DOM),
+      contents$: $.combineLatest(cin.DOM, cout.DOM, lin.DOM),
     }),
-    queue$: $.merge(cin.queue$,cout.queue$),
+    queue$: $.merge(cin.queue$, lin.queue$, cout.queue$),
     // route$: $.merge(managed.route$, engaged.route$, conf.route$),
   }
 }
