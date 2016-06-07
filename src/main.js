@@ -7,6 +7,7 @@ import {createHistory, createHashHistory} from 'history'
 import Firebase from 'firebase'
 import {makeAuthDriver, makeFirebaseDriver, makeQueueDriver} from 'cyclic-fire'
 import {isMobile$} from 'drivers/isMobile'
+import openAndPrintDriver from 'drivers/openAndPrint'
 import makeBugsnagDriver from 'drivers/bugsnag'
 import makeFocusNextDriver from 'drivers/focusNext'
 
@@ -29,6 +30,7 @@ const {sources, sinks} = run(Root, {
   bugsnag: makeBugsnagDriver({
     releaseStage: process.env.BUILD_ENV || 'development',
   }),
+  openAndPrint: openAndPrintDriver,
 })
 
 if (module.hot) {

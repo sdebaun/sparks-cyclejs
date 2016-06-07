@@ -25,7 +25,7 @@ export const RoutedComponent = sources => {
   return {
     pluck: key => pluckLatestOrNever(key, comp$),
     DOM: pluckLatest('DOM', comp$),
-    ...['auth$', 'queue$', 'route$', 'focus$'].reduce((a,k) =>
+    ...['auth$', 'queue$', 'route$', 'focus$', 'openAndPrint'].reduce((a,k) =>
       (a[k] = pluckLatestOrNever(k,comp$)) && a, {}
     ),
   }
