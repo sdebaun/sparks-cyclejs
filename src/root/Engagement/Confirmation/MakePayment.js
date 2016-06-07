@@ -46,9 +46,7 @@ const MakePayment = sources => {
           },
         }),
         h('div#payment-loading', ['Loading...']),
-        h(`button
-            #payment-submit
-            .waves-button.waves-float.waves-light.waves-effect`,
+        h(`button#payment-submit.waves-button.waves-float.waves-light.waves-effect`, // eslint-disable-line max-len
           {
             attrs: {type: 'submit'},
             style: {fontSize: '16px', lineHeight: '36px',
