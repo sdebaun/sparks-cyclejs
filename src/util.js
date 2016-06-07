@@ -1,4 +1,5 @@
 import {Observable} from 'rx'
+import {ReplaySubject} from 'rx'
 const {just, combineLatest, empty} = Observable
 
 import {div} from 'helpers'
@@ -17,8 +18,24 @@ export const hideable = Control => sources => {
   const ctrl = Control(sources)
   const {DOM, ...sinks} = ctrl
   return {
-    DOM: sources.isVisible$.flatMapLatest(v => v ? DOM : just(null)),
+    DOM: sources.isVisible$.flatMapLatest(v => v ? DOM : just(div({}, [null]))),
     ...sinks,
+  }
+}
+
+export const startValue = (Control, value) => sources => {
+  const value$ = new ReplaySubject(1)
+  value$.onNext(value)
+
+  const ctrl = Control({...sources,
+    value$,
+  })
+
+  ctrl.value$.subscribe(v => value$.onNext(v))
+
+  return {
+    ...ctrl,
+    value$,
   }
 }
 

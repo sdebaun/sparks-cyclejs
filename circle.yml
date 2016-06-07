@@ -1,19 +1,24 @@
 machine:
   node:
-    version: 4.2.2
+    version: 6.1.0
 
 notify:
   webhooks:
     - url: https://hooks.slack.com/services/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
 
+checkout:
+  post:
+    - git submodule sync
+    - git submodule update --init
+
 deployment:
-  production:
-    branch: master
-    commands:
-      - BUILD_ENV=production BUILD_FIREBASE_HOST=http://sparks-production.firebaseio.com npm run build
-      - surge ./dist sparks.network
   staging:
     branch: release
-    commands:
-      - BUILD_ENV=staging BUILD_FIREBASE_HOST=http://sparks-staging.firebaseio.com npm run build
-      - surge ./dist staging.sparks.network
+    heroku:
+      appname: sparks-frontend-staging
+
+  production:
+    branch: master
+    heroku:
+      appname: sparks-frontend-production
+

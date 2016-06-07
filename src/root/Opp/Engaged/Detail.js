@@ -1,9 +1,9 @@
-import {Observable} from 'rx'
-const {just, merge} = Observable
-
+import {Observable as $} from 'rx'
+const {just, merge} = $
+import isolate from '@cycle/isolate'
 // import {log} from 'util'
 import {combineDOMsToDiv} from 'util'
-import {icon} from 'helpers'
+import {div, p} from 'cycle-snabbdom'
 
 import {
   QuotingListItem,
@@ -19,6 +19,8 @@ import {
   BaseDialog,
   FlatButton,
   List,
+  ListItemClickable,
+  ListItemWithMenu,
 } from 'components/sdm'
 
 import {LargeProfileAvatar} from 'components/profile'
@@ -61,8 +63,29 @@ const _Intro = sources => DescriptionListItem({...sources,
   default$: just('No intro written.'),
 })
 
+const _PersonalInfo = sources => {
+  const view = ({email, phone}) =>
+    div({}, [
+      div('.row', {}, [
+        p('#email', 'Email: ' + email),
+      ]),
+      div('.row', {}, [
+        p('#phone', 'Phone number: ' + phone),
+      ]),
+    ])
+  return {
+    DOM: sources.profile$.map(view),
+  }
+}
+
 const _ProfileInfo = sources => ({
-  DOM: combineDOMsToDiv('.row', _Avatar(sources), _Intro(sources)),
+  DOM: just(div([
+    combineDOMsToDiv('.row',
+      _Avatar(sources),
+      _Intro(sources)
+    ),
+    combineDOMsToDiv('row', _PersonalInfo(sources)),
+  ])),
 })
 
 const _ViewEngagement = sources => ListItemNewTarget({
@@ -144,17 +167,15 @@ const _TeamsInfo = sources => {
     rows$: sources.memberships$,
   })
 
+  const hasBeenAccepted$ = sources.memberships$
+    .map(memberships => memberships.some(x => x.isAccepted === true))
+
   return {
     DOM: combineDOMsToDiv('', title, list),
     queue$: list.queue$,
+    hasBeenAccepted$,
   }
 }
-
-const _Priority = sources => ActionButton({...sources,
-  label$: just('priority'),
-  params$: just({isAccepted: true, priority: true, declined: false}),
-  classNames$: just(['accent']),
-})
 
 const _Accept = sources => ActionButton({...sources,
   label$: just('OK'),
@@ -168,21 +189,20 @@ const _Decline = sources => ActionButton({...sources,
 })
 
 const _Remove = sources => hideable(ActionButton)({...sources,
-  label$: just(icon('remove')),
+  label$: just('Delete'),
   params$: just({isAccepted: false, priority: false, declined: true}),
   classNames$: just(['black']),
   isVisible$: sources.userProfile$.pluck('isAdmin'),
 })
 
 const _Actions = (sources) => {
-  const pr = _Priority(sources)
   const ac = _Accept(sources)
   const dec = _Decline(sources)
   const rem = _Remove(sources)
 
   return {
-    DOM: combineDOMsToDiv('.center', pr, ac, dec, rem),
-    action$: merge(pr.action$, ac.action$, dec.action$),
+    DOM: combineDOMsToDiv('.center', ac, dec, rem),
+    action$: merge(ac.action$, dec.action$),
     remove$: rem.action$,
   }
 }
@@ -207,16 +227,80 @@ const _Navs = sources => {
   }
 }
 
+const _AddTeamItem = sources => {
+  const li = ListItemClickable({...sources,
+    title$: sources.item$.pluck('name'),
+  })
+
+  const teamKey$ = sources.item$.pluck('$key')
+
+  const createMembership$ = $.combineLatest(
+    teamKey$, sources.engagementKey$, sources.oppKey$,
+    (teamKey, engagementKey, oppKey) => ({
+      teamKey,
+      engagementKey,
+      oppKey,
+      isApplied: true,
+      isAccepted: true,
+      answer: 'Added by organizer',
+    })
+  )
+    .sample(li.click$)
+    .map(Memberships.action.create)
+
+  const updateEngagement$ = sources.engagementKey$
+    .sample(li.click$)
+    .map(engagementKey => ({key: engagementKey, values: {isAccepted: true}}))
+    .map(Engagements.action.update)
+
+  const queue$ = $
+    .merge(createMembership$, updateEngagement$)
+    .share()
+
+  const DOM = sources.item$.combineLatest(sources.memberships$,
+    (item, memberships) => !memberships.some(m => m.teamKey === item.$key) ?
+      li.DOM :
+      $.of(div([null]))
+  ).switch()
+
+  const route$ = queue$.map(() =>
+    sources.engagementKey$.map(key => '/ok/show/' + key)
+  ).switch().shareReplay(1)
+
+  return {...li, DOM, queue$, route$}
+}
+
+const _AddToTeam = sources => {
+  const list = List({...sources,
+    rows$: sources.teams$,
+    Control$: just(_AddTeamItem),
+  })
+
+  return {
+    ...ListItemWithMenu({...sources,
+      title$: just('Add to another team'),
+      iconName$: just('plus-square'),
+      menuItems$: just([list.DOM]),
+    }),
+    queue$: list.queue$,
+    route$: list.route$.shareReplay(1),
+  }
+}
+
 const _Scrolled = sources => {
+  const addToTeam = isolate(_AddToTeam)(sources)
   const teamInfo = _TeamsInfo(sources)
   return {
     DOM: combineDOMsToDiv('.scrollable',
       _ProfileInfo(sources),
       _ViewEngagement(sources),
       _EngageInfo(sources),
+      addToTeam,
       teamInfo,
     ),
-    queue$: teamInfo.queue$,
+    queue$: teamInfo.queue$.merge(addToTeam.queue$),
+    hasBeenAccepted$: teamInfo.hasBeenAccepted$,
+    route$: addToTeam.route$,
   }
 }
 
@@ -224,11 +308,17 @@ const _Content = sources => {
   const acts = _Actions(sources)
   const scr = _Scrolled(sources)
 
+  const action$ = acts.action$.withLatestFrom(scr.hasBeenAccepted$,
+    (action, hasBeenAccepted) => hasBeenAccepted || action.declined ?
+      action : false
+  ).filter(Boolean)
+
   return {
     DOM: combineDOMsToDiv('', acts, scr),
-    action$: acts.action$,
     remove$: acts.remove$,
     queue$: scr.queue$,
+    action$,
+    route$: scr.route$,
   }
 }
 
@@ -266,7 +356,7 @@ const ApprovalDialog = sources => {
     _sources.oppKey$,
     _sources.engagements$,
     (r, key, engs) => switchRoute(r, key, engs)
-  )
+  ).merge(c.route$)
 
   const action$ = c.action$
     .withLatestFrom(_sources.engagementKey$,

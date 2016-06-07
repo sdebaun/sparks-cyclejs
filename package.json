@@ -54,7 +54,7 @@
     "postcss-loader": "^0.9.1",
     "run-sequence": "^1.1.5",
     "sass-loader": "^3.1.2",
-    "static-pages": "./static",
+    "static-pages": "file:./static",
     "style-loader": "^0.13.0",
     "surge": "^0.17.7",
     "webpack": "^1.12.9",

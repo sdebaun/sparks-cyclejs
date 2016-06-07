@@ -69,5 +69,8 @@ body {
 }
 
 .total {
-  font-size: 18px;
+  .right, .title {
+    font-weight: bold;
+    font-size: 18px;
+  }
 }

@@ -5,18 +5,17 @@ export const ListItemCheckbox = sources => {
   const cb = CheckboxControl(sources)
 
   const item = ListItemClickable({...sources,
-    rightDOM$: cb.DOM,
+    leftDOM$: sources.leftDOM$ || cb.DOM,
     title$: sources.value$.flatMapLatest(v =>
       sources.title$ ||
       (v ? sources.titleTrue$ : sources.titleFalse$)
     ),
+    rightDOM$: sources.rightDOM$ || sources.leftDOM$ && cb.DOM,
   })
 
   const value$ = item.click$
     .withLatestFrom(sources.value$)
-  // const value$ = sources.value$
-  //   .sample(item.click$)
-    .map(x => !x)
+    .map(click_and_val => !click_and_val[1])
 
   return {
     DOM: item.DOM,

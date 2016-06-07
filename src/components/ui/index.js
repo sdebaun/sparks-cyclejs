@@ -24,3 +24,4 @@ export {ToDoListItem} from './ToDoListItem'
 export {StepListItem, StepListItemDumb} from './StepListItem'
 
 export {ActionButton} from './ActionButton'
+export {SubtitleListItem} from './SubtitleListItem'
