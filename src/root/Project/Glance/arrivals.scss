@@ -1,0 +1,69 @@
+.arrival-portrait {
+  position: relative;
+
+  .icon-check {
+    color: #1a1;
+    display: none;
+  }
+
+  &.arrived {
+    img {
+      opacity: .5;
+    }
+
+    .icon-check {
+      display: block;
+    }
+  }
+
+  .iconcontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+  }
+}
+
+.list-item {
+  .arrival-portrait .icon-check {
+    font-size: 18px;
+    left: 26px;
+    position: absolute;
+    text-shadow: 0 0 1px #fff;
+    top: 37px;
+  }
+}
+
+.arrival-portrait.big {
+  .icon-check {
+    font-size: 100px;
+    width: 100px;
+    height: 100px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .6);
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    font-size: 50px;
+    color: #999;
+  }
+}
+
+@keyframes anim-rotate {
+  0% {
+    transform: rotate(0);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: anim-rotate 2s infinite linear;
+}

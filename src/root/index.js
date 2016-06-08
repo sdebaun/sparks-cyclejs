@@ -191,6 +191,8 @@ export default _sources => {
 
   const auth$ = page.auth$
 
+  const focus$ = page.focus$ || Observable.empty()
+
   const {queue$} = AuthedActionManager({...sources, queue$: page.queue$})
 
   const router = merge(
@@ -211,6 +213,7 @@ export default _sources => {
 
   return {
     DOM,
+    focus$,
     auth$,
     queue$,
     router,

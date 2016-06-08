@@ -214,3 +214,13 @@ export const Assignments = {
     remove: actionCreator('Assignments', 'remove'),
   },
 }
+
+export const Arrivals = {
+  query: {
+    one: filterOne('Arrivals'),
+    byProject: filterBy('Arrivals','projectKey'),
+  },
+  action: {
+    create: actionCreator('Arrivals', 'create'),
+  },
+}
