@@ -28,7 +28,7 @@ import {
 import {div} from 'helpers'
 
 import {
-  ShiftContent,
+  ShiftContentExtra,
 } from 'components/shift'
 
 const ListItemCheckboxDisabling = sources => {
@@ -60,7 +60,7 @@ const ListItemCheckboxDisabling = sources => {
 }
 
 const ShiftItem = sources => {
-  const content = ShiftContent(sources)
+  const content = ShiftContentExtra(sources)
   const shiftKey$ = sources.item$.pluck('$key')
 
   const assignment$ = sources.assignments$
@@ -129,7 +129,7 @@ const AssignedShiftItem = sources => {
     ,
   }
 
-  const content = ShiftContent({..._sources,
+  const content = ShiftContentExtra({..._sources,
     item$: _sources.shift$,
   })
 
