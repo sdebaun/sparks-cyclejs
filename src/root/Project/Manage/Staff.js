@@ -4,6 +4,7 @@ const {just, merge} = Observable
 import combineLatestObj from 'rx-combine-latest-obj'
 
 import isolate from '@cycle/isolate'
+import {prop, complement, filter} from 'ramda'
 
 import CreateOrganizerInvite from 'components/CreateOrganizerInvite'
 
@@ -13,39 +14,70 @@ import {col} from 'helpers'
 
 // import {log} from 'util'
 
-import {OrganizerInviteItem} from 'components/organizer'
-import {List} from 'components/sdm'
+import {
+  OrganizerInviteItem,
+  OrganizerAcceptedItem,
+} from 'components/organizer'
 
-const OrganizerInviteList = sources => List({...sources,
+import {List, ListItem} from 'components/sdm'
+
+const EmptyItemDom = sources => just(
+  ListItem({
+    ...sources,
+    title$: just(sources.title),
+  }).DOM)
+
+const OrganizerInviteList = sources => List({
+  ...sources,
   Control$: just(OrganizerInviteItem),
+  emptyDOM$: EmptyItemDom({...sources, title: 'No open invites'}),
 })
 
-const _render = ({organizers, createOrganizerInviteDOM, listDOM}) =>
+const OrganizerAcceptedList = sources => List({
+  ...sources,
+  Control$: just(OrganizerAcceptedItem),
+  emptyDOM$: EmptyItemDom({...sources, title: 'No open invites'}),
+})
+
+const _render = ({createOrganizerInviteDOM, openListDOM, acceptedListDOM}) =>
   col(
     createOrganizerInviteDOM,
-    organizers.length > 0 ? listHeader({title: 'Open Invites'}) : null,
-    listDOM,
+    listHeader({title: 'Open Invites'}),
+    openListDOM,
+    listHeader({title: 'Accepted Invites'}),
+    acceptedListDOM,
   )
 
 import {rows} from 'util'
 
+const isAcceptedΩ = prop('isAccepted')
+const notAcceptedΩ = complement(isAcceptedΩ)
+
 export default sources => {
   const createOrganizerInvite = isolate(CreateOrganizerInvite)(sources)
 
-  const list = OrganizerInviteList({...sources,
-    rows$: sources.organizers$,
+  const openList = OrganizerInviteList({
+    ...sources,
+    rows$: sources.organizers$.map(filter(notAcceptedΩ)),
+  })
+
+  const acceptedList = OrganizerAcceptedList({
+    ...sources,
+    rows$: sources.organizers$.map(filter(isAcceptedΩ)),
   })
 
   const queue$ = merge(
     createOrganizerInvite.queue$,
-    list.queue$,
+    openList.queue$,
+    acceptedList.queue$,
   )
 
   const viewState = {
     project$: sources.project$,
     createOrganizerInviteDOM$: createOrganizerInvite.DOM,
     organizers$: sources.organizers$.map(rows),
-    listDOM$: list.DOM,
+    openListDOM$: openList.DOM,
+    acceptedListDOM$: acceptedList.DOM,
   }
 
   const DOM = combineLatestObj(viewState).map(_render)
@@ -53,6 +85,6 @@ export default sources => {
   return {
     DOM,
     queue$,
-    route$: list.route$,
+    route$: openList.route$,
   }
 }

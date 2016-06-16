@@ -1,6 +1,7 @@
 import {Observable} from 'rx'
 import {ReplaySubject} from 'rx'
 const {just, combineLatest, empty} = Observable
+import {curryN} from 'ramda'
 
 import {div} from 'helpers'
 
@@ -59,13 +60,14 @@ export const combineLatestToDiv = (...domstreams) =>
 export const combineDOMsToDiv = (d, ...comps) =>
   combineLatest(...comps.map(c => c.DOM), (...doms) => div(d, doms))
 
-export const controlsFromRows = (sources, rows, Control) =>
+export const controlsFromRows = curryN(3)((sources, rows, Control) =>
   rows.map((row, i) =>
     isolate(Control,row.$key)({
       ...sources,
       item$: just(row),
       index$: just(i),
     }))
+)
 
 export const byMatch = (matchDomain,matchEvent) =>
   ({domain,event}) => domain === matchDomain && event === matchEvent
