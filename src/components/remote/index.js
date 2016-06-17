@@ -160,6 +160,8 @@ export const Organizers = {
   action: {
     create: actionCreator('Organizers', 'create'),
     remove: actionCreator('Organizers', 'remove'),
+    accept: actionCreator('Organizers', 'accept'),
+    resend: actionCreator('Organizers', 'sendEmail'),
   },
 }
 
