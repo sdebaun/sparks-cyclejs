@@ -37,14 +37,6 @@ export const Organizers = {
   }),
 }
 
-export const Teams = {
-  create: (payload) => ({
-    domain: 'Teams',
-    action: 'create',
-    payload,
-  }),
-}
-
 export const Opps = {
   create: (payload) => ({
     domain: 'Opps',

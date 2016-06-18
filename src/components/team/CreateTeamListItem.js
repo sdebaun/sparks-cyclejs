@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 const {just} = Observable
 
-import {Teams} from 'remote'
+import {Teams} from 'components/remote'
 
 import {TeamForm} from 'components/team'
 import {ListItemWithDialog} from 'components/sdm'
@@ -18,8 +18,8 @@ const CreateTeamListItem = sources => {
 
   const queue$ = form.item$
     .sample(listItem.submit$)
-    .zip(sources.projectKey$, (item,projectKey) => ({projectKey, ...item}))
-    .map(Teams.create)
+    .zip(sources.projectKey$, (item,projectKey) => ({projectKey, values: item}))
+    .map(Teams.action.create)
 
   return {
     DOM: listItem.DOM,

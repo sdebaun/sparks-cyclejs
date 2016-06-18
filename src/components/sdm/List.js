@@ -11,12 +11,11 @@ export const PartialList = sources => {
   requireSources('List', sources, 'rows$', 'Control$')
 
   const controls$ = sources.rows$
-  .flatMapLatest(
-    ifElse(
-      isEmpty,
-      () => just([{DOM: sources.emptyDOM$ || div('.empty', {}, '')}]),
-      rows => sources.Control$.map(controlsFromRows(sources, rows))
-    ))
+    .flatMapLatest(rows =>
+      sources.Control$.map(Control =>
+        controlsFromRows(sources, rows, Control)
+      )
+    )
     .shareReplay(1)
 
   const contents$ = controls$.map(ctrls => ctrls.map(ctrl => ctrl.DOM))
@@ -60,13 +59,11 @@ export const List = sources => {
   requireSources('List', sources, 'rows$', 'Control$')
 
   const controls$ = sources.rows$
-    .flatMapLatest(
-      ifElse(
-        isEmpty,
-        () => just([{DOM: sources.emptyDOM$ || div('.empty', {}, '')}]),
-        rows => sources.Control$.map(controlsFromRows(sources, rows))
-      ))
-    .tap(ctrls => console.log('ctrls', ctrls))
+    .flatMapLatest(rows =>
+      sources.Control$.map(Control =>
+        controlsFromRows(sources, rows, Control)
+      )
+    )
     .shareReplay(1)
 
   const DOM = controls$
