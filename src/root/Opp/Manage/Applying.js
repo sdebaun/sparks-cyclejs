@@ -12,7 +12,7 @@ import {
   ListItemCollapsibleTextArea,
 } from 'components/sdm'
 
-import {Opps, Fulfillers} from 'remote'
+import {Opps, Fulfillers} from 'components/remote'
 
 import {
   TeamImages,
@@ -27,14 +27,6 @@ const TextareaQuestion = sources => ListItemCollapsibleTextArea({
   okLabel$: just('this sounds great'),
   cancelLabel$: just('hang on ill do this later'),
 })
-
-// const PreviewRecruiting = sources => ListItemNavigating({...sources,
-//   title$: just('Preview your Recruiting page.'),
-//   path$: combineLatest(
-//     sources.projectKey$, sources.oppKey$,
-//     (pk, ok) => '/apply/' + pk + '/opp/' + ok
-//   ),
-// })
 
 const TeamIcon = sources => ({
   DOM: sources.key$
@@ -103,8 +95,8 @@ const TeamFulfilledListItem = sources => {
       // sources.teamKey$,
       sources.oppKey$,
       (fulfiller, teamKey, oppKey) => fulfiller && fulfiller.$key ?
-        Fulfillers.remove(fulfiller.$key) :
-        Fulfillers.create({teamKey, oppKey}),
+        Fulfillers.action.remove(fulfiller.$key) :
+        Fulfillers.action.create({values: {teamKey, oppKey}}),
     )
 
   return {
@@ -137,11 +129,9 @@ const TeamFulfilledList = sources => {
   }
 }
 
-import {Fulfillers as _Fulfillers} from 'components/remote'
-
 export default sources => {
   const fulfillers$ = sources.oppKey$
-    .flatMapLatest(_Fulfillers.query.byOpp(sources))
+    .flatMapLatest(Fulfillers.query.byOpp(sources))
 
   fulfillers$.subscribe(log('fulfillers$'))
 
@@ -163,7 +153,7 @@ export default sources => {
 
   const updateQuestion$ = textareaQuestion.value$
     .withLatestFrom(sources.oppKey$, (question,key) =>
-      Opps.update(key,{question})
+      Opps.action.update({key, values: {question}})
     )
 
   const queue$ = Observable.merge(
