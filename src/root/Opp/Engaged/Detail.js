@@ -4,6 +4,7 @@ import isolate from '@cycle/isolate'
 // import {log} from 'util'
 import {combineDOMsToDiv} from 'util'
 import {div, p} from 'cycle-snabbdom'
+import {objOf} from 'ramda'
 
 import {
   QuotingListItem,
@@ -368,6 +369,7 @@ const ApprovalDialog = sources => {
     .withLatestFrom(_sources.engagementKey$,
       (values, key) => key
     )
+    .map(objOf('key'))
     .map(Engagements.action.remove)
 
   const queue$ = merge(action$, remove$, c.queue$)

@@ -1,6 +1,6 @@
 import {Observable} from 'rx'
 const {just, combineLatest} = Observable
-// import combineLatestObj from 'rx-combine-latest-obj'
+import {propTo} from 'util'
 
 import isolate from '@cycle/isolate'
 
@@ -45,7 +45,7 @@ const CommitmentItem = sources => {
 
   const queue$ = deleteItem.click$
     .flatMapLatest(item$)
-    .pluck('$key')
+    .map(propTo('$key', 'key'))
     .map(Commitments.action.remove)
 
   const DOM = combineLatest(

@@ -163,7 +163,7 @@ const _Item = sources => {
   })
 
   const queue$ = merge(
-    key$.sample(rm.click$).map(Shifts.action.remove),
+    key$.sample(rm.click$).map(objOf('key')).map(Shifts.action.remove),
     hrChange$.map(Shifts.action.update),
     peopleChange$.map(Shifts.action.update),
     sa.queue$,

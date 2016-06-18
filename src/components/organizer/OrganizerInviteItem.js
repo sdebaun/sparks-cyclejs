@@ -43,7 +43,7 @@ const OrganizerInviteItem = sources => {
 
   const deleteQueue$ = deleteItem.click$
     .flatMapLatest(sources.item$)
-    .pluck('$key')
+    .map(prop('$key'))
     .withLatestFrom(sources.projectKey$,
       (key, projectKey) => ({key, projectKey})
     )

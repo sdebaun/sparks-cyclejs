@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 import {ReplaySubject} from 'rx'
 const {just, combineLatest, empty} = Observable
-import {curryN, objOf} from 'ramda'
+import {curryN, objOf, prop, compose} from 'ramda'
 
 import {div} from 'helpers'
 
@@ -98,13 +98,26 @@ export function nestedComponent(match$, sources) {
   return component
 }
 
-export const mergeOrFlatMapLatest = (prop, ...sourceArray) =>
+/**
+* Get a prop from one object and rename it as a prop in a new object:
+*
+*   propTo('a', 'b')({a: 1}) => {b: 1}
+*
+* @param {Object} from from key
+* @param {Object} to to key
+* @param {Object} object
+* @return {Object}
+*/
+export const propTo = curryN(3)((from, to, object) =>
+  compose(objOf(to), prop(from))(object))
+
+export const mergeOrFlatMapLatest = (property, ...sourceArray) =>
   Observable.merge(
     sourceArray.map(src => // array.map!
       isObservable(src) ? // flatmap if observable
-        src.flatMapLatest(l => l[prop] || Observable.empty()) :
+        src.flatMapLatest(l => l[property] || Observable.empty()) :
         // otherwise look for a prop
-        src[prop] || Observable.empty()
+        src[property] || Observable.empty()
     )
   )
 

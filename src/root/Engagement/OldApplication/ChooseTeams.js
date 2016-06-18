@@ -64,7 +64,7 @@ const OpenTeamListItem = sources => {
       sources.engagementKey$,
       (membership, teamKey, oppKey, engagementKey) =>
         membership ?
-        Memberships.action.remove(membership.$key) :
+        Memberships.action.remove({key: membership.$key}) :
         Memberships.action.create({teamKey, oppKey, engagementKey}),
     )
 

@@ -95,38 +95,26 @@ const ShiftItem = sources => {
       sources.engagementKey$, sources.engagement$.pluck('profileKey'),
       (val, {$key: shiftKey, teamKey}, assignment, {oppKey}, engagementKey, profileKey) => { // eslint-disable-line
         if (!assignment) {
-          return Assignments.action.create({teamKey, shiftKey, oppKey, engagementKey, profileKey}) // eslint-disable-line
+          return Assignments.action.create({
+            teamKey, shiftKey, oppKey, engagementKey, profileKey})
         }
-        return assignment.$key && Assignments.action.remove(assignment.$key)
+        return assignment.$key &&
+          Assignments.action.remove({key: assignment.$key})
       }
     )
     .shareReplay(1)
 
   return {
     DOM: li.DOM,
-    // DOM: $.just(div('',['wat'])),
     queue$,
   }
 }
 
-// const xAssignedShiftItem = sources => {
-//   const shift$ = sources.item$.pluck('shiftKey')
-//     .flatMapLatest(Shifts.query.one(sources))
-//     .tap(x => console.log('ASI shift$', x))
-//     .shareReplay(1)
-
-//   return ShiftItem({...sources,
-//     item$: shift$,
-//   })
-// }
-
 const AssignedShiftItem = sources => {
-  const _sources = {...sources,
+  const _sources = {
+    ...sources,
     shift$: sources.item$.pluck('shiftKey')
-    // .tap(x => console.log('shiftKey', x))
-    .flatMapLatest(Shifts.query.one(sources))
-    // .tap(x => console.log('shift', x))
-    ,
+    .flatMapLatest(Shifts.query.one(sources)),
   }
 
   const content = ShiftContentExtra({..._sources,
@@ -142,7 +130,7 @@ const AssignedShiftItem = sources => {
     .tap(x => console.log('new queue value', x))
     .withLatestFrom(
       sources.item$,
-      (val,{$key}) => Assignments.action.remove($key)
+      (val,{$key}) => Assignments.action.remove({key: $key})
     )
     .shareReplay(1)
 
@@ -168,7 +156,6 @@ import {localTime} from 'util'
 const DaysListItem = sources => {
   const list = List({
     ...sources,
-    // rows$: sources.item$.pluck('shifts'),
     rows$: ShiftFilter(sources).rows$,
     Control$: $.just(ShiftItem),
   })
