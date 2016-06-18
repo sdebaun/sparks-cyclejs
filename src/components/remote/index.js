@@ -172,7 +172,8 @@ export const Fulfillers = {
   },
   action: {
     create: actionCreator('Fulfillers', 'create'),
-    remove: actionCreator('Fulfillers', 'delete'), // CHANGE
+    remove: actionCreator('Fulfillers', 'remove'),
+    update: actionCreator('Fulfillers', 'update'),
   },
 }
 
