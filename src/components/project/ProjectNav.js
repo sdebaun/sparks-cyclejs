@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
+import {objOf} from 'ramda'
 
 import isolate from '@cycle/isolate'
 
@@ -92,8 +93,9 @@ const CreateOppHeader = sources => {
   const queue$ = form.item$
     .sample(item.submit$)
     .zip(sources.projectKey$,
-      (opp,projectKey) => ({projectKey, values: opp})
+      (opp,projectKey) => ({projectKey, ...opp})
     )
+    .map(objOf('values'))
     .map(Opps.action.create)
 
   return {
