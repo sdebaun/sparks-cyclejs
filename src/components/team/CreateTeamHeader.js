@@ -2,10 +2,11 @@
 
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
+import {objOf} from 'ramda'
 
 // import isolate from '@cycle/isolate'
 
-import {Teams} from 'remote'
+import {Teams} from 'components/remote'
 
 import {TeamForm} from './TeamForm'
 
@@ -53,7 +54,8 @@ const CreateTeamHeader = sources => {
     .zip(sources.projectKey$,
       (team,projectKey) => ({projectKey, ...team})
     )
-    .map(Teams.create)
+    .map(objOf('values'))
+    .map(Teams.action.create)
 
   const isOpen$ = _openActions$(sources)
     .merge(submit$.map(false))
