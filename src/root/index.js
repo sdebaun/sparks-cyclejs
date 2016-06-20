@@ -4,6 +4,7 @@ const {just, empty, merge} = Observable
 import isolate from '@cycle/isolate'
 import {propOr, pick} from 'ramda'
 
+import Login from './Login'
 import Landing from './Landing'
 import Confirm from './Confirm'
 import Dash from './Dash'
@@ -45,6 +46,7 @@ const _routes = {
     isolate(Engagement)({engagementKey$: just(key), ...sources}),
   '/organize/:key': key => sources =>
     isolate(Organize)({organizerKey$: just(key), ...sources}),
+  '/login/:provider': provider => sources => Login(provider)(sources),
 }
 
 const AuthRedirectManager = sources => {
@@ -57,7 +59,7 @@ const AuthRedirectManager = sources => {
     .map(() => '/')
 
   // this is the only global redirect, always gets piped to the router
-  const redirectUnconfirmed$ = sources.userProfileKey$
+  const redirectUnconfirmed$ = sources.userProfile$
     .withLatestFrom(sources.auth$)
     .filter(([profile,auth]) => !profile && !!auth)
     .map(() => '/confirm')
