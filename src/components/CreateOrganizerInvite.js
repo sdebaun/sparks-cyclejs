@@ -21,7 +21,7 @@ const CreateOrganizerListItem = sources => {
   const queue$ = form.item$.shareReplay(1)
     .sample(listItem.submit$)
     .withLatestFrom(sources.projectKey$,
-      (opp, projectKey) => ({...opp, projectKey})
+      (values, projectKey) => ({values: {...values, projectKey}})
     )
     .map(Organizers.action.create)
     .tap(x => console.log('', x))

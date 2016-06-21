@@ -1,5 +1,5 @@
-import {Observable} from 'rx'
-const {just, merge} = Observable
+import {Observable as $} from 'rx'
+const {just, merge} = $
 
 import combineLatestObj from 'rx-combine-latest-obj'
 
@@ -36,7 +36,7 @@ const OrganizerInviteList = sources => List({
 const OrganizerAcceptedList = sources => List({
   ...sources,
   Control$: just(OrganizerAcceptedItem),
-  emptyDOM$: EmptyItemDom({...sources, title: 'No open invites'}),
+  emptyDOM$: EmptyItemDom({...sources, title: 'No accepted invites'}),
 })
 
 const _render = ({createOrganizerInviteDOM, openListDOM, acceptedListDOM}) =>
@@ -47,8 +47,6 @@ const _render = ({createOrganizerInviteDOM, openListDOM, acceptedListDOM}) =>
     listHeader({title: 'Accepted Invites'}),
     acceptedListDOM,
   )
-
-import {rows} from 'util'
 
 const isAcceptedΩ = prop('isAccepted')
 const notAcceptedΩ = complement(isAcceptedΩ)
@@ -73,9 +71,7 @@ export default sources => {
   )
 
   const viewState = {
-    project$: sources.project$,
     createOrganizerInviteDOM$: createOrganizerInvite.DOM,
-    organizers$: sources.organizers$.map(rows),
     openListDOM$: openList.DOM,
     acceptedListDOM$: acceptedList.DOM,
   }

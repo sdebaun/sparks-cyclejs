@@ -62,7 +62,7 @@ export const combineDOMsToDiv = (d, ...comps) =>
 
 export const controlsFromRows = curryN(3)((sources, rows, Control) => {
   if (rows.length === 0) {
-    return sources.emptyDOM$ ? [sources.emptyDOM$.map(objOf('DOM'))] : []
+    return sources.emptyDOM$ ? [{DOM: sources.emptyDOM$}] : []
   } else {
     return rows.map((row, i) =>
       isolate(Control,row.$key)({
