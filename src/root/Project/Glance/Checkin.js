@@ -131,7 +131,6 @@ const CheckinCard = sources => {
       hoursAgo: 3,
       hoursAhead: 3,
     }),
-    // rows$: $.just([1,2,3]),
   })
 
   const card = TitledCard({...sources,
@@ -172,7 +171,6 @@ const CheckoutCard = sources => {
   const list = List({...sources,
     Control$: $.just(CheckoutItem),
     rows$: sources.ending({hoursAhead: 3}),
-    // rows$: $.just([1,2,3]),
   })
 
   const card = TitledCard({...sources,

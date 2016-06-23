@@ -309,10 +309,12 @@ const _Content = sources => {
   const acts = _Actions(sources)
   const scr = _Scrolled(sources)
 
-  const action$ = acts.action$.withLatestFrom(scr.hasBeenAccepted$,
+  const action$ = acts.action$
+  .withLatestFrom(scr.hasBeenAccepted$,
     (action, hasBeenAccepted) => hasBeenAccepted || action.declined ?
       action : false
-  ).filter(Boolean)
+  )
+  .filter(Boolean)
 
   return {
     DOM: combineDOMsToDiv('', acts, scr),

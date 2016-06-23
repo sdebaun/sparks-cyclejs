@@ -61,8 +61,8 @@ export const combineDOMsToDiv = (d, ...comps) =>
   combineLatest(...comps.map(c => c.DOM), (...doms) => div(d, doms))
 
 export const controlsFromRows = curryN(3)((sources, rows, Control) => {
-  if (rows.length === 0) {
-    return sources.emptyDOM$ ? [{DOM: sources.emptyDOM$}] : []
+  if (rows.length === 0 && sources.emptyDOM$) {
+    return [{DOM: sources.emptyDOM$}]
   } else {
     return rows.map((row, i) =>
       isolate(Control,row.$key)({

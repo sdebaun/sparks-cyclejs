@@ -1,7 +1,6 @@
 import {Observable as $} from 'rx'
 const {just} = $
 
-import {always, filter, ifElse, isEmpty} from 'ramda'
 import {div} from 'helpers'
 import {requireSources, mergeOrFlatMapLatest, controlsFromRows} from 'util'
 
@@ -59,6 +58,7 @@ export const List = sources => {
   requireSources('List', sources, 'rows$', 'Control$')
 
   const controls$ = sources.rows$
+    .startWith([])
     .flatMapLatest(rows =>
       sources.Control$.map(Control =>
         controlsFromRows(sources, rows, Control)
@@ -124,8 +124,3 @@ export const ListWithHeader = sources => {
     queue$: list.queue$,
   }
 }
-
-// export {
-//   List,
-//   ListWithHeader,
-// }

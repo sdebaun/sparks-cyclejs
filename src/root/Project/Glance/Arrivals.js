@@ -213,13 +213,15 @@ const ArrivalsTab = unfetchedSources => {
       .map(compose(map(profileMatchesTerm), split(' '))),
     preparedProfiles$,
     useWith(filter, [allPass]))
+  .startWith([])
   .shareReplay(1)
 
   const list = SearchResults({...sources, profiles$, key$: searchBox.key$})
+  const DOM = combineDOMsToDiv('', searchBox, list)
 
   return {
     ...searchBox,
-    DOM: combineDOMsToDiv('', searchBox, list),
+    DOM,
     queue$: list.queue$,
   }
 }
