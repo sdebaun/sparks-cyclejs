@@ -52,9 +52,9 @@ const CreateTeamHeader = sources => {
   const queue$ = teamForm.item$
     .sample(submit$)
     .zip(sources.projectKey$,
-      (team,projectKey) => ({projectKey, ...team})
+      (team,projectKey) => ({values: {projectKey, ...team}})
     )
-    .map(objOf('values'))
+    // .map(objOf('values'))
     .map(Teams.action.create)
 
   const isOpen$ = _openActions$(sources)

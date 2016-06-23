@@ -53,7 +53,7 @@ const CreateTeamHeader = sources => {
   const queue$ = form.item$
     .sample(item.submit$)
     .zip(sources.projectKey$,
-      (team,projectKey) => ({projectKey, values: team})
+      (team,projectKey) => ({values: {...team, projectKey}})
     )
     .map(Teams.action.create)
 
