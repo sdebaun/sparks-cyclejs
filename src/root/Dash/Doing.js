@@ -43,13 +43,15 @@ const _Fetch = sources => {
   const ownedProjects$ = sources.userProfileKey$
     .flatMapLatest(Projects.query.byOwner(sources))
 
-  const organizerProjects$ = lr(organizers$,
+  const organizerProjects$ = lr(organizers$.tap(x => console.log('', x)),
       os => os.length > 0,
-      t$ => t$
-        .map(map(o => sources.firebase('Projects', o.projectKey)))
-        .flatMapLatest(ps => $.combineLatest(...ps)),
+      t$ => t$.map(
+        map(o => Projects.query.one(sources)(o.projectKey)
+          .map(p => ({...p, $key: o.projectKey})) // eslint-disable-line
+        )
+      ).flatMapLatest(ps => $.combineLatest(...ps)),
       f$ => f$
-    )
+    ).startWith([])
 
   const projects$ = $.combineLatest(
       ownedProjects$, organizerProjects$)
