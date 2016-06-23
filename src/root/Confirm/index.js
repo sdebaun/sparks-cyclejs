@@ -1,8 +1,9 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
+import {objOf} from 'ramda'
 // import isolate from '@cycle/isolate'
 
-import {Profiles} from 'remote'
+import {Profiles} from 'components/remote'
 
 import SoloFrame from 'components/SoloFrame'
 import {ProfileForm} from 'components/ProfileForm'
@@ -74,7 +75,8 @@ export default sources => {
 
   const queue$ = profile$
     .sample(submit$)
-    .map(Profiles.create)
+    .map(objOf('values'))
+    .map(Profiles.action.create)
 
   const viewState = {
     valid$,

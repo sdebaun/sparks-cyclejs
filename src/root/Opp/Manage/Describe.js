@@ -10,7 +10,7 @@ import {
 
 } from 'components/sdm'
 
-import {Opps} from 'remote'
+import {Opps} from 'components/remote'
 
 import {RecruitmentLinkItem} from '../RecruitmentLinkItem'
 
@@ -45,12 +45,12 @@ export default sources => {
 
   const updateIsPublic$ = togglePublic.value$
     .withLatestFrom(sources.oppKey$, (isPublic,key) =>
-      Opps.update(key,{isPublic})
+      Opps.action.update({key, values: {isPublic}})
     )
 
   const updateDescription$ = textareaDescription.value$
     .withLatestFrom(sources.oppKey$, (description,key) =>
-      Opps.update(key,{description})
+      Opps.action.update({key, values: {description}})
     )
 
   const queue$ = Observable.merge(

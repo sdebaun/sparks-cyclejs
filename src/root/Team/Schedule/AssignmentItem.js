@@ -1,4 +1,5 @@
 import {Observable as $} from 'rx'
+import {propTo} from 'util'
 
 import {
   ProfileAvatar,
@@ -44,7 +45,7 @@ export const AssignmentItem = sources => {
 
   const queue$ = rem.click$
     .flatMapLatest(_sources.item$)
-    .pluck('$key')
+    .map(propTo('$key', 'key'))
     .map(Assignments.action.remove)
 
   return {

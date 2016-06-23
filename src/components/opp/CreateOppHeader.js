@@ -1,9 +1,10 @@
 import {Observable} from 'rx'
 import combineLatestObj from 'rx-combine-latest-obj'
+import {objOf} from 'ramda'
 
 // import isolate from '@cycle/isolate'
 
-import {Opps} from 'remote'
+import {Opps} from 'components/remote'
 
 import {OppForm} from 'components/opp'
 
@@ -51,7 +52,8 @@ const CreateOppHeader = sources => {
     .zip(sources.projectKey$,
       (opp,projectKey) => ({projectKey, ...opp})
     )
-    .map(Opps.create)
+    .map(objOf('values'))
+    .map(Opps.action.create)
 
   const isOpen$ = _openActions$(sources)
     .merge(submit$.map(false))

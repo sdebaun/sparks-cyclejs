@@ -27,11 +27,12 @@ export const Card = sources => {
   const elevation$ = sources.elevation$ || $.just(1)
   const content$ = sources.content$ || $.just('need content$')
     .map((...c) => c)
+  const classes = sources.classes || '.col-md-6.col-xs-12'
 
   const DOM = $.combineLatest(
     elevation$, content$,
     (elevation, content) =>
-      div('.col-md-6.col-xs-12',[
+      div(classes, [
         div(`.card.paper${elevation}`, content),
       ])
   )
@@ -42,6 +43,7 @@ export const Card = sources => {
 export const TitledCard = sources => {
   const title$ = sources.title$ || $.just('no $title')
   const bodyContent$ = sources.content$ || $.just(['no $content'])
+  const cardComponent = sources.cardComponent || Card
 
   const content$ = $.combineLatest(
     title$, bodyContent$,
@@ -51,7 +53,7 @@ export const TitledCard = sources => {
     ]
   )
 
-  return Card({...sources, content$})
+  return cardComponent({...sources, content$})
 }
 
 const sparkly = require('images/pitch/sparklerHeader-2048.jpg')

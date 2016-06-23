@@ -1,11 +1,12 @@
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
+import {objOf} from 'ramda'
 
 import isolate from '@cycle/isolate'
 
 import {div, icon} from 'helpers'
 
-import {Opps, Teams} from 'remote'
+import {Opps, Teams} from 'components/remote'
 
 // import {log} from 'util'
 
@@ -52,9 +53,9 @@ const CreateTeamHeader = sources => {
   const queue$ = form.item$
     .sample(item.submit$)
     .zip(sources.projectKey$,
-      (team,projectKey) => ({projectKey, ...team})
+      (team,projectKey) => ({projectKey, values: team})
     )
-    .map(Teams.create)
+    .map(Teams.action.create)
 
   return {
     DOM: item.DOM,
@@ -94,7 +95,8 @@ const CreateOppHeader = sources => {
     .zip(sources.projectKey$,
       (opp,projectKey) => ({projectKey, ...opp})
     )
-    .map(Opps.create)
+    .map(objOf('values'))
+    .map(Opps.action.create)
 
   return {
     DOM: item.DOM,

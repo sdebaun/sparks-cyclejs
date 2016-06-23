@@ -7,7 +7,9 @@ import {createHistory, createHashHistory} from 'history'
 import Firebase from 'firebase'
 import {makeAuthDriver, makeFirebaseDriver, makeQueueDriver} from 'cyclic-fire'
 import {isMobile$} from 'drivers/isMobile'
+import openAndPrintDriver from 'drivers/openAndPrint'
 import makeBugsnagDriver from 'drivers/bugsnag'
+import makeFocusNextDriver from 'drivers/focusNext'
 
 // app root function
 import Root from './root'
@@ -20,6 +22,7 @@ const fbRoot = new Firebase(__FIREBASE_HOST__) // eslint-disable-line
 const {sources, sinks} = run(Root, {
   isMobile$,
   DOM: makeDOMDriver('#root'),
+  focus$: makeFocusNextDriver(),
   router: makeRouterDriver(history),
   firebase: makeFirebaseDriver(fbRoot),
   auth$: makeAuthDriver(fbRoot),
@@ -27,6 +30,7 @@ const {sources, sinks} = run(Root, {
   bugsnag: makeBugsnagDriver({
     releaseStage: process.env.BUILD_ENV || 'development',
   }),
+  openAndPrint: openAndPrintDriver,
 })
 
 if (module.hot) {

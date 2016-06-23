@@ -1,5 +1,6 @@
 import {Observable} from 'rx'
 const {just, merge, combineLatest} = Observable
+import {objOf} from 'ramda'
 
 import isolate from '@cycle/isolate'
 import {AddCommitmentGive, AddCommitmentGet} from 'components/opp'
@@ -75,6 +76,7 @@ export default sources => {
 
   const createQueues$ = commitment$
     .combineLatest(sources.oppKey$, (action,oppKey) => ({...action, oppKey}))
+    .map(objOf('values'))
     .map(Commitments.action.create)
 
   const itemQueues$ = merge(

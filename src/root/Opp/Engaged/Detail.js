@@ -4,6 +4,7 @@ import isolate from '@cycle/isolate'
 // import {log} from 'util'
 import {combineDOMsToDiv} from 'util'
 import {div, p} from 'cycle-snabbdom'
+import {objOf} from 'ramda'
 
 import {
   QuotingListItem,
@@ -308,10 +309,12 @@ const _Content = sources => {
   const acts = _Actions(sources)
   const scr = _Scrolled(sources)
 
-  const action$ = acts.action$.withLatestFrom(scr.hasBeenAccepted$,
+  const action$ = acts.action$
+  .withLatestFrom(scr.hasBeenAccepted$,
     (action, hasBeenAccepted) => hasBeenAccepted || action.declined ?
       action : false
-  ).filter(Boolean)
+  )
+  .filter(Boolean)
 
   return {
     DOM: combineDOMsToDiv('', acts, scr),
@@ -368,6 +371,7 @@ const ApprovalDialog = sources => {
     .withLatestFrom(_sources.engagementKey$,
       (values, key) => key
     )
+    .map(objOf('key'))
     .map(Engagements.action.remove)
 
   const queue$ = merge(action$, remove$, c.queue$)

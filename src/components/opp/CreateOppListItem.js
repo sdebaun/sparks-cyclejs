@@ -1,9 +1,8 @@
 import {Observable} from 'rx'
 const {just} = Observable
+import {objOf} from 'ramda'
 
-// import isolate from '@cycle/isolate'
-
-import {Opps} from 'remote'
+import {Opps} from 'components/remote'
 
 import {OppForm} from 'components/opp'
 import {ListItemWithDialog} from 'components/sdm'
@@ -21,7 +20,8 @@ const CreateOppListItem = sources => {
   const queue$ = form.item$
     .sample(listItem.submit$)
     .zip(sources.projectKey$, (opp,projectKey) => ({projectKey, ...opp}))
-    .map(Opps.create)
+    .map(objOf('values'))
+    .map(Opps.action.create)
 
   return {
     DOM: listItem.DOM,

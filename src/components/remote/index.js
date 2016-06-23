@@ -160,6 +160,8 @@ export const Organizers = {
   action: {
     create: actionCreator('Organizers', 'create'),
     remove: actionCreator('Organizers', 'remove'),
+    accept: actionCreator('Organizers', 'accept'),
+    resend: actionCreator('Organizers', 'sendEmail'),
   },
 }
 
@@ -170,7 +172,8 @@ export const Fulfillers = {
   },
   action: {
     create: actionCreator('Fulfillers', 'create'),
-    remove: actionCreator('Fulfillers', 'delete'), // CHANGE
+    remove: actionCreator('Fulfillers', 'remove'),
+    update: actionCreator('Fulfillers', 'update'),
   },
 }
 
@@ -212,5 +215,15 @@ export const Assignments = {
     create: actionCreator('Assignments', 'create'),
     update: actionCreator('Assignments', 'update'),
     remove: actionCreator('Assignments', 'remove'),
+  },
+}
+
+export const Arrivals = {
+  query: {
+    one: filterOne('Arrivals'),
+    byProject: filterBy('Arrivals','projectKey'),
+  },
+  action: {
+    create: actionCreator('Arrivals', 'create'),
   },
 }

@@ -1,5 +1,6 @@
 import {Observable as $} from 'rx'
 import isolate from '@cycle/isolate'
+import {propTo} from 'util'
 
 import {
   ListItemWithMenu,
@@ -30,7 +31,7 @@ export const AssignmentItem = sources => {
 
   const queue$ = rem.click$
     .withLatestFrom(matchingAssignment$, (c, a) => a)
-    .pluck('$key')
+    .map(propTo('$key', 'key'))
     .map(Assignments.action.remove)
 
   const li = ListItemWithMenu({...sources,

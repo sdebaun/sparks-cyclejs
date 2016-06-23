@@ -1,18 +1,18 @@
-import {Observable} from 'rx'
-const {of, merge} = Observable
+import {Observable as $} from 'rx'
+const {of, merge} = $
 //import {Form} from 'components/ui/Form'
 import {
   Assignments,
   Shifts,
 } from 'components/remote'
 
-//import {div} from 'cycle-snabbdom'
-//import {icon} from 'helpers'
 import {combineLatestToDiv} from 'util'
 
 import isolate from '@cycle/isolate'
 
 import moment from 'moment'
+
+import {objOf} from 'ramda'
 
 import {
   List,
@@ -36,47 +36,12 @@ const _Fetch = sources => {
     .flatMapLatest(Shifts.query.byTeam(sources))
   const shiftsForDate$ = shifts$
     .combineLatest(sources.date$, (shifts, date) =>
-      // shifts.filter(shift => moment.utc(shift.date).format('YYYY-MM-DD') === date)
       shifts.filter(shift => localTime(shift.date).format('YYYY-MM-DD') === date)
         .sort((a,b) => moment(a.start).valueOf() - moment(b.start).valueOf())
     )
   return {shifts$, shiftsForDate$}
 }
 /* eslint-enable max-len */
-
-// const ToggleControl = sources => {
-//   const click$ = sources.DOM.select('.toggle').events('click')
-//     .map(true)
-//     .scan((a) => !a, false)
-//     .startWith(false)
-//     .shareReplay(1)
-
-//   return {
-//     click$,
-//     DOM: click$.map(v =>
-//       div({class: {toggle: true}},[
-//         v ?
-//         icon('toggle-on','accent') :
-//         icon('toggle-off'),
-//       ])
-//     ),
-//   }
-// }
-
-// const ListItemBonusToggle = (sources) => {
-//   const toggle = ToggleControl(sources)
-//   const item = ListItemClickable({...sources,
-//     leftDOM$: toggle.DOM,
-//     title$: toggle.click$.flatMapLatest(v =>
-//       v ? sources.titleTrue$ : sources.titleFalse$
-//     ),
-//   })
-
-//   return {
-//     DOM: item.DOM,
-//     value$: toggle.click$,
-//   }
-// }
 
 import {ShiftForm} from './ShiftForm'
 
@@ -104,6 +69,7 @@ const AddShift = sources => {
         end: moment(date).add(start,'hours').add(vals.hours,'hours').format(),
       }))
     .sample(submit$)
+    .map(objOf('values'))
     .map(Shifts.action.create)
 
   return {
@@ -197,7 +163,7 @@ const _Item = sources => {
   })
 
   const queue$ = merge(
-    key$.sample(rm.click$).map(Shifts.action.remove),
+    key$.sample(rm.click$).map(objOf('key')).map(Shifts.action.remove),
     hrChange$.map(Shifts.action.update),
     peopleChange$.map(Shifts.action.update),
     sa.queue$,
@@ -252,7 +218,6 @@ const _EditDialog = sources => {
   return {
     DOM: dialog.DOM,
     queue$: dialog.submit$.withLatestFrom(form.item$, (s,i) => i)
-    // queue$: form.item$.sample(dialog.submit$)
     .tap(n => console.log('new item', n))
     .withLatestFrom(
       sources.date$,
@@ -261,12 +226,7 @@ const _EditDialog = sources => {
         key, values: {
           ...values,
           start: localTime(date).add(start,'hours').format(),
-          // start: moment(date).add(start,'hours').format(),
           end: localTime(date).add(start,'hours').add(hours,'hours').format(),
-        //   start: moment(date)
-        //     .add(start, 'seconds').format(),
-        //   end: moment(date)
-        //     .add(parseInt(start) + parseInt(hours),'hours').format(),
         },
       })
     )

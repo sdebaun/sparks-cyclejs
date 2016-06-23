@@ -1,8 +1,9 @@
-import {Observable} from 'rx'
-const {just, merge, combineLatest} = Observable
+import {Observable as $} from 'rx'
+const {just, merge, combineLatest} = $
+import {map, flatten} from 'ramda'
 
 import {div} from 'cycle-snabbdom'
-// import {log} from 'util'
+import {lr} from 'util'
 
 import {
   Projects,
@@ -21,16 +22,6 @@ import {
   NavigatingComplexCard,
 } from 'components/sdm'
 
-// const Welcome = sources => ({...sources,
-//   DOM: sources.isVisible$.map(show => show &&
-//     div({},`
-//     Welcome to the Sparks.Network!
-//     During our Beta, there are only a limited number opportunities,
-//     but anyone can apply.
-//     `)
-//   ),
-// })
-
 const _label = ({isApplied, isAccepted, isConfirmed}) =>
   isConfirmed && 'Confirmed' ||
     isAccepted && 'Accepted' ||
@@ -38,9 +29,6 @@ const _label = ({isApplied, isAccepted, isConfirmed}) =>
         'Unknown'
 
 const _Fetch = sources => {
-  const projects$ = sources.userProfileKey$
-    .flatMapLatest(Projects.query.byOwner(sources))
-
   const engagements$ = sources.userProfileKey$
     .flatMapLatest(Engagements.query.byUser(sources))
     .shareReplay(1)
@@ -50,6 +38,25 @@ const _Fetch = sources => {
 
   const organizers$ = sources.userProfileKey$
     .flatMapLatest(Organizers.query.byUser(sources))
+    .shareReplay(1)
+
+  const ownedProjects$ = sources.userProfileKey$
+    .flatMapLatest(Projects.query.byOwner(sources))
+
+  const organizerProjects$ = lr(organizers$.tap(x => console.log('', x)),
+      os => os.length > 0,
+      t$ => t$.map(
+        map(o => Projects.query.one(sources)(o.projectKey)
+          .map(p => ({...p, $key: o.projectKey})) // eslint-disable-line
+        )
+      ).flatMapLatest(ps => $.combineLatest(...ps)),
+      f$ => f$
+    ).startWith([])
+
+  const projects$ = $.combineLatest(
+      ownedProjects$, organizerProjects$)
+    .map(flatten)
+    .shareReplay(1)
 
   return {
     projects$,
@@ -113,14 +120,14 @@ const ManagedCard = sources => NavigatingComplexCard({...sources,
 })
 
 const ManagedList = sources => PartialList({...sources,
-  rows$: sources.user.projectsOwned$,
+  rows$: sources.projects$,
   Control$: just(ManagedCard),
 })
 
 const WelcomeCard = sources => hideable(TitledCard)({...sources,
   elevation$: just(2),
   isVisible$: combineLatest(
-    sources.user.projectsOwned$, sources.engagements$,
+    sources.projects$, sources.engagements$,
     (p,e) => p.length === 0 && e.length === 0
   ),
   content$: just([`
