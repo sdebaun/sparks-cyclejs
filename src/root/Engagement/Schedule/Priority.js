@@ -95,8 +95,8 @@ const ShiftItem = sources => {
       sources.engagementKey$, sources.engagement$.pluck('profileKey'),
       (val, {$key: shiftKey, teamKey}, assignment, {oppKey}, engagementKey, profileKey) => { // eslint-disable-line
         if (!assignment) {
-          return Assignments.action.create({
-            teamKey, shiftKey, oppKey, engagementKey, profileKey})
+          return Assignments.action.create({values: {
+            teamKey, shiftKey, oppKey, engagementKey, profileKey}})
         }
         return assignment.$key &&
           Assignments.action.remove({key: assignment.$key})
