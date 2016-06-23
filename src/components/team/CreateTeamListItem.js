@@ -18,7 +18,8 @@ const CreateTeamListItem = sources => {
 
   const queue$ = form.item$
     .sample(listItem.submit$)
-    .zip(sources.projectKey$, (item,projectKey) => ({projectKey, values: item}))
+    .zip(sources.projectKey$,
+      (item,projectKey) => ({values: {projectKey, ...item}}))
     .map(Teams.action.create)
 
   return {
