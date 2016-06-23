@@ -1,7 +1,7 @@
 import {Observable} from 'rx'
 import {ReplaySubject} from 'rx'
 const {just, combineLatest, empty} = Observable
-import {curryN, objOf, prop, compose} from 'ramda'
+import {curryN, objOf, prop, compose, complement} from 'ramda'
 
 import {div} from 'helpers'
 
@@ -23,6 +23,23 @@ export const hideable = Control => sources => {
     ...sinks,
   }
 }
+
+/**
+* left/right. Takes a stream and predicate. Values that match the predicate go
+* to the stream passed to the left function, stream values that do not match
+* the go to the right function. Left and Right should return streams which get
+* merged.
+*
+*   const rows$ = lr(data$, data => length > 0,
+*     l$ => l$.map(data => data.map(d => div(d))),
+*     $r => $r.map(() => div('no data')))
+*
+*/
+export const lr = (stream$, predicate, left, right) =>
+  Observable.merge(
+    left(stream$.filter(predicate)),
+    right(stream$.filter(complement(predicate)))
+  )
 
 export const startValue = (Control, value) => sources => {
   const value$ = new ReplaySubject(1)
