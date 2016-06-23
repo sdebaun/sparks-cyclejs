@@ -5,7 +5,7 @@ import isolate from '@cycle/isolate'
 import {propOr, pick} from 'ramda'
 
 import Login from './Login'
-import Landing from './Landing'
+// import Landing from './Landing'
 import Confirm from './Confirm'
 import Dash from './Dash'
 import Admin from './Admin'
@@ -30,7 +30,7 @@ import './styles.scss'
 
 // Route definitions at this level
 const _routes = {
-  '/': Landing,
+  // '/': Landing,
   '/confirm': isolate(Confirm),
   '/dash': isolate(Dash),
   '/admin': isolate(Admin),
@@ -56,7 +56,11 @@ const AuthRedirectManager = sources => {
 
   const redirectLogout$ = sources.auth$
     .filter(profile => !profile)
-    .map(() => '/')
+    .map(() => { window.location.href = '/' })
+    // we want to redirect to the new landing, because the old landing login
+    // does not work at all and is sloppy
+    // sorry jeremy please fix me to not suck so much
+    // I had no time left to do this with a driver :)
 
   // this is the only global redirect, always gets piped to the router
   const redirectUnconfirmed$ = sources.userProfile$
