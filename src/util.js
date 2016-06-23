@@ -8,8 +8,8 @@ import {div} from 'helpers'
 import isolate from '@cycle/isolate'
 
 export const PROVIDERS = {
-  google: {type: 'popup', provider: 'google'},
-  facebook: {type: 'popup', provider: 'facebook'},
+  google: {type: 'redirect', provider: 'google'},
+  facebook: {type: 'redirect', provider: 'facebook'},
   logout: {type: 'logout'},
 }
 

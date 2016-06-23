@@ -177,8 +177,14 @@ export default _sources => {
 
   const frame = SoloFrame({pageDOM, ...sources})
 
+  const redirectUnconfirmed$ = sources.userProfile$
+    .withLatestFrom(sources.auth$)
+    .filter(([profile,auth]) => !profile && !!auth)
+    .map(() => '/confirm')
+
   const route$ = $.merge(
     frame.route$,
+    redirectUnconfirmed$,
   )
 
   return {
